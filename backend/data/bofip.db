@@ -1,0 +1,15 @@
+CREATE TABLE bofip (
+    id INTEGER PRIMARY KEY,
+    numero TEXT,
+    titre TEXT,
+    contenu TEXT,
+    date_modification TEXT
+);
+
+-- Exemple d'articles BOFIP
+INSERT INTO bofip (numero, titre, contenu) VALUES
+('BOFIP-IR-RICI-10-10-20-10', 'Définition des revenus imposables', 'Les revenus imposables sont définis selon les critères suivants...'),
+('BOFIP-IR-RICI-10-10-20-20', 'Revenus professionnels', 'L''administration fiscale précise que les revenus professionnels comprennent...'),
+('BOFIP-IR-RICI-10-10-20-30', 'Revenus fonciers', 'Concernant les revenus fonciers, l''administration considère que...'),
+('BOFIP-IR-RICI-10-10-20-40', 'Revenus mobiliers', 'Pour les revenus mobiliers, l''administration fiscale précise que...'),
+('BOFIP-IR-RICI-10-10-20-50', 'Revenus des valeurs mobilières', 'L''administration fiscale apporte les précisions suivantes concernant les revenus des valeurs mobilières...'); 

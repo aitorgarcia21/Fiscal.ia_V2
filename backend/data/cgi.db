@@ -1,0 +1,15 @@
+CREATE TABLE articles (
+    id INTEGER PRIMARY KEY,
+    numero TEXT,
+    titre TEXT,
+    contenu TEXT,
+    date_modification TEXT
+);
+
+-- Exemple d'articles
+INSERT INTO articles (numero, titre, contenu) VALUES
+('200', 'Définition du revenu imposable', 'Le revenu imposable est constitué par l''ensemble des revenus de toute nature dont dispose le contribuable...'),
+('201', 'Revenus professionnels', 'Les revenus professionnels comprennent les bénéfices industriels et commerciaux...'),
+('202', 'Revenus fonciers', 'Les revenus fonciers sont les revenus provenant de la propriété ou de la jouissance de biens immobiliers...'),
+('203', 'Revenus mobiliers', 'Les revenus mobiliers comprennent les revenus des capitaux mobiliers...'),
+('204', 'Revenus des valeurs mobilières', 'Les revenus des valeurs mobilières sont imposables selon les règles suivantes...'); 

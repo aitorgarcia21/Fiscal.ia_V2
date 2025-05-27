@@ -1,0 +1,60 @@
+{
+  "tranches_ir": [
+    {
+      "seuil": 0,
+      "taux": 0.11
+    },
+    {
+      "seuil": 10777,
+      "taux": 0.30
+    },
+    {
+      "seuil": 27478,
+      "taux": 0.41
+    },
+    {
+      "seuil": 78570,
+      "taux": 0.45
+    }
+  ],
+  "niches_fiscales": {
+    "per": {
+      "plafond": 0.10,
+      "description": "Plan d'Épargne Retraite"
+    },
+    "pinel": {
+      "plafond": 300000,
+      "description": "Investissement locatif défiscalisé"
+    },
+    "malraux": {
+      "plafond": 400000,
+      "description": "Rénovation de monuments historiques"
+    }
+  },
+  "droits_succession": {
+    "abattement_conjoint": 80000,
+    "abattement_enfant": 100000,
+    "tranches": [
+      {
+        "seuil": 0,
+        "taux": 0.05
+      },
+      {
+        "seuil": 8072,
+        "taux": 0.10
+      },
+      {
+        "seuil": 12109,
+        "taux": 0.15
+      },
+      {
+        "seuil": 15932,
+        "taux": 0.20
+      },
+      {
+        "seuil": 552324,
+        "taux": 0.45
+      }
+    ]
+  }
+} 

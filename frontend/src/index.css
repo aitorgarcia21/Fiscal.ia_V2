@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased bg-[#1a2942];
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#0f172a] px-8 py-4 rounded-xl font-bold transition-all transform hover:scale-105 inline-flex items-center border-2 border-[#d4b483];
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thumb-[#c5a572]::-webkit-scrollbar-thumb {
+    background-color: #c5a572;
+  }
+  .scrollbar-track-transparent::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+} 
