@@ -12,7 +12,7 @@ cleanup() {
 trap cleanup SIGTERM SIGINT
 
 # Configurer le port pour Railway
-export PORT=${PORT:-3000}
+export PORT=${PORT:-8080}
 
 echo "=== Configuration ==="
 echo "PORT: $PORT"
@@ -75,9 +75,6 @@ done
 # Configurer nginx
 echo "=== Configuration de Nginx ==="
 cd /app
-
-# Remplacer le port dans la configuration nginx
-sed -i "s/listen 3000;/listen $PORT;/g" /etc/nginx/nginx.conf
 
 # Vérifier la configuration nginx
 nginx -t
