@@ -6,16 +6,16 @@ WORKDIR /app/frontend
 # Copier les fichiers de configuration frontend
 COPY frontend/package*.json ./
 
-# Installer les dépendances frontend avec des optimisations mémoire
-ENV NODE_OPTIONS="--max-old-space-size=256"
+# Installer les dépendances frontend (toutes nécessaires pour le build)
+ENV NODE_OPTIONS="--max-old-space-size=384"
 ENV NPM_CONFIG_FUND=false
 ENV NPM_CONFIG_AUDIT=false
-RUN npm ci --only=production --no-optional
+RUN npm install --no-optional
 
 # Copier le code source frontend
 COPY frontend/ .
 
-# Build l'application frontend avec optimisations mémoire
+# Build l'application frontend
 ENV NODE_ENV=production
 RUN npm run build
 
@@ -24,11 +24,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Installer nginx et curl avec nettoyage immédiat
+# Installer nginx et curl
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends nginx curl && \
+    apt-get install -y nginx curl && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/*
 
 # Copier le frontend buildé
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
@@ -36,9 +36,8 @@ COPY --from=frontend-builder /app/frontend/dist /var/www/html
 # Copier les fichiers backend
 COPY backend/ ./backend
 
-# Installer les dépendances Python avec optimisations
+# Installer les dépendances Python
 ENV PIP_NO_CACHE_DIR=1
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copier la configuration nginx
