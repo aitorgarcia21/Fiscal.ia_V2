@@ -12,6 +12,19 @@ yarn-error.log*
 .npm
 .yarn
 
+# Python
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+**/.venv
+env/
+venv/
+ENV/
+
 # Build et dist
 **/dist
 **/build
@@ -24,15 +37,6 @@ yarn-error.log*
 .env.production.local
 *.log
 
-# Python et backend
-__pycache__
-**/__pycache__
-.venv
-**/.venv
-*.py
-backend/
-data/
-
 # OS et IDE
 .DS_Store
 .vscode
@@ -42,4 +46,20 @@ data/
 
 # Tests et coverage
 coverage/
-.nyc_output 
+.nyc_output
+.pytest_cache/
+htmlcov/
+
+# Python et backend
+backend/
+data/
+
+# Python et backend
+*.py
+
+# OS et IDE
+*.swp
+*.swo
+
+# Tests et coverage
+*.log 
