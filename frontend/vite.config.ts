@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
@@ -16,7 +17,11 @@ export default defineConfig({
     assetsDir: 'assets',
     minify: 'terser',
     sourcemap: true,
+    emptyOutDir: true,
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html')
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
@@ -27,5 +32,10 @@ export default defineConfig({
     }
   },
   publicDir: 'public',
-  mode: 'production'
+  mode: 'production',
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  }
 }) 

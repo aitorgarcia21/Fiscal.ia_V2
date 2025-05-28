@@ -22,8 +22,12 @@ RUN npm rebuild
 COPY frontend/ .
 
 # Debug: Vérifier la structure du projet
+RUN echo "=== Structure du projet ==="
 RUN ls -la
+RUN echo "=== Contenu du dossier src ==="
 RUN ls -la src/
+RUN echo "=== Contenu du dossier public ==="
+RUN ls -la public/
 
 # Build l'application frontend
 ENV NODE_ENV=production
@@ -47,6 +51,9 @@ RUN apt-get update && \
     apt-get install -y nginx curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Nettoyer le dossier /var/www/html
+RUN rm -rf /var/www/html/*
 
 # Copier le frontend buildé
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
