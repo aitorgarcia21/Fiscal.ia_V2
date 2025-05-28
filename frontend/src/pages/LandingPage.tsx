@@ -164,7 +164,7 @@ export function LandingPage() {
               className="px-4 py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
             >
               <Users className="h-4 w-4 text-[#c5a572] mr-2" />
-              <span className="text-sm text-gray-300">+1000 Utilisateurs</span>
+              <span className="text-sm text-gray-300">+100 Utilisateurs</span>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -436,7 +436,7 @@ export function LandingPage() {
               {' '}votre fiscalité ?
             </h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Rejoignez des milliers d'utilisateurs qui font confiance à Francis pour leurs finances.
+              Rejoignez plus de 100 utilisateurs qui font confiance à Francis pour leurs finances.
             </p>
             <button
               onClick={() => setShowAuthModal(true)}
