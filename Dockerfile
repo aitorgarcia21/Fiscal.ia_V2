@@ -34,13 +34,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Installer nginx
-RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
+# Installer nginx, curl et les outils nécessaires
+RUN apt-get update && apt-get install -y \
+    nginx \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copier le frontend buildé
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
 
-# Copier le backend
+# Copier le backend et ses dépendances
+COPY --from=backend-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=backend-builder /usr/local/bin /usr/local/bin
 COPY --from=backend-builder /app/backend ./backend
 
 # Copier la configuration nginx
