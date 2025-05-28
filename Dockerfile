@@ -64,8 +64,11 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY start.sh .
 RUN chmod +x start.sh
 
-# Exposer le port
-EXPOSE $PORT
+# Variables d'environnement pour Railway
+ENV PORT=3000
+
+# Exposer le port pour Railway (sera remplacé dynamiquement)
+EXPOSE 3000
 
 # Démarrer les services
 CMD ["./start.sh"] 

@@ -41,14 +41,14 @@ if [ ! -f "/var/www/html/index.html" ]; then
 fi
 
 # Démarrer le backend en arrière-plan
-echo "=== Démarrage du backend sur le port 8000 ==="
+echo "=== Démarrage du backend sur le port 8000 (localhost uniquement) ==="
 cd backend
 
 # Ajouter le répertoire backend au PYTHONPATH
 export PYTHONPATH="/app/backend:$PYTHONPATH"
 
-# Démarrer uvicorn avec plus de verbosité pour le debug
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info &
+# IMPORTANT: Démarrer uvicorn sur 127.0.0.1 UNIQUEMENT pour éviter l'exposition directe par Railway
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info &
 BACKEND_PID=$!
 
 # Attendre que le backend soit prêt
@@ -64,7 +64,7 @@ fi
 # Vérifier que le backend répond
 echo "Vérification de la santé du backend..."
 for i in {1..30}; do
-    if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+    if curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
         echo "Backend démarré avec succès"
         break
     fi
@@ -90,8 +90,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Démarrer nginx au premier plan
-echo "=== Démarrage de nginx sur le port $PORT ==="
+# Démarrer nginx au premier plan sur toutes les interfaces
+echo "=== Démarrage de nginx sur le port $PORT (toutes interfaces) ==="
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
@@ -105,9 +105,9 @@ if ! kill -0 $NGINX_PID 2>/dev/null; then
 fi
 
 echo "=== Services démarrés avec succès ==="
-echo "✅ Backend: http://localhost:8000"
-echo "✅ Frontend + API: http://localhost:$PORT"
-echo "✅ API accessible sur: http://localhost:$PORT/api/"
+echo "✅ Backend: http://127.0.0.1:8000 (localhost uniquement)"
+echo "✅ Frontend + API: http://0.0.0.0:$PORT (exposé publiquement)"
+echo "✅ API accessible sur: /api/"
 
 # Attendre l'arrêt
 wait 
