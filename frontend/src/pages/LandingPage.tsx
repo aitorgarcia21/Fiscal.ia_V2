@@ -212,16 +212,16 @@ export function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-2xl md:text-3xl font-semibold text-white bg-gradient-to-br from-[#c5a572]/90 to-[#e8cfa0]/80 shadow-xl rounded-2xl px-8 py-10 mx-auto max-w-4xl mb-8 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
+              className="text-2xl md:text-3xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-8 py-10 mx-auto max-w-4xl mb-8 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
               style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
             >
-              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="text-[#ffe082] font-bold underline decoration-[#c5a572] decoration-2 animate-glow">payer moins</span>, légalement.<br />
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#bfa14a] decoration-2" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>payer moins</span>, légalement.<br />
               Pas par manque de volonté.<br />
-              Mais parce que <span className="text-[#e8cfa0] font-bold">personne</span> ne leur explique.<br />
-              <span className="text-[#c5a572] font-bold">Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
+              Mais parce que <span className="font-bold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>personne</span> ne leur explique.<br />
+              <span className="font-bold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
               Francis est là pour changer ça.<br />
-              On a trouvé une <span className="bg-gradient-to-r from-[#ffe082] to-[#c5a572] bg-clip-text text-transparent font-extrabold animate-glow">solution</span>.<br />
-              <span className="bg-gradient-to-r from-[#ffe082] via-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent font-extrabold animate-glow">Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
+              On a trouvé une <span className="font-extrabold" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>solution</span>.<br />
+              <span className="font-extrabold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
             </motion.p>
           </motion.div>
         </div>
@@ -260,113 +260,33 @@ export function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] rounded-2xl shadow-2xl overflow-hidden border border-[#c5a572]/30"
+              className="flex flex-col md:flex-row gap-8 justify-center items-stretch"
             >
-              {/* PRIX EN HAUT */}
-              <div className="flex flex-col md:flex-row justify-center items-center gap-8 px-8 pt-10">
-                {/* Mensuel */}
-                <div className="flex-1 bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 flex flex-col items-center">
-                  <p className="text-3xl font-bold text-[#c5a572] mb-1">9,99€</p>
-                  <p className="text-gray-300 mb-2">par mois</p>
-                  <button
-                    onClick={() => setShowAuthModal('signup')}
-                    className="w-full px-6 py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
-                  >
-                    Créer un compte
-                  </button>
-                </div>
-                {/* Annuel */}
-                <div className="flex-1 bg-[#c5a572]/10 rounded-xl border border-[#c5a572]/30 p-6 flex flex-col items-center relative">
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-[#c5a572]/20">
-                    Économisez 17%
-                  </div>
-                  <p className="text-3xl font-bold text-[#c5a572] mb-1 mt-4">99,99€</p>
-                  <p className="text-gray-300 mb-2">par an</p>
-                  <p className="text-sm text-gray-400 line-through mb-2">119,88€</p>
-                  <button
-                    onClick={() => setShowAuthModal('signup')}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
-                  >
-                    Créer un compte
-                  </button>
-                </div>
+              {/* Mensuel */}
+              <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg transition-all duration-200 hover:shadow-2xl hover:border-[#e8cfa0] mb-4 md:mb-0">
+                <p className="text-4xl font-extrabold text-[#c5a572] mb-2">9,99€</p>
+                <p className="text-gray-300 mb-4 text-lg">par mois</p>
+                <button
+                  onClick={() => setShowAuthModal('signup')}
+                  className="w-full px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl text-lg hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2 mt-2"
+                >
+                  Créer un compte
+                </button>
               </div>
-              {/* En-tête */}
-              <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-10 border-b border-[#c5a572]/30 mt-8">
-                <div className="flex items-center justify-center space-x-4 mb-6">
-                  <div className="relative inline-flex items-center justify-center group">
-                    <MessageSquare className="h-12 w-12 text-[#c5a572] transition-transform group-hover:scale-110" />
-                    <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
-                  </div>
-                  <div>
-                    <h3 className="text-3xl font-bold text-white">Francis</h3>
-                    <p className="text-xl text-gray-300">Votre conseiller fiscal propulsé par IA</p>
-                  </div>
+              {/* Annuel */}
+              <div className="flex-1 bg-gradient-to-br from-[#223c63]/90 to-[#1a2942]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center relative shadow-lg transition-all duration-200 hover:shadow-2xl hover:border-[#e8cfa0]">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-[#c5a572]/20 border border-[#c5a572]/40">
+                  Économisez 17%
                 </div>
-              </div>
-              {/* Contenu */}
-              <div className="p-8">
-                {/* Fonctionnalités incluses */}
-                <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 mb-8">
-                  <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
-                    <Sparkles className="w-6 h-6 mr-3 text-[#c5a572]" />
-                    Tout est inclus
-                  </h4>
-                  <ul className="space-y-6">
-                    <li className="flex items-start">
-                      <div className="w-6 h-6 rounded-full bg-[#c5a572]/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                        <Check className="w-4 h-4 text-[#c5a572]" />
-                      </div>
-                      <div>
-                        <p className="text-[#c5a572] font-medium mb-1">Analyse complète de vos transactions</p>
-                        <p className="text-gray-300 text-sm">Récupération sécurisée via connexion bancaire PSD2 pour un audit financier exhaustif.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-6 h-6 rounded-full bg-[#c5a572]/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                        <Check className="w-4 h-4 text-[#c5a572]" />
-                      </div>
-                      <div>
-                        <p className="text-[#c5a572] font-medium mb-1">Détection automatique des optimisations</p>
-                        <p className="text-gray-300 text-sm">Notre IA fiscaliste analyse vos données et identifie instantanément les leviers fiscaux les plus efficaces.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-6 h-6 rounded-full bg-[#c5a572]/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                        <Check className="w-4 h-4 text-[#c5a572]" />
-                      </div>
-                      <div>
-                        <p className="text-[#c5a572] font-medium mb-1">Recommandations personnalisées</p>
-                        <p className="text-gray-300 text-sm">Stratégies sur-mesure (PER, Pinel, dons…) générées selon votre profil et vos objectifs.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-6 h-6 rounded-full bg-[#c5a572]/20 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                        <Check className="w-4 h-4 text-[#c5a572]" />
-                      </div>
-                      <div>
-                        <p className="text-[#c5a572] font-medium mb-1">Mises à jour régulières</p>
-                        <p className="text-gray-300 text-sm">Dispositifs fiscaux et plafonds automatiquement actualisés dès chaque changement législatif.</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                {/* Bouton se connecter */}
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setShowAuthModal('signup')}
-                    className="px-8 py-4 bg-[#1a2942] text-white font-bold rounded-xl border border-[#c5a572]/30 hover:bg-[#1a2942]/80 transition-all transform hover:scale-105"
-                  >
-                    Créer un compte
-                  </button>
-                </div>
-                <StripeError message={error || ''} />
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-400 flex items-center justify-center gap-2">
-                    <Shield className="w-4 h-4" />
-                    Sans engagement • Annulation à tout moment • Paiement sécurisé
-                  </p>
-                </div>
+                <p className="text-4xl font-extrabold text-[#c5a572] mb-2 mt-6">99,99€</p>
+                <p className="text-gray-300 mb-2 text-lg">par an</p>
+                <p className="text-sm text-gray-400 line-through mb-4">119,88€</p>
+                <button
+                  onClick={() => setShowAuthModal('signup')}
+                  className="w-full px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl text-lg hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2 mt-2"
+                >
+                  Créer un compte
+                </button>
               </div>
             </motion.div>
           </div>
