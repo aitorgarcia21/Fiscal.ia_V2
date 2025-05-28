@@ -8,7 +8,7 @@ COPY frontend/package*.json ./
 
 # Installer les dépendances frontend avec une limite de mémoire plus basse
 ENV NODE_OPTIONS=--max-old-space-size=512
-RUN npm install --legacy-peer-deps --production=false
+RUN npm install --legacy-peer-deps
 
 # Copier le code source frontend
 COPY frontend/ .
