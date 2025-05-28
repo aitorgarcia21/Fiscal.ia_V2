@@ -8,7 +8,15 @@ from typing import List, Dict, Tuple
 import argparse
 import time
 
-MISTRAL_API_KEY = "8SZTNsTAi2JUAxdj7wDXa3rCxf7Txcod"
+# Charger la clé API depuis les variables d'environnement
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+if not MISTRAL_API_KEY:
+    # Solution de repli temporaire si non définie, mais devrait être configurée dans l'environnement
+    print("AVERTISSEMENT: MISTRAL_API_KEY non trouvée dans l'environnement. Utilisation d'une clé de secours.")
+    MISTRAL_API_KEY = "8SZTNsTAi2JUAxdj7wDXa3rCxf7Txcod" # À retirer une fois la variable d'env configurée partout
+    if not MISTRAL_API_KEY: # Si toujours pas de clé
+        raise ValueError("MISTRAL_API_KEY doit être définie dans les variables d'environnement.")
+
 MISTRAL_API_URL = "https://api.mistral.ai/v1/embeddings"
 CHUNKS_DIR = "data/cgi_chunks"
 EMBEDDINGS_DIR = "data/embeddings"
@@ -79,6 +87,54 @@ def search_similar_articles(query: str, top_k: int = 5) -> List[Dict]:
         })
     
     # Trier par similarité et retourner les top_k résultats
+    similarities.sort(key=lambda x: x['similarity'], reverse=True)
+    return similarities[:top_k]
+
+def search_similar_bofip_chunks(query: str, top_k: int = 3) -> List[Dict]:
+    """Recherche les chunks BOFIP les plus similaires à une question."""
+    # S'assurer que les chemins sont relatifs au script actuel ou absolus
+    # Pour cet exemple, on suppose que le script est exécuté depuis `backend/`
+    # ou que les chemins sont configurés pour être accessibles depuis là.
+    current_script_dir = Path(__file__).parent
+    bofip_chunks_text_dir = current_script_dir / "data" / "bofip_chunks_text"
+    bofip_embeddings_dir = current_script_dir / "data" / "bofip_embeddings"
+
+    if not MISTRAL_API_KEY:
+        raise ValueError("MISTRAL_API_KEY doit être définie pour la recherche.")
+
+    # Obtenir l'embedding de la question
+    # Note: La fonction get_embedding est définie plus haut dans ce fichier
+    # et utilise déjà le client Mistral initialisé.
+    query_embedding = get_embedding(query)
+    
+    similarities = []
+    if not bofip_embeddings_dir.exists():
+        print(f"Le dossier d'embeddings BOFIP n'existe pas: {bofip_embeddings_dir}")
+        return []
+
+    for emb_file in bofip_embeddings_dir.glob("*.npy"):
+        try:
+            chunk_embedding = np.load(emb_file)
+            similarity = cosine_similarity(query_embedding, chunk_embedding)
+            
+            # Charger le texte du chunk correspondant
+            chunk_text_file = bofip_chunks_text_dir / (emb_file.stem + '.txt')
+            if chunk_text_file.exists():
+                with open(chunk_text_file, 'r', encoding='utf-8') as f:
+                    chunk_text = f.read()
+            else:
+                chunk_text = "Contenu du chunk non trouvé."
+                print(f"Attention: Fichier texte manquant pour {emb_file.name}")
+
+            similarities.append({
+                'file': chunk_text_file.name, # Nom du fichier du chunk texte
+                'similarity': similarity,
+                'text': chunk_text
+            })
+        except Exception as e:
+            print(f"Erreur lors du traitement du fichier d'embedding {emb_file.name}: {e}")
+            continue # Passer au fichier suivant en cas d'erreur avec un fichier spécifique
+    
     similarities.sort(key=lambda x: x['similarity'], reverse=True)
     return similarities[:top_k]
 
