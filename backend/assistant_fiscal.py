@@ -5,8 +5,7 @@ from pathlib import Path
 from typing import List, Dict
 import requests
 import time
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+from mistralai import Mistral
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -14,16 +13,16 @@ EMBEDDINGS_DIR = "data/embeddings"
 CHUNKS_DIR = "data/cgi_chunks"
 
 # Initialisation du client Mistral
-client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
+client = Mistral(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 
 def get_embedding(text: str) -> np.ndarray:
     """Obtient l'embedding d'un texte via l'API Mistral."""
     if not client:
         raise Exception("Client Mistral non initialisé")
     
-    response = client.embeddings(
+    response = client.embeddings.create(
         model="mistral-embed",
-        input=text
+        inputs=[text]
     )
     return np.array(response.data[0].embedding)
 
@@ -126,11 +125,11 @@ def get_assistant_response(query: str) -> str:
         
         # Appel à l'API Mistral
         messages = [
-            ChatMessage(role="system", content="Tu es un assistant fiscal expert en droit fiscal français."),
-            ChatMessage(role="user", content=prompt)
+            {"role": "system", "content": "Tu es un assistant fiscal expert en droit fiscal français."},
+            {"role": "user", "content": prompt}
         ]
         
-        response = client.chat(
+        response = client.chat.complete(
             model="mistral-large-latest",
             messages=messages,
             temperature=0.3  # Température basse pour des réponses plus précises
