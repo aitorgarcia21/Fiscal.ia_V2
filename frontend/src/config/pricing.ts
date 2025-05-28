@@ -5,9 +5,12 @@ export const PRICING = {
     interval: 'month',
     stripePriceId: 'price_monthly', // À remplacer par l'ID réel de Stripe
     features: [
-      'Accès illimité à Francis',
-      'Conseils personnalisés',
-      'Sans engagement'
+      'Accès illimité à Francis 24/7',
+      'Analyse personnalisée de votre situation fiscale',
+      'Recommandations adaptées à votre profil',
+      'Suivi en temps réel de vos optimisations',
+      'Mises à jour quotidiennes de la fiscalité',
+      'Sans engagement - Annulez à tout moment'
     ]
   },
   ANNUAL: {
@@ -16,10 +19,13 @@ export const PRICING = {
     interval: 'year',
     stripePriceId: 'price_annual', // À remplacer par l'ID réel de Stripe
     features: [
-      'Accès illimité à Francis',
-      'Conseils personnalisés',
-      'Sans engagement',
-      'Économisez 17%'
+      'Accès illimité à Francis 24/7',
+      'Analyse personnalisée de votre situation fiscale',
+      'Recommandations adaptées à votre profil',
+      'Suivi en temps réel de vos optimisations',
+      'Mises à jour quotidiennes de la fiscalité',
+      'Sans engagement - Annulez à tout moment',
+      'Économisez 17% par rapport au tarif mensuel'
     ]
   }
 } as const;

@@ -93,51 +93,51 @@ export function DemoConversation() {
 
   return (
     <div className="max-w-2xl mx-auto mb-12">
-      <div className="bg-[#1a2942]/95 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-[#c5a572]/20">
+      <div className="bg-[#1a2942]/95 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-[#c5a572]/30">
         {/* En-tête démo */}
-        <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-6 py-4 border-b border-[#c5a572]/20 flex items-center space-x-4">
+        <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/20 flex items-center space-x-4">
           <div className="relative inline-flex items-center justify-center group">
-            <MessageSquare className="h-7 w-7 text-[#c5a572] transition-transform group-hover:scale-110" />
-            <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
+            <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110" />
+            <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">Francis</h2>
-            <p className="text-sm text-gray-300">Conseiller fiscal propulsé par IA</p>
+            <h2 className="text-2xl font-bold text-white drop-shadow-lg">Francis</h2>
+            <p className="text-base text-[#c5a572] font-medium">Conseiller fiscal propulsé par IA</p>
           </div>
         </div>
         {/* Zone des messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80">
           {conversation.slice(0, visibleCount).map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
               className={`flex ${msg.author === 'paul' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl p-4 ${
+                className={`max-w-[85%] rounded-2xl p-6 shadow-xl transition-all duration-200 group hover:scale-[1.025] ${
                   msg.author === 'paul'
-                    ? 'bg-[#c5a572] text-[#1a2942]'
-                    : 'bg-white/5 text-white'
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] border border-[#e8cfa0]/60'
+                    : 'bg-white/10 text-white border border-[#c5a572]/30'
                 }`}
+                style={{ fontSize: '1.18rem', lineHeight: '1.7', fontWeight: 500 }}
               >
-                <div className="flex items-center space-x-2 mb-2">
+                <div className="flex items-center space-x-3 mb-3">
                   {msg.author === 'francis' && (
-                    <div className="w-6 h-6 rounded-full bg-[#c5a572] flex items-center justify-center">
-                      <MessageSquare className="w-4 h-4 text-[#1a2942]" />
+                    <div className="w-8 h-8 rounded-full bg-[#c5a572] flex items-center justify-center shadow-md">
+                      <MessageSquare className="w-5 h-5 text-[#1a2942]" />
                     </div>
                   )}
-                  <span className="text-sm font-medium">
-                    {msg.author === 'paul' ? 'Vous' : 'Francis'}
-                  </span>
+                  <span className={`text-base font-semibold ${msg.author === 'paul' ? 'text-[#1a2942]' : 'text-[#c5a572]'}`}>{msg.author === 'paul' ? 'Vous' : 'Francis'}</span>
                 </div>
                 <div className="prose prose-invert max-w-none">
                   {msg.content}
                 </div>
               </div>
               {msg.author === 'paul' && (
-                <div className="w-6 h-6 rounded-full bg-[#223c63] flex items-center justify-center ml-2">
-                  <span className="text-[#c5a572] font-bold">Vous</span>
+                <div className="w-8 h-8 rounded-full bg-[#223c63] flex items-center justify-center ml-3 shadow-md">
+                  <span className="text-[#c5a572] font-bold text-base">Vous</span>
                 </div>
               )}
             </motion.div>

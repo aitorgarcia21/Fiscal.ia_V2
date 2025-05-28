@@ -203,44 +203,59 @@ export function LandingPage() {
           </motion.div>
           <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
             {/* Étape 1 */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 shadow-md">
-                <Users className="w-8 h-8 text-[#1a2942]" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Créez votre compte et votre profil</h3>
-              <p className="text-gray-300">Inscrivez-vous en 2 minutes et renseignez vos infos pour un accompagnement sur-mesure.</p>
-            </div>
+            <motion.div
+              whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
+              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
+            >
+              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-5 py-2 rounded-full text-lg shadow-lg border border-[#c5a572]/40 z-10">1</span>
+              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2, repeatType: 'reverse' }} className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 shadow-xl border-4 border-[#c5a572]/30">
+                <Users className="w-10 h-10 text-[#1a2942]" />
+              </motion.div>
+              <h3 className="text-2xl font-bold text-white mb-3 text-center">Créez votre compte et votre profil</h3>
+              <p className="text-gray-200 text-lg text-center">Inscrivez-vous en 2 minutes et renseignez vos infos pour un accompagnement sur-mesure.</p>
+            </motion.div>
             {/* Étape 2 */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 shadow-md">
-                <MessageSquare className="w-8 h-8 text-[#1a2942]" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Discutez avec Francis</h3>
-              <p className="text-gray-300">Posez vos questions, obtenez des recommandations personnalisées et des plans d'action concrets.</p>
-            </div>
+            <motion.div
+              whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
+              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
+            >
+              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-5 py-2 rounded-full text-lg shadow-lg border border-[#c5a572]/40 z-10">2</span>
+              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.2, repeatType: 'reverse' }} className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 shadow-xl border-4 border-[#c5a572]/30">
+                <MessageSquare className="w-10 h-10 text-[#1a2942]" />
+              </motion.div>
+              <h3 className="text-2xl font-bold text-white mb-3 text-center">Discutez avec Francis</h3>
+              <p className="text-gray-200 text-lg text-center">Posez vos questions, obtenez des recommandations personnalisées et des plans d'action concrets.</p>
+            </motion.div>
             {/* Étape 3 */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 shadow-md">
-                <Check className="w-8 h-8 text-[#1a2942]" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Mettez en place&nbsp;!</h3>
-              <p className="text-gray-300">Passez à l'action facilement grâce à nos conseils et suivez vos optimisations en temps réel.</p>
-            </div>
+            <motion.div
+              whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
+              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
+            >
+              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-5 py-2 rounded-full text-lg shadow-lg border border-[#c5a572]/40 z-10">3</span>
+              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.4, repeatType: 'reverse' }} className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 shadow-xl border-4 border-[#c5a572]/30">
+                <Check className="w-10 h-10 text-[#1a2942]" />
+              </motion.div>
+              <h3 className="text-2xl font-bold text-white mb-3 text-center">Mettez en place&nbsp;!</h3>
+              <p className="text-gray-200 text-lg text-center">Passez à l'action facilement grâce à nos conseils et suivez vos optimisations en temps réel.</p>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Section Avantages */}
-      <section className="py-20 px-4">
+      <section className="py-14 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            className="text-center mb-8"
           >
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-8 drop-shadow-lg">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4 drop-shadow-lg">
               Pourquoi choisir{' '}
               <span className="relative inline-block text-[#c5a572]">
                 Francis
@@ -258,7 +273,7 @@ export function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-2xl md:text-3xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-8 py-10 mx-auto max-w-4xl mb-8 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
+              className="text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-6 py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
               style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
             >
               Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#bfa14a] decoration-2" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>payer moins</span>, légalement.<br />
