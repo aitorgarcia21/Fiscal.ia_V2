@@ -219,7 +219,7 @@ export function LandingPage() {
               whileTap={{ scale: 0.98 }}
               className="px-10 py-4 sm:px-12 sm:py-5 bg-[#162238] text-white font-semibold rounded-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-base sm:text-lg mx-auto border-2 border-transparent hover:border-white/30"
             >
-              Commencer gratuitement
+              Créer mon compte
               <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 opacity-80 group-hover:opacity-100 transition-opacity" />
             </motion.button>
           </motion.div>
