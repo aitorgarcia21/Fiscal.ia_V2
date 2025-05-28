@@ -1,6 +1,7 @@
 FROM node:20-alpine
 
-WORKDIR /app
+# Définir le répertoire de travail
+WORKDIR /app/frontend
 
 # Copier les fichiers de configuration
 COPY frontend/package*.json ./
@@ -8,7 +9,7 @@ COPY frontend/package*.json ./
 # Installer les dépendances
 RUN npm install
 
-# Copier le reste des fichiers
+# Copier le reste des fichiers du frontend
 COPY frontend/ .
 
 # Build l'application
