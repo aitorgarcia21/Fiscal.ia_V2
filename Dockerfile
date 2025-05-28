@@ -6,6 +6,9 @@ WORKDIR /app/frontend
 # Copier les fichiers de configuration frontend
 COPY frontend/package*.json ./
 
+# Debug: Afficher le contenu du package.json
+RUN cat package.json
+
 # Installer les dépendances frontend avec gestion des dépendances optionnelles Rollup
 ENV NODE_OPTIONS="--max-old-space-size=512"
 ENV NPM_CONFIG_FUND=false
@@ -18,13 +21,21 @@ RUN npm rebuild
 # Copier le code source frontend
 COPY frontend/ .
 
+# Debug: Vérifier la structure du projet
+RUN ls -la
+RUN ls -la src/
+
 # Build l'application frontend
 ENV NODE_ENV=production
 RUN npm run build
 
 # Debug: Vérifier le contenu du dossier dist
+RUN echo "=== Contenu du dossier dist ==="
 RUN ls -la dist/
+RUN echo "=== Contenu du dossier dist/assets ==="
 RUN ls -la dist/assets/
+RUN echo "=== Contenu de index.html ==="
+RUN cat dist/index.html
 
 # Stage 2: Production
 FROM python:3.11-slim
@@ -41,7 +52,9 @@ RUN apt-get update && \
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
 
 # Debug: Vérifier le contenu après copie
+RUN echo "=== Contenu de /var/www/html ==="
 RUN ls -la /var/www/html/
+RUN echo "=== Contenu de /var/www/html/assets ==="
 RUN ls -la /var/www/html/assets/
 
 # Copier les fichiers backend
