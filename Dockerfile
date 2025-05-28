@@ -12,6 +12,9 @@ RUN npm install --legacy-peer-deps
 # Copier le reste des fichiers du frontend
 COPY frontend/ .
 
+# Vérifier que les fichiers sont bien copiés
+RUN ls -la src/
+
 # Build l'application
 RUN npm run build
 
