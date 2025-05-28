@@ -343,8 +343,37 @@ export function LandingPage() {
               transition={{ duration: 0.8 }}
               className="bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] rounded-2xl shadow-2xl overflow-hidden border border-[#c5a572]/30"
             >
+              {/* PRIX EN HAUT */}
+              <div className="flex flex-col md:flex-row justify-center items-center gap-8 px-8 pt-10">
+                {/* Mensuel */}
+                <div className="flex-1 bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 flex flex-col items-center">
+                  <p className="text-3xl font-bold text-[#c5a572] mb-1">9,99€</p>
+                  <p className="text-gray-300 mb-2">par mois</p>
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="w-full px-6 py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                  >
+                    Choisir mensuel
+                  </button>
+                </div>
+                {/* Annuel */}
+                <div className="flex-1 bg-[#c5a572]/10 rounded-xl border border-[#c5a572]/30 p-6 flex flex-col items-center relative">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-[#c5a572]/20">
+                    Économisez 17%
+                  </div>
+                  <p className="text-3xl font-bold text-[#c5a572] mb-1 mt-4">99,99€</p>
+                  <p className="text-gray-300 mb-2">par an</p>
+                  <p className="text-sm text-gray-400 line-through mb-2">119,88€</p>
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                  >
+                    Choisir annuel
+                  </button>
+                </div>
+              </div>
               {/* En-tête */}
-              <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-10 border-b border-[#c5a572]/30">
+              <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-10 border-b border-[#c5a572]/30 mt-8">
                 <div className="flex items-center justify-center space-x-4 mb-6">
                   <div className="relative inline-flex items-center justify-center group">
                     <MessageSquare className="h-12 w-12 text-[#c5a572] transition-transform group-hover:scale-110" />
@@ -356,7 +385,6 @@ export function LandingPage() {
                   </div>
                 </div>
               </div>
-
               {/* Contenu */}
               <div className="p-8">
                 {/* Fonctionnalités incluses */}
@@ -404,58 +432,16 @@ export function LandingPage() {
                     </li>
                   </ul>
                 </div>
-
-                {/* Options d'abonnement */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  {/* Option Mensuelle */}
-                  <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 hover:bg-[#1a2942]/60 transition-all duration-200 transform hover:scale-105">
-                    <div className="text-center mb-4">
-                      <p className="text-3xl font-bold text-[#c5a572]">9,99€</p>
-                      <p className="text-gray-300">par mois</p>
-                    </div>
-                  </div>
-
-                  {/* Option Annuelle */}
-                  <div className="bg-[#c5a572]/10 rounded-xl border border-[#c5a572]/30 p-6 relative hover:bg-[#c5a572]/20 transition-all duration-200 transform hover:scale-105">
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] px-6 py-2 rounded-full text-sm font-bold shadow-lg shadow-[#c5a572]/20">
-                      Économisez 17%
-                    </div>
-                    <div className="text-center mb-4 mt-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <p className="text-3xl font-bold text-[#c5a572]">99,99€</p>
-                      </div>
-                      <p className="text-gray-300">par an</p>
-                      <p className="text-sm text-gray-400 line-through mt-1">119,88€</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Boutons de paiement */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                  <button
-                    onClick={() => handleCheckout('MONTHLY')}
-                    disabled={isLoading}
-                    className="w-full px-6 py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? 'Chargement...' : 'Choisir mensuel'}
-                  </button>
-                  <button
-                    onClick={() => handleCheckout('ANNUAL')}
-                    disabled={isLoading}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? 'Chargement...' : 'Choisir annuel'}
-                  </button>
+                {/* Bouton se connecter */}
+                <div className="flex justify-center">
                   <button
                     onClick={() => setShowAuthModal(true)}
-                    className="w-full px-6 py-3 bg-[#1a2942] text-white font-bold rounded-xl border border-[#c5a572]/30 hover:bg-[#1a2942]/80 transition-all transform hover:scale-105"
+                    className="px-8 py-4 bg-[#1a2942] text-white font-bold rounded-xl border border-[#c5a572]/30 hover:bg-[#1a2942]/80 transition-all transform hover:scale-105"
                   >
                     Se connecter
                   </button>
                 </div>
-
                 <StripeError message={error || ''} />
-
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-400 flex items-center justify-center gap-2">
                     <Shield className="w-4 h-4" />
