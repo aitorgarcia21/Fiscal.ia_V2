@@ -40,6 +40,10 @@ RUN echo "=== Contenu du dossier dist/assets ==="
 RUN ls -la dist/assets/
 RUN echo "=== Contenu de index.html ==="
 RUN cat dist/index.html
+RUN echo "=== Contenu de dist/index.html ==="
+RUN cat dist/index.html
+RUN echo "=== Vérification des assets ==="
+RUN find dist -type f -name "*.js" -o -name "*.css" -o -name "*.svg" | sort
 
 # Stage 2: Production
 FROM python:3.11-slim
@@ -63,6 +67,8 @@ RUN echo "=== Contenu de /var/www/html ==="
 RUN ls -la /var/www/html/
 RUN echo "=== Contenu de /var/www/html/assets ==="
 RUN ls -la /var/www/html/assets/
+RUN echo "=== Vérification des assets après copie ==="
+RUN find /var/www/html -type f -name "*.js" -o -name "*.css" -o -name "*.svg" | sort
 
 # Copier les fichiers backend
 COPY backend/ ./backend
