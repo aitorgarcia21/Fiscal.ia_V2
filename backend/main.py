@@ -14,6 +14,9 @@ import openai
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
+from assistant_fiscal import search_similar_articles, create_prompt
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -30,6 +33,10 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+# Mistral
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+client = MistralClient(api_key=MISTRAL_API_KEY)
 
 # FastAPI app
 app = FastAPI(
@@ -216,34 +223,28 @@ async def ask_question(
     user_id: str = Depends(verify_token)
 ):
     try:
-        if not openai.api_key:
-            raise HTTPException(status_code=500, detail="Service OpenAI non disponible")
-        
-        # Préparer le prompt pour l'IA
-        system_prompt = """Tu es un assistant fiscal expert français. 
-        Tu aides les utilisateurs avec leurs questions fiscales en te basant sur le Code Général des Impôts français.
-        Réponds de manière précise et professionnelle.
-        Si tu n'es pas sûr d'une réponse, dis-le clairement."""
-        
+        if not MISTRAL_API_KEY:
+            raise HTTPException(status_code=500, detail="Service Mistral non disponible")
+
+        # 1. Recherche contextuelle RAG
+        context = search_similar_articles(request.question, top_k=5)
+
+        # 2. Création du prompt enrichi
+        prompt = create_prompt(request.question, context)
+
+        # 3. Appel au modèle Mistral pour la génération
         messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": request.question}
+            ChatMessage(role="system", content="Tu es un assistant fiscal expert en droit fiscal français."),
+            ChatMessage(role="user", content=prompt)
         ]
-        
-        if request.context:
-            messages.insert(-1, {"role": "user", "content": f"Contexte: {request.context}"})
-        
-        # Appel à OpenAI
-        response = await openai.ChatCompletion.acreate(
-            model="gpt-4",
+        response = client.chat(
+            model="mistral-large-latest",
             messages=messages,
-            max_tokens=1000,
-            temperature=0.7
+            temperature=0.3
         )
-        
         answer = response.choices[0].message.content
-        
-        # Sauvegarder la question/réponse en base
+
+        # 4. Sauvegarde en base (optionnel)
         if supabase:
             try:
                 supabase.table("questions").insert({
@@ -254,14 +255,14 @@ async def ask_question(
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
             except:
-                pass  # Ne pas faire échouer si la sauvegarde échoue
-        
+                pass
+
         return QuestionResponse(
             answer=answer,
-            sources=["Code Général des Impôts", "Documentation fiscale française"],
+            sources=[c['file'] for c in context],
             confidence=0.9
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors du traitement: {str(e)}")
 
