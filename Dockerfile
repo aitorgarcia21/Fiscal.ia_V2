@@ -6,13 +6,14 @@ WORKDIR /app/frontend
 # Copier les fichiers de configuration frontend
 COPY frontend/package*.json ./
 
-# Installer les dépendances frontend
-RUN npm install --legacy-peer-deps
+# Installer les dépendances frontend avec une limite de mémoire plus basse
+ENV NODE_OPTIONS=--max-old-space-size=512
+RUN npm install --legacy-peer-deps --production=false
 
 # Copier le code source frontend
 COPY frontend/ .
 
-# Build l'application frontend
+# Build l'application frontend avec une limite de mémoire plus basse
 RUN npm run build
 
 # Stage 2: Backend Build
@@ -24,9 +25,12 @@ WORKDIR /app/backend
 COPY backend/requirements.txt .
 
 # Installer les dépendances système nécessaires à psycopg2-binary
-RUN apt-get update && apt-get install -y gcc libpq-dev
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Installer les dépendances backend
+# Installer les dépendances backend avec une limite de mémoire
+ENV PIP_NO_CACHE_DIR=1
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le code source backend
@@ -37,11 +41,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Installer nginx, curl et les outils nécessaires
-RUN apt-get update && apt-get install -y \
-    nginx \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Installer nginx et les outils nécessaires avec nettoyage
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends nginx curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copier le frontend buildé
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
