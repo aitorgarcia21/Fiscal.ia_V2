@@ -356,30 +356,26 @@ export function LandingPage() {
               Tous les outils et services pour optimiser votre fiscalité, inclus dans votre abonnement Francis.
             </p>
           </motion.div>
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
-            {/* Avantage 1 : 24/7 */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <Shield className="w-10 h-10 text-[#c5a572] mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Accès 24/7</h3>
-              <p className="text-gray-300 text-center">Votre assistant fiscal disponible à toute heure.</p>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center items-stretch mt-4 mb-2">
+            <div className="flex-1 flex flex-col items-center bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-xl border border-[#c5a572]/30 p-3 mx-1 min-w-[120px]">
+              <Shield className="w-5 h-5 text-[#c5a572] mb-1" />
+              <span className="text-xs text-white font-semibold">24/7</span>
+              <span className="text-[10px] text-gray-300 text-center">Accès illimité</span>
             </div>
-            {/* Avantage 2 : Analyse personnalisée */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <Calculator className="w-10 h-10 text-[#c5a572] mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Analyse personnalisée</h3>
-              <p className="text-gray-300 text-center">Des conseils adaptés à votre situation.</p>
+            <div className="flex-1 flex flex-col items-center bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-xl border border-[#c5a572]/30 p-3 mx-1 min-w-[120px]">
+              <Calculator className="w-5 h-5 text-[#c5a572] mb-1" />
+              <span className="text-xs text-white font-semibold">Analyse personnalisée</span>
+              <span className="text-[10px] text-gray-300 text-center">Pour votre profil</span>
             </div>
-            {/* Avantage 3 : Suivi en temps réel */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <TrendingUp className="w-10 h-10 text-[#c5a572] mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Suivi en temps réel</h3>
-              <p className="text-gray-300 text-center">Visualisez vos optimisations instantanément.</p>
+            <div className="flex-1 flex flex-col items-center bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-xl border border-[#c5a572]/30 p-3 mx-1 min-w-[120px]">
+              <TrendingUp className="w-5 h-5 text-[#c5a572] mb-1" />
+              <span className="text-xs text-white font-semibold">Suivi en temps réel</span>
+              <span className="text-[10px] text-gray-300 text-center">Optimisations instantanées</span>
             </div>
-            {/* Avantage 4 : Mise à jour quotidienne */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
-              <Sparkles className="w-10 h-10 text-[#c5a572] mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Mise à jour quotidienne</h3>
-              <p className="text-gray-300 text-center">Règles fiscales et conseils actualisés chaque jour.</p>
+            <div className="flex-1 flex flex-col items-center bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-xl border border-[#c5a572]/30 p-3 mx-1 min-w-[120px]">
+              <Sparkles className="w-5 h-5 text-[#c5a572] mb-1" />
+              <span className="text-xs text-white font-semibold">Mise à jour quotidienne</span>
+              <span className="text-[10px] text-gray-300 text-center">Toujours à jour</span>
             </div>
           </div>
         </div>
