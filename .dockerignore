@@ -1,14 +1,45 @@
+# Git et configuration
 .git
 .gitignore
+README.md
+
+# Node modules et caches
 node_modules
 **/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+
+# Build et dist
+**/dist
+**/build
+
+# Environnement et logs
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
+
+# Python et backend
 __pycache__
 **/__pycache__
 .venv
 **/.venv
-data
-**/data
-backend
-**/backend
-*.log
-.DS_Store 
+*.py
+backend/
+data/
+
+# OS et IDE
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+
+# Tests et coverage
+coverage/
+.nyc_output 

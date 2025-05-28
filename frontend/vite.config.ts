@@ -10,5 +10,19 @@ export default defineConfig({
   preview: {
     port: 3000,
     host: true
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['framer-motion', 'lucide-react']
+        }
+      }
+    }
   }
 }) 

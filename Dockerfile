@@ -1,25 +1,33 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 # Définir le répertoire de travail
-WORKDIR /app/frontend
+WORKDIR /app
 
 # Copier les fichiers de configuration
 COPY frontend/package*.json ./
 
-# Installer les dépendances avec legacy-peer-deps
-RUN npm install --legacy-peer-deps
+# Installer les dépendances
+RUN npm ci --only=production --legacy-peer-deps
 
-# Copier le reste des fichiers du frontend
+# Copier le code source
 COPY frontend/ .
 
-# Vérifier que les fichiers sont bien copiés
-RUN ls -la src/
-
-# Build l'application
+# Build l'application pour la production
 RUN npm run build
 
-# Exposer le port
-EXPOSE 3000
+# Stage de production
+FROM node:20-alpine AS runner
 
-# Démarrer l'application
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3000"] 
+WORKDIR /app
+
+# Installer serve globalement
+RUN npm install -g serve
+
+# Copier les fichiers buildés
+COPY --from=builder /app/dist ./dist
+
+# Exposer le port (Railway utilise la variable PORT)
+EXPOSE $PORT
+
+# Démarrer l'application avec le bon port
+CMD serve -s dist -l ${PORT:-3000} 
