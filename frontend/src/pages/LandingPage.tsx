@@ -199,8 +199,15 @@ export function LandingPage() {
               </span>
               {' '}?
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Une solution complète pour gérer vos finances et optimiser votre fiscalité
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto whitespace-pre-line">
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient payer moins, légalement.
+              Pas par manque de volonté.
+              Mais parce que personne ne leur explique.
+              Pas les impôts. Pas les banques. Pas les simulateurs incomplets.
+              
+              Francis est là pour changer ça.
+              On a trouvé une solution.
+              Une intelligence artificielle indépendante, conçue pour vous défendre, vous guider, vous faire économiser.
             </p>
           </motion.div>
 
