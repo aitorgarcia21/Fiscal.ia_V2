@@ -258,14 +258,63 @@ export function LandingPage() {
         </div>
       </section>
 
+<<<<<<< HEAD
       {/* Section Offre + Avantages fusionnées */}
       <section className="py-20 px-4">
+=======
+      {/* Section Avantages */}
+      <section className="py-14 px-4">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4 drop-shadow-lg">
+              Pourquoi choisir{' '}
+              <span className="relative inline-block text-[#c5a572]">
+                Francis
+                <motion.span
+                  className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                />
+              </span>
+              {' '}?
+            </h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-6 py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
+              style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
+            >
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#bfa14a] decoration-2" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>payer moins</span>, légalement.<br />
+              Pas par manque de volonté.<br />
+              Mais parce que <span className="font-bold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>personne</span> ne leur explique.<br />
+              <span className="font-bold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
+              Francis est là pour changer ça.<br />
+              On a trouvé une <span className="font-extrabold" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>solution</span>.<br />
+              <span className="font-extrabold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
+            </motion.p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Section Offre + Avantages fusionnées */}
+      <section className="py-12 px-2 sm:px-4">
+>>>>>>> 1edfef7d (Optimisation mobile + doré premium (plus de jaune) sur section offre/tarifs/avantages)
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+<<<<<<< HEAD
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 drop-shadow-lg">
@@ -323,6 +372,65 @@ export function LandingPage() {
               <div className="flex flex-col items-center min-w-[120px]">
                 <span className="text-[#c5a572] font-bold text-lg">Mise à jour quotidienne</span>
                 <span className="text-[#e8cfa0] text-sm">Toujours à jour</span>
+=======
+            className="text-center mb-8 sm:mb-12"
+          >
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4 drop-shadow-lg">
+              Une offre unique, des résultats <span className="text-[#FFD700]">concrets</span>
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto">
+              Accédez à toutes les fonctionnalités pour optimiser votre fiscalité
+            </p>
+          </motion.div>
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center items-end mb-8 md:mb-10">
+            {/* Offre mensuelle */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 border-2 border-[#C5A572]/40 rounded-2xl p-6 sm:p-8 flex flex-col items-center shadow-xl min-w-[180px] max-w-xs mx-auto w-full">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#FFD700] mb-1 sm:mb-2">9,99€</div>
+              <div className="text-[#FFD700] text-base sm:text-lg mb-2 sm:mb-4">par mois</div>
+              <button
+                onClick={() => setShowAuthModal('signup')}
+                className="w-full px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#C5A572] to-[#FFD700] text-[#1a2942] font-bold rounded-xl text-base sm:text-lg hover:shadow-lg hover:shadow-[#C5A572]/20 transition-all transform hover:scale-105 mb-1 sm:mb-2 mt-1 sm:mt-2"
+              >
+                Créer un compte
+              </button>
+            </div>
+            {/* Offre annuelle */}
+            <div className="flex-1 bg-gradient-to-br from-[#223c63]/90 to-[#1a2942]/90 border-2 border-[#C5A572]/40 rounded-2xl p-6 sm:p-8 flex flex-col items-center shadow-xl min-w-[180px] max-w-xs mx-auto w-full relative">
+              <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C5A572] to-[#FFD700] text-[#1a2942] px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg border border-[#C5A572]/40">
+                Économisez 17%
+              </div>
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#FFD700] mb-1 sm:mb-2 mt-5 sm:mt-6">99,99€</div>
+              <div className="text-[#FFD700] text-base sm:text-lg mb-1">par an</div>
+              <div className="text-xs sm:text-sm text-white/70 line-through mb-2 sm:mb-4">119,88€</div>
+              <button
+                onClick={() => setShowAuthModal('signup')}
+                className="w-full px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#C5A572] to-[#FFD700] text-[#1a2942] font-bold rounded-xl text-base sm:text-lg hover:shadow-lg hover:shadow-[#C5A572]/20 transition-all transform hover:scale-105 mb-1 sm:mb-2 mt-1 sm:mt-2"
+              >
+                Créer un compte
+              </button>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] rounded-2xl border-2 border-[#C5A572]/30 p-5 sm:p-8 shadow-lg max-w-2xl mx-auto">
+            <div className="text-white text-base sm:text-lg font-medium text-center mb-4 sm:mb-6">
+              Tous les outils et services pour optimiser votre fiscalité, inclus dans votre abonnement Francis.
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 justify-center">
+              <div className="flex flex-col items-center min-w-[100px]">
+                <span className="text-[#FFD700] font-bold text-base sm:text-lg">24/7</span>
+                <span className="text-[#C5A572] text-xs sm:text-sm">Accès illimité</span>
+              </div>
+              <div className="flex flex-col items-center min-w-[100px]">
+                <span className="text-[#FFD700] font-bold text-base sm:text-lg">Analyse personnalisée</span>
+                <span className="text-[#C5A572] text-xs sm:text-sm">Pour votre profil</span>
+              </div>
+              <div className="flex flex-col items-center min-w-[100px]">
+                <span className="text-[#FFD700] font-bold text-base sm:text-lg">Suivi en temps réel</span>
+                <span className="text-[#C5A572] text-xs sm:text-sm">Optimisations instantanées</span>
+              </div>
+              <div className="flex flex-col items-center min-w-[100px]">
+                <span className="text-[#FFD700] font-bold text-base sm:text-lg">Mise à jour quotidienne</span>
+                <span className="text-[#C5A572] text-xs sm:text-sm">Toujours à jour</span>
+>>>>>>> 1edfef7d (Optimisation mobile + doré premium (plus de jaune) sur section offre/tarifs/avantages)
               </div>
             </div>
           </div>
