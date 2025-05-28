@@ -14,19 +14,36 @@ export function LandingPage() {
   const [showDemo, setShowDemo] = useState(false);
   const { handleCheckout, isLoading, error } = useStripe();
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const stepItemVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: (i: number) => ({
+      opacity: 1,
+      scale: 1,
+      transition: { delay: i * 0.2, duration: 0.5, ease: "easeOut" }
+    })
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
+    <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 font-sans antialiased">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-[#1a2942]/95 backdrop-blur-sm border-b border-[#234876] z-30">
-        <div className="h-16 max-w-7xl mx-auto px-4 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 bg-[#162238]/80 backdrop-blur-md border-b border-[#2A3F6C]/50 z-50 shadow-lg">
+        <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="relative inline-flex items-center justify-center group">
-            <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110" />
-            <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
+            <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+            <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
           </div>
           <button
             onClick={() => setShowAuthModal('login')}
-            className="px-4 py-2 sm:px-7 sm:py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-full shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-200 border-2 border-[#c5a572]/40 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 ml-auto max-w-xs truncate text-sm sm:text-base md:text-lg"
-            style={{minWidth: '100px'}}
+            className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-md hover:shadow-[#c5a572]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
           >
             Se connecter
           </button>
@@ -50,346 +67,170 @@ export function LandingPage() {
       )}
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-40 pb-20 relative overflow-hidden">
-        {/* Motif géométrique et effets visuels */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: 'radial-gradient(circle, #c5a572 1px, transparent 1px)',
-            backgroundSize: '30px 30px'
-          }}></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a2942]/95 via-[#223c63]/85 to-[#234876]/75">
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#c5a572]/20 via-transparent to-transparent animate-pulse"></div>
-            </div>
-          </div>
-        </div>
+      <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-16 sm:pt-40 sm:pb-20 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #c5a572 0.5px, transparent 0.5px), radial-gradient(circle at 80% 80%, #e8cfa0 0.5px, transparent 0.5px)', backgroundSize: '40px 40px' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#162238]/50 via-[#1E3253]/30 to-[#234876]/10"></div>
 
-        {/* Points lumineux animés */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-[#c5a572]"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0.3, 0.6, 0.3],
-                scale: [1, 1.2, 1],
-                x: [0, Math.random() * 100 - 50],
-                y: [0, Math.random() * 100 - 50]
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 2
-              }}
-              style={{
-                width: `${2 + Math.random() * 3}px`,
-                height: `${2 + Math.random() * 3}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                boxShadow: '0 0 10px #c5a572'
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Contenu principal */}
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-8"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="mb-10">
+            <motion.h1 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white mb-10 sm:mb-12 leading-tight shadow-text-hard"
+              initial={{ opacity: 0, y:20 }}
+              animate={{ opacity:1, y:0 }}
+              transition={{delay: 0.2, duration: 0.7}}
             >
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-12 sm:mb-16 leading-tight">
-                Optimisez votre fiscalité avec{' '}
-                <span className="relative inline-block text-[#c5a572]">
-                  Francis
-                  <motion.span
-                    className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                  />
-                </span>
-              </h1>
-            </motion.div>
+              Optimisez votre fiscalité avec <span className="relative inline-block text-[#c5a572]">Francis
+                <motion.span 
+                  className="absolute -bottom-2.5 left-0 w-full h-1.5 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"
+                  initial={{ scaleX: 0 }} 
+                  animate={{ scaleX: 1 }} 
+                  transition={{ duration: 0.7, delay: 0.8, ease: "circOut" }}
+                />
+              </span>
+            </motion.h1>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-12 sm:mb-16"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }} className="flex flex-col sm:flex-row gap-5 justify-center mb-16 sm:mb-20">
             <motion.button
               onClick={() => setShowAuthModal('signup')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform flex items-center justify-center gap-2 text-sm sm:text-base"
+              whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(197, 165, 114, 0.3)" }}
+              whileTap={{ scale: 0.98 }}
+              className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 text-base sm:text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
             >
-              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
               Créer un compte
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
             </motion.button>
-
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
               onClick={() => setShowDemo(true)}
-              className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform flex items-center justify-center gap-2 text-sm sm:text-base"
+              className="px-8 py-4 bg-white/10 text-gray-100 font-semibold rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 text-base sm:text-lg border-2 border-transparent hover:border-white/20"
             >
               Voir la démo
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
             </motion.button>
           </motion.div>
 
-          {/* Trust badges */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-wrap justify-center gap-4 sm:gap-6 opacity-70 mb-12 sm:mb-16"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
-            >
-              <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-[#c5a572] mr-1.5 sm:mr-2" />
-              <span className="text-xs sm:text-sm text-gray-300">100% Sécurisé</span>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
-            >
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-[#c5a572] mr-1.5 sm:mr-2" />
-              <span className="text-xs sm:text-sm text-gray-300">+100 Utilisateurs</span>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
-            >
-              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-[#c5a572] mr-1.5 sm:mr-2" />
-              <span className="text-xs sm:text-sm text-gray-300">IA de pointe</span>
-            </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }} className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 sm:gap-x-10 opacity-80">
+            {[ { icon: Shield, text: "100% Sécurisé" }, { icon: Users, text: "+100 Utilisateurs" }, { icon: Sparkles, text: "IA de pointe" } ].map((badge, index) => (
+              <motion.div key={index} whileHover={{ scale: 1.05 }} className="flex items-center space-x-2.5 text-gray-300">
+                <badge.icon className="h-5 w-5 text-[#c5a572]" />
+                <span className="text-sm sm:text-base">{badge.text}</span>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>
 
       {/* Section Comment ça marche */}
-      <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-6 sm:mb-8 drop-shadow-lg">
-              Comment ça marche&nbsp;?
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
-              3 étapes simples pour optimiser votre fiscalité avec Francis
-            </p>
-          </motion.div>
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
-            {/* Étape 1 */}
-            <motion.div
-              whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-6 sm:p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
-            >
-              <span className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-base sm:text-lg shadow-lg border border-[#c5a572]/40 z-10">1</span>
-              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2, repeatType: 'reverse' }} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 sm:mb-6 shadow-xl border-4 border-[#c5a572]/30">
-                <Users className="w-8 h-8 sm:w-10 sm:h-10 text-[#1a2942]" />
-              </motion.div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 text-center">Créez votre compte et votre profil</h3>
-              <p className="text-gray-200 text-base sm:text-lg text-center">Inscrivez-vous en 2 minutes et renseignez vos infos pour un accompagnement sur-mesure.</p>
-            </motion.div>
-            {/* Étape 2 */}
-            <motion.div
-              whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-6 sm:p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
-            >
-              <span className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-base sm:text-lg shadow-lg border border-[#c5a572]/40 z-10">2</span>
-              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.2, repeatType: 'reverse' }} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 sm:mb-6 shadow-xl border-4 border-[#c5a572]/30">
-                <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-[#1a2942]" />
-              </motion.div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 text-center">Discutez avec Francis</h3>
-              <p className="text-gray-200 text-base sm:text-lg text-center">Posez vos questions, obtenez des recommandations personnalisées et des plans d'action concrets.</p>
-            </motion.div>
-            {/* Étape 3 */}
-            <motion.div
-              whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-6 sm:p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
-            >
-              <span className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-base sm:text-lg shadow-lg border border-[#c5a572]/40 z-10">3</span>
-              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.4, repeatType: 'reverse' }} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 sm:mb-6 shadow-xl border-4 border-[#c5a572]/30">
-                <Check className="w-8 h-8 sm:w-10 sm:h-10 text-[#1a2942]" />
-              </motion.div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 text-center">Mettez en place&nbsp;!</h3>
-              <p className="text-gray-200 text-base sm:text-lg text-center">Passez à l'action facilement grâce à nos conseils et suivez vos optimisations en temps réel.</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section Avantages */}
-      <section className="py-14 px-4">
+      <section className="py-16 sm:py-24 px-4 bg-[#1E3253]/30">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-8"
-          >
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4 drop-shadow-lg">
-              Pourquoi choisir{' '}
-              <span className="relative inline-block text-[#c5a572]">
-                Francis
-                <motion.span
-                  className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                />
-              </span>
-              {' '}?
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 sm:mb-6 leading-tight shadow-text">Comment ça marche&nbsp;?</h2>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">Trois étapes simples pour optimiser votre fiscalité avec l'aide de Francis, votre expert IA.</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 items-stretch">
+            {[ { icon: Users, title: "Créez votre compte et profil", description: "Inscrivez-vous rapidement et renseignez vos informations pour un accompagnement sur mesure." }, { icon: MessageSquare, title: "Discutez avec Francis", description: "Posez vos questions, obtenez des recommandations personnalisées et des plans d'action clairs." }, { icon: Check, title: "Mettez en place les conseils", description: "Passez à l'action facilement et suivez vos optimisations fiscales en temps réel." } ].map((step, index) => (
+              <motion.div key={index} custom={index} variants={stepItemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-gradient-to-br from-[#1A2942]/70 to-[#223C63]/70 rounded-2xl border border-[#2A3F6C]/60 p-8 flex flex-col items-center shadow-xl hover:shadow-2xl hover:border-[#c5a572]/50 transition-all duration-300 transform hover:-translate-y-1">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 sm:mb-8 shadow-lg border-4 border-[#162238]/50">
+                  <step.icon className="w-10 h-10 sm:w-12 sm:h-12 text-[#162238]" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 text-center">{step.title}</h3>
+                <p className="text-gray-300 text-base sm:text-lg text-center leading-relaxed">{step.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section Pourquoi choisir Francis */}
+      <section className="py-16 sm:py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 sm:mb-6 leading-tight shadow-text">
+              Pourquoi choisir <span className="text-[#c5a572]">Francis</span>&nbsp;?
             </h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-4 py-4 sm:px-6 sm:py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
-              style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
-            >
-              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#c5a572] decoration-2" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>payer moins</span>, légalement.<br />
-              Pas par manque de volonté.<br />
-              Mais parce que <span className="font-bold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>personne</span> ne leur explique.<br />
-              <span className="font-bold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
-              Francis est là pour changer ça.<br />
-              On a trouvé une <span className="font-extrabold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>solution</span>.<br />
-              <span className="font-extrabold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
-            </motion.p>
+          </motion.div>
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="bg-gradient-to-br from-[#1A2942]/60 to-[#223C63]/60 shadow-xl rounded-2xl px-8 py-10 sm:px-12 sm:py-14 mx-auto max-w-4xl border border-[#2A3F6C]/60">
+            <p className="text-lg sm:text-xl text-gray-200 leading-relaxed text-center">
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <strong className="font-semibold text-[#c5a572]">payer moins</strong>, légalement. Pas par manque de volonté, mais parce que <strong className="font-semibold text-white">personne</strong> ne leur explique. <strong className="font-semibold text-[#c5a572]">Ni les impôts, ni les banques, ni les simulateurs incomplets.</strong><br /><br />
+              Francis est là pour changer ça. Nous avons conçu une <strong className="font-semibold text-[#c5a572]">solution unique</strong> : une intelligence artificielle indépendante, dédiée à <strong className="font-semibold text-white">vous défendre, vous guider, et vous faire économiser.</strong>
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Section Offre + Avantages fusionnées */}
-      <section className="py-12 px-2 sm:px-4">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-8 sm:mb-12"
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4 drop-shadow-lg">
-              Une offre unique, des résultats <span className="text-[#c5a572]">concrets</span>
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto">
-              Accédez à toutes les fonctionnalités pour optimiser votre fiscalité
-            </p>
+      {/* Section Offre */} 
+      <section className="py-16 sm:py-24 px-4 bg-[#1E3253]/30">
+        <div className="max-w-5xl mx-auto">
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 sm:mb-6 leading-tight shadow-text">Une offre unique, des résultats <span className="text-[#c5a572]">concrets</span></h2>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">Accédez à toutes les fonctionnalités pour optimiser votre fiscalité et prendre le contrôle de vos finances.</p>
           </motion.div>
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center items-end mb-8 md:mb-10">
-            {/* Offre mensuelle */}
-            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 border-2 border-[#C5A572]/40 rounded-2xl p-6 sm:p-8 flex flex-col items-center shadow-xl min-w-[180px] max-w-xs mx-auto w-full">
-              <div className="text-3xl sm:text-4xl font-extrabold text-[#c5a572] mb-1 sm:mb-2">9,99€</div>
-              <div className="text-[#c5a572] text-base sm:text-lg mb-2 sm:mb-4">par mois</div>
-              <button
-                onClick={() => setShowAuthModal('signup')}
-                className="w-full px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#C5A572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl text-base sm:text-lg hover:shadow-lg hover:shadow-[#C5A572]/20 transition-all transform hover:scale-105 mb-1 sm:mb-2 mt-1 sm:mt-2"
-              >
-                Créer un compte
-              </button>
-            </div>
-            {/* Offre annuelle */}
-            <div className="flex-1 bg-gradient-to-br from-[#223c63]/90 to-[#1a2942]/90 border-2 border-[#C5A572]/40 rounded-2xl p-6 sm:p-8 flex flex-col items-center shadow-xl min-w-[180px] max-w-xs mx-auto w-full relative">
-              <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C5A572] to-[#e8cfa0] text-[#1a2942] px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg border border-[#C5A572]/40">
-                Économisez 17%
-              </div>
-              <div className="text-3xl sm:text-4xl font-extrabold text-[#c5a572] mb-1 sm:mb-2 mt-5 sm:mt-6">99,99€</div>
-              <div className="text-[#c5a572] text-base sm:text-lg mb-1">par an</div>
-              <div className="text-xs sm:text-sm text-white/70 line-through mb-2 sm:mb-4">119,88€</div>
-              <button
-                onClick={() => setShowAuthModal('signup')}
-                className="w-full px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#C5A572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl text-base sm:text-lg hover:shadow-lg hover:shadow-[#C5A572]/20 transition-all transform hover:scale-105 mb-1 sm:mb-2 mt-1 sm:mt-2"
-              >
-                Créer un compte
-              </button>
-            </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 items-stretch mb-12 sm:mb-16">
+            {[ { title: "Offre Mensuelle", price: "9,99€", period: "par mois", features: ["Accès illimité 24/7", "Analyse personnalisée", "Recommandations adaptées", "Suivi en temps réel", "Mises à jour quotidiennes", "Sans engagement"], popular: false, originalPrice: null }, { title: "Offre Annuelle", price: "99,99€", period: "par an", features: ["Tous les avantages mensuels", "Économisez 17%", "Support prioritaire", "Accès anticipé aux nouveautés"], popular: true, originalPrice: "119,88€" } ].map((offer, index) => (
+              <motion.div key={index} custom={index} variants={stepItemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className={`bg-gradient-to-br from-[#1A2942]/80 to-[#223C63]/80 rounded-2xl border ${offer.popular ? 'border-[#c5a572]/80 shadow-2xl' : 'border-[#2A3F6C]/60 shadow-xl'} p-8 flex flex-col relative overflow-hidden hover:border-[#c5a572]/70 transition-all duration-300 transform hover:scale-[1.02]`}>
+                {offer.popular && <div className="absolute top-0 right-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-5 py-1.5 text-sm font-semibold tracking-wider uppercase transform rotate-45 translate-x-1/3 translate-y-1/3 origin-top-right shadow-md">Populaire</div>}
+                <h3 className={`text-2xl sm:text-3xl font-bold mb-2 text-center ${offer.popular ? 'text-[#c5a572]' : 'text-white'}`}>{offer.title}</h3>
+                <div className="text-center mb-6">
+                  <span className={`text-4xl sm:text-5xl font-extrabold ${offer.popular ? 'text-[#c5a572]' : 'text-white'}`}>{offer.price}</span>
+                  <span className="text-base text-gray-400 ml-1">{offer.period}</span>
+                  {offer.originalPrice && <p className="text-sm text-gray-500 line-through mt-1">{offer.originalPrice}</p>}
+                </div>
+                <ul className="space-y-3 mb-8 text-gray-300 flex-grow">
+                  {offer.features.map((feature, i) => (
+                    <li key={i} className="flex items-start">
+                      <Check className={`w-5 h-5 text-[#c5a572] mr-3 mt-1 flex-shrink-0 ${offer.popular ? 'text-[#c5a572]' : 'text-gray-400'}`} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <motion.button
+                  onClick={() => setShowAuthModal('signup')}
+                  whileHover={{ scale: 1.03, boxShadow: `0px 8px 20px ${offer.popular ? 'rgba(197, 165, 114, 0.3)' : 'rgba(197, 165, 114, 0.2)'}` }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full mt-auto px-8 py-3.5 font-semibold rounded-lg shadow-md transition-all duration-300 text-base sm:text-lg border-2 ${offer.popular ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] border-transparent hover:border-[#e8cfa0]/50' : 'bg-white/10 text-gray-100 border-transparent hover:bg-white/20 hover:border-white/30'}`}
+                >
+                  Choisir cette offre
+                </motion.button>
+              </motion.div>
+            ))}
           </div>
-          <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] rounded-2xl border-2 border-[#C5A572]/30 p-5 sm:p-8 shadow-lg max-w-2xl mx-auto">
-            <div className="text-white text-base sm:text-lg font-medium text-center mb-4 sm:mb-6">
-              Tous les outils et services pour optimiser votre fiscalité, inclus dans votre abonnement Francis.
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 justify-center">
-              <div className="flex flex-col items-center min-w-[100px]">
-                <span className="text-[#c5a572] font-bold text-base sm:text-lg">24/7</span>
-                <span className="text-[#e8cfa0] text-xs sm:text-sm">Accès illimité</span>
-              </div>
-              <div className="flex flex-col items-center min-w-[100px]">
-                <span className="text-[#c5a572] font-bold text-base sm:text-lg">Analyse personnalisée</span>
-                <span className="text-[#e8cfa0] text-xs sm:text-sm">Pour votre profil</span>
-              </div>
-              <div className="flex flex-col items-center min-w-[100px]">
-                <span className="text-[#c5a572] font-bold text-base sm:text-lg">Suivi en temps réel</span>
-                <span className="text-[#e8cfa0] text-xs sm:text-sm">Optimisations instantanées</span>
-              </div>
-              <div className="flex flex-col items-center min-w-[100px]">
-                <span className="text-[#c5a572] font-bold text-base sm:text-lg">Mise à jour quotidienne</span>
-                <span className="text-[#e8cfa0] text-xs sm:text-sm">Toujours à jour</span>
-              </div>
-            </div>
-          </div>
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center text-gray-400 text-sm">
+             Paiement sécurisé. Annulation facile à tout moment.
+          </motion.div>
         </div>
       </section>
 
       {/* Section CTA */}
-      <section className="py-20 px-4">
+      <section className="py-16 sm:py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="bg-gradient-to-br from-[#1a2942] to-[#234876] rounded-2xl p-8 sm:p-12 border border-[#c5a572]/20"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 sm:mb-6">
-              Prêt à{' '}
-              <span className="relative inline-block text-[#c5a572]">
-                optimiser
-                <motion.span
-                  className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                />
-              </span>
-              {' '}votre fiscalité ?
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="bg-gradient-to-br from-[#c5a572]/90 to-[#e8cfa0]/90 rounded-2xl p-10 sm:p-16 shadow-2xl border border-[#c5a572]/50">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#162238] mb-6 sm:mb-8 leading-tight shadow-text-dark">
+              Prêt à optimiser votre fiscalité&nbsp;?
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Rejoignez plus de 100 utilisateurs qui font confiance à Francis pour leurs finances.
+            <p className="text-lg sm:text-xl text-[#1E3253]/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed">
+              Rejoignez des centaines d'utilisateurs qui font déjà confiance à Francis pour gérer leurs finances intelligemment.
             </p>
-            <button
+            <motion.button
               onClick={() => setShowAuthModal('signup')}
-              className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 text-sm sm:text-base"
+              whileHover={{ scale: 1.03, boxShadow: "0px 10px 25px rgba(22, 34, 56, 0.3)" }}
+              whileTap={{ scale: 0.98 }}
+              className="px-10 py-4 sm:px-12 sm:py-5 bg-[#162238] text-white font-semibold rounded-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-base sm:text-lg mx-auto border-2 border-transparent hover:border-white/30"
             >
-              Créer un compte
-            </button>
+              Commencer gratuitement
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 opacity-80 group-hover:opacity-100 transition-opacity" />
+            </motion.button>
           </motion.div>
         </div>
       </section>
+
+      {/* Footer - Minimaliste pour ne pas surcharger */}
+      <footer className="py-8 text-center">
+        <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Francis. Tous droits réservés.</p>
+      </footer>
+
     </div>
   );
 } 
