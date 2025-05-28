@@ -25,8 +25,8 @@ export function LandingPage() {
           </div>
           <button
             onClick={() => setShowAuthModal('login')}
-            className="px-7 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-full shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-200 border-2 border-[#c5a572]/40 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 ml-auto max-w-xs truncate text-base md:text-lg"
-            style={{minWidth: '120px'}}
+            className="px-4 py-2 sm:px-7 sm:py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-full shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-200 border-2 border-[#c5a572]/40 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 ml-auto max-w-xs truncate text-sm sm:text-base md:text-lg"
+            style={{minWidth: '100px'}}
           >
             Se connecter
           </button>
@@ -106,7 +106,7 @@ export function LandingPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-16 leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-12 sm:mb-16 leading-tight">
                 Optimisez votre fiscalité avec{' '}
                 <span className="relative inline-block text-[#c5a572]">
                   Francis
@@ -125,7 +125,7 @@ export function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-6 py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
+              className="text-base sm:text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-4 py-4 sm:px-6 sm:py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
               style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
             >
               Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#c5a572] decoration-2" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>payer moins</span>, légalement.<br />
@@ -142,26 +142,26 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-12 sm:mb-16"
           >
             <motion.button
               onClick={() => setShowAuthModal('signup')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform flex items-center justify-center gap-2"
+              className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform flex items-center justify-center gap-2 text-sm sm:text-base"
             >
-              <CreditCard className="w-5 h-5" />
+              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
               Créer un compte
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.05 }}
               onClick={() => setShowDemo(true)}
-              className="px-8 py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform flex items-center justify-center gap-2"
+              className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               Voir la démo
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </motion.div>
 
@@ -170,28 +170,28 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-wrap justify-center gap-6 opacity-70 mb-16"
+            className="flex flex-wrap justify-center gap-4 sm:gap-6 opacity-70 mb-12 sm:mb-16"
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="px-4 py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
             >
-              <Shield className="h-4 w-4 text-[#c5a572] mr-2" />
-              <span className="text-sm text-gray-300">100% Sécurisé</span>
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-[#c5a572] mr-1.5 sm:mr-2" />
+              <span className="text-xs sm:text-sm text-gray-300">100% Sécurisé</span>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="px-4 py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
             >
-              <Users className="h-4 w-4 text-[#c5a572] mr-2" />
-              <span className="text-sm text-gray-300">+100 Utilisateurs</span>
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-[#c5a572] mr-1.5 sm:mr-2" />
+              <span className="text-xs sm:text-sm text-gray-300">+100 Utilisateurs</span>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="px-4 py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10 flex items-center"
             >
-              <Sparkles className="h-4 w-4 text-[#c5a572] mr-2" />
-              <span className="text-sm text-gray-300">IA de pointe</span>
+              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-[#c5a572] mr-1.5 sm:mr-2" />
+              <span className="text-xs sm:text-sm text-gray-300">IA de pointe</span>
             </motion.div>
           </motion.div>
         </div>
@@ -205,12 +205,12 @@ export function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-8 drop-shadow-lg">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-6 sm:mb-8 drop-shadow-lg">
               Comment ça marche&nbsp;?
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
               3 étapes simples pour optimiser votre fiscalité avec Francis
             </p>
           </motion.div>
@@ -219,40 +219,40 @@ export function LandingPage() {
             <motion.div
               whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
               transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
+              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-6 sm:p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
             >
-              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-5 py-2 rounded-full text-lg shadow-lg border border-[#c5a572]/40 z-10">1</span>
-              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2, repeatType: 'reverse' }} className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 shadow-xl border-4 border-[#c5a572]/30">
-                <Users className="w-10 h-10 text-[#1a2942]" />
+              <span className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-base sm:text-lg shadow-lg border border-[#c5a572]/40 z-10">1</span>
+              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2, repeatType: 'reverse' }} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 sm:mb-6 shadow-xl border-4 border-[#c5a572]/30">
+                <Users className="w-8 h-8 sm:w-10 sm:h-10 text-[#1a2942]" />
               </motion.div>
-              <h3 className="text-2xl font-bold text-white mb-3 text-center">Créez votre compte et votre profil</h3>
-              <p className="text-gray-200 text-lg text-center">Inscrivez-vous en 2 minutes et renseignez vos infos pour un accompagnement sur-mesure.</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 text-center">Créez votre compte et votre profil</h3>
+              <p className="text-gray-200 text-base sm:text-lg text-center">Inscrivez-vous en 2 minutes et renseignez vos infos pour un accompagnement sur-mesure.</p>
             </motion.div>
             {/* Étape 2 */}
             <motion.div
               whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
               transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
+              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-6 sm:p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
             >
-              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-5 py-2 rounded-full text-lg shadow-lg border border-[#c5a572]/40 z-10">2</span>
-              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.2, repeatType: 'reverse' }} className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 shadow-xl border-4 border-[#c5a572]/30">
-                <MessageSquare className="w-10 h-10 text-[#1a2942]" />
+              <span className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-base sm:text-lg shadow-lg border border-[#c5a572]/40 z-10">2</span>
+              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.2, repeatType: 'reverse' }} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 sm:mb-6 shadow-xl border-4 border-[#c5a572]/30">
+                <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-[#1a2942]" />
               </motion.div>
-              <h3 className="text-2xl font-bold text-white mb-3 text-center">Discutez avec Francis</h3>
-              <p className="text-gray-200 text-lg text-center">Posez vos questions, obtenez des recommandations personnalisées et des plans d'action concrets.</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 text-center">Discutez avec Francis</h3>
+              <p className="text-gray-200 text-base sm:text-lg text-center">Posez vos questions, obtenez des recommandations personnalisées et des plans d'action concrets.</p>
             </motion.div>
             {/* Étape 3 */}
             <motion.div
               whileHover={{ y: -8, boxShadow: '0 8px 32px #c5a57255' }}
               transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
+              className="flex-1 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80 rounded-3xl border-2 border-[#c5a572]/40 p-6 sm:p-10 flex flex-col items-center shadow-2xl backdrop-blur-xl relative group transition-all duration-300"
             >
-              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-5 py-2 rounded-full text-lg shadow-lg border border-[#c5a572]/40 z-10">3</span>
-              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.4, repeatType: 'reverse' }} className="w-20 h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 shadow-xl border-4 border-[#c5a572]/30">
-                <Check className="w-10 h-10 text-[#1a2942]" />
+              <span className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-base sm:text-lg shadow-lg border border-[#c5a572]/40 z-10">3</span>
+              <motion.div animate={{ scale: [1,1.08,1] }} transition={{ repeat: Infinity, duration: 2.4, repeatType: 'reverse' }} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 sm:mb-6 shadow-xl border-4 border-[#c5a572]/30">
+                <Check className="w-8 h-8 sm:w-10 sm:h-10 text-[#1a2942]" />
               </motion.div>
-              <h3 className="text-2xl font-bold text-white mb-3 text-center">Mettez en place&nbsp;!</h3>
-              <p className="text-gray-200 text-lg text-center">Passez à l'action facilement grâce à nos conseils et suivez vos optimisations en temps réel.</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 text-center">Mettez en place&nbsp;!</h3>
+              <p className="text-gray-200 text-base sm:text-lg text-center">Passez à l'action facilement grâce à nos conseils et suivez vos optimisations en temps réel.</p>
             </motion.div>
           </div>
         </div>
@@ -286,7 +286,7 @@ export function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-6 py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
+              className="text-base sm:text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-4 py-4 sm:px-6 sm:py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
               style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
             >
               Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#c5a572] decoration-2" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>payer moins</span>, légalement.<br />
@@ -380,9 +380,9 @@ export function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-gradient-to-br from-[#1a2942] to-[#234876] rounded-2xl p-12 border border-[#c5a572]/20"
+            className="bg-gradient-to-br from-[#1a2942] to-[#234876] rounded-2xl p-8 sm:p-12 border border-[#c5a572]/20"
           >
-            <h2 className="text-4xl font-bold text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 sm:mb-6">
               Prêt à{' '}
               <span className="relative inline-block text-[#c5a572]">
                 optimiser
@@ -395,12 +395,12 @@ export function LandingPage() {
               </span>
               {' '}votre fiscalité ?
             </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
               Rejoignez plus de 100 utilisateurs qui font confiance à Francis pour leurs finances.
             </p>
             <button
               onClick={() => setShowAuthModal('signup')}
-              className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105"
+              className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 text-sm sm:text-base"
             >
               Créer un compte
             </button>

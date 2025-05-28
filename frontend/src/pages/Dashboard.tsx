@@ -359,7 +359,8 @@ Je vous aiderai à atteindre vos objectifs.`;
     setChatHistory(prev => [...prev, { role: 'user', content: userQuestion }]);
     
     try {
-      const response = await fetch('http://localhost:8080/chat', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -463,7 +464,8 @@ Je vous aiderai à atteindre vos objectifs.`;
       formData.append('userId', userId || '');
       formData.append('type', type);
 
-      const response = await fetch('http://localhost:8000/process-document', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/process-document`, {
         method: 'POST',
         body: formData,
       });
