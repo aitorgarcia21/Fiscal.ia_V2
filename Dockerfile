@@ -86,6 +86,16 @@ RUN chmod +x start.sh
 RUN find . -type d -name "__pycache__" -exec rm -r {} +
 RUN find . -type f -name "*.pyc" -delete
 
+# --- Début des commandes de débogage ---
+RUN echo "=== Contenu de /app/backend/ pour débogage ==="
+RUN ls -la /app/backend/
+RUN echo "=== Tentative d'affichage de mistral_embeddings.py pour débogage ==="
+RUN cat /app/backend/mistral_embeddings.py || echo "Impossible d'afficher mistral_embeddings.py"
+RUN echo "=== Tentative d'importation directe pour débogage ==="
+RUN python -c "from backend.mistral_embeddings import search_similar_bofip_chunks; print('Importation directe de search_similar_bofip_chunks réussie')" || echo "Importation directe échouée"
+RUN python -c "import sys; print(sys.path)" # Afficher PYTHONPATH
+# --- Fin des commandes de débogage ---
+
 # Variables d'environnement pour Railway
 ENV PORT=8080
 ENV PYTHONPATH=/app/backend
