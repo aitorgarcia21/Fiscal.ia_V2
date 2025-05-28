@@ -22,6 +22,10 @@ COPY frontend/ .
 ENV NODE_ENV=production
 RUN npm run build
 
+# Debug: Vérifier le contenu du dossier dist
+RUN ls -la dist/
+RUN ls -la dist/assets/
+
 # Stage 2: Production
 FROM python:3.11-slim
 
@@ -35,6 +39,10 @@ RUN apt-get update && \
 
 # Copier le frontend buildé
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
+
+# Debug: Vérifier le contenu après copie
+RUN ls -la /var/www/html/
+RUN ls -la /var/www/html/assets/
 
 # Copier les fichiers backend
 COPY backend/ ./backend
