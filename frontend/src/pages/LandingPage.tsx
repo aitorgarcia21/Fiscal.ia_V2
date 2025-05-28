@@ -113,8 +113,7 @@ export function LandingPage() {
             </motion.div>
 
             <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Votre assistant fiscal intelligent qui vous aide à{' '}
-              <span className="text-[#c5a572] font-semibold">optimiser vos impôts</span> et à prendre les meilleures décisions financières.
+              Votre assistant fiscal <span className="text-[#c5a572] font-semibold">propulsé par IA</span> qui vous aide à optimiser vos impôts et à prendre les meilleures décisions financières.
             </p>
           </motion.div>
 
