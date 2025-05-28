@@ -23,6 +23,9 @@ WORKDIR /app/backend
 # Copier les fichiers de configuration backend
 COPY backend/requirements.txt .
 
+# Installer les dépendances système nécessaires à psycopg2-binary
+RUN apt-get update && apt-get install -y gcc libpq-dev
+
 # Installer les dépendances backend
 RUN pip install --no-cache-dir -r requirements.txt
 
