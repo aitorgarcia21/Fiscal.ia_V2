@@ -128,13 +128,13 @@ export function LandingPage() {
               className="text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-6 py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
               style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
             >
-              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#FFD700] decoration-2" style={{color:'#FFD700', textShadow:'0 2px 8px #1a2942,0 0 2px #C5A572'}}>payer moins</span>, légalement.<br />
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#c5a572] decoration-2" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>payer moins</span>, légalement.<br />
               Pas par manque de volonté.<br />
-              Mais parce que <span className="font-bold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #C5A572'}}>personne</span> ne leur explique.<br />
-              <span className="font-bold" style={{color:'#C5A572', textShadow:'0 2px 8px #1a2942,0 0 2px #FFD700'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
+              Mais parce que <span className="font-bold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>personne</span> ne leur explique.<br />
+              <span className="font-bold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
               Francis est là pour changer ça.<br />
-              On a trouvé une <span className="font-extrabold" style={{color:'#FFD700', textShadow:'0 2px 8px #1a2942,0 0 2px #C5A572'}}>solution</span>.<br />
-              <span className="font-extrabold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #C5A572'}}>Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
+              On a trouvé une <span className="font-extrabold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>solution</span>.<br />
+              <span className="font-extrabold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
             </motion.p>
           </motion.div>
 
@@ -289,12 +289,12 @@ export function LandingPage() {
               className="text-lg md:text-xl font-semibold text-white bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] shadow-xl rounded-2xl px-6 py-6 mx-auto max-w-2xl mb-4 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
               style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
             >
-              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#bfa14a] decoration-2" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>payer moins</span>, légalement.<br />
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="font-bold underline decoration-[#c5a572] decoration-2" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>payer moins</span>, légalement.<br />
               Pas par manque de volonté.<br />
               Mais parce que <span className="font-bold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>personne</span> ne leur explique.<br />
-              <span className="font-bold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
+              <span className="font-bold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
               Francis est là pour changer ça.<br />
-              On a trouvé une <span className="font-extrabold" style={{color:'#ffe082', textShadow:'0 2px 8px #1a2942,0 0 2px #bfa14a'}}>solution</span>.<br />
+              On a trouvé une <span className="font-extrabold" style={{color:'#c5a572', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>solution</span>.<br />
               <span className="font-extrabold" style={{color:'#fff', textShadow:'0 2px 8px #1a2942,0 0 2px #c5a572'}}>Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
             </motion.p>
           </motion.div>
