@@ -14,6 +14,10 @@ trap cleanup SIGTERM SIGINT
 # Configurer le port pour Railway
 export PORT=${PORT:-3000}
 
+echo "=== Configuration ==="
+echo "PORT: $PORT"
+echo "PYTHONPATH: $PYTHONPATH"
+
 # Aller dans le répertoire de l'application
 cd /app
 
@@ -23,15 +27,28 @@ if [ ! -f "backend/main.py" ]; then
     exit 1
 fi
 
+if [ ! -d "/var/www/html" ]; then
+    echo "Erreur: /var/www/html non trouvé"
+    exit 1
+fi
+
+# Vérifier que le frontend est bien copié
+echo "=== Vérification du frontend ==="
+ls -la /var/www/html/
+if [ ! -f "/var/www/html/index.html" ]; then
+    echo "Erreur: index.html non trouvé dans /var/www/html"
+    exit 1
+fi
+
 # Démarrer le backend en arrière-plan
-echo "Démarrage du backend sur le port 8000..."
+echo "=== Démarrage du backend sur le port 8000 ==="
 cd backend
 
 # Ajouter le répertoire backend au PYTHONPATH
 export PYTHONPATH="/app/backend:$PYTHONPATH"
 
 # Démarrer uvicorn avec plus de verbosité pour le debug
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level debug &
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info &
 BACKEND_PID=$!
 
 # Attendre que le backend soit prêt
@@ -59,20 +76,38 @@ for i in {1..30}; do
     sleep 2
 done
 
-# Démarrer nginx au premier plan
-echo "Démarrage de nginx sur le port $PORT..."
+# Configurer nginx
+echo "=== Configuration de Nginx ==="
 cd /app
 
 # Remplacer le port dans la configuration nginx
 sed -i "s/listen 3000;/listen $PORT;/g" /etc/nginx/nginx.conf
 
-# Démarrer nginx
+# Vérifier la configuration nginx
+nginx -t
+if [ $? -ne 0 ]; then
+    echo "Erreur: Configuration nginx invalide"
+    exit 1
+fi
+
+# Démarrer nginx au premier plan
+echo "=== Démarrage de nginx sur le port $PORT ==="
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
-echo "Nginx démarré avec succès"
-echo "Application disponible sur le port $PORT"
-echo "API disponible sur /api/"
+# Attendre un peu pour que nginx démarre
+sleep 5
+
+# Vérifier que nginx fonctionne
+if ! kill -0 $NGINX_PID 2>/dev/null; then
+    echo "Erreur: Nginx ne s'est pas démarré correctement"
+    exit 1
+fi
+
+echo "=== Services démarrés avec succès ==="
+echo "✅ Backend: http://localhost:8000"
+echo "✅ Frontend + API: http://localhost:$PORT"
+echo "✅ API accessible sur: http://localhost:$PORT/api/"
 
 # Attendre l'arrêt
 wait 
