@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useStripe } from '../hooks/useStripe';
 import { PRICING } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
+import { DemoConversation } from '../components/demo/DemoConversation';
 
 export function LandingPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -17,11 +18,17 @@ export function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-[#1a2942]/95 backdrop-blur-sm border-b border-[#234876] z-30">
-        <div className="h-16 max-w-7xl mx-auto px-4 flex items-center justify-center">
+        <div className="h-16 max-w-7xl mx-auto px-4 flex items-center justify-between">
           <div className="relative inline-flex items-center justify-center group">
             <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110" />
             <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
           </div>
+          <button
+            onClick={() => setShowAuthModal(true)}
+            className="px-6 py-2 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105"
+          >
+            Se connecter
+          </button>
         </div>
       </header>
 
@@ -130,7 +137,7 @@ export function LandingPage() {
               className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform flex items-center justify-center gap-2"
             >
               <CreditCard className="w-5 h-5" />
-              Se connecter
+              Créer un compte
               <ArrowRight className="w-5 h-5" />
             </motion.button>
 
@@ -210,101 +217,8 @@ export function LandingPage() {
               Une intelligence artificielle indépendante, conçue pour vous défendre, vous guider, vous faire économiser.
             </p>
           </motion.div>
-          {/* Bloc démo Francis/Paul */}
-          <div className="max-w-3xl mx-auto mb-12">
-            <div className="bg-[#1a2942]/80 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/30 shadow-xl">
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="relative inline-flex items-center justify-center group">
-                    <MessageSquare className="h-7 w-7 text-[#c5a572]" />
-                    <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg mb-2">Salut Paul ! On optimise ton impôt sur le revenu 2025 ? Dis-moi si j'ai bon :</p>
-                    <div className="bg-white/10 rounded-lg p-4 space-y-2 border border-[#c5a572]/20">
-                      <p className="text-[#c5a572] font-medium">• Revenu net imposable 2024 : 50 000 €</p>
-                      <p className="text-[#c5a572] font-medium">• Tu es marié, avec 1 enfant à charge</p>
-                      <p className="text-[#c5a572] font-medium">• Tu veux payer moins d'impôt et préparer ta retraite</p>
-                    </div>
-                    <p className="text-white text-lg mt-2">C'est bien ça ?</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/30">
-                    <Users className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg">Oui, c'est ça !</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="relative inline-flex items-center justify-center group">
-                    <MessageSquare className="h-7 w-7 text-[#c5a572]" />
-                    <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg mb-2">Top ! Voici 3 leviers efficaces pour ton profil 👇</p>
-                    <div className="space-y-4">
-                      <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-                        <p className="text-[#c5a572] font-medium mb-1">1. Plan Épargne Retraite (PER)</p>
-                        <p>💡 Tu peux verser jusqu'à 5 000 € en 2025 (c'est ton plafond déductible).</p>
-                        <p>📉 Ce montant est retiré de ton revenu imposable → il passe de 50 000 € à 45 000 €</p>
-                        <p>📊 Résultat : 550 € d'impôt en moins</p>
-                      </div>
-                      <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-                        <p className="text-[#c5a572] font-medium mb-1">2. Location meublée (LMNP)</p>
-                        <p>🏘️ Tu achètes un petit bien à louer meublé</p>
-                        <p>🧾 En meublé réel, tu peux amortir le bien + charges</p>
-                        <p>✅ Résultat : souvent 0 € d'impôt pendant plusieurs années sur les loyers</p>
-                      </div>
-                      <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-                        <p className="text-[#c5a572] font-medium mb-1">3. Don à une association</p>
-                        <p>❤️ Tu donnes 1 000 € à une ONG</p>
-                        <p>💶 Tu récupères 660 € en crédit d'impôt</p>
-                        <p className="text-sm text-gray-300">(ou 750 € si c'est une association d'aide aux plus démunis)</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/30">
-                    <Users className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg">Et si je mets seulement 3 000 € sur le PER ?</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="relative inline-flex items-center justify-center group">
-                    <MessageSquare className="h-7 w-7 text-[#c5a572]" />
-                    <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg mb-2">Alors ton économie tombe à 330 € (3 000 € × 11 %)</p>
-                    <p>➕ Avec ton don de 1 000 €, ça fait 990 € d'impôt en moins</p>
-                    <p>➕ Et si tu fais de la location meublée, tu peux carrément ne plus rien payer sur les loyers</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/30">
-                    <Users className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg">OK c'est clair. On continue ?</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="relative inline-flex items-center justify-center group">
-                    <MessageSquare className="h-7 w-7 text-[#c5a572]" />
-                    <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-lg mb-2">Yes ! Crée ton compte, et je t'analyse tout ça à partir de tes vrais chiffres.<br/>Tu auras un plan fiscal personnalisé, prêt à appliquer.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Bloc démo Francis/Paul dynamique */}
+          <DemoConversation />
         </div>
       </section>
 
@@ -353,7 +267,7 @@ export function LandingPage() {
                     onClick={() => setShowAuthModal(true)}
                     className="w-full px-6 py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                   >
-                    Choisir mensuel
+                    Créer un compte
                   </button>
                 </div>
                 {/* Annuel */}
@@ -368,7 +282,7 @@ export function LandingPage() {
                     onClick={() => setShowAuthModal(true)}
                     className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                   >
-                    Choisir annuel
+                    Créer un compte
                   </button>
                 </div>
               </div>
@@ -438,7 +352,7 @@ export function LandingPage() {
                     onClick={() => setShowAuthModal(true)}
                     className="px-8 py-4 bg-[#1a2942] text-white font-bold rounded-xl border border-[#c5a572]/30 hover:bg-[#1a2942]/80 transition-all transform hover:scale-105"
                   >
-                    Se connecter
+                    Créer un compte
                   </button>
                 </div>
                 <StripeError message={error || ''} />
@@ -484,7 +398,7 @@ export function LandingPage() {
               onClick={() => setShowAuthModal(true)}
               className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105"
             >
-              Commencer gratuitement
+              Créer un compte
             </button>
           </motion.div>
         </div>
