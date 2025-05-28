@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import List, Dict
 import requests
 import time
-from mistralai import Mistral
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -13,16 +14,16 @@ EMBEDDINGS_DIR = "data/embeddings"
 CHUNKS_DIR = "data/cgi_chunks"
 
 # Initialisation du client Mistral
-client = Mistral(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
+client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 
 def get_embedding(text: str) -> np.ndarray:
     """Obtient l'embedding d'un texte via l'API Mistral."""
     if not client:
         raise Exception("Client Mistral non initialisé")
     
-    response = client.embeddings.create(
+    response = client.embeddings(
         model="mistral-embed",
-        inputs=[text]
+        input=[text]
     )
     return np.array(response.data[0].embedding)
 
@@ -39,104 +40,109 @@ def format_article_for_display(article_data: Dict) -> str:
     return f"Article {article_data['article_number']}\n\n" + '\n\n'.join(chunks)
 
 def search_similar_articles(query: str, top_k: int = 5) -> List[Dict]:
-    """Recherche les articles les plus similaires à une question."""
-    # Vérifier si les dossiers existent
-    if not Path(EMBEDDINGS_DIR).exists() or not Path(CHUNKS_DIR).exists():
-        print(f"Attention: Les dossiers de données n'existent pas ({EMBEDDINGS_DIR}, {CHUNKS_DIR})")
-        return []
-    
-    if not client:
-        print("Attention: Client Mistral non initialisé")
-        return []
-    
+    """Recherche les articles les plus similaires à la requête."""
     try:
-        query_embedding = get_embedding(query)
-        similarities = []
+        # Vérifier si les dossiers existent
+        if not os.path.exists(EMBEDDINGS_DIR) or not os.path.exists(CHUNKS_DIR):
+            print(f"Dossiers manquants: {EMBEDDINGS_DIR} ou {CHUNKS_DIR}")
+            return []
         
-        for emb_file in Path(EMBEDDINGS_DIR).glob("*.npy"):
+        # Obtenir l'embedding de la requête
+        query_embedding = get_embedding(query)
+        
+        # Charger tous les embeddings et chunks
+        similarities = []
+        embeddings_path = Path(EMBEDDINGS_DIR)
+        chunks_path = Path(CHUNKS_DIR)
+        
+        if not embeddings_path.exists() or not chunks_path.exists():
+            return []
+        
+        for embedding_file in embeddings_path.glob("*.npy"):
             try:
-                article_embedding = np.load(emb_file)
-                similarity = cosine_similarity(query_embedding, article_embedding)
+                # Charger l'embedding
+                embedding = np.load(embedding_file)
                 
-                article_file = Path(CHUNKS_DIR) / (emb_file.stem + '.json')
-                if article_file.exists():
-                    with open(article_file, 'r') as f:
-                        article_data = json.load(f)
+                # Calculer la similarité
+                similarity = cosine_similarity(query_embedding, embedding)
+                
+                # Charger le chunk correspondant
+                chunk_file = chunks_path / f"{embedding_file.stem}.json"
+                if chunk_file.exists():
+                    with open(chunk_file, 'r', encoding='utf-8') as f:
+                        chunk_data = json.load(f)
                     
                     similarities.append({
-                        'file': article_file.name,
                         'similarity': similarity,
-                        'article_data': article_data,
-                        'formatted_text': format_article_for_display(article_data)
+                        'content': chunk_data.get('content', ''),
+                        'source': chunk_data.get('source', ''),
+                        'article_id': chunk_data.get('article_id', '')
                     })
             except Exception as e:
-                print(f"Erreur lors du traitement de {emb_file}: {e}")
+                print(f"Erreur lors du traitement de {embedding_file}: {e}")
                 continue
         
+        # Trier par similarité et retourner les top_k
         similarities.sort(key=lambda x: x['similarity'], reverse=True)
         return similarities[:top_k]
+    
     except Exception as e:
-        print(f"Erreur lors de la recherche: {e}")
+        print(f"Erreur dans search_similar_articles: {e}")
         return []
 
-def create_prompt(query: str, context: List[Dict]) -> str:
-    """Crée le prompt pour l'assistant avec le contexte."""
-    if not context:
-        return f"""Tu es Francis, un expert en fiscalité française avec plus de 20 ans d'expérience. 
-
-Question de l'utilisateur : {query}
-
-IMPORTANT : Les données de référence ne sont pas disponibles actuellement. Réponds en te basant sur tes connaissances générales en fiscalité française, mais précise que tu n'as pas accès aux articles spécifiques du CGI pour cette réponse."""
+def create_prompt(query: str, similar_articles: List[Dict]) -> str:
+    """Crée le prompt pour l'assistant fiscal."""
+    context = "\n\n".join([
+        f"Article {article.get('article_id', 'N/A')}: {article['content']}"
+        for article in similar_articles
+    ])
     
-    context_text = "\n\n".join([f"---\n{result['formatted_text']}" for result in context])
+    prompt = f"""Tu es un assistant fiscal expert. Réponds à la question suivante en te basant sur les articles du Code Général des Impôts fournis.
+
+Question: {query}
+
+Articles pertinents du CGI:
+{context}
+
+Instructions:
+- Réponds de manière précise et professionnelle
+- Cite les articles du CGI utilisés
+- Si les informations ne sont pas suffisantes, indique-le clairement
+- Utilise un langage accessible tout en restant technique
+
+Réponse:"""
     
-    return f"""Tu es Francis, un expert en fiscalité française avec plus de 20 ans d'expérience. Tu dois répondre à la question de l'utilisateur en te basant uniquement sur les articles du Code Général des Impôts fournis ci-dessous.
+    return prompt
 
-Articles pertinents du CGI :
-{context_text}
-
-Question de l'utilisateur : {query}
-
-IMPORTANT - Instructions de réponse :
-1. Réponds DIRECTEMENT à la question posée, sans faire de digressions
-2. Si la question est simple, donne une réponse simple
-3. Si la question demande des détails, explique en détail
-4. Commence toujours par la réponse principale
-5. Utilise les articles comme base de ta réponse mais NE LES CITE PAS
-6. Évite le jargon juridique complexe
-7. Si tu ne peux pas répondre avec certitude, dis-le clairement
-8. Sois professionnel mais accessible, comme un expert qui explique à un client
-
-Format de réponse souhaité :
-- Réponse principale : [réponse directe à la question]
-- Détails : [si nécessaire, explications supplémentaires]"""
-
-def get_assistant_response(query: str) -> str:
-    """Obtient la réponse de l'assistant avec le contexte."""
-    if not client:
-        return "Erreur: Le service Mistral n'est pas disponible."
-    
+def get_fiscal_response(query: str) -> str:
+    """Obtient une réponse de l'assistant fiscal."""
     try:
-        # Recherche des articles pertinents
-        context = search_similar_articles(query)
+        if not client:
+            return "Erreur: Client Mistral non configuré"
         
-        # Création du prompt avec le contexte
-        prompt = create_prompt(query, context)
+        # Rechercher les articles similaires
+        similar_articles = search_similar_articles(query)
         
-        # Appel à l'API Mistral
-        messages = [
-            {"role": "system", "content": "Tu es un assistant fiscal expert en droit fiscal français."},
-            {"role": "user", "content": prompt}
-        ]
+        if not similar_articles:
+            return "Aucun article pertinent trouvé dans la base de données."
         
-        response = client.chat.complete(
+        # Créer le prompt
+        prompt = create_prompt(query, similar_articles)
+        
+        # Obtenir la réponse de Mistral
+        messages = [ChatMessage(role="user", content=prompt)]
+        
+        response = client.chat(
             model="mistral-large-latest",
             messages=messages,
-            temperature=0.3  # Température basse pour des réponses plus précises
+            temperature=0.1,
+            max_tokens=1000
         )
         
         return response.choices[0].message.content
+    
     except Exception as e:
+        print(f"Erreur dans get_fiscal_response: {e}")
         return f"Erreur lors de la génération de la réponse: {str(e)}"
 
 def main():
@@ -149,7 +155,7 @@ def main():
             break
             
         try:
-            response = get_assistant_response(query)
+            response = get_fiscal_response(query)
             print("\nRéponse :")
             print("-" * 50)
             print(response)
