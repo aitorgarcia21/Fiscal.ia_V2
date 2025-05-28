@@ -6,11 +6,14 @@ WORKDIR /app/frontend
 # Copier les fichiers de configuration frontend
 COPY frontend/package*.json ./
 
-# Installer les dépendances frontend (toutes nécessaires pour le build)
-ENV NODE_OPTIONS="--max-old-space-size=384"
+# Installer les dépendances frontend avec gestion des dépendances optionnelles Rollup
+ENV NODE_OPTIONS="--max-old-space-size=512"
 ENV NPM_CONFIG_FUND=false
 ENV NPM_CONFIG_AUDIT=false
-RUN npm install --no-optional
+
+# Installation en deux étapes pour gérer Rollup correctement
+RUN npm install
+RUN npm rebuild
 
 # Copier le code source frontend
 COPY frontend/ .
