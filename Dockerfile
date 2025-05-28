@@ -38,10 +38,8 @@ RUN echo "=== Contenu du dossier dist ==="
 RUN ls -la dist/
 RUN echo "=== Contenu du dossier dist/assets ==="
 RUN ls -la dist/assets/
-RUN echo "=== Contenu de index.html ==="
-RUN cat dist/index.html
-RUN echo "=== Contenu de dist/index.html ==="
-RUN cat dist/index.html
+RUN echo "=== Contenu de /app/frontend/dist/index.html ==="
+RUN cat /app/frontend/dist/index.html
 RUN echo "=== Vérification des assets ==="
 RUN find dist -type f -name "*.js" -o -name "*.css" -o -name "*.svg" | sort
 
