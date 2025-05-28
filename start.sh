@@ -35,10 +35,20 @@ fi
 # Vérifier que le frontend est bien copié
 echo "=== Vérification du frontend ==="
 ls -la /var/www/html/
+
+# Supprimer le fichier nginx par défaut qui pourrait interférer
+if [ -f "/var/www/html/index.nginx-debian.html" ]; then
+    echo "Suppression du fichier nginx par défaut..."
+    rm -f /var/www/html/index.nginx-debian.html
+fi
+
 if [ ! -f "/var/www/html/index.html" ]; then
     echo "Erreur: index.html non trouvé dans /var/www/html"
     exit 1
 fi
+
+echo "Contenu de index.html:"
+head -10 /var/www/html/index.html
 
 # Démarrer le backend en arrière-plan
 echo "=== Démarrage du backend sur le port 8000 (localhost uniquement) ==="
@@ -83,6 +93,10 @@ cd /app
 # Remplacer le port dans la configuration nginx
 sed -i "s/listen 3000;/listen $PORT;/g" /etc/nginx/nginx.conf
 
+# Afficher la configuration nginx pour debug
+echo "Configuration nginx finale:"
+cat /etc/nginx/nginx.conf
+
 # Vérifier la configuration nginx
 nginx -t
 if [ $? -ne 0 ]; then
@@ -103,6 +117,13 @@ if ! kill -0 $NGINX_PID 2>/dev/null; then
     echo "Erreur: Nginx ne s'est pas démarré correctement"
     exit 1
 fi
+
+# Test de connectivité
+echo "=== Tests de connectivité ==="
+echo "Test frontend local:"
+curl -I http://127.0.0.1:$PORT/ || echo "Erreur: Frontend non accessible"
+echo "Test API locale:"
+curl -I http://127.0.0.1:$PORT/api/health || echo "Erreur: API non accessible"
 
 echo "=== Services démarrés avec succès ==="
 echo "✅ Backend: http://127.0.0.1:8000 (localhost uniquement)"
