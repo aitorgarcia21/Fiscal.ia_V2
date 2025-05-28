@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, 
@@ -23,14 +23,16 @@ import {
   Euro,
   Loader2,
   Upload,
-  File,
+  Paperclip,
   CheckCircle2,
   AlertCircle,
   Receipt,
   CreditCard,
-  Calculator
+  Calculator,
+  LogOut,
+  Home
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase, UserProfile } from '../lib/supabase';
 
 interface ChatMessage {
@@ -53,79 +55,57 @@ interface TrueLayerError {
 
 declare global {
   interface Window {
-    TrueLayer: new (config: {
-      clientId: string;
-      redirectUri: string;
-      scope: string[];
-      locale: string;
-      onSuccess: (data: TrueLayerSuccessData) => void;
-      onError: (error: TrueLayerError) => void;
-    }) => {
-      open: () => void;
-    };
+    TrueLayer: any;
   }
 }
+
+const initialProfileData: Partial<UserProfile> = {
+  situation: '',
+  revenus: '',
+  patrimoine: '',
+  objectifs: [],
+  toleranceRisque: '',
+  horizonInvestissement: '',
+  nombreEnfants: 0,
+  agesEnfants: '',
+  typeRevenus: [],
+  autresRevenus: '',
+  situationProfessionnelle: '',
+  statutFiscal: '',
+  regimeImposition: '',
+  investissementsExistants: [],
+  projetsImmobiliers: '',
+  besoinsRetraite: '',
+  situationFamiliale: '',
+  localisation: '',
+  zoneFiscale: '',
+  secteurActivite: '',
+  revenusPassifs: '',
+  dettes: '',
+  objectifsFinanciers: [],
+  contraintesFiscales: [],
+  compositionPatrimoine: [],
+  is_active: false,
+};
 
 export function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [question, setQuestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const chatEndRef = useRef<null | HTMLDivElement>(null);
+
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Bonjour ! Je suis Francis, votre conseiller fiscal IA 🤖
-
-Je peux vous aider à :
-• Optimiser vos impôts
-• Analyser vos documents fiscaux
-• Répondre à vos questions sur la fiscalité
-
-Posez-moi votre question ou choisissez un parcours :
-1. 🎯 Parcours guidé
-2. 💬 Chat libre
-
-Voici quelques questions que vous pouvez me poser :
-• Comment optimiser ma déclaration d'impôts ?
-• Quelles sont les meilleures stratégies de défiscalisation ?
-• Comment gérer ma TVA en tant qu'auto-entrepreneur ?
-• Quels sont les avantages fiscaux pour les investissements immobiliers ?
-
-Je suis là pour vous accompagner ! 💡`
+      content: `Bonjour ! Je suis Francis, votre assistant expert en fiscalité française, développé par Fiscal.ia. 🤖\n\nFort de ma connaissance approfondie des textes officiels (Code Général des Impôts, BOFIP), je suis à votre disposition pour :\n• Optimiser vos impôts et déclarations\n• Analyser vos documents fiscaux (avis d'imposition, etc.)\n• Répondre à toutes vos questions sur la fiscalité française\n\nComment puis-je vous aider aujourd'hui ? Vous pouvez me poser une question directement, ou choisir un parcours d'accompagnement si vous le souhaitez.`
     }
   ]);
-  const [activeTab, setActiveTab] = useState('home');
-  const [profileData, setProfileData] = useState<Partial<UserProfile>>({
-    situation: '',
-    revenus: '',
-    patrimoine: '',
-    objectifs: [],
-    toleranceRisque: '',
-    horizonInvestissement: '',
-    nombreEnfants: 0,
-    agesEnfants: '',
-    typeRevenus: [],
-    autresRevenus: '',
-    situationProfessionnelle: '',
-    statutFiscal: '',
-    regimeImposition: '',
-    investissementsExistants: [],
-    projetsImmobiliers: '',
-    besoinsRetraite: '',
-    situationFamiliale: '',
-    localisation: '',
-    zoneFiscale: '',
-    secteurActivite: '',
-    revenusPassifs: '',
-    dettes: '',
-    objectifsFinanciers: [],
-    contraintesFiscales: [],
-    compositionPatrimoine: [],
-    is_active: false,
-  });
-
+  const [activeTab, setActiveTab] = useState('chat');
+  const [profileData, setProfileData] = useState<Partial<UserProfile>>(initialProfileData);
   const [profileCompleted, setProfileCompleted] = useState(false);
   const [chatMode, setChatMode] = useState('libre');
   const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectedBanks, setConnectedBanks] = useState<string[]>([]);
   const [bankData, setBankData] = useState<any>(null);
@@ -137,286 +117,157 @@ Je suis là pour vous accompagner ! 💡`
     data?: any;
   }>>([]);
   const [dragActive, setDragActive] = useState(false);
+  const navigate = useNavigate();
 
-  // Ajouter des suggestions de questions
   const suggestedQuestions = [
     "Comment optimiser ma déclaration d'impôts ?",
-    "Quelles sont les meilleures stratégies de défiscalisation ?",
-    "Comment gérer ma TVA en tant qu'auto-entrepreneur ?",
-    "Quels sont les avantages fiscaux pour les investissements immobiliers ?"
+    "Quelles sont les stratégies de défiscalisation pour 2024 ?",
+    "Je suis auto-entrepreneur, comment gérer ma TVA ?",
+    "Quels avantages fiscaux pour un investissement locatif Pinel ?"
   ];
 
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory]);
+
   const calculateProgress = () => {
-    const requiredFields = [
-      'situationFamiliale',
-      'nombreEnfants',
-      'localisation',
-      'zoneFiscale',
-      'situationProfessionnelle',
-      'secteurActivite',
-      'regimeImposition',
-      'statutFiscal',
-      'revenus',
-      'typeRevenus',
-      'patrimoine',
-      'compositionPatrimoine',
-      'investissementsExistants',
-      'projetsImmobiliers',
-      'besoinsRetraite',
-      'horizonInvestissement',
-      'toleranceRisque',
-      'objectifs',
+    const requiredFields: (keyof UserProfile)[] = [
+      'situationFamiliale', 'nombreEnfants', 'localisation', 'zoneFiscale',
+      'situationProfessionnelle', 'secteurActivite', 'regimeImposition', 'statutFiscal',
+      'revenus', 'typeRevenus', 'patrimoine', 'compositionPatrimoine',
+      'investissementsExistants', 'projetsImmobiliers', 'besoinsRetraite',
+      'horizonInvestissement', 'toleranceRisque', 'objectifs',
       'contraintesFiscales'
     ];
-
     const filledFields = requiredFields.filter(field => {
-      const value = profileData[field as keyof typeof profileData];
-      if (Array.isArray(value)) {
-        return value.length > 0;
-      }
-      return value !== undefined && value !== '';
+      const value = profileData[field];
+      if (Array.isArray(value)) return value.length > 0;
+      return value !== undefined && value !== null && value !== '';
     });
-
     return Math.round((filledFields.length / requiredFields.length) * 100);
   };
 
-  // Vérifier l'authentification et charger le profil au chargement
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        await loadUserProfile(user.id);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserId(session.user.id);
+        setUserEmail(session.user.email || null);
+        await loadUserProfile(session.user.id);
+      } else {
+        navigate('/');
       }
     };
     checkUser();
-  }, []);
+  }, [navigate]);
 
-  // Charger le profil utilisateur depuis Supabase
-  const loadUserProfile = async (userId: string) => {
+  const loadUserProfile = async (currentUserId: string) => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', currentUserId)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
         setProfileData(data);
-        setProfileCompleted(true);
-        // Charger l'historique des interactions
-        if (data.interaction_history) {
-          const history = data.interaction_history.map((interaction: { question: string; response: string }) => ({
-            role: 'assistant',
-            content: `Q: ${interaction.question}\nR: ${interaction.response}`
-          }));
-          setChatHistory(history);
-        }
+        const progress = calculateProgress();
+        setProfileCompleted(progress > 80);
+      } else {
+        setProfileData(initialProfileData);
+        setProfileCompleted(false);
       }
     } catch (error) {
       console.error('Erreur lors du chargement du profil:', error);
+      setProfileData(initialProfileData);
+      setProfileCompleted(false);
     }
   };
 
-  // Sauvegarder le profil utilisateur dans Supabase
-  const saveUserProfile = async (profileData: Partial<UserProfile>) => {
+  const saveUserProfile = async (currentProfileData: Partial<UserProfile>) => {
     if (!userId) return;
-
     try {
       const { error } = await supabase
         .from('user_profiles')
-        .upsert({
-          user_id: userId,
-          ...profileData,
-          updated_at: new Date().toISOString()
-        });
-
+        .upsert({ ...currentProfileData, user_id: userId, updated_at: new Date().toISOString() });
       if (error) throw error;
+      setProfileData(currentProfileData);
+      const progress = calculateProgress();
+      setProfileCompleted(progress > 80);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du profil:', error);
-    }
-  };
-
-  // Mettre à jour le profil avec les insights de la conversation
-  const updateProfileWithInsights = async (question: string, response: string, insights: Array<{ type: string, value: string, confidence: number }>) => {
-    if (!userId) return;
-
-    try {
-      const { data: currentProfile } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (!currentProfile) return;
-
-      // Mettre à jour le profil avec les nouveaux insights
-      const updatedProfile = { ...currentProfile };
-      insights.forEach(insight => {
-        if (insight.confidence > 0.8) { // Seuil de confiance pour la mise à jour
-          updatedProfile[insight.type as keyof UserProfile] = insight.value;
-        }
-      });
-
-      // Ajouter l'interaction à l'historique
-      const newInteraction = {
-        role: 'assistant',
-        content: `Q: ${question}\nR: ${response}`
-      };
-
-      updatedProfile.interaction_history = [
-        ...(currentProfile.interaction_history || []),
-        newInteraction
-      ].slice(-50); // Garder les 50 dernières interactions
-
-      // Sauvegarder les modifications
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(updatedProfile)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      // Mettre à jour l'état local
-      setProfileData(updatedProfile);
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du profil:', error);
     }
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
-
     setIsLoading(true);
     try {
       await saveUserProfile(profileData);
-      setProfileCompleted(true);
-      
-      const { recommendations, opportunities } = analyzeProfile();
-      const welcomeMessage = `Bonjour ! Je suis Francis, votre conseiller fiscal propulsé par intelligence artificielle. \n\nBasé sur votre profil, je peux vous aider à optimiser votre fiscalité. Voici mes premières recommandations :\n\n${recommendations.map(rec => `• ${rec}`).join('\n')}\n\nOpportunités identifiées :\n${opportunities.map(opp => `• ${opp}`).join('\n')}\n\nPosez-moi des questions spécifiques pour en savoir plus sur ces recommandations.`;
-      
-      setChatHistory(prev => [...prev, { role: 'assistant', content: welcomeMessage }]);
       setActiveTab('chat');
+      setChatHistory(prev => [...prev, { role: 'assistant', content: "Votre profil a été mis à jour avec succès ! N'hésitez pas à me poser des questions plus ciblées maintenant." }]);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du profil:', error);
+      setChatHistory(prev => [...prev, { role: 'assistant', content: "Une erreur est survenue lors de la sauvegarde de votre profil. Veuillez réessayer." }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Ajouter la fonction pour gérer le parcours guidé
-  const startGuidedPath = (path: string) => {
-    let initialMessage = '';
-    switch (path) {
-      case 'optimisation':
-        initialMessage = `Parfait ! Commençons l'optimisation de votre fiscalité. 🎯
-
-Pour vous accompagner au mieux, j'ai besoin de quelques informations :
-1. Quel est votre statut fiscal actuel ?
-2. Quels sont vos principaux revenus ?
-3. Avez-vous des investissements en cours ?
-
-Vous pouvez répondre à ces questions dans l'ordre qui vous convient.`;
-        break;
-      case 'documents':
-        initialMessage = `Très bien ! Analysons vos documents fiscaux. 📄
-
-Vous pouvez :
-1. Partager vos avis d'imposition
-2. Télécharger vos justificatifs
-3. Me poser des questions sur vos documents
-
-Je vous guiderai dans l'analyse et l'optimisation de votre situation.`;
-        break;
-      case 'conseil':
-        initialMessage = `Excellent choix ! Je vais vous donner des conseils personnalisés. 💡
-
-Pour vous conseiller au mieux, dites-moi :
-1. Quels sont vos objectifs fiscaux ?
-2. Avez-vous des projets spécifiques ?
-3. Quel est votre horizon d'investissement ?
-
-Je vous aiderai à atteindre vos objectifs.`;
-        break;
-    }
-    
-    setChatHistory(prev => [...prev, { role: 'assistant', content: initialMessage }]);
-  };
-
-  // Modifier la fonction handleSubmit pour améliorer la gestion des erreurs
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim() || !userId) return;
+  const handleSubmit = async (e?: React.FormEvent, suggestedQuestion?: string) => {
+    if (e) e.preventDefault();
+    const currentQuestion = suggestedQuestion || question;
+    if (!currentQuestion.trim() || !userId) return;
 
     setIsLoading(true);
-    const userQuestion = question;
-    setQuestion('');
+    const userQuestion = currentQuestion;
+    if (!suggestedQuestion) setQuestion('');
     
-    // Ajouter la question de l'utilisateur avec une animation
     setChatHistory(prev => [...prev, { role: 'user', content: userQuestion }]);
     
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await fetch(`${apiBaseUrl}/chat`, {
+      const token = (await supabase.auth.getSession())?.data.session?.access_token;
+
+      const response = await fetch(`${apiBaseUrl}/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          question: userQuestion,
-          profile: profileData,
-          chatMode: chatMode,
-          userId: userId,
-          context: chatHistory.slice(-5).map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        }),
+        body: JSON.stringify({ question: userQuestion }),
       });
 
       if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({detail: "Erreur inconnue du serveur"}));
+        throw new Error(`Erreur ${response.status}: ${errorData.detail || response.statusText}`);
       }
 
       const data = await response.json();
-      
-      // Vérifier si la réponse contient une suggestion de parcours guidé
-      if (data.suggestedPath) {
-        startGuidedPath(data.suggestedPath);
-      } else {
-        // Ajouter la réponse de Francis avec une animation
-        setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
-      }
-
-      // Mettre à jour le profil avec les insights de la réponse
-      if (data.insights) {
-        await updateProfileWithInsights(userQuestion, data.response, data.insights);
-      }
+      setChatHistory(prev => [...prev, { role: 'assistant', content: data.answer }]);
     } catch (error) {
-      console.error('Erreur:', error);
-      // Message d'erreur plus détaillé et constructif
+      console.error('Erreur lors de la soumission de la question:', error);
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        content: "Oups ! Je rencontre une difficulté technique. 🤔\n\n" +
-                "Voici ce que vous pouvez faire :\n" +
-                "1. Vérifiez votre connexion internet\n" +
-                "2. Rafraîchissez la page\n" +
-                "3. Réessayez dans quelques instants\n\n" +
-                "Si le problème persiste, vous pouvez :\n" +
-                "• Me reposer votre question différemment\n" +
-                "• Choisir une autre question parmi les suggestions\n" +
-                "• Me contacter via le support si le problème persiste\n\n" +
-                "Je m'excuse pour ce désagrément et reste à votre disposition ! 🙏"
+        content: error instanceof Error ? `Désolé, une erreur est survenue : ${error.message}` : "Oups ! Je rencontre une difficulté technique. Veuillez réessayer."
       }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fonction pour gérer le drag & drop
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -427,7 +278,6 @@ Je vous aiderai à atteindre vos objectifs.`;
     }
   };
 
-  // Fonction pour gérer le drop
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -438,1007 +288,336 @@ Je vous aiderai à atteindre vos objectifs.`;
     }
   };
 
-  // Fonction pour gérer le clic sur le bouton de téléchargement
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       await handleFileUpload(e.target.files[0]);
     }
   };
 
-  // Fonction pour traiter le fichier
-  const handleFileUpload = async (file: File | undefined, type: 'document' | 'tva' | 'frais' = 'document') => {
-    if (!file) return;
+  const handleFileUpload = async (selectedFile: File | undefined) => {
+    if (!selectedFile) return;
+    if (!userId) {
+      setChatHistory(prev => [...prev, {role: 'assistant', content: "Veuillez vous connecter pour uploader des documents."}]);
+      return;
+    }
     
     setIsUploading(true);
-    const newFile = {
-      name: file.name,
-      type: file.type,
-      status: 'processing' as const
-    };
-    
-    setUploadedFiles(prev => [...prev, newFile]);
+    const newFileEntry = { name: selectedFile.name, type: selectedFile.type, status: 'processing' as const };
+    setUploadedFiles(prev => [...prev, newFileEntry]);
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('userId', userId || '');
-      formData.append('type', type);
-
+      formData.append('file', selectedFile);
+      const token = (await supabase.auth.getSession())?.data.session?.access_token;
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await fetch(`${apiBaseUrl}/process-document`, {
+      const response = await fetch(`${apiBaseUrl}/upload/document`, {
         method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Erreur lors du traitement du document');
-
-      const data = await response.json();
-      
-      setUploadedFiles(prev => prev.map(f => 
-        f.name === file.name 
-          ? { ...f, status: 'success', data: data }
-          : f
-      ));
-
-      // Message personnalisé selon le type de document
-      let chatMessage = '';
-      if (type === 'tva') {
-        chatMessage = `J'ai analysé votre ticket TVA "${file.name}". Voici les informations :\n\n` +
-          `• Montant HT: ${data.montantHT}€\n` +
-          `• TVA: ${data.tva}€\n` +
-          `• Montant TTC: ${data.montantTTC}€\n` +
-          `• Date: ${data.date}\n` +
-          `• Numéro de ticket: ${data.numeroTicket}\n\n` +
-          `Le ticket a été enregistré pour votre déclaration de TVA.`;
-      } else if (type === 'frais') {
-        chatMessage = `J'ai analysé votre note de frais "${file.name}". Voici les informations :\n\n` +
-          `• Montant: ${data.montant}€\n` +
-          `• Catégorie: ${data.categorie}\n` +
-          `• Date: ${data.date}\n` +
-          `• Description: ${data.description}\n\n` +
-          `La note de frais a été enregistrée pour votre déclaration.`;
-      } else {
-        chatMessage = `J'ai analysé votre document "${file.name}". Voici les informations importantes :\n\n` +
-          Object.entries(data)
-            .map(([key, value]) => `• ${key}: ${value}`)
-            .join('\n');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({detail: "Erreur lors de l'upload"}));
+        throw new Error(errorData.detail || `Erreur ${response.status}`);
       }
-      
-      setChatHistory(prev => [...prev, { role: 'assistant', content: chatMessage }]);
-      setActiveTab('chat');
-
+      const data = await response.json();
+      setUploadedFiles(prev => prev.map(f => f.name === selectedFile.name ? { ...f, status: 'success' as const, data } : f));
+      setChatHistory(prev => [...prev, { role: 'assistant', content: data.message || `Document "${selectedFile.name}" traité avec succès.` }]);
     } catch (error) {
-      console.error('Erreur OCR:', error);
-      setUploadedFiles(prev => prev.map(f => 
-        f.name === file.name 
-          ? { ...f, status: 'error' }
-          : f
-      ));
+      console.error('Erreur Upload:', error);
+      setUploadedFiles(prev => prev.map(f => f.name === selectedFile.name ? { ...f, status: 'error' as const } : f));
+      setChatHistory(prev => [...prev, { role: 'assistant', content: error instanceof Error ? `Erreur d'upload: ${error.message}` : "Erreur inconnue lors de l'upload." }]);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const analyzeProfile = () => {
-    const { situation, revenus, patrimoine, objectifs, toleranceRisque, horizonInvestissement } = profileData;
-    
-    let recommendations = [];
-    let opportunities = [];
-
-    // Analyse de la situation familiale
-    if (situation === 'marie' || situation === 'pacs') {
-      recommendations.push("Optimisation du quotient familial");
-      opportunities.push("Déclaration commune pour optimiser les tranches d'imposition");
-    }
-
-    // Analyse des revenus
-    if (revenus === '50k-100k') {
-      recommendations.push("Optimisation de la TMI avec le PER");
-      opportunities.push("Défiscalisation via l'investissement locatif");
-    } else if (revenus === '100k-200k') {
-      recommendations.push("Mise en place d'une holding");
-      opportunities.push("Optimisation IS/IR");
-    } else if (revenus === '>200k') {
-      recommendations.push("Stratégie de défiscalisation globale");
-      opportunities.push("Optimisation des niches fiscales");
-    }
-
-    // Analyse du patrimoine
-    if (patrimoine === '100k-300k') {
-      recommendations.push("Diversification patrimoniale");
-      opportunities.push("Investissement en SCPI");
-    } else if (patrimoine === '300k-500k') {
-      recommendations.push("Stratégie de transmission anticipée");
-      opportunities.push("Optimisation des droits de succession");
-    } else if (patrimoine === '500k-1M' || patrimoine === '>1M') {
-      recommendations.push("Stratégie patrimoniale globale");
-      opportunities.push("Optimisation fiscale multi-supports");
-    }
-
-    // Analyse des objectifs
-    if (objectifs?.includes('retraite')) {
-      recommendations.push("PER et assurance vie");
-      opportunities.push("Défiscalisation retraite");
-    } else if (objectifs?.includes('patrimoine')) {
-      recommendations.push("Donation progressive");
-      opportunities.push("Optimisation des abattements");
-    } else if (objectifs?.includes('investissement')) {
-      recommendations.push("Mix d'investissements défiscalisés");
-      opportunities.push("Optimisation des plus-values");
-    } else if (objectifs?.includes('protection')) {
-      recommendations.push("Assurance décès et invalidité");
-      opportunities.push("Protection du conjoint et des enfants");
-    }
-
-    // Analyse du profil de risque
-    if (toleranceRisque === 'conservateur') {
-      recommendations.push("Investissements défiscalisés sécurisés");
-      opportunities.push("SCPI de rendement");
-    } else if (toleranceRisque === 'modere') {
-      recommendations.push("Mix d'investissements équilibré");
-      opportunities.push("Diversification multi-supports");
-    } else if (toleranceRisque === 'dynamique') {
-      recommendations.push("Investissements à fort potentiel");
-      opportunities.push("Optimisation des plus-values");
-    }
-
-    // Analyse de l'horizon d'investissement
-    if (horizonInvestissement === 'court') {
-      recommendations.push("Investissements liquides");
-      opportunities.push("Optimisation court terme");
-    } else if (horizonInvestissement === 'moyen') {
-      recommendations.push("Investissements mixtes");
-      opportunities.push("Diversification temporelle");
-    } else if (horizonInvestissement === 'long') {
-      recommendations.push("Investissements de long terme");
-      opportunities.push("Optimisation transmission");
-    }
-
-    return { recommendations, opportunities };
-  };
-
-  // Modifier la fonction de connexion bancaire
-  const connectBank = async () => {
-    setIsConnecting(true);
-    try {
-      const response = await fetch('http://localhost:8001/init-truelayer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId }),
-      });
-
-      if (!response.ok) throw new Error('Erreur lors de l\'initialisation de TrueLayer');
-      
-      const { clientId, redirectUri } = await response.json();
-
-      const truelayer = new window.TrueLayer({
-        clientId: clientId,
-        redirectUri: redirectUri,
-        scope: ['accounts', 'transactions', 'balance'],
-        locale: 'fr',
-        onSuccess: async (data: TrueLayerSuccessData) => {
-          const bankResponse = await fetch('http://localhost:8001/bank-data', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${data.accessToken}`,
-            },
-          });
-
-          if (!bankResponse.ok) throw new Error('Erreur lors de la récupération des données');
-
-          const bankData = await bankResponse.json();
-          setBankData(bankData);
-          setConnectedBanks(prev => [...prev, 'Compte bancaire']);
-          
-          const chatMessage = `J'ai analysé vos données bancaires. Voici un résumé :\n\n` +
-            `• Solde total : ${bankData.totalBalance}€\n` +
-            `• Revenus mensuels : ${bankData.analysis.revenus.total}€\n` +
-            `• Dépenses mensuelles : ${bankData.analysis.depenses.total}€\n` +
-            `• Taux d'épargne : ${bankData.analysis.tendances.taux_epargne.toFixed(1)}%\n\n` +
-            `Je peux vous aider à optimiser votre situation fiscale en fonction de ces données.`;
-          
-          setChatHistory(prev => [...prev, { role: 'assistant', content: chatMessage }]);
-        },
-        onError: (error: TrueLayerError) => {
-          console.error('Erreur TrueLayer:', error);
-          setChatHistory(prev => [...prev, { 
-            role: 'assistant', 
-            content: `Désolé, je n'ai pas pu me connecter à votre compte bancaire : ${error.error_description}` 
-          }]);
-        }
-      });
-
-      truelayer.open();
-    } catch (error) {
-      console.error('Erreur de connexion bancaire:', error);
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: "Désolé, je rencontre des difficultés techniques. Veuillez réessayer dans quelques instants." 
-      }]);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  if (profileData && profileData.is_active === false) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
-        <div className="bg-[#1a2942]/80 p-8 rounded-2xl shadow-xl border border-[#c5a572]/30 text-center">
-          <h2 className="text-2xl font-bold text-[#c5a572] mb-4">Compte en attente d'activation</h2>
-          <p className="text-white mb-2">Votre compte n'est pas encore activé.</p>
-          <p className="text-gray-300">Merci de finaliser votre paiement pour accéder à toutes les fonctionnalités.</p>
-        </div>
-      </div>
-    );
-  }
-
+  const analyzeProfile = () => { return {recommendations: [], opportunities: []}};
+  const connectBank = async () => {};
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
-      {/* Barre de navigation supérieure */}
-      <header className="fixed top-0 left-0 right-0 bg-[#1a2942]/95 backdrop-blur-sm border-b border-[#234876] z-30">
-        <div className="h-16 max-w-7xl mx-auto px-4 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-3 group">
-            <div className="relative inline-flex items-center justify-center">
-              <MessageSquare className="h-7 w-7 text-[#c5a572] transition-transform group-hover:scale-110" />
-              <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
+    <div className="min-h-screen flex bg-gradient-to-br from-[#101A2E] via-[#162238] to-[#1E3253] text-gray-200 font-sans">
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.aside 
+            initial={{ x: '-100%' }} 
+            animate={{ x: 0 }} 
+            exit={{ x: '-100%' }} 
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="w-72 bg-[#0D1523]/80 backdrop-blur-xl p-6 flex flex-col border-r border-[#2A3F6C]/20 shadow-2xl fixed inset-y-0 left-0 z-40"
+          >
+            <div className="flex items-center space-x-3.5 mb-10 px-2">
+              <div className="relative inline-flex items-center justify-center group bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-2.5 rounded-xl shadow-md">
+                <MessageSquare className="h-7 w-7 text-[#162238]" />
+              </div>
+              <h1 className="text-2xl font-bold text-white tracking-tight">Fiscal.ia</h1>
             </div>
-          </div>
 
-          {/* Navigation principale */}
+            <nav className="flex-grow space-y-1.5">
+              {[ { id: 'chat', label: 'Chat avec Francis', icon: MessageSquare }, { id: 'profile', label: 'Mon Profil Fiscal', icon: UserCircle }, { id: 'documents', label: 'Mes Documents', icon: FileText }, { id: 'analytics', label: 'Analyse & Rapports', icon: TrendingUp }, { id: 'settings', label: 'Paramètres', icon: Settings } ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center space-x-3.5 px-3 py-3 rounded-lg transition-all duration-200 group hover:bg-[#c5a572]/15 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#0D1523] ${ activeTab === item.id ? 'bg-[#c5a572]/20 text-[#e8cfa0] shadow-inner' : 'text-gray-400 hover:text-gray-100' }`}
+                >
+                  <item.icon className={`w-5 h-5 transition-colors duration-200 ${activeTab === item.id ? 'text-[#e8cfa0]' : 'text-gray-500 group-hover:text-[#c5a572]'}`} />
+                  <span className="font-medium text-sm">{item.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            <div className="mt-auto pt-6 border-t border-[#2A3F6C]/20">
+              {userEmail && (
+                <div className="mb-3 p-3 bg-[#162238]/60 rounded-lg text-center">
+                  <p className="text-xs text-gray-500">Connecté en tant que</p>
+                  <p className="text-sm font-medium text-gray-200 truncate">{userEmail}</p>
+                </div>
+              )}
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center space-x-3.5 px-3 py-3 rounded-lg text-gray-400 hover:bg-red-600/15 hover:text-red-400 transition-colors duration-200 group focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#0D1523]"
+              >
+                <LogOut className="w-5 h-5 text-gray-500 group-hover:text-red-400 transition-colors" />
+                <span className="font-medium text-sm">Déconnexion</span>
+              </button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-easeInOut ${isSidebarOpen ? 'md:ml-72' : 'ml-0'}`}>
+        <header className="h-20 bg-[#162238]/60 backdrop-blur-md flex items-center justify-between px-6 sm:px-8 border-b border-[#2A3F6C]/20 shadow-sm">
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c5a572] transition-colors md:hidden"
+          >
+            {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+          <div className="flex-1">
+          </div>
           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setActiveTab('home')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === 'home' 
-                  ? 'bg-[#c5a572] text-[#1a2942]' 
-                  : 'text-gray-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center space-x-2">
-                <UserCircle className="w-5 h-5" />
-                <span>Tableau de bord</span>
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === 'chat' 
-                  ? 'bg-[#c5a572] text-[#1a2942]' 
-                  : 'text-gray-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center space-x-2">
-                <MessageSquare className="w-5 h-5" />
-                <span>Chat</span>
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === 'analytics' 
-                  ? 'bg-[#c5a572] text-[#1a2942]' 
-                  : 'text-gray-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center space-x-2">
-                <TrendingUp className="w-5 h-5" />
-                <span>Analytics</span>
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === 'settings' 
-                  ? 'bg-[#c5a572] text-[#1a2942]' 
-                  : 'text-gray-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center space-x-2">
-                <Settings className="w-5 h-5" />
-                <span>Paramètres</span>
-              </span>
-            </button>
-          </div>
-
-          {/* Profil utilisateur */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-[#c5a572] flex items-center justify-center">
-              <User className="w-6 h-6 text-[#1a2942]" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">Utilisateur</p>
-              <p className="text-xs text-gray-400">Voir le profil</p>
+            <Bell className="h-5 w-5 text-gray-400 hover:text-[#c5a572] cursor-pointer transition-colors" />
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center text-[#162238] font-semibold text-sm shadow-md">
+              {userEmail ? userEmail.substring(0,1).toUpperCase() : 'U'}
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Contenu principal */}
-      <main className="pt-16 min-h-[calc(100vh-theme(spacing.16)-theme(spacing.16))]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#101A2E] p-6 sm:p-8">
           <AnimatePresence mode="wait">
-            {activeTab === 'home' && (
-              <motion.div
-                key="home"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] rounded-2xl shadow-2xl overflow-hidden border border-[#c5a572]/30"
-              >
-                {/* En-tête du tableau de bord */}
-                <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-10 border-b border-[#c5a572]/30">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-16 h-16 rounded-full bg-[#c5a572] flex items-center justify-center">
-                      <UserCircle className="w-10 h-10 text-[#1a2942]" />
-                    </div>
-                    <div>
-                      <h1 className="text-4xl font-bold text-white">Bienvenue chez Francis</h1>
-                      <p className="text-xl text-gray-300">Votre conseiller fiscal propulsé par intelligence artificielle</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grille des catégories */}
-                <div className="p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Catégorie Profil */}
-                    <div 
-                      onClick={() => setActiveTab('profile')}
-                      className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 cursor-pointer hover:bg-[#1a2942]/60 transition-all duration-200 transform hover:scale-105"
-                    >
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 rounded-lg bg-[#c5a572] flex items-center justify-center">
-                          <UserCircle className="w-6 h-6 text-[#1a2942]" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-white">Profil Fiscal</h3>
-                      </div>
-                      <p className="text-gray-400">Gérez votre profil et vos informations fiscales</p>
-                      <div className="mt-4">
-                        <div className="flex justify-between text-sm text-gray-300 mb-2">
-                          <span>Progression</span>
-                          <span className="text-[#c5a572] font-semibold">{calculateProgress()}%</span>
-                        </div>
-                        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-[#c5a572] to-[#d4b583] transition-all duration-500 ease-out"
-                            style={{ width: `${calculateProgress()}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Catégorie Chat */}
-                    <div 
-                      onClick={() => setActiveTab('chat')}
-                      className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 cursor-pointer hover:bg-[#1a2942]/60 transition-all duration-200 transform hover:scale-105"
-                    >
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 rounded-lg bg-[#c5a572] flex items-center justify-center">
-                          <MessageSquare className="w-6 h-6 text-[#1a2942]" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-white">Chat avec Francis</h3>
-                      </div>
-                      <p className="text-gray-400">Posez vos questions et obtenez des conseils personnalisés</p>
-                    </div>
-
-                    {/* Catégorie Analytics */}
-                    <div 
-                      onClick={() => setActiveTab('analytics')}
-                      className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 cursor-pointer hover:bg-[#1a2942]/60 transition-all duration-200 transform hover:scale-105"
-                    >
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 rounded-lg bg-[#c5a572] flex items-center justify-center">
-                          <TrendingUp className="w-6 h-6 text-[#1a2942]" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-white">Analytics</h3>
-                      </div>
-                      <p className="text-gray-400">Suivez vos performances et optimisations fiscales</p>
-                    </div>
-
-                    {/* Catégorie Paramètres */}
-                    <div 
-                      onClick={() => setActiveTab('settings')}
-                      className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 cursor-pointer hover:bg-[#1a2942]/60 transition-all duration-200 transform hover:scale-105"
-                    >
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 rounded-lg bg-[#c5a572] flex items-center justify-center">
-                          <Settings className="w-6 h-6 text-[#1a2942]" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-white">Paramètres</h3>
-                      </div>
-                      <p className="text-gray-400">Configurez vos préférences et notifications</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'profile' && (
-              <motion.div
-                key="profile"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] rounded-2xl shadow-2xl overflow-hidden border border-[#c5a572]/30"
-              >
-                {/* En-tête avec barre de progression */}
-                <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-10 border-b border-[#c5a572]/30">
-                  <h1 className="text-4xl font-bold text-white mb-6 flex items-center">
-                    <UserCircle className="w-10 h-10 mr-4 text-[#c5a572]" />
-                    Votre Profil Fiscal
-                  </h1>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm text-gray-300">
-                      <span className="font-medium">Progression du profil</span>
-                      <span className="text-[#c5a572] font-semibold">{calculateProgress()}%</span>
-                    </div>
-                    <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-[#c5a572] to-[#d4b583] transition-all duration-500 ease-out"
-                        style={{ width: `${calculateProgress()}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contenu du formulaire */}
-                <div className="p-8">
-                  <form onSubmit={handleProfileSubmit} className="space-y-10">
-                    {/* Section Situation Personnelle */}
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 overflow-hidden shadow-lg">
-                      <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/30">
-                        <h2 className="text-2xl font-semibold text-white flex items-center">
-                          <UserCircle className="w-8 h-8 mr-4 text-[#c5a572]" />
-                          Situation Personnelle
-                        </h2>
-                      </div>
-                      <div className="p-8 space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-3">
-                              Situation Familiale
-                              <span className="text-[#c5a572] ml-1">*</span>
-                            </label>
-                            <select
-                              value={profileData.situationFamiliale}
-                              onChange={(e) => setProfileData({...profileData, situationFamiliale: e.target.value})}
-                              className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                              required
-                            >
-                              <option value="">Sélectionnez votre situation</option>
-                              <option value="celibataire">Célibataire</option>
-                              <option value="marie">Marié(e)</option>
-                              <option value="pacs">PACS</option>
-                              <option value="divorce">Divorcé(e)</option>
-                              <option value="veuf">Veuf(ve)</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-3">
-                              Nombre d'Enfants
-                              <span className="text-[#c5a572] ml-1">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              value={profileData.nombreEnfants}
-                              onChange={(e) => setProfileData({...profileData, nombreEnfants: parseInt(e.target.value)})}
-                              className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                              min="0"
-                              required
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-3">
-                            Localisation
-                            <span className="text-[#c5a572] ml-1">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={profileData.localisation}
-                            onChange={(e) => setProfileData({...profileData, localisation: e.target.value})}
-                            className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                            placeholder="Ville, département"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section Situation Professionnelle */}
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 overflow-hidden shadow-lg">
-                      <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/30">
-                        <h2 className="text-2xl font-semibold text-white flex items-center">
-                          <Briefcase className="w-8 h-8 mr-4 text-[#c5a572]" />
-                          Situation Professionnelle
-                        </h2>
-                      </div>
-                      <div className="p-8 space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-3">
-                              Statut Professionnel
-                              <span className="text-[#c5a572] ml-1">*</span>
-                            </label>
-                            <select
-                              value={profileData.situationProfessionnelle}
-                              onChange={(e) => setProfileData({...profileData, situationProfessionnelle: e.target.value})}
-                              className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                              required
-                            >
-                              <option value="">Sélectionnez votre statut</option>
-                              <option value="salarie">Salarié</option>
-                              <option value="independant">Indépendant</option>
-                              <option value="retraite">Retraité</option>
-                              <option value="chomeur">Chômeur</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-3">
-                              Secteur d'Activité
-                              <span className="text-[#c5a572] ml-1">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={profileData.secteurActivite}
-                              onChange={(e) => setProfileData({...profileData, secteurActivite: e.target.value})}
-                              className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                              placeholder="Ex: Informatique, Santé, etc."
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section Situation Fiscale */}
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 overflow-hidden shadow-lg">
-                      <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/30">
-                        <h2 className="text-2xl font-semibold text-white flex items-center">
-                          <Scale className="w-8 h-8 mr-4 text-[#c5a572]" />
-                          Situation Fiscale
-                        </h2>
-                      </div>
-                      <div className="p-8 space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-3">
-                              Régime d'Imposition
-                              <span className="text-[#c5a572] ml-1">*</span>
-                            </label>
-                            <select
-                              value={profileData.regimeImposition}
-                              onChange={(e) => setProfileData({...profileData, regimeImposition: e.target.value})}
-                              className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                              required
-                            >
-                              <option value="">Sélectionnez votre régime</option>
-                              <option value="micro">Micro-entreprise</option>
-                              <option value="reel">Régime réel</option>
-                              <option value="auto">Auto-entrepreneur</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-3">
-                              Zone Fiscale
-                              <span className="text-[#c5a572] ml-1">*</span>
-                            </label>
-                            <select
-                              value={profileData.zoneFiscale}
-                              onChange={(e) => setProfileData({...profileData, zoneFiscale: e.target.value})}
-                              className="w-full rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] px-4 py-3"
-                              required
-                            >
-                              <option value="">Sélectionnez votre zone</option>
-                              <option value="zone1">Zone 1</option>
-                              <option value="zone2">Zone 2</option>
-                              <option value="zone3">Zone 3</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section Patrimoine et Investissements */}
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 overflow-hidden shadow-lg">
-                      <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/30">
-                        <h2 className="text-2xl font-semibold text-white flex items-center">
-                          <PiggyBank className="w-8 h-8 mr-4 text-[#c5a572]" />
-                          Patrimoine et Investissements
-                        </h2>
-                      </div>
-                      <div className="p-8 space-y-8">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-4">
-                            Composition du Patrimoine
-                            <span className="text-[#c5a572] ml-1">*</span>
-                          </label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {['Immobilier', 'Actions', 'Obligations', 'Assurance-vie', 'SCPI'].map((type) => (
-                              <label key={type} className="flex items-center space-x-3 p-3 rounded-lg bg-[#1a2942]/60 border border-[#c5a572]/30 hover:bg-[#1a2942]/80 transition-colors">
-                                <input
-                                  type="checkbox"
-                                  checked={profileData.compositionPatrimoine?.includes(type) || false}
-                                  onChange={(e) => {
-                                    const newTypes = e.target.checked
-                                      ? [...(profileData.compositionPatrimoine || []), type]
-                                      : (profileData.compositionPatrimoine || []).filter(t => t !== type);
-                                    setProfileData({...profileData, compositionPatrimoine: newTypes});
-                                  }}
-                                  className="h-5 w-5 text-[#c5a572] focus:ring-[#c5a572] border-[#c5a572]/30 rounded bg-[#1a2942]/60"
-                                />
-                                <span className="text-gray-300 font-medium">{type}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section Objectifs */}
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 overflow-hidden shadow-lg">
-                      <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/30">
-                        <h2 className="text-2xl font-semibold text-white flex items-center">
-                          <Target className="w-8 h-8 mr-4 text-[#c5a572]" />
-                          Objectifs
-                        </h2>
-                      </div>
-                      <div className="h-[calc(100vh-16rem)] overflow-y-auto p-6">
-                        <div className="space-y-6">
-                          {chatHistory.map((message, index) => (
-                            <div
-                              key={index}
-                              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
-                              <div
-                                className={`max-w-[80%] rounded-2xl p-4 ${
-                                  message.role === 'user'
-                                    ? 'bg-[#c5a572] text-[#1a2942]'
-                                    : 'bg-white/5 text-white'
-                                }`}
-                              >
-                                <div className="flex items-center space-x-2 mb-2">
-                                  {message.role === 'assistant' && (
-                                    <div className="w-6 h-6 rounded-full bg-[#c5a572] flex items-center justify-center">
-                                      <MessageSquare className="w-4 h-4 text-[#1a2942]" />
-                                    </div>
-                                  )}
-                                  <span className="text-sm font-medium">
-                                    {message.role === 'user' ? 'Vous' : 'Francis'}
-                                  </span>
-                                </div>
-                                <div className="prose prose-invert max-w-none">
-                                  {message.content.split('\n').map((line, i) => (
-                                    <p key={i} className="mb-2 last:mb-0">
-                                      {line}
-                                    </p>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </motion.div>
-            )}
-
             {activeTab === 'chat' && (
-              <motion.div
-                key="chat"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-[#1a2942]/95 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-[#c5a572]/20 h-[calc(100vh-12rem)] flex flex-col"
+              <motion.div 
+                key="chat" 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                transition={{ duration: 0.3 }}
+                className="h-full max-h-[calc(100vh-10rem)] flex flex-col bg-[#162238]/70 backdrop-blur-sm rounded-xl shadow-2xl border border-[#2A3F6C]/25 overflow-hidden"
               >
-                {/* En-tête du chat */}
-                <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-6 py-4 border-b border-[#c5a572]/20">
-                  <div className="flex items-center space-x-4">
-                    <div className="relative inline-flex items-center justify-center group">
-                      <MessageSquare className="h-7 w-7 text-[#c5a572] transition-transform group-hover:scale-110" />
-                      <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold text-white">Francis</h2>
-                      <p className="text-sm text-gray-300">Conseiller fiscal propulsé par IA</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Zone des messages */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin scrollbar-thumb-[#2A3F6C]/70 scrollbar-track-transparent scrollbar-thumb-rounded-full">
                   {chatHistory.map((message, index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-2xl p-4 ${
-                          message.role === 'user'
-                            ? 'bg-[#c5a572] text-[#1a2942]'
-                            : 'bg-white/5 text-white'
+                        className={`max-w-[85%] sm:max-w-[70%] p-3.5 rounded-2xl shadow-md text-sm leading-relaxed ${ 
+                          message.role === 'user' 
+                            ? 'bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-lg' 
+                            : 'bg-[#1E3253]/90 text-gray-100 rounded-bl-lg' 
                         }`}
                       >
-                        <div className="flex items-center space-x-2 mb-2">
+                        <div className="flex items-center space-x-2 mb-1.5">
                           {message.role === 'assistant' && (
-                            <div className="w-6 h-6 rounded-full bg-[#c5a572] flex items-center justify-center">
-                              <MessageSquare className="w-4 h-4 text-[#1a2942]" />
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center flex-shrink-0 shadow-sm">
+                              <MessageSquare className="w-3.5 h-3.5 text-[#162238]" />
                             </div>
                           )}
-                          <span className="text-sm font-medium">
-                            {message.role === 'user' ? 'Vous' : 'Francis'}
+                           <span className={`text-xs font-semibold ${message.role === 'user' ? 'text-[#162238]/90' : 'text-[#e8cfa0]'}">
+                            {message.role === 'user' ? (userEmail || 'Vous') : 'Francis'}
                           </span>
                         </div>
-                        <div className="prose prose-invert max-w-none">
-                          {message.content.split('\n').map((line, i) => (
-                            <p key={i} className="mb-2 last:mb-0">
-                              {line}
-                            </p>
-                          ))}
+                        <div className={`whitespace-pre-wrap break-words ${message.role === 'user' ? 'text-[#162238]' : 'text-gray-200'}`}>
+                          {message.content}
                         </div>
                       </div>
                     </motion.div>
                   ))}
+                  <div ref={chatEndRef} />
                 </div>
 
-                {/* Suggestions de questions */}
-                {!isLoading && chatHistory.length > 1 && (
-                  <div className="px-6 py-4 border-t border-[#c5a572]/20">
-                    <p className="text-sm text-gray-400 mb-3">Questions suggérées :</p>
+                {!isLoading && chatHistory.length > 2 && chatHistory[chatHistory.length -1].role === 'assistant' && (
+                  <div className="px-4 sm:px-6 py-2.5 border-t border-[#2A3F6C]/20">
                     <div className="flex flex-wrap gap-2">
-                      {suggestedQuestions.map((question, index) => (
+                      {suggestedQuestions.slice(0,3).map((suggQuestion, index) => (
                         <button
                           key={index}
-                          onClick={() => {
-                            setQuestion(question);
-                            handleSubmit(new Event('submit') as any);
-                          }}
-                          className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-sm text-gray-300 rounded-full transition-colors"
+                          onClick={() => handleSubmit(undefined, suggQuestion)}
+                          className="px-3 py-1.5 bg-[#1E3253]/60 hover:bg-[#2A3F6C]/60 text-xs text-gray-300 hover:text-white rounded-full transition-colors shadow-sm"
                         >
-                          {question}
+                          {suggQuestion}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Zone de saisie */}
-                <div className="p-4 border-t border-[#c5a572]/20 bg-[#1a2942]/50">
-                  <form onSubmit={handleSubmit} className="flex items-center space-x-4">
-                    <div className="flex-1 relative">
-                      <input
-                        type="text"
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        placeholder="Posez votre question à Francis..."
-                        className="w-full rounded-xl bg-white/5 border border-[#c5a572]/30 text-white focus:border-[#c5a572] focus:ring-[#c5a572] pl-4 pr-12 py-3"
-                        disabled={isLoading}
-                      />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                        <input
-                          type="file"
-                          id="file-upload"
-                          className="hidden"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={handleFileSelect}
-                          disabled={isLoading}
-                        />
-                        <label
-                          htmlFor="file-upload"
-                          className={`text-gray-400 hover:text-white cursor-pointer transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          <File className="w-5 h-5" />
-                        </label>
-                      </div>
-                    </div>
+                <div className="p-3 sm:p-4 border-t border-[#2A3F6C]/20 bg-[#101A2E]/60">
+                  <form onSubmit={handleSubmit} className="flex items-center space-x-2.5">
+                    <label htmlFor="file-upload-chat" className={`p-2.5 rounded-lg text-gray-400 hover:text-[#c5a572] hover:bg-[#1E3253]/80 transition-colors cursor-pointer ${isLoading || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <Paperclip className="w-5 h-5" />
+                    </label>
+                    <input
+                      type="file"
+                      id="file-upload-chat"
+                      className="hidden"
+                      accept=".pdf,.jpg,.jpeg,.png,.txt,.md"
+                      onChange={(e) => handleFileUpload(e.target.files ? e.target.files[0] : undefined)}
+                      disabled={isLoading || isUploading}
+                    />
+                    <input
+                      type="text"
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      placeholder="Posez votre question à Francis..."
+                      className="flex-1 rounded-lg bg-[#1E3253]/50 border border-[#2A3F6C]/40 text-gray-100 placeholder-gray-500 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] px-4 py-2.5 text-sm transition-colors shadow-inner"
+                      disabled={isLoading || isUploading}
+                    />
                     <button
                       type="submit"
-                      disabled={isLoading}
-                      className="px-6 py-3 bg-[#c5a572] text-[#1a2942] rounded-xl hover:bg-[#d4b583] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c5a572] transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isLoading || !question.trim() || isUploading}
+                      className="p-2.5 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#101A2E] focus:ring-[#c5a572] transition-all duration-200 transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
-                      {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Send className="w-5 h-5" />
-                      )}
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     </button>
                   </form>
+                   {isUploading && (
+                    <div className="text-xs text-center text-[#c5a572] pt-1.5">Téléchargement de {uploadedFiles.find(f=>f.status === 'processing')?.name}...</div>
+                  )}
                 </div>
-
-                {/* Indicateur de chargement */}
-                {isLoading && (
-                  <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-[#1a2942] rounded-lg shadow-lg p-4 border border-[#c5a572]/30">
-                    <div className="flex items-center space-x-3">
-                      <Loader2 className="w-5 h-5 text-[#c5a572] animate-spin" />
-                      <span className="text-white">Francis réfléchit...</span>
+              </motion.div>
+            )}
+            
+            {activeTab === 'home' && (
+              <motion.div key="home" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                <h2 className="text-3xl font-semibold text-white mb-8">Tableau de Bord</h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="bg-[#1E3253]/50 backdrop-blur-sm rounded-xl border border-[#2A3F6C]/40 p-6 shadow-lg hover:shadow-[#c5a572]/10 transition-shadow">
+                       <div className="flex items-center space-x-3 mb-4">
+                           <div className="p-3 rounded-lg bg-gradient-to-br from-[#c5a572] to-[#e8cfa0]"><UserCircle className="w-6 h-6 text-[#162238]"/></div>
+                           <h3 className="text-xl font-semibold text-white">Profil Fiscal</h3>
+                       </div>
+                       <p className="text-sm text-gray-400 mb-3">Complétez votre profil pour des conseils plus précis.</p>
+                       <div className="w-full bg-[#101A2E]/50 rounded-full h-2.5 mb-1">
+                           <div className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${calculateProgress()}%` }}></div>
+                       </div>
+                       <p className="text-right text-xs text-[#c5a572]">{calculateProgress()}% complet</p>
                     </div>
-                  </div>
-                )}
+                    <div className="bg-[#1E3253]/50 backdrop-blur-sm rounded-xl border border-[#2A3F6C]/40 p-6 shadow-lg hover:shadow-[#c5a572]/10 transition-shadow">
+                       <div className="flex items-center space-x-3 mb-4">
+                           <div className="p-3 rounded-lg bg-gradient-to-br from-[#c5a572] to-[#e8cfa0]"><FileText className="w-6 h-6 text-[#162238]"/></div>
+                           <h3 className="text-xl font-semibold text-white">Mes Documents</h3>
+                       </div>
+                       <p className="text-sm text-gray-400 mb-3">Gérez vos documents fiscaux uploadés.</p>
+                       <p className="text-2xl font-bold text-white">{uploadedFiles.filter(f=>f.status === 'success').length} <span className="text-base font-normal text-gray-400">documents</span></p>
+                    </div>
+                 </div>
               </motion.div>
             )}
 
-            {activeTab === 'analytics' && (
-              <motion.div
-                key="analytics"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-[#1a2942]/95 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-[#c5a572]/20"
-              >
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold text-white mb-6">Analytics</h2>
+            {activeTab === 'profile' && (
+              <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal</h2>
+                 <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                    <form onSubmit={handleProfileSubmit} className="space-y-8">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div>
+                             <label htmlFor="situationFamiliale" className="block text-sm font-medium text-gray-300 mb-1.5">Situation Familiale</label>
+                             <select id="situationFamiliale" value={profileData.situationFamiliale || ''} onChange={(e) => setProfileData({...profileData, situationFamiliale: e.target.value})} className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500">
+                                 <option value="">Non spécifié</option>
+                                 <option value="celibataire">Célibataire</option>
+                                 <option value="marie">Marié(e)</option>
+                                 <option value="pacs">PACS</option>
+                                 <option value="divorce">Divorcé(e)</option>
+                                 <option value="veuf">Veuf(ve)</option>
+                             </select>
+                         </div>
+                         <div>
+                             <label htmlFor="nombreEnfants" className="block text-sm font-medium text-gray-300 mb-1.5">Nombre d'enfants à charge</label>
+                             <input type="number" id="nombreEnfants" value={profileData.nombreEnfants || 0} onChange={(e) => setProfileData({...profileData, nombreEnfants: parseInt(e.target.value)})} min="0" className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500" />
+                         </div>
+                       </div>
+                       <div className="pt-5">
+                           <button type="submit" disabled={isLoading} className="px-7 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-md hover:shadow-[#c5a572]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#1E3253] transition-all duration-300 disabled:opacity-70">
+                               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sauvegarder les modifications'}
+                           </button>
+                       </div>
+                    </form>
+                 </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'documents' && (
+              <motion.div key="documents" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                <h2 className="text-3xl font-semibold text-white mb-6">Mes Documents</h2>
+                <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                  <div className="mb-6">
+                    <label htmlFor="doc-upload-main" className="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#2A3F6C]/50 rounded-lg cursor-pointer hover:border-[#c5a572]/70 hover:bg-[#162238]/30 transition-colors">
+                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                        <span className="text-sm text-gray-300 font-medium">Glissez-déposez vos fichiers ici ou cliquez pour parcourir</span>
+                        <span className="text-xs text-gray-500 mt-1">PDF, JPG, PNG, TXT, MD (max. 5MB)</span>
+                        <input id="doc-upload-main" type="file" className="hidden" onChange={(e) => handleFileUpload(e.target.files ? e.target.files[0] : undefined)} />
+                    </label>
+                  </div>
                   
-                  {/* Section Connexion Bancaire */}
-                  <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-white">Connexion Bancaire</h3>
-                        <p className="text-gray-400">Connectez votre compte bancaire pour une analyse en temps réel</p>
-                      </div>
-                      <button
-                        onClick={connectBank}
-                        disabled={isConnecting}
-                        className="px-4 py-2 bg-[#c5a572] text-[#1a2942] rounded-lg hover:bg-[#d4b583] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                      >
-                        {isConnecting ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Connexion en cours...</span>
-                          </>
-                        ) : (
-                          <>
-                            <PiggyBank className="w-5 h-5" />
-                            <span>Connecter mon compte</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    
-                    {connectedBanks.length > 0 && (
-                      <div className="mt-4 p-4 bg-white/5 rounded-lg">
-                        <div className="flex items-center justify-between">
+                  {isUploading && <p className="text-center text-[#c5a572] text-sm my-4">Traitement du fichier en cours...</p>}
+
+                  {uploadedFiles.length > 0 ? (
+                    <ul className="space-y-3">
+                      {uploadedFiles.map((file, idx) => (
+                        <li key={idx} className="flex items-center justify-between p-3 bg-[#101A2E]/70 rounded-lg border border-[#2A3F6C]/40">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-green-500" />
-                            </div>
-                            <span className="text-white font-medium">Compte bancaire connecté</span>
+                            {file.status === 'success' && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />}
+                            {file.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
+                            {file.status === 'processing' && <Loader2 className="w-5 h-5 text-[#c5a572] animate-spin flex-shrink-0" />}
+                            <span className="text-sm text-gray-200 truncate" title={file.name}>{file.name}</span>
                           </div>
-                          <span className="text-[#c5a572] text-sm">Données à jour</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Section Analytics */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-2">Performance</h3>
-                      {bankData ? (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Solde total</span>
-                            <span className="text-[#c5a572] font-semibold">{bankData.totalBalance}€</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Revenus mensuels</span>
-                            <span className="text-[#c5a572] font-semibold">{bankData.analysis.revenus.total}€</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-gray-400">Connectez votre compte pour voir les analyses</p>
-                      )}
-                    </div>
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-2">Risques</h3>
-                      {bankData ? (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Ratio d'endettement</span>
-                            <span className="text-[#c5a572] font-semibold">{bankData.debtRatio}%</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Épargne mensuelle</span>
-                            <span className="text-[#c5a572] font-semibold">{bankData.analysis.tendances.taux_epargne.toFixed(1)}%</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-gray-400">Connectez votre compte pour voir les analyses</p>
-                      )}
-                    </div>
-                    <div className="bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-2">Objectifs</h3>
-                      {bankData ? (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Progression</span>
-                            <span className="text-[#c5a572] font-semibold">{bankData.goalsProgress}%</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Objectif mensuel</span>
-                            <span className="text-[#c5a572] font-semibold">{bankData.monthlyGoal}€</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-gray-400">Connectez votre compte pour voir les analyses</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Section Analyse des dépenses */}
-                  <div className="mt-8 bg-[#1a2942]/40 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">Analyse de vos dépenses</h3>
-                    <p className="text-gray-300 mb-6">
-                      Francis analyse vos transactions bancaires pour vous aider à :
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 rounded-lg bg-[#c5a572]/20 flex items-center justify-center flex-shrink-0">
-                          <TrendingUp className="w-6 h-6 text-[#c5a572]" />
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-medium text-white mb-2">Équilibrer votre budget</h4>
-                          <p className="text-gray-400">
-                            Visualisez vos dépenses par catégorie et identifiez les postes où vous pouvez optimiser votre budget.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 rounded-lg bg-[#c5a572]/20 flex items-center justify-center flex-shrink-0">
-                          <Calculator className="w-6 h-6 text-[#c5a572]" />
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-medium text-white mb-2">Comprendre vos dépenses</h4>
-                          <p className="text-gray-400">
-                            Découvrez où va votre argent et recevez des recommandations personnalisées pour optimiser vos finances.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${file.status === 'success' ? 'bg-green-500/20 text-green-400' : file.status === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                            {file.status}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-center text-gray-500 text-sm">Aucun document uploadé pour le moment.</p>
+                  )}
                 </div>
               </motion.div>
             )}
-
+            
+            {activeTab === 'analytics' && (
+                <motion.div key="analytics" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                   <h2 className="text-3xl font-semibold text-white mb-6">Analyse & Rapports</h2>
+                   <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                       <p className="text-gray-300">Les fonctionnalités d'analyse et de rapports seront disponibles ici prochainement.</p>
+                   </div>
+                </motion.div>
+            )}
             {activeTab === 'settings' && (
-              <motion.div
-                key="settings"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-[#1a2942]/95 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-[#c5a572]/20"
-              >
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold text-white mb-4">Paramètres</h2>
-                  <div className="space-y-6">
-                    <div className="bg-white/5 rounded-lg p-6 border border-[#c5a572]/20">
-                      <h3 className="text-lg font-semibold text-white mb-2">Profil</h3>
-                      <p className="text-gray-400">Gérez vos informations personnelles</p>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-6 border border-[#c5a572]/20">
-                      <h3 className="text-lg font-semibold text-white mb-2">Notifications</h3>
-                      <p className="text-gray-400">Configurez vos préférences de notification</p>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-6 border border-[#c5a572]/20">
-                      <h3 className="text-lg font-semibold text-white mb-2">Sécurité</h3>
-                      <p className="text-gray-400">Gérez votre sécurité et confidentialité</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+                <motion.div key="settings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                   <h2 className="text-3xl font-semibold text-white mb-6">Paramètres</h2>
+                   <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                       <p className="text-gray-300">Options de configuration du compte et des préférences.</p>
+                   </div>
+                </motion.div>
             )}
+
           </AnimatePresence>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 } 
