@@ -184,6 +184,52 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Section Comment ça marche */}
+      <section className="py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-8 drop-shadow-lg">
+              Comment ça marche&nbsp;?
+            </h2>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              3 étapes simples pour optimiser votre fiscalité avec Francis
+            </p>
+          </motion.div>
+          <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
+            {/* Étape 1 */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 shadow-md">
+                <Users className="w-8 h-8 text-[#1a2942]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Créez votre compte et votre profil</h3>
+              <p className="text-gray-300">Inscrivez-vous en 2 minutes et renseignez vos infos pour un accompagnement sur-mesure.</p>
+            </div>
+            {/* Étape 2 */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 shadow-md">
+                <MessageSquare className="w-8 h-8 text-[#1a2942]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Discutez avec Francis</h3>
+              <p className="text-gray-300">Posez vos questions, obtenez des recommandations personnalisées et des plans d'action concrets.</p>
+            </div>
+            {/* Étape 3 */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-4 shadow-md">
+                <Check className="w-8 h-8 text-[#1a2942]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Mettez en place&nbsp;!</h3>
+              <p className="text-gray-300">Passez à l'action facilement grâce à nos conseils et suivez vos optimisations en temps réel.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Section Avantages */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
@@ -289,6 +335,52 @@ export function LandingPage() {
                 </button>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Ce que vous obtenez */}
+      <section className="py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-6 drop-shadow-lg">
+              Ce que vous obtenez avec l'abonnement
+            </h2>
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              Tous les outils et services pour optimiser votre fiscalité, inclus dans votre abonnement Francis.
+            </p>
+          </motion.div>
+          <div className="flex flex-col md:flex-row gap-8 justify-center items-stretch">
+            {/* Avantage 1 : 24/7 */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <Shield className="w-10 h-10 text-[#c5a572] mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Accès 24/7</h3>
+              <p className="text-gray-300 text-center">Votre assistant fiscal disponible à toute heure.</p>
+            </div>
+            {/* Avantage 2 : Analyse personnalisée */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <Calculator className="w-10 h-10 text-[#c5a572] mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Analyse personnalisée</h3>
+              <p className="text-gray-300 text-center">Des conseils adaptés à votre situation.</p>
+            </div>
+            {/* Avantage 3 : Suivi en temps réel */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <TrendingUp className="w-10 h-10 text-[#c5a572] mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Suivi en temps réel</h3>
+              <p className="text-gray-300 text-center">Visualisez vos optimisations instantanément.</p>
+            </div>
+            {/* Avantage 4 : Mise à jour quotidienne */}
+            <div className="flex-1 bg-gradient-to-br from-[#1a2942]/90 to-[#223c63]/90 rounded-2xl border-2 border-[#c5a572]/40 p-8 flex flex-col items-center shadow-lg">
+              <Sparkles className="w-10 h-10 text-[#c5a572] mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Mise à jour quotidienne</h3>
+              <p className="text-gray-300 text-center">Règles fiscales et conseils actualisés chaque jour.</p>
+            </div>
           </div>
         </div>
       </section>
