@@ -449,7 +449,7 @@ export function Dashboard() {
                   <div ref={chatEndRef} />
                 </div>
 
-                {!isLoading && chatHistory.length > 2 && chatHistory[chatHistory.length -1].role === 'assistant' && (
+                {!isLoading && chatHistory.length > 2 && chatHistory[chatHistory.length - 1].role === 'assistant' && (
                   <div className="px-4 sm:px-6 py-2.5 border-t border-[#2A3F6C]/20">
                     <div className="flex flex-wrap gap-2">
                       {suggestedQuestions.slice(0,3).map((suggQuestion, index) => (
@@ -524,38 +524,6 @@ export function Dashboard() {
                        <p className="text-sm text-gray-400 mb-3">Gérez vos documents fiscaux uploadés.</p>
                        <p className="text-2xl font-bold text-white">{uploadedFiles.filter(f=>f.status === 'success').length} <span className="text-base font-normal text-gray-400">documents</span></p>
                     </div>
-                 </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'profile' && (
-              <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-                <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal</h2>
-                 <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
-                    <form onSubmit={handleProfileSubmit} className="space-y-8">
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <div>
-                             <label htmlFor="situationFamiliale" className="block text-sm font-medium text-gray-300 mb-1.5">Situation Familiale</label>
-                             <select id="situationFamiliale" value={profileData.situationFamiliale || ''} onChange={(e) => setProfileData({...profileData, situationFamiliale: e.target.value})} className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500">
-                                 <option value="">Non spécifié</option>
-                                 <option value="celibataire">Célibataire</option>
-                                 <option value="marie">Marié(e)</option>
-                                 <option value="pacs">PACS</option>
-                                 <option value="divorce">Divorcé(e)</option>
-                                 <option value="veuf">Veuf(ve)</option>
-                             </select>
-                         </div>
-                         <div>
-                             <label htmlFor="nombreEnfants" className="block text-sm font-medium text-gray-300 mb-1.5">Nombre d'enfants à charge</label>
-                             <input type="number" id="nombreEnfants" value={profileData.nombreEnfants || 0} onChange={(e) => setProfileData({...profileData, nombreEnfants: parseInt(e.target.value)})} min="0" className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500" />
-                         </div>
-                       </div>
-                       <div className="pt-5">
-                           <button type="submit" disabled={isLoading} className="px-7 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-md hover:shadow-[#c5a572]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#1E3253] transition-all duration-300 disabled:opacity-70">
-                               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sauvegarder les modifications'}
-                           </button>
-                       </div>
-                    </form>
                  </div>
               </motion.div>
             )}
