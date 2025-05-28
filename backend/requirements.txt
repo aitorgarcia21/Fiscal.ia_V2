@@ -21,4 +21,6 @@ email-validator==2.1.0
 bcrypt==4.1.2
 mistralai==0.4.2
 numpy==1.24.3
-requests==2.31.0 
+requests==2.31.0
+PyPDF2==3.0.1
+tqdm==4.66.1 
