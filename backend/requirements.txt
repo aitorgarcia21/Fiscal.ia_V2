@@ -5,7 +5,7 @@ python-multipart==0.0.6
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-decouple==3.8
-httpx>=0.25.2
+httpx>=0.26,<0.28
 aiofiles==23.2.1
 jinja2==3.1.2
 python-dateutil==2.8.2
@@ -19,6 +19,6 @@ supabase==2.9.1
 pydantic-settings==2.6.1
 email-validator==2.1.0
 bcrypt==4.1.2
-mistralai>=1.8.0
+mistralai==1.7.1
 numpy==1.24.3
 requests==2.31.0 
