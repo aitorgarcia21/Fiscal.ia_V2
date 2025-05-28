@@ -10,7 +10,6 @@ import uuid
 import asyncio
 import httpx
 from supabase import create_client, Client
-import openai
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -27,9 +26,6 @@ JWT_EXPIRATION_HOURS = 24
 # Supabase
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
-
-# OpenAI
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -132,7 +128,7 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "services": {
             "supabase": bool(supabase),
-            "openai": bool(openai.api_key),
+            "mistral": bool(MISTRAL_API_KEY),
             "stripe": bool(stripe.api_key)
         }
     }
