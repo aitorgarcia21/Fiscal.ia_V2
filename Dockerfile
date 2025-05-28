@@ -6,8 +6,8 @@ WORKDIR /app/frontend
 # Copier les fichiers de configuration
 COPY frontend/package*.json ./
 
-# Installer les dépendances
-RUN npm install
+# Installer les dépendances avec legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Copier le reste des fichiers du frontend
 COPY frontend/ .
