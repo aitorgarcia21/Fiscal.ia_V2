@@ -16,7 +16,6 @@ export PORT=${PORT:-3000}
 
 echo "=== Configuration ==="
 echo "PORT: $PORT"
-echo "PYTHONPATH: $PYTHONPATH"
 
 # Aller dans le répertoire de l'application
 cd /app
@@ -47,17 +46,10 @@ if [ ! -f "/var/www/html/index.html" ]; then
     exit 1
 fi
 
-echo "Contenu de index.html:"
-head -10 /var/www/html/index.html
-
 # Démarrer le backend en arrière-plan
-echo "=== Démarrage du backend sur le port 8000 (localhost uniquement) ==="
+echo "=== Démarrage du backend ==="
 cd backend
-
-# Ajouter le répertoire backend au PYTHONPATH
 export PYTHONPATH="/app/backend:$PYTHONPATH"
-
-# IMPORTANT: Démarrer uvicorn sur 127.0.0.1 UNIQUEMENT pour éviter l'exposition directe par Railway
 python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info &
 BACKEND_PID=$!
 
@@ -65,24 +57,18 @@ BACKEND_PID=$!
 echo "Attente du démarrage du backend..."
 sleep 10
 
-# Vérifier que le processus backend est toujours en cours
-if ! kill -0 $BACKEND_PID 2>/dev/null; then
-    echo "Erreur: Le processus backend s'est arrêté"
-    exit 1
-fi
-
 # Vérifier que le backend répond
 echo "Vérification de la santé du backend..."
-for i in {1..30}; do
+for i in {1..10}; do
     if curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
         echo "Backend démarré avec succès"
         break
     fi
-    if [ $i -eq 30 ]; then
-        echo "Erreur: Le backend ne répond pas après 30 tentatives"
+    if [ $i -eq 10 ]; then
+        echo "Erreur: Le backend ne répond pas"
         exit 1
     fi
-    echo "Tentative $i/30..."
+    echo "Tentative $i/10..."
     sleep 2
 done
 
@@ -93,10 +79,6 @@ cd /app
 # Remplacer le port dans la configuration nginx
 sed -i "s/listen 3000;/listen $PORT;/g" /etc/nginx/nginx.conf
 
-# Afficher la configuration nginx pour debug
-echo "Configuration nginx finale:"
-cat /etc/nginx/nginx.conf
-
 # Vérifier la configuration nginx
 nginx -t
 if [ $? -ne 0 ]; then
@@ -104,31 +86,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Démarrer nginx au premier plan sur toutes les interfaces
-echo "=== Démarrage de nginx sur le port $PORT (toutes interfaces) ==="
+# Démarrer nginx
+echo "=== Démarrage de nginx sur le port $PORT ==="
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
-# Attendre un peu pour que nginx démarre
-sleep 5
+sleep 3
 
-# Vérifier que nginx fonctionne
-if ! kill -0 $NGINX_PID 2>/dev/null; then
-    echo "Erreur: Nginx ne s'est pas démarré correctement"
-    exit 1
-fi
-
-# Test de connectivité
-echo "=== Tests de connectivité ==="
-echo "Test frontend local:"
-curl -I http://127.0.0.1:$PORT/ || echo "Erreur: Frontend non accessible"
-echo "Test API locale:"
-curl -I http://127.0.0.1:$PORT/api/health || echo "Erreur: API non accessible"
-
-echo "=== Services démarrés avec succès ==="
-echo "✅ Backend: http://127.0.0.1:8000 (localhost uniquement)"
-echo "✅ Frontend + API: http://0.0.0.0:$PORT (exposé publiquement)"
-echo "✅ API accessible sur: /api/"
+echo "=== Services démarrés ==="
+echo "✅ Backend: http://127.0.0.1:8000"
+echo "✅ Frontend: http://0.0.0.0:$PORT"
 
 # Attendre l'arrêt
 wait 
