@@ -10,6 +10,9 @@ COPY frontend/package*.json ./
 ENV NODE_OPTIONS=--max-old-space-size=512
 RUN npm install --legacy-peer-deps
 
+# Installer terser explicitement
+RUN npm install terser --save-dev
+
 # Copier le code source frontend
 COPY frontend/ .
 
