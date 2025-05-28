@@ -59,11 +59,11 @@ COPY start.sh .
 RUN chmod +x start.sh
 
 # Variables d'environnement pour Railway
-ENV PORT=3000
+ENV PORT=8080
 ENV PYTHONPATH=/app/backend
 
 # Exposer le port pour Railway
-EXPOSE 3000
+EXPOSE 8080
 
 # Démarrer les services
 CMD ["./start.sh"] 
