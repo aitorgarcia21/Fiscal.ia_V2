@@ -10,7 +10,7 @@ import { StripeError } from '../components/stripe/StripeError';
 import { DemoConversation } from '../components/demo/DemoConversation';
 
 export function LandingPage() {
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState<false | 'login' | 'signup'>(false);
   const [showDemo, setShowDemo] = useState(false);
   const { handleCheckout, isLoading, error } = useStripe();
 
@@ -24,8 +24,9 @@ export function LandingPage() {
             <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
           </div>
           <button
-            onClick={() => setShowAuthModal(true)}
-            className="px-6 py-2 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105"
+            onClick={() => setShowAuthModal('login')}
+            className="px-7 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-full shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-200 border-2 border-[#c5a572]/40 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 ml-auto max-w-xs truncate text-base md:text-lg"
+            style={{minWidth: '120px'}}
           >
             Se connecter
           </button>
@@ -34,7 +35,7 @@ export function LandingPage() {
 
       {/* Modale d'authentification */}
       {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
+        <AuthModal mode={showAuthModal} onClose={() => setShowAuthModal(false)} />
       )}
 
       {/* Modale de démo */}
@@ -43,7 +44,7 @@ export function LandingPage() {
           onClose={() => setShowDemo(false)}
           onStart={() => {
             setShowDemo(false);
-            setShowAuthModal(true);
+            setShowAuthModal('signup');
           }}
         />
       )}
@@ -131,7 +132,7 @@ export function LandingPage() {
             className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
           >
             <motion.button
-              onClick={() => setShowAuthModal(true)}
+              onClick={() => setShowAuthModal('signup')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform flex items-center justify-center gap-2"
@@ -193,7 +194,7 @@ export function LandingPage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-8 drop-shadow-lg">
               Pourquoi choisir{' '}
               <span className="relative inline-block text-[#c5a572]">
                 Francis
@@ -206,19 +207,23 @@ export function LandingPage() {
               </span>
               {' '}?
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto whitespace-pre-line">
-              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient payer moins, légalement.
-              Pas par manque de volonté.
-              Mais parce que personne ne leur explique.
-              Pas les impôts. Pas les banques. Pas les simulateurs incomplets.
-              
-              Francis est là pour changer ça.
-              On a trouvé une solution.
-              Une intelligence artificielle indépendante, conçue pour vous défendre, vous guider, vous faire économiser.
-            </p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-2xl md:text-3xl font-semibold text-white bg-gradient-to-br from-[#c5a572]/90 to-[#e8cfa0]/80 shadow-xl rounded-2xl px-8 py-10 mx-auto max-w-4xl mb-8 border-2 border-[#c5a572]/40 backdrop-blur-sm leading-relaxed tracking-wide drop-shadow-xl animate-pulse-smooth"
+              style={{lineHeight: '1.5', letterSpacing: '0.01em'}}
+            >
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <span className="text-[#ffe082] font-bold underline decoration-[#c5a572] decoration-2 animate-glow">payer moins</span>, légalement.<br />
+              Pas par manque de volonté.<br />
+              Mais parce que <span className="text-[#e8cfa0] font-bold">personne</span> ne leur explique.<br />
+              <span className="text-[#c5a572] font-bold">Pas les impôts. Pas les banques. Pas les simulateurs incomplets.</span><br /><br />
+              Francis est là pour changer ça.<br />
+              On a trouvé une <span className="bg-gradient-to-r from-[#ffe082] to-[#c5a572] bg-clip-text text-transparent font-extrabold animate-glow">solution</span>.<br />
+              <span className="bg-gradient-to-r from-[#ffe082] via-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent font-extrabold animate-glow">Une intelligence artificielle indépendante</span>, conçue pour vous défendre, vous guider, vous faire économiser.
+            </motion.p>
           </motion.div>
-          {/* Bloc démo Francis/Paul dynamique */}
-          <DemoConversation />
         </div>
       </section>
 
@@ -264,7 +269,7 @@ export function LandingPage() {
                   <p className="text-3xl font-bold text-[#c5a572] mb-1">9,99€</p>
                   <p className="text-gray-300 mb-2">par mois</p>
                   <button
-                    onClick={() => setShowAuthModal(true)}
+                    onClick={() => setShowAuthModal('signup')}
                     className="w-full px-6 py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                   >
                     Créer un compte
@@ -279,7 +284,7 @@ export function LandingPage() {
                   <p className="text-gray-300 mb-2">par an</p>
                   <p className="text-sm text-gray-400 line-through mb-2">119,88€</p>
                   <button
-                    onClick={() => setShowAuthModal(true)}
+                    onClick={() => setShowAuthModal('signup')}
                     className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
                   >
                     Créer un compte
@@ -349,7 +354,7 @@ export function LandingPage() {
                 {/* Bouton se connecter */}
                 <div className="flex justify-center">
                   <button
-                    onClick={() => setShowAuthModal(true)}
+                    onClick={() => setShowAuthModal('signup')}
                     className="px-8 py-4 bg-[#1a2942] text-white font-bold rounded-xl border border-[#c5a572]/30 hover:bg-[#1a2942]/80 transition-all transform hover:scale-105"
                   >
                     Créer un compte
@@ -395,7 +400,7 @@ export function LandingPage() {
               Rejoignez plus de 100 utilisateurs qui font confiance à Francis pour leurs finances.
             </p>
             <button
-              onClick={() => setShowAuthModal(true)}
+              onClick={() => setShowAuthModal('signup')}
               className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all transform hover:scale-105"
             >
               Créer un compte

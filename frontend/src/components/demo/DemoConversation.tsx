@@ -86,7 +86,7 @@ export function DemoConversation() {
     if (inView && visibleCount < conversation.length) {
       const timeout = setTimeout(() => {
         setVisibleCount((c) => c + 1);
-      }, 800);
+      }, 500);
       return () => clearTimeout(timeout);
     }
   }, [inView, visibleCount]);
@@ -98,20 +98,22 @@ export function DemoConversation() {
           {conversation.slice(0, visibleCount).map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ 
-                duration: 0.4,
-                delay: i * 0.05,
-                ease: "easeOut"
+                type: 'spring',
+                stiffness: 60,
+                damping: 18,
+                delay: i * 0.08
               }}
               className="flex gap-4"
+              style={{ willChange: 'opacity, transform' }}
             >
               {msg.author === 'francis' ? (
                 <motion.div 
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  transition={{ type: 'spring', stiffness: 60, damping: 18, delay: i * 0.08 }}
                   className="relative inline-flex items-center justify-center group"
                 >
                   <MessageSquare className="h-7 w-7 text-[#c5a572]" />
@@ -121,17 +123,18 @@ export function DemoConversation() {
                 <motion.div 
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  transition={{ type: 'spring', stiffness: 60, damping: 18, delay: i * 0.08 }}
                   className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 border border-blue-500/30"
                 >
                   <Users className="w-5 h-5 text-blue-400" />
                 </motion.div>
               )}
               <motion.div 
-                initial={{ x: -10, opacity: 0 }}
+                initial={{ x: -18, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: i * 0.05 + 0.1 }}
+                transition={{ type: 'spring', stiffness: 60, damping: 18, delay: i * 0.08 + 0.1 }}
                 className="flex-1"
+                style={{ willChange: 'opacity, transform' }}
               >
                 {msg.content}
               </motion.div>

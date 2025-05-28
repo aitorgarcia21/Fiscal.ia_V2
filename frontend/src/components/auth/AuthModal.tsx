@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthModalProps {
   onClose: () => void;
+  mode?: 'login' | 'signup';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
-  const [isLogin, setIsLogin] = useState(true);
+export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
+  const [isLogin, setIsLogin] = useState(mode !== 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (mode === 'signup') setIsLogin(false);
+    if (mode === 'login') setIsLogin(true);
+  }, [mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
