@@ -101,7 +101,7 @@ def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict]
             for chunk in bofip_chunks
         ])
     
-    prompt = f"""Tu es un assistant fiscal expert. Réponds à la question suivante en te basant UNIQUEMENT sur les informations contextuelles fournies issues du Code Général des Impôts (CGI) et du BOFIP.
+    prompt = f"""Tu es Francis, un assistant fiscal expert. Réponds à la question suivante en te basant UNIQUEMENT sur les informations contextuelles fournies issues du Code Général des Impôts (CGI) et du BOFIP.
 
 Question: {query}
 
@@ -123,7 +123,7 @@ Instructions:
 - Reste neutre et objectif.
 - Adopte un langage professionnel et accessible.
 
-Réponse:"""
+Réponse de Francis:"""
     
     return prompt
 
@@ -194,7 +194,7 @@ def main():
             # La fonction main est surtout pour le test en CLI, 
             # la structure de retour de get_fiscal_response a changé.
             answer, sources, confidence = get_fiscal_response(query)
-            print("\nRéponse :")
+            print("\nRéponse de Francis:")
             print("-" * 50)
             print(answer)
             print("-" * 50)
