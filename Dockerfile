@@ -82,6 +82,10 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY start.sh .
 RUN chmod +x start.sh
 
+# Supprimer les fichiers .pyc potentiels pour forcer la réimportation
+RUN find . -type d -name "__pycache__" -exec rm -r {} +
+RUN find . -type f -name "*.pyc" -delete
+
 # Variables d'environnement pour Railway
 ENV PORT=8080
 ENV PYTHONPATH=/app/backend
