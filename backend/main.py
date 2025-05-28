@@ -13,7 +13,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from assistant_fiscal import search_similar_articles, create_prompt
+from assistant_fiscal import get_fiscal_response
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
@@ -75,7 +75,6 @@ class UserResponse(BaseModel):
 
 class QuestionRequest(BaseModel):
     question: str
-    context: Optional[str] = None
 
 class QuestionResponse(BaseModel):
     answer: str
@@ -222,45 +221,34 @@ async def ask_question(
         if not MISTRAL_API_KEY:
             raise HTTPException(status_code=500, detail="Service Mistral non disponible")
 
-        # 1. Recherche contextuelle RAG
-        context = search_similar_articles(request.question, top_k=5)
-
-        # 2. Création du prompt enrichi
-        prompt = create_prompt(request.question, context)
-
-        # 3. Appel au modèle Mistral pour la génération
-        messages = [
-            ChatMessage(role="system", content="Tu es un assistant fiscal expert en droit fiscal français."),
-            ChatMessage(role="user", content=prompt)
-        ]
-        response = client.chat(
-            model="mistral-large-latest",
-            messages=messages,
-            temperature=0.3
-        )
-        answer = response.choices[0].message.content
-
-        # 4. Sauvegarde en base (optionnel)
+        answer, sources, confidence = get_fiscal_response(request.question)
+        
+        # Sauvegarde en base (optionnel, si vous voulez garder l'historique des questions/réponses)
         if supabase:
             try:
+                # Adapter le contexte sauvegardé si nécessaire. Pour l'instant, on peut omettre ou stocker les sources.
                 supabase.table("questions").insert({
                     "user_id": user_id,
                     "question": request.question,
                     "answer": answer,
-                    "context": request.context,
+                    # "context": json.dumps(sources), # Exemple: stocker les sources en JSON
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
-            except:
-                pass
+            except Exception as e:
+                print(f"Erreur lors de la sauvegarde de la question en base: {e}")
+                pass # Ne pas bloquer la réponse à l'utilisateur pour une erreur de sauvegarde
 
         return QuestionResponse(
             answer=answer,
-            sources=[c['file'] for c in context],
-            confidence=0.9
+            sources=sources,
+            confidence=confidence
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors du traitement: {str(e)}")
+        # Logguer l'erreur côté serveur
+        print(f"Erreur inattendue dans /ask endpoint: {str(e)}") 
+        # Retourner une erreur générique à l'utilisateur
+        raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors du traitement de la question.")
 
 @app.get("/questions/history")
 async def get_question_history(
