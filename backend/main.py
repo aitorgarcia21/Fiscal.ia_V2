@@ -80,6 +80,11 @@ app = FastAPI(
 async def test():
     return {"status": "ok", "message": "API is working!"}
 
+# Health check endpoint for Railway deployment
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "message": "Backend is running"}
+
 # Mount the API router
 api_router = APIRouter(prefix="/api")
 
@@ -98,11 +103,12 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "services": {
-            "supabase": bool(supabase),
-            "mistral": bool(MISTRAL_API_KEY),
-            "stripe": bool(stripe.api_key)
-        }
+        # "services": {  # Temporairement commenté pour isoler le problème
+        #     "supabase": bool(supabase),
+        #     "mistral": bool(MISTRAL_API_KEY),
+        #     "stripe": bool(stripe.api_key)
+        # }
+        "message": "Basic health check OK" # <-- Simplifié
     }
 
 # CORS
