@@ -36,11 +36,11 @@ import {
   Zap,
   Globe,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Link2 // Ajout de l'icône Link2 pour la connexion bancaire
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, UserProfile } from '../lib/supabase';
-import { UserDiscovery } from '../components/UserDiscovery';
 import { AdaptiveProfiler } from '../components/AdaptiveProfiler';
 import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
 import { ProfileSummary } from '../components/ProfileSummary';
@@ -51,7 +51,8 @@ interface ChatMessage {
 }
 
 interface TrueLayerSuccessData {
-  accessToken: string;
+  code?: string; // Code d'autorisation renvoyé si response_type = 'code'
+  accessToken?: string; // Token direct si response_type = 'token'
   provider: {
     id: string;
     display_name: string;
@@ -140,6 +141,19 @@ export function Dashboard() {
   }>>([]);
   const [dragActive, setDragActive] = useState(false);
   const navigate = useNavigate();
+
+  const getProfileLabel = (profileId: string | null): string => {
+    if (!profileId) return "Profil non défini";
+    const profiles: Record<string, string> = {
+      salarie: 'Salarié / Fonctionnaire',
+      dirigeant_IS: 'Dirigeant de société',
+      independant: 'Indépendant',
+      investisseur_immobilier: 'Investisseur Immobilier',
+      expatrie: 'Expatrié / Non-résident',
+      retraite: 'Retraité'
+    };
+    return profiles[profileId] || profileId;
+  };
 
   const suggestedQuestions = [
     "Comment optimiser ma déclaration d'impôts ?",
@@ -234,122 +248,6 @@ export function Dashboard() {
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du profil:', error);
     }
-  };
-
-  const saveAdaptiveProfile = async (adaptiveData: any, detectedProfile: any) => {
-    if (!userId) return;
-    
-    try {
-      const mappedProfile: Partial<UserProfile> = {
-        situation_professionnelle: adaptiveData.activite_principale || profileData.situation_professionnelle,
-        situation_familiale: adaptiveData.situation_familiale || profileData.situation_familiale,
-        nombre_enfants: adaptiveData.nb_enfants || profileData.nombre_enfants,
-        secteur_activite: adaptiveData.secteur_activite || profileData.secteur_activite,
-        
-        revenus: adaptiveData.revenu_brut_annuel ? `${adaptiveData.revenu_brut_annuel}€/an` : 
-                 adaptiveData.ca_annuel ? `${adaptiveData.ca_annuel}€/an (CA)` :
-                 adaptiveData.pension_brute ? `${adaptiveData.pension_brute}€/an (pension)` :
-                 profileData.revenus,
-        
-        type_revenus: [
-          ...(adaptiveData.revenus_passifs || []),
-          ...(adaptiveData.epargne_salariale || []),
-          ...(adaptiveData.autres_revenus_retraite || [])
-        ].filter(Boolean),
-        
-        statut_fiscal: detectedProfile.priorite_affichage[0] || profileData.statut_fiscal,
-        regime_imposition: adaptiveData.regime_fiscal_societe || 
-                         adaptiveData.regime_fiscal_independant || 
-                         profileData.regime_imposition,
-        
-        patrimoine: adaptiveData.patrimoine_total_estime ? 
-                   `${adaptiveData.patrimoine_total_estime}€` : 
-                   profileData.patrimoine,
-        
-        investissements_existants: [
-          ...(adaptiveData.statuts_juridiques || []),
-          ...(adaptiveData.typologie_biens || []),
-          ...(adaptiveData.mode_detention || [])
-        ].filter(Boolean),
-        
-        revenus_passifs: adaptiveData.revenus_fonciers_bruts ? 
-                       `${adaptiveData.revenus_fonciers_bruts}€/an (foncier)` :
-                       adaptiveData.dividendes_verses ? 
-                       `${adaptiveData.dividendes_verses}€/an (dividendes)` :
-                       profileData.revenus_passifs,
-        
-        localisation: adaptiveData.pays_residence || 
-                     adaptiveData.juridiction_fiscale || 
-                     profileData.localisation,
-        zone_fiscale: adaptiveData.juridiction_fiscale || profileData.zone_fiscale,
-        
-        objectifs_financiers: adaptiveData.objectifs_patrimoniaux || 
-                            profileData.objectifs_financiers || [],
-        
-        interaction_history: [
-          ...(profileData.interaction_history || []),
-          {
-            question: 'Profil adaptatif détecté',
-            response: `Profil principal: ${getProfileLabel(detectedProfile.priorite_affichage[0])} (${detectedProfile.score_total[detectedProfile.priorite_affichage[0]]}% de compatibilité)`,
-            timestamp: new Date().toISOString(),
-            insights: [
-              {
-                type: 'profile_detection',
-                value: JSON.stringify({
-                  detectedProfile,
-                  adaptiveData,
-                  variables_determinantes: detectedProfile.variables_determinantes
-                }),
-                confidence: detectedProfile.confiance_detection
-              }
-            ]
-          }
-        ]
-      };
-
-      const { error } = await supabase
-        .from('user_profiles')
-        .upsert({ 
-          ...profileData, 
-          ...mappedProfile, 
-          user_id: userId, 
-          updated_at: new Date().toISOString() 
-        });
-
-      if (error) throw error;
-
-      setProfileData(prev => ({ ...prev, ...mappedProfile }));
-      setAdaptiveProfileData(adaptiveData);
-      setDetectedProfile(detectedProfile);
-      
-      if (detectedProfile.confiance_detection >= 70) {
-        setProfileCompleted(true);
-      }
-
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: `🎯 **Profil fiscal détecté et sauvegardé !**\n\n**Profil principal :** ${getProfileLabel(detectedProfile.priorite_affichage[0])}\n**Confiance :** ${detectedProfile.confiance_detection}%\n\nVotre profil fiscal a été automatiquement mis à jour. Je peux maintenant vous donner des conseils ultra-personnalisés !` 
-      }]);
-
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du profil adaptatif:', error);
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Erreur lors de la sauvegarde du profil détecté. Vos données sont temporairement conservées en mémoire.' 
-      }]);
-    }
-  };
-
-  const getProfileLabel = (profile: string) => {
-    const labels: { [key: string]: string } = {
-      dirigeant_IS: 'Dirigeant IS',
-      salarie: 'Salarié',
-      independant: 'Indépendant',
-      investisseur_immobilier: 'Investisseur Immobilier',
-      expatrie: 'Expatrié',
-      retraite: 'Retraité'
-    };
-    return labels[profile] || profile;
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -584,8 +482,118 @@ export function Dashboard() {
   };
 
   const analyzeProfile = () => { return {recommendations: [], opportunities: []}};
-  const connectBank = async () => {};
   
+  useEffect(() => {
+    // Initialisation de TrueLayer Auth
+    if (window.TrueLayer && import.meta.env.VITE_TRUELAYER_CLIENT_ID) {
+      window.TrueLayer.Auth.init({
+        client_id: import.meta.env.VITE_TRUELAYER_CLIENT_ID,
+        // Note: redirect_uri est géré automatiquement par le SDK si vous utilisez la méthode popup.
+        // Si vous utilisez une redirection complète, vous devez la spécifier ici et la whitelister dans votre console TrueLayer.
+        // redirect_uri: `${window.location.origin}/truelayer-callback`, 
+        response_mode: 'form_post', // ou 'fragment', 'query'
+        response_type: 'code', // ou 'token id_token'
+        scope: 'info accounts balance transactions offline_access cards', // Ajustez les scopes selon vos besoins
+        providers: 'uk-ob-all uk-oauth-all',
+        // nonce: 'votre_nonce_unique_et_aleatoire', // Recommandé pour la sécurité
+        // state: 'votre_etat_optionnel', // Pour maintenir l'état à travers la redirection
+        onSuccess: async (successData: TrueLayerSuccessData) => {
+          console.log('Connexion bancaire réussie:', successData);
+          setConnectedBanks(prev => [...prev, successData.provider.display_name]);
+          setIsConnecting(false);
+
+          try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+            const token = (await supabase.auth.getSession())?.data.session?.access_token;
+
+            const codeToSend = successData.code || '';
+            if (!codeToSend) {
+              throw new Error("Code d'autorisation manquant renvoyé par TrueLayer");
+            }
+
+            const exchangeResp = await fetch(`${apiBaseUrl}/truelayer/exchange`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ code: codeToSend, provider_id: successData.provider.id }),
+            });
+
+            if (!exchangeResp.ok) {
+              const errData = await exchangeResp.json().catch(() => ({}));
+              console.error('Erreur backend TrueLayer:', errData);
+              throw new Error(errData.detail || 'Erreur lors de la récupération des données bancaires');
+            }
+
+            const exchangeData = await exchangeResp.json();
+            setBankData(exchangeData);
+            setChatHistory(prev => [...prev, { 
+              role: 'assistant', 
+              content: `✅ Connexion avec ${successData.provider.display_name} réussie ! ${exchangeData.accounts?.length || 0} compte(s) bancaire(s) détecté(s).` 
+            }]);
+          } catch (err) {
+            console.error('Erreur post-auth TrueLayer:', err);
+            setChatHistory(prev => [...prev, { 
+              role: 'assistant', 
+              content: err instanceof Error ? `❌ ${err.message}` : "Erreur inconnue lors du traitement des données bancaires." 
+            }]);
+          }
+          // Sauvegarder l'info de connexion dans le profil utilisateur si nécessaire
+          // await saveUserProfile({...profileData, bank_connections: [...(profileData.bank_connections || []), successData.provider.id] });
+        },
+        onError: (error: TrueLayerError) => {
+          console.error('Erreur de connexion bancaire:', error);
+          setIsConnecting(false);
+          setChatHistory(prev => [...prev, { 
+            role: 'assistant', 
+            content: `❌ Erreur lors de la connexion bancaire : ${error.error_description || error.error}. Veuillez réessayer.` 
+          }]);
+        },
+        onExit: () => {
+            console.log('Flux de connexion TrueLayer quitté par l\'utilisateur.');
+            if(isConnecting) { // Pour éviter de changer l'état si onExit est appelé après un succès/erreur déjà géré
+                setIsConnecting(false);
+                setChatHistory(prev => [...prev, { 
+                    role: 'assistant', 
+                    content: 'La connexion bancaire a été annulée.' 
+                }]);
+            }
+        }
+      });
+    } else {
+      if (!import.meta.env.VITE_TRUELAYER_CLIENT_ID) {
+        console.warn('VITE_TRUELAYER_CLIENT_ID non configuré. La connexion bancaire sera désactivée.');
+      }
+      // Ne pas bloquer le rendu si TrueLayer n'est pas là, mais la fonctionnalité sera absente.
+    }
+  }, []); // Exécuter une seule fois au montage
+
+  const connectBank = async () => {
+    if (!window.TrueLayer || !import.meta.env.VITE_TRUELAYER_CLIENT_ID) {
+      setChatHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'La fonctionnalité de connexion bancaire n\'est pas disponible pour le moment. Veuillez vérifier la configuration.' 
+      }]);
+      return;
+    }
+    setIsConnecting(true);
+    setChatHistory(prev => [...prev, { role: 'assistant', content: '🔄 Initialisation de la connexion bancaire sécurisée...' }]);
+    try {
+      // Lance le flux d'authentification TrueLayer
+      window.TrueLayer.Auth.showPopup(); 
+      // Ou, si vous préférez une redirection complète :
+      // window.TrueLayer.Auth.buildAuthUrl().then(authUrl => window.location.href = authUrl);
+    } catch (error) {
+      console.error('Erreur lors du lancement de TrueLayer Auth:', error);
+      setIsConnecting(false);
+      setChatHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Une erreur est survenue lors de l\'initialisation de la connexion bancaire. Veuillez réessayer.' 
+      }]);
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-[#101A2E] via-[#162238] to-[#1E3253] text-gray-200 font-sans">
       <AnimatePresence>
@@ -608,8 +616,8 @@ export function Dashboard() {
               {[ 
                 { id: 'chat', label: 'Chat avec Francis', icon: MessageSquare }, 
                 { id: 'profile', label: 'Mon Profil Fiscal', icon: UserCircle }, 
-                { id: 'discovery', label: 'Découverte', icon: Users },
-                { id: 'documents', label: 'Mes Documents', icon: FileText }, 
+                // { id: 'discovery', label: 'Découverte', icon: Users }, // Onglet supprimé
+                // { id: 'documents', label: 'Mes Documents', icon: FileText }, // Onglet supprimé
                 { id: 'analytics', label: 'Analyse & Rapports', icon: TrendingUp }, 
                 { id: 'settings', label: 'Paramètres', icon: Settings } 
               ].map((item) => (
@@ -782,75 +790,59 @@ export function Dashboard() {
                     <div className="bg-[#1E3253]/50 backdrop-blur-sm rounded-xl border border-[#2A3F6C]/40 p-6 shadow-lg hover:shadow-[#c5a572]/10 transition-shadow">
                        <div className="flex items-center space-x-3 mb-4">
                            <div className="p-3 rounded-lg bg-gradient-to-br from-[#c5a572] to-[#e8cfa0]"><UserCircle className="w-6 h-6 text-[#162238]"/></div>
-                           <h3 className="text-xl font-semibold text-white">Profil Fiscal</h3>
-                       </div>
+                        <h3 className="text-xl font-semibold text-white">Profil Fiscal</h3>
+                      </div>
                        <p className="text-sm text-gray-400 mb-3">Complétez votre profil pour des conseils plus précis.</p>
                        <div className="w-full bg-[#101A2E]/50 rounded-full h-2.5 mb-1">
                            <div className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${calculateProgress()}%` }}></div>
-                       </div>
+                        </div>
                        <p className="text-right text-xs text-[#c5a572]">{calculateProgress()}% complet</p>
-                    </div>
-                    <div className="bg-[#1E3253]/50 backdrop-blur-sm rounded-xl border border-[#2A3F6C]/40 p-6 shadow-lg hover:shadow-[#c5a572]/10 transition-shadow">
-                       <div className="flex items-center space-x-3 mb-4">
-                           <div className="p-3 rounded-lg bg-gradient-to-br from-[#c5a572] to-[#e8cfa0]"><FileText className="w-6 h-6 text-[#162238]"/></div>
-                           <h3 className="text-xl font-semibold text-white">Mes Documents</h3>
-                       </div>
-                       <p className="text-sm text-gray-400 mb-3">Gérez vos documents fiscaux uploadés.</p>
-                       <p className="text-2xl font-bold text-white">{uploadedFiles.filter(f=>f.status === 'success').length} <span className="text-base font-normal text-gray-400">documents</span></p>
                     </div>
                  </div>
               </motion.div>
             )}
 
-            {activeTab === 'discovery' && (
-              <motion.div key="discovery" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-                <h2 className="text-3xl font-semibold text-white mb-6">Découverte de Profils</h2>
-                <UserDiscovery />
-              </motion.div>
-            )}
-
-            {activeTab === 'documents' && (
-              <motion.div key="documents" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-                <h2 className="text-3xl font-semibold text-white mb-6">Mes Documents</h2>
-                <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
-                  <div className="mb-6">
-                    <label htmlFor="doc-upload-main" className="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#2A3F6C]/50 rounded-lg cursor-pointer hover:border-[#c5a572]/70 hover:bg-[#162238]/30 transition-colors">
-                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
-                        <span className="text-sm text-gray-300 font-medium">Glissez-déposez vos fichiers ici ou cliquez pour parcourir</span>
-                        <span className="text-xs text-gray-500 mt-1">PDF, JPG, PNG, TXT, MD (max. 5MB)</span>
-                        <input id="doc-upload-main" type="file" className="hidden" onChange={(e) => handleFileUpload(e.target.files ? e.target.files[0] : undefined)} />
-                    </label>
-                  </div>
-                  
-                  {isUploading && <p className="text-center text-[#c5a572] text-sm my-4">Traitement du fichier en cours...</p>}
-
-                  {uploadedFiles.length > 0 ? (
-                    <ul className="space-y-3">
-                      {uploadedFiles.map((file, idx) => (
-                        <li key={idx} className="flex items-center justify-between p-3 bg-[#101A2E]/70 rounded-lg border border-[#2A3F6C]/40">
-                          <div className="flex items-center space-x-3">
-                            {file.status === 'success' && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />}
-                            {file.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
-                            {file.status === 'processing' && <Loader2 className="w-5 h-5 text-[#c5a572] animate-spin flex-shrink-0" />}
-                            <span className="text-sm text-gray-200 truncate" title={file.name}>{file.name}</span>
-                          </div>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${file.status === 'success' ? 'bg-green-500/20 text-green-400' : file.status === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                            {file.status}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-center text-gray-500 text-sm">Aucun document uploadé pour le moment.</p>
-                  )}
-                </div>
-              </motion.div>
-            )}
-            
             {activeTab === 'profile' && (
               <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal Adaptatif</h2>
                 
+                {/* Section Connexion Bancaire */}
+                <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl mb-8">
+                  <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                    <Link2 className="w-6 h-6 mr-3 text-[#c5a572]" />
+                    Connexion Bancaire Sécurisée (via TrueLayer)
+                  </h3>
+                  {connectedBanks.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-green-400 font-medium mb-2">Comptes connectés :</p>
+                      <ul className="list-disc list-inside text-gray-300">
+                        {connectedBanks.map(bank => <li key={bank}>{bank}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {bankData && (
+                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm">
+                        <p className="text-green-400">Données bancaires prêtes pour analyse par Francis.</p>
+                        {/* Ici, vous pourriez afficher plus de détails ou un résumé des données si nécessaire */}
+                    </div>
+                  )}
+                  <button
+                    onClick={connectBank}
+                    disabled={isConnecting || !window.TrueLayer || !import.meta.env.VITE_TRUELAYER_CLIENT_ID}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isConnecting ? (
+                      <><Loader2 className="w-6 h-6 animate-spin" /><span>Connexion en cours...</span></>
+                    ) : (
+                      <><Link2 className="w-6 h-6" /><span>{connectedBanks.length > 0 ? 'Connecter un autre compte' : 'Connecter mes comptes bancaires'}</span></>
+                    )}
+                  </button>
+                  {!import.meta.env.VITE_TRUELAYER_CLIENT_ID && (
+                     <p className="text-xs text-red-400 mt-2 text-center">Configuration TrueLayer manquante (VITE_TRUELAYER_CLIENT_ID).</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-3 text-center">Francis utilise TrueLayer pour accéder à vos données bancaires en toute sécurité. Nous ne stockons jamais vos identifiants bancaires.</p>
+                </div>
+
                 {/* Statut de sauvegarde du profil */}
                 {detectedProfile && (
                   <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">

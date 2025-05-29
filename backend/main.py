@@ -30,6 +30,19 @@ SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
+# -----------------------------
+# TrueLayer Configuration
+# -----------------------------
+TRUELAYER_CLIENT_ID = os.getenv("TRUELAYER_CLIENT_ID")
+TRUELAYER_CLIENT_SECRET = os.getenv("TRUELAYER_CLIENT_SECRET")
+TRUELAYER_REDIRECT_URI = os.getenv("TRUELAYER_REDIRECT_URI", "http://localhost:3000/truelayer-callback")
+TRUELAYER_ENV = os.getenv("TRUELAYER_ENV", "sandbox")  # 'live' ou 'sandbox'
+
+TRUELAYER_BASE_AUTH_URL = "https://auth.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://auth.truelayer.com"
+TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://api.truelayer.com"
+
+# -----------------------------
+
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 client = MistralClient(api_key=MISTRAL_API_KEY)
@@ -85,6 +98,18 @@ class PaymentRequest(BaseModel):
     amount: int
     currency: str = "eur"
     payment_method: str
+
+class TrueLayerCodeRequest(BaseModel):
+    code: str
+    provider_id: Optional[str] = None
+
+class TrueLayerExchangeResponse(BaseModel):
+    access_token: str
+    refresh_token: Optional[str]
+    expires_in: int
+    token_type: str
+    scope: str
+    accounts: List[Dict[str, Any]]
 
 # Utils
 def create_access_token(data: dict):
@@ -383,6 +408,67 @@ async def stripe_webhook(request: dict):
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
+async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depends(verify_token)):
+    """Échange le code d'autorisation TrueLayer contre un token et renvoie la liste des comptes de l'utilisateur."""
+    if not (TRUELAYER_CLIENT_ID and TRUELAYER_CLIENT_SECRET):
+        raise HTTPException(status_code=500, detail="TrueLayer n'est pas configuré côté serveur")
+
+    # 1) Échange du code contre un access_token / refresh_token
+    token_payload = {
+        "grant_type": "authorization_code",
+        "client_id": TRUELAYER_CLIENT_ID,
+        "client_secret": TRUELAYER_CLIENT_SECRET,
+        "redirect_uri": TRUELAYER_REDIRECT_URI,
+        "code": request.code,
+    }
+    async with httpx.AsyncClient() as client:
+        token_resp = await client.post(
+            f"{TRUELAYER_BASE_AUTH_URL}/connect/token",
+            data=token_payload,
+            headers={"Content-Type": "application/x-www-form-urlencoded"}
+        )
+
+        if token_resp.status_code != 200:
+            print("❌ TrueLayer token exchange error: ", token_resp.text)
+            raise HTTPException(status_code=400, detail="Échec de l'échange de code TrueLayer")
+
+        token_data = token_resp.json()
+        access_token = token_data.get("access_token")
+
+        # 2) Récupération des comptes avec l'access_token
+        accounts_resp = await client.get(
+            f"{TRUELAYER_API_URL}/data/v1/accounts",
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        accounts_data = accounts_resp.json().get("results", []) if accounts_resp.status_code == 200 else []
+
+    # 3) (Optionnel) Sauvegarde en base
+    if supabase:
+        try:
+            supabase.table("bank_connections").insert({
+                "user_id": user_id,
+                "provider_id": request.provider_id,
+                "access_token": access_token,
+                "refresh_token": token_data.get("refresh_token"),
+                "expires_in": token_data.get("expires_in"),
+                "scope": token_data.get("scope"),
+                "created_at": datetime.utcnow().isoformat()
+            }).execute()
+        except Exception as e:
+            # Ne pas bloquer si la table n'existe pas encore
+            print("[TrueLayer] Erreur sauvegarde Supabase:", e)
+            pass
+
+    return TrueLayerExchangeResponse(
+        access_token=access_token,
+        refresh_token=token_data.get("refresh_token"),
+        expires_in=token_data.get("expires_in", 0),
+        token_type=token_data.get("token_type", "Bearer"),
+        scope=token_data.get("scope", ""),
+        accounts=accounts_data
+    )
 
 if __name__ == "__main__":
     import uvicorn
