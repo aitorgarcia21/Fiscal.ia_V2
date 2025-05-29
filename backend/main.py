@@ -86,37 +86,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Test endpoint
-@app.get("/test")
-async def test():
-    return {"status": "ok", "message": "API is working!"}
-
 # Health check endpoint for Railway deployment
 @app.get("/health")
 async def health():
     return {"status": "healthy", "message": "Backend is running"}
-
-# Test Francis endpoint (no auth required for testing)
-@app.post("/api/test-francis")
-async def test_francis(request: dict):  # Utilise dict au lieu de QuestionRequest
-    try:
-        if not MISTRAL_API_KEY:
-            return {"error": "Service Mistral non disponible"}
-
-        question = request.get("question", "")
-        if not question:
-            return {"error": "Question manquante"}
-
-        answer, sources, confidence = get_fiscal_response(question)
-        
-        return {
-            "answer": answer,
-            "sources": sources,
-            "confidence": confidence
-        }
-
-    except Exception as e:
-        return {"error": f"Erreur lors du traitement de la question: {str(e)}"}
 
 # Mount the API router
 api_router = APIRouter(prefix="/api")
@@ -143,6 +116,28 @@ async def health_check():
         # }
         "message": "Basic health check OK" # <-- Simplifié
     }
+
+# Test Francis endpoint (no auth required for testing)
+@api_router.post("/test-francis")
+async def test_francis(request: dict):  # Utilise dict au lieu de QuestionRequest
+    try:
+        if not MISTRAL_API_KEY:
+            return {"error": "Service Mistral non disponible"}
+
+        question = request.get("question", "")
+        if not question:
+            return {"error": "Question manquante"}
+
+        answer, sources, confidence = get_fiscal_response(question)
+        
+        return {
+            "answer": answer,
+            "sources": sources,
+            "confidence": confidence
+        }
+
+    except Exception as e:
+        return {"error": f"Erreur lors du traitement de la question: {str(e)}"}
 
 # CORS
 app.add_middleware(
