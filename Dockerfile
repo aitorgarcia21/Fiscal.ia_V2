@@ -115,5 +115,5 @@ ENV PYTHONPATH=/app/backend
 # Exposer le port pour Railway
 EXPOSE 8080
 
-# Démarrer les services avec debug temporaire
-CMD ["./debug-start.sh"] 
+# Démarrer les services
+CMD ["./start.sh"] 
