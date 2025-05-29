@@ -16,6 +16,9 @@ from jose import JWTError, jwt
 from assistant_fiscal import get_fiscal_response
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
+from fastapi.middleware.wsgi import WSGIMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi import APIRouter
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -53,9 +56,33 @@ client = MistralClient(api_key=MISTRAL_API_KEY)
 app = FastAPI(
     title="Fiscal.ia API",
     description="API pour l'assistant fiscal intelligent",
-    version="1.0.0",
-    root_path="/api"
+    version="1.0.0"
 )
+
+# Mount the API under /api
+api_router = APIRouter(prefix="/api")
+
+# Move all routes to api_router
+@api_router.get("/")
+async def root():
+    return {
+        "message": "Fiscal.ia API",
+        "version": "1.0.0",
+        "status": "running",
+        "env": APP_ENV
+    }
+
+@api_router.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "services": {
+            "supabase": bool(supabase),
+            "mistral": bool(MISTRAL_API_KEY),
+            "stripe": bool(stripe.api_key)
+        }
+    }
 
 # CORS
 app.add_middleware(
@@ -139,28 +166,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 # Routes
-@app.get("/")
-async def root():
-    return {
-        "message": "Fiscal.ia API",
-        "version": "1.0.0",
-        "status": "running",
-        "env": APP_ENV
-    }
-
-@app.get("/health")
-async def health_check():
-    return {
-        "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        "services": {
-            "supabase": bool(supabase),
-            "mistral": bool(MISTRAL_API_KEY),
-            "stripe": bool(stripe.api_key)
-        }
-    }
-
-@app.post("/auth/register", response_model=Dict[str, Any])
+@api_router.post("/auth/register", response_model=Dict[str, Any])
 async def register(user: UserCreate):
     try:
         if not supabase:
@@ -194,7 +200,7 @@ async def register(user: UserCreate):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.post("/auth/login", response_model=Dict[str, Any])
+@api_router.post("/auth/login", response_model=Dict[str, Any])
 async def login(user: UserLogin):
     try:
         if not supabase:
@@ -221,7 +227,7 @@ async def login(user: UserLogin):
     except Exception as e:
         raise HTTPException(status_code=401, detail="Identifiants invalides")
 
-@app.get("/auth/me", response_model=Dict[str, Any])
+@api_router.get("/auth/me", response_model=Dict[str, Any])
 async def get_current_user(user_id: str = Depends(verify_token)):
     try:
         if not supabase:
@@ -240,7 +246,7 @@ async def get_current_user(user_id: str = Depends(verify_token)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.post("/ask", response_model=QuestionResponse)
+@api_router.post("/ask", response_model=QuestionResponse)
 async def ask_question(
     request: QuestionRequest,
     user_id: str = Depends(verify_token)
@@ -278,7 +284,7 @@ async def ask_question(
         # Retourner une erreur générique à l'utilisateur
         raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors du traitement de la question.")
 
-@app.get("/questions/history")
+@api_router.get("/questions/history")
 async def get_question_history(
     user_id: str = Depends(verify_token),
     limit: int = 20
@@ -293,7 +299,7 @@ async def get_question_history(
     except Exception as e:
         return []
 
-@app.post("/payment/create-intent")
+@api_router.post("/payment/create-intent")
 async def create_payment_intent(
     request: PaymentRequest,
     user_id: str = Depends(verify_token)
@@ -319,7 +325,7 @@ async def create_payment_intent(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.post("/upload/document")
+@api_router.post("/upload/document")
 async def upload_document(
     file: UploadFile = File(...),
     user_id: str = Depends(verify_token)
@@ -373,7 +379,7 @@ async def upload_document(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/documents")
+@api_router.get("/documents")
 async def get_user_documents(user_id: str = Depends(verify_token)):
     try:
         if not supabase:
@@ -386,7 +392,7 @@ async def get_user_documents(user_id: str = Depends(verify_token)):
         return []
 
 # Webhook Stripe (optionnel)
-@app.post("/webhooks/stripe")
+@api_router.post("/webhooks/stripe")
 async def stripe_webhook(request: dict):
     try:
         # Traiter les événements Stripe
@@ -412,7 +418,7 @@ async def stripe_webhook(request: dict):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
+@api_router.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
 async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depends(verify_token)):
     """Échange le code d'autorisation TrueLayer contre un token et renvoie la liste des comptes de l'utilisateur."""
     if not (TRUELAYER_CLIENT_ID and TRUELAYER_CLIENT_SECRET):
@@ -472,6 +478,9 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
         scope=token_data.get("scope", ""),
         accounts=accounts_data
     )
+
+# Mount the API router
+app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
