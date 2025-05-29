@@ -45,6 +45,8 @@ TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "san
 
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+if not MISTRAL_API_KEY:
+    raise ValueError("MISTRAL_API_KEY doit être défini dans les variables d'environnement pour que l'application fonctionne.")
 client = MistralClient(api_key=MISTRAL_API_KEY)
 
 # FastAPI app
