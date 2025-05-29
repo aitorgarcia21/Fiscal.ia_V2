@@ -90,7 +90,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copier le script de démarrage
 COPY start.sh .
+COPY debug-start.sh .
 RUN chmod +x start.sh
+RUN chmod +x debug-start.sh
 
 # Supprimer les fichiers .pyc potentiels pour forcer la réimportation
 RUN find . -type d -name "__pycache__" -exec rm -r {} +
@@ -113,5 +115,5 @@ ENV PYTHONPATH=/app/backend
 # Exposer le port pour Railway
 EXPOSE 8080
 
-# Démarrer les services
-CMD ["./start.sh"] 
+# Démarrer les services avec debug temporaire
+CMD ["./debug-start.sh"] 
