@@ -136,14 +136,19 @@ export function Dashboard() {
 
   const calculateProgress = () => {
     const requiredFields: (keyof UserProfile)[] = [
-      'situation', 'revenus', 'situationFamiliale', 'nombreEnfants', 'situationProfessionnelle', 'patrimoine', 'toleranceRisque', 'horizonInvestissement', 'localisation'
+      'situationFamiliale', 'nombreEnfants'
     ];
     
     const completedFields = requiredFields.filter(field => {
       const value = profileData[field];
-      return value !== undefined && value !== null && value !== '' && value !== 0;
+      if (field === 'nombreEnfants') {
+        return value !== undefined && value !== null;
+      }
+      return value !== undefined && value !== null && value !== '';
     }).length;
     
+    if (requiredFields.length === 0) return 100;
+
     return Math.round((completedFields / requiredFields.length) * 100);
   };
 
@@ -581,163 +586,32 @@ export function Dashboard() {
             {activeTab === 'profile' && (
               <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal</h2>
-                <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
-                  <form onSubmit={handleProfileSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Informations personnelles */}
-                      <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-white border-b border-[#2A3F6C]/30 pb-2">Informations personnelles</h3>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
-                          <select
-                            value={profileData.situationFamiliale || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, situationFamiliale: e.target.value }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                          >
-                            <option value="">Sélectionnez</option>
-                            <option value="single">Célibataire</option>
-                            <option value="married">Marié(e)</option>
-                            <option value="divorced">Divorcé(e)</option>
-                            <option value="widowed">Veuf/Veuve</option>
-                            <option value="pacs">Pacsé(e)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
-                          <input
-                            type="number"
-                            value={profileData.nombreEnfants || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, nombreEnfants: parseInt(e.target.value) }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                            placeholder="Ex: 2"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Informations financières */}
-                      <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-white border-b border-[#2A3F6C]/30 pb-2">Informations financières</h3>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels</label>
-                          <input
-                            type="text"
-                            value={profileData.revenus || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, revenus: e.target.value }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                            placeholder="Ex: 45000€ par an"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Situation professionnelle</label>
-                          <select
-                            value={profileData.situationProfessionnelle || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, situationProfessionnelle: e.target.value }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                          >
-                            <option value="">Sélectionnez</option>
-                            <option value="employee">Salarié</option>
-                            <option value="self_employed">Indépendant</option>
-                            <option value="freelance">Freelance</option>
-                            <option value="retired">Retraité</option>
-                            <option value="unemployed">Sans emploi</option>
-                            <option value="student">Étudiant</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Patrimoine</label>
-                          <input
-                            type="text"
-                            value={profileData.patrimoine || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, patrimoine: e.target.value }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                            placeholder="Description de votre patrimoine"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Investissements et épargne */}
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-white border-b border-[#2A3F6C]/30 pb-2">Investissements et objectifs</h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Tolérance au risque</label>
-                          <select
-                            value={profileData.toleranceRisque || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, toleranceRisque: e.target.value }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                          >
-                            <option value="">Sélectionnez</option>
-                            <option value="low">Faible</option>
-                            <option value="medium">Modérée</option>
-                            <option value="high">Élevée</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">Horizon d'investissement</label>
-                          <select
-                            value={profileData.horizonInvestissement || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, horizonInvestissement: e.target.value }))}
-                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                          >
-                            <option value="">Sélectionnez</option>
-                            <option value="short">Court terme (moins de 2 ans)</option>
-                            <option value="medium">Moyen terme (2-5 ans)</option>
-                            <option value="long">Long terme (plus de 5 ans)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Localisation</label>
-                        <input
-                          type="text"
-                          value={profileData.localisation || ''}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, localisation: e.target.value }))}
-                          className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
-                          placeholder="Votre ville ou région"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Barre de progression */}
-                    <div className="bg-[#101A2E]/50 rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-300">Progression du profil</span>
-                        <span className="text-sm font-semibold text-[#c5a572]">{calculateProgress()}%</span>
-                      </div>
-                      <div className="w-full bg-[#162238] rounded-full h-2.5">
-                        <div 
-                          className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2.5 rounded-full transition-all duration-500 ease-out" 
-                          style={{ width: `${calculateProgress()}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-2">
-                        {profileCompleted ? 
-                          "✅ Profil complet ! Francis peut maintenant vous donner des conseils personnalisés." :
-                          "Complétez votre profil pour des recommandations plus précises."
-                        }
-                      </p>
-                    </div>
-
-                    {/* Bouton de sauvegarde */}
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        className="px-8 py-3 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-[#c5a572] transition-all duration-200 shadow-lg hover:shadow-[#c5a572]/30"
-                      >
-                        Sauvegarder le profil
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                 <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                    <form onSubmit={handleProfileSubmit} className="space-y-8">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div>
+                             <label htmlFor="situationFamiliale" className="block text-sm font-medium text-gray-300 mb-1.5">Situation Familiale</label>
+                             <select id="situationFamiliale" value={profileData.situationFamiliale || ''} onChange={(e) => setProfileData({...profileData, situationFamiliale: e.target.value})} className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500">
+                                 <option value="">Non spécifié</option>
+                                 <option value="celibataire">Célibataire</option>
+                                 <option value="marie">Marié(e)</option>
+                                 <option value="pacs">PACS</option>
+                                 <option value="divorce">Divorcé(e)</option>
+                                 <option value="veuf">Veuf(ve)</option>
+                             </select>
+                         </div>
+                         <div>
+                             <label htmlFor="nombreEnfants" className="block text-sm font-medium text-gray-300 mb-1.5">Nombre d'enfants à charge</label>
+                             <input type="number" id="nombreEnfants" value={profileData.nombreEnfants || 0} onChange={(e) => setProfileData({...profileData, nombreEnfants: parseInt(e.target.value)})} min="0" className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500" />
+                         </div>
+                       </div>
+                       <div className="pt-5">
+                           <button type="submit" disabled={isLoading} className="px-7 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-md hover:shadow-[#c5a572]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#1E3253] transition-all duration-300 disabled:opacity-70">
+                               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sauvegarder les modifications'}
+                           </button>
+                       </div>
+                    </form>
+                 </div>
               </motion.div>
             )}
             
