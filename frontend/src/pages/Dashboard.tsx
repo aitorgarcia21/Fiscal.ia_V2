@@ -30,10 +30,15 @@ import {
   CreditCard,
   Calculator,
   LogOut,
-  Home
+  Home,
+  Users
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, UserProfile } from '../lib/supabase';
+import { UserDiscovery } from '../components/UserDiscovery';
+import { AdaptiveProfiler } from '../components/AdaptiveProfiler';
+import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
+import { ProfileSummary } from '../components/ProfileSummary';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -64,27 +69,27 @@ const initialProfileData: Partial<UserProfile> = {
   revenus: '',
   patrimoine: '',
   objectifs: [],
-  toleranceRisque: '',
-  horizonInvestissement: '',
-  nombreEnfants: 0,
-  agesEnfants: '',
-  typeRevenus: [],
-  autresRevenus: '',
-  situationProfessionnelle: '',
-  statutFiscal: '',
-  regimeImposition: '',
-  investissementsExistants: [],
-  projetsImmobiliers: '',
-  besoinsRetraite: '',
-  situationFamiliale: '',
+  tolerance_risque: '',
+  horizon_investissement: '',
+  nombre_enfants: 0,
+  ages_enfants: '',
+  type_revenus: [],
+  autres_revenus: '',
+  situation_professionnelle: '',
+  statut_fiscal: '',
+  regime_imposition: '',
+  investissements_existants: [],
+  projets_immobiliers: '',
+  besoins_retraite: '',
+  situation_familiale: '',
   localisation: '',
-  zoneFiscale: '',
-  secteurActivite: '',
-  revenusPassifs: '',
+  zone_fiscale: '',
+  secteur_activite: '',
+  revenus_passifs: '',
   dettes: '',
-  objectifsFinanciers: [],
-  contraintesFiscales: [],
-  compositionPatrimoine: [],
+  objectifs_financiers: [],
+  contraintes_fiscales: [],
+  composition_patrimoine: [],
   is_active: false,
 };
 
@@ -103,6 +108,9 @@ export function Dashboard() {
   const [activeTab, setActiveTab] = useState('chat');
   const [profileData, setProfileData] = useState<Partial<UserProfile>>(initialProfileData);
   const [profileCompleted, setProfileCompleted] = useState(false);
+  const [showInitialQuestions, setShowInitialQuestions] = useState(false);
+  const [adaptiveProfileData, setAdaptiveProfileData] = useState<any>(null);
+  const [detectedProfile, setDetectedProfile] = useState<any>(null);
   const [chatMode, setChatMode] = useState('libre');
   const [userId, setUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -136,12 +144,12 @@ export function Dashboard() {
 
   const calculateProgress = () => {
     const requiredFields: (keyof UserProfile)[] = [
-      'situationFamiliale', 'nombreEnfants'
+      'situation_familiale', 'nombre_enfants'
     ];
     
     const completedFields = requiredFields.filter(field => {
       const value = profileData[field];
-      if (field === 'nombreEnfants') {
+      if (field === 'nombre_enfants') {
         return value !== undefined && value !== null;
       }
       return value !== undefined && value !== null && value !== '';
@@ -204,6 +212,122 @@ export function Dashboard() {
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du profil:', error);
     }
+  };
+
+  const saveAdaptiveProfile = async (adaptiveData: any, detectedProfile: any) => {
+    if (!userId) return;
+    
+    try {
+      const mappedProfile: Partial<UserProfile> = {
+        situation_professionnelle: adaptiveData.activite_principale || profileData.situation_professionnelle,
+        situation_familiale: adaptiveData.situation_familiale || profileData.situation_familiale,
+        nombre_enfants: adaptiveData.nb_enfants || profileData.nombre_enfants,
+        secteur_activite: adaptiveData.secteur_activite || profileData.secteur_activite,
+        
+        revenus: adaptiveData.revenu_brut_annuel ? `${adaptiveData.revenu_brut_annuel}€/an` : 
+                 adaptiveData.ca_annuel ? `${adaptiveData.ca_annuel}€/an (CA)` :
+                 adaptiveData.pension_brute ? `${adaptiveData.pension_brute}€/an (pension)` :
+                 profileData.revenus,
+        
+        type_revenus: [
+          ...(adaptiveData.revenus_passifs || []),
+          ...(adaptiveData.epargne_salariale || []),
+          ...(adaptiveData.autres_revenus_retraite || [])
+        ].filter(Boolean),
+        
+        statut_fiscal: detectedProfile.priorite_affichage[0] || profileData.statut_fiscal,
+        regime_imposition: adaptiveData.regime_fiscal_societe || 
+                         adaptiveData.regime_fiscal_independant || 
+                         profileData.regime_imposition,
+        
+        patrimoine: adaptiveData.patrimoine_total_estime ? 
+                   `${adaptiveData.patrimoine_total_estime}€` : 
+                   profileData.patrimoine,
+        
+        investissements_existants: [
+          ...(adaptiveData.statuts_juridiques || []),
+          ...(adaptiveData.typologie_biens || []),
+          ...(adaptiveData.mode_detention || [])
+        ].filter(Boolean),
+        
+        revenus_passifs: adaptiveData.revenus_fonciers_bruts ? 
+                       `${adaptiveData.revenus_fonciers_bruts}€/an (foncier)` :
+                       adaptiveData.dividendes_verses ? 
+                       `${adaptiveData.dividendes_verses}€/an (dividendes)` :
+                       profileData.revenus_passifs,
+        
+        localisation: adaptiveData.pays_residence || 
+                     adaptiveData.juridiction_fiscale || 
+                     profileData.localisation,
+        zone_fiscale: adaptiveData.juridiction_fiscale || profileData.zone_fiscale,
+        
+        objectifs_financiers: adaptiveData.objectifs_patrimoniaux || 
+                            profileData.objectifs_financiers || [],
+        
+        interaction_history: [
+          ...(profileData.interaction_history || []),
+          {
+            question: 'Profil adaptatif détecté',
+            response: `Profil principal: ${getProfileLabel(detectedProfile.priorite_affichage[0])} (${detectedProfile.score_total[detectedProfile.priorite_affichage[0]]}% de compatibilité)`,
+            timestamp: new Date().toISOString(),
+            insights: [
+              {
+                type: 'profile_detection',
+                value: JSON.stringify({
+                  detectedProfile,
+                  adaptiveData,
+                  variables_determinantes: detectedProfile.variables_determinantes
+                }),
+                confidence: detectedProfile.confiance_detection
+              }
+            ]
+          }
+        ]
+      };
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({ 
+          ...profileData, 
+          ...mappedProfile, 
+          user_id: userId, 
+          updated_at: new Date().toISOString() 
+        });
+
+      if (error) throw error;
+
+      setProfileData(prev => ({ ...prev, ...mappedProfile }));
+      setAdaptiveProfileData(adaptiveData);
+      setDetectedProfile(detectedProfile);
+      
+      if (detectedProfile.confiance_detection >= 70) {
+        setProfileCompleted(true);
+      }
+
+      setChatHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: `🎯 **Profil fiscal détecté et sauvegardé !**\n\n**Profil principal :** ${getProfileLabel(detectedProfile.priorite_affichage[0])}\n**Confiance :** ${detectedProfile.confiance_detection}%\n\nVotre profil fiscal a été automatiquement mis à jour. Je peux maintenant vous donner des conseils ultra-personnalisés !` 
+      }]);
+
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde du profil adaptatif:', error);
+      setChatHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Erreur lors de la sauvegarde du profil détecté. Vos données sont temporairement conservées en mémoire.' 
+      }]);
+    }
+  };
+
+  const getProfileLabel = (profile: string) => {
+    const labels: { [key: string]: string } = {
+      dirigeant_IS: 'Dirigeant IS',
+      salarie: 'Salarié',
+      independant: 'Indépendant',
+      investisseur_immobilier: 'Investisseur Immobilier',
+      expatrie: 'Expatrié',
+      retraite: 'Retraité'
+    };
+    return labels[profile] || profile;
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -355,7 +479,14 @@ export function Dashboard() {
             </div>
 
             <nav className="flex-grow space-y-1.5">
-              {[ { id: 'chat', label: 'Chat avec Francis', icon: MessageSquare }, { id: 'profile', label: 'Mon Profil Fiscal', icon: UserCircle }, { id: 'documents', label: 'Mes Documents', icon: FileText }, { id: 'analytics', label: 'Analyse & Rapports', icon: TrendingUp }, { id: 'settings', label: 'Paramètres', icon: Settings } ].map((item) => (
+              {[ 
+                { id: 'chat', label: 'Chat avec Francis', icon: MessageSquare }, 
+                { id: 'profile', label: 'Mon Profil Fiscal', icon: UserCircle }, 
+                { id: 'discovery', label: 'Découverte', icon: Users },
+                { id: 'documents', label: 'Mes Documents', icon: FileText }, 
+                { id: 'analytics', label: 'Analyse & Rapports', icon: TrendingUp }, 
+                { id: 'settings', label: 'Paramètres', icon: Settings } 
+              ].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
@@ -545,6 +676,13 @@ export function Dashboard() {
               </motion.div>
             )}
 
+            {activeTab === 'discovery' && (
+              <motion.div key="discovery" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                <h2 className="text-3xl font-semibold text-white mb-6">Découverte de Profils</h2>
+                <UserDiscovery />
+              </motion.div>
+            )}
+
             {activeTab === 'documents' && (
               <motion.div key="documents" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 <h2 className="text-3xl font-semibold text-white mb-6">Mes Documents</h2>
@@ -585,33 +723,76 @@ export function Dashboard() {
             
             {activeTab === 'profile' && (
               <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-                <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal</h2>
-                 <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
-                    <form onSubmit={handleProfileSubmit} className="space-y-8">
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <div>
-                             <label htmlFor="situationFamiliale" className="block text-sm font-medium text-gray-300 mb-1.5">Situation Familiale</label>
-                             <select id="situationFamiliale" value={profileData.situationFamiliale || ''} onChange={(e) => setProfileData({...profileData, situationFamiliale: e.target.value})} className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500">
-                                 <option value="">Non spécifié</option>
-                                 <option value="celibataire">Célibataire</option>
-                                 <option value="marie">Marié(e)</option>
-                                 <option value="pacs">PACS</option>
-                                 <option value="divorce">Divorcé(e)</option>
-                                 <option value="veuf">Veuf(ve)</option>
-                             </select>
-                         </div>
-                         <div>
-                             <label htmlFor="nombreEnfants" className="block text-sm font-medium text-gray-300 mb-1.5">Nombre d'enfants à charge</label>
-                             <input type="number" id="nombreEnfants" value={profileData.nombreEnfants || 0} onChange={(e) => setProfileData({...profileData, nombreEnfants: parseInt(e.target.value)})} min="0" className="w-full mt-1 rounded-lg bg-[#101A2E]/80 border border-[#2A3F6C]/50 text-gray-200 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] shadow-sm text-sm p-3 placeholder-gray-500" />
-                         </div>
-                       </div>
-                       <div className="pt-5">
-                           <button type="submit" disabled={isLoading} className="px-7 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-md hover:shadow-[#c5a572]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#1E3253] transition-all duration-300 disabled:opacity-70">
-                               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sauvegarder les modifications'}
-                           </button>
-                       </div>
-                    </form>
-                 </div>
+                <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal Adaptatif</h2>
+                
+                {!adaptiveProfileData ? (
+                  <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full mb-6">
+                        <Target className="w-10 h-10 text-[#162238]" />
+                      </div>
+                      <h3 className="text-2xl font-semibold text-white mb-3">Francis va analyser votre profil</h3>
+                      <p className="text-gray-300 max-w-2xl mx-auto">
+                        Répondez à quelques questions rapides pour que Francis détecte automatiquement votre profil fiscal 
+                        et vous propose des conseils ultra-personnalisés.
+                      </p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <button
+                        onClick={() => setShowInitialQuestions(true)}
+                        className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all duration-300 flex items-center space-x-3 mx-auto"
+                      >
+                        <Target className="w-6 h-6" />
+                        <span>Commencer l'analyse</span>
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Statut de sauvegarde du profil */}
+                    {detectedProfile && (
+                      <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                        <div className="flex items-center space-x-3">
+                          <CheckCircle2 className="w-6 h-6 text-green-400" />
+                          <div>
+                            <h3 className="text-white font-semibold">Profil fiscal sauvegardé !</h3>
+                            <p className="text-sm text-gray-300">
+                              <strong>{getProfileLabel(detectedProfile.priorite_affichage[0])}</strong> détecté avec {detectedProfile.confiance_detection}% de confiance
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {showInitialQuestions ? (
+                      <InitialProfileQuestions
+                        onComplete={(data) => {
+                          setAdaptiveProfileData(data);
+                          setShowInitialQuestions(false);
+                        }}
+                      />
+                    ) : (
+                      <AdaptiveProfiler
+                        initialData={adaptiveProfileData}
+                        onProfileUpdate={(profile, detected) => {
+                          // Sauvegarde automatique du profil détecté
+                          saveAdaptiveProfile(profile, detected);
+                          setAdaptiveProfileData(profile);
+                          setDetectedProfile(detected);
+                        }}
+                      />
+                    )}
+
+                    {detectedProfile && (
+                      <ProfileSummary
+                        detectedProfile={detectedProfile}
+                        profileData={adaptiveProfileData || {}}
+                      />
+                    )}
+                  </div>
+                )}
               </motion.div>
             )}
             

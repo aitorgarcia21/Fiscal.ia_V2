@@ -5,7 +5,7 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Types pour le profil utilisateur
+// Types pour le profil utilisateur - CORRIGÉ pour correspondre à la BD
 export interface UserProfile {
   id: string
   user_id: string
@@ -13,30 +13,30 @@ export interface UserProfile {
   revenus: string
   patrimoine: string
   objectifs: string[]
-  toleranceRisque: string
-  horizonInvestissement: string
-  nombreEnfants: number
-  agesEnfants: string
-  typeRevenus: string[]
-  autresRevenus: string
+  tolerance_risque: string
+  horizon_investissement: string
+  nombre_enfants: number
+  ages_enfants: string
+  type_revenus: string[]
+  autres_revenus: string
   created_at: string
   updated_at: string
   last_interaction: string
-  situationProfessionnelle: string
-  statutFiscal: string
-  regimeImposition: string
-  investissementsExistants: string[]
-  projetsImmobiliers: string
-  besoinsRetraite: string
-  situationFamiliale: string
+  situation_professionnelle: string
+  statut_fiscal: string
+  regime_imposition: string
+  investissements_existants: string[]
+  projets_immobiliers: string
+  besoins_retraite: string
+  situation_familiale: string
   localisation: string
-  zoneFiscale: string
-  secteurActivite: string
-  revenusPassifs: string
+  zone_fiscale: string
+  secteur_activite: string
+  revenus_passifs: string
   dettes: string
-  objectifsFinanciers: string[]
-  contraintesFiscales: string[]
-  compositionPatrimoine: string[]
+  objectifs_financiers: string[]
+  contraintes_fiscales: string[]
+  composition_patrimoine: string[]
   interaction_history: Array<{
     question: string
     response: string
