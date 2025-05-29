@@ -383,13 +383,13 @@ export function Dashboard() {
 
       console.log('📡 Envoi des données à l\'API /ask:', payload);
 
-      const response = await fetch(`${apiBaseUrl}/ask`, {
+      const response = await fetch(`${apiBaseUrl}/api/test-francis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          // 'Authorization': `Bearer ${token}`, // Commenté car test-francis n'a pas besoin d'auth
         },
-        body: JSON.stringify(payload), // Utilisation du nouveau payload
+        body: JSON.stringify({ question: userQuestion }), // Payload simplifié pour test-francis
       });
 
       if (!response.ok) {
