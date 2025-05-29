@@ -31,6 +31,19 @@ JWT_EXPIRATION_HOURS = 24
 # Supabase
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
+print(f"DEBUG: SUPABASE_URL = {SUPABASE_URL}")
+print(f"DEBUG: SUPABASE_KEY IS SET = {bool(SUPABASE_KEY)}")
+
+# Test de connectivité Supabase
+if SUPABASE_URL:
+    try:
+        print(f"DEBUG: Tentative de connexion à {SUPABASE_URL}...")
+        response = httpx.get(SUPABASE_URL, timeout=10.0) # Test simple
+        print(f"DEBUG: Connexion à Supabase URL ({SUPABASE_URL}) réussie, status: {response.status_code}")
+    except httpx.RequestError as e:
+        print(f"ERREUR CRITIQUE: Échec de la connexion directe à {SUPABASE_URL} via httpx: {e}")
+        # Optionnel: lever une exception ici pour arrêter le serveur si la connexion est vitale
+        # raise RuntimeError(f"Impossible de joindre Supabase à {SUPABASE_URL}") from e
 
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -100,9 +113,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Mount the API router
-app.include_router(api_router)
 
 # Security
 security = HTTPBearer()
@@ -489,6 +499,9 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
         scope=token_data.get("scope", ""),
         accounts=accounts_data
     )
+
+# Mount the API router finally
+app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
