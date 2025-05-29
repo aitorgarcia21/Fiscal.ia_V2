@@ -48,4 +48,12 @@ export interface UserProfile {
     }>
   }>
   is_active: boolean
+  
+  // Nouveaux champs pour le questionnaire détaillé
+  date_naissance?: string
+  personnes_charge?: string
+  type_contrat?: string
+  societes_detenues?: string
+  tmi?: string
+  endettement?: string
 } 

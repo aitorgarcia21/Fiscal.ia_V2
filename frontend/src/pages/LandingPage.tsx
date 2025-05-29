@@ -127,16 +127,16 @@ export function LandingPage() {
               className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
             >
               <CreditCard className="w-6 h-6" />
-              Commencer gratuitement
+              Commencer maintenant !
               <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+              whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)", boxShadow: "0px 8px 20px rgba(255, 255, 255, 0.1)" }}
               onClick={() => setShowDemo(true)}
-              className="px-10 py-4 bg-white/5 text-gray-100 font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-white/20 hover:border-white/40 backdrop-blur-sm"
+              className="px-10 py-4 bg-white/5 text-gray-100 font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-white/20 hover:border-white/40 backdrop-blur-sm group"
             >
               Voir la démo
-              <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity group-hover:translate-x-1 duration-200" />
             </motion.button>
           </motion.div>
 

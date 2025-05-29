@@ -83,65 +83,80 @@ export function DemoConversation() {
   });
 
   useEffect(() => {
-    if (inView && visibleCount < conversation.length) {
-      const timeout = setTimeout(() => {
-        setVisibleCount((c) => c + 1);
-      }, 500);
-      return () => clearTimeout(timeout);
+    if (inView) {
+      const interval = setInterval(() => {
+        setVisibleCount((c) => {
+          if (c < conversation.length) {
+            return c + 1;
+          }
+          clearInterval(interval);
+          return c;
+        });
+      }, 1500); // Délai entre chaque message
+      return () => clearInterval(interval);
     }
-  }, [inView, visibleCount]);
+  }, [inView]);
 
   return (
-    <div className="max-w-2xl mx-auto mb-12">
-      <div className="bg-[#1a2942]/95 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-[#c5a572]/30">
+    <div className="max-w-2xl mx-auto mb-12" ref={ref}>
+      <div className="bg-gradient-to-br from-[#101A2E]/80 via-[#162238]/80 to-[#1E3253]/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border-2 border-[#c5a572]/30">
         {/* En-tête démo */}
-        <div className="bg-gradient-to-r from-[#1a2942] to-[#223c63] px-8 py-6 border-b border-[#c5a572]/20 flex items-center space-x-4">
-          <div className="relative inline-flex items-center justify-center group">
-            <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110" />
-            <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110" />
+        <div className="bg-gradient-to-r from-[#162238] to-[#1E3253] px-6 py-5 border-b border-[#c5a572]/20 flex items-center space-x-4 shadow-inner">
+          <div className="relative inline-flex items-center justify-center group p-1.5 bg-gradient-to-br from-[#c5a572]/20 to-transparent rounded-full">
+            <MessageSquare className="h-7 w-7 text-[#c5a572]" />
+            <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white drop-shadow-lg">Francis</h2>
-            <p className="text-base text-[#c5a572] font-medium">Conseiller fiscal propulsé par IA</p>
+            <h2 className="text-xl font-bold text-white drop-shadow-lg">Francis</h2>
+            <p className="text-sm text-[#c5a572] font-medium">Votre conseiller fiscal IA</p>
           </div>
         </div>
         {/* Zone des messages */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gradient-to-br from-[#1a2942]/80 to-[#223c63]/80">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-[300px] max-h-[50vh]">
           {conversation.slice(0, visibleCount).map((msg, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className={`flex ${msg.author === 'paul' ? 'justify-end' : 'justify-start'}`}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className={`flex items-end ${msg.author === 'paul' ? 'justify-end' : 'justify-start'}`}
             >
+              {msg.author === 'francis' && (
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center flex-shrink-0 mr-3 shadow-md border border-[#162238]">
+                  <MessageSquare className="w-5 h-5 text-[#162238]" />
+                </div>
+              )}
               <div
-                className={`max-w-[85%] rounded-2xl p-6 shadow-xl transition-all duration-200 group hover:scale-[1.025] ${
+                className={`max-w-[80%] rounded-2xl p-4 shadow-xl transition-all duration-300 group hover:scale-[1.015] text-base sm:text-lg leading-relaxed font-medium ${
                   msg.author === 'paul'
-                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] border border-[#e8cfa0]/60'
-                    : 'bg-white/10 text-white border border-[#c5a572]/30'
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none border-2 border-transparent hover:border-[#162238]/30'
+                    : 'bg-white/10 text-white rounded-bl-none border-2 border-transparent hover:border-[#c5a572]/40'
                 }`}
-                style={{ fontSize: '1.18rem', lineHeight: '1.7', fontWeight: 500 }}
               >
-                <div className="flex items-center space-x-3 mb-3">
-                  {msg.author === 'francis' && (
-                    <div className="w-8 h-8 rounded-full bg-[#c5a572] flex items-center justify-center shadow-md">
-                      <MessageSquare className="w-5 h-5 text-[#1a2942]" />
-                    </div>
-                  )}
-                  <span className={`text-base font-semibold ${msg.author === 'paul' ? 'text-[#1a2942]' : 'text-[#c5a572]'}`}>{msg.author === 'paul' ? 'Vous' : 'Francis'}</span>
-                </div>
-                <div className="prose prose-invert max-w-none">
-                  {msg.content}
-                </div>
+                {msg.content}
               </div>
               {msg.author === 'paul' && (
-                <div className="w-8 h-8 rounded-full bg-[#223c63] flex items-center justify-center ml-3 shadow-md">
-                  <span className="text-[#c5a572] font-bold text-base">Vous</span>
+                <div className="w-9 h-9 rounded-full bg-[#2A3F6C]/50 flex items-center justify-center flex-shrink-0 ml-3 shadow-md border border-white/10">
+                  <Users className="w-5 h-5 text-gray-300" />
                 </div>
               )}
             </motion.div>
           ))}
+          {visibleCount < conversation.length && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10}}
+              animate={{ opacity: 1, y: 0}}
+              transition={{delay: 0.3}}
+              className="flex justify-start items-center pl-12 pt-2"
+            >
+              <span className="text-gray-400 text-sm italic">Francis est en train d'écrire</span>
+              <div className="flex space-x-1 ml-2">
+                  <motion.div animate={{scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5]}} transition={{duration: 0.8, repeat: Infinity, delay:0}} className="w-1.5 h-1.5 bg-gray-400 rounded-full"></motion.div>
+                  <motion.div animate={{scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5]}} transition={{duration: 0.8, repeat: Infinity, delay:0.2}} className="w-1.5 h-1.5 bg-gray-400 rounded-full"></motion.div>
+                  <motion.div animate={{scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5]}} transition={{duration: 0.8, repeat: Infinity, delay:0.4}} className="w-1.5 h-1.5 bg-gray-400 rounded-full"></motion.div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
