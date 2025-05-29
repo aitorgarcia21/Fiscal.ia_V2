@@ -1,1 +1,1 @@
-web: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT & cd frontend && npm run build && npx serve -s dist 
+web: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT 
