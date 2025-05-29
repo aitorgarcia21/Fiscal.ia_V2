@@ -28,22 +28,31 @@ JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-# Supabase
-SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
-SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
+# Variables d'environnement pour Supabase
+SUPABASE_URL = os.getenv("VITE_SUPABASE_URL") or "https://lqxfjjtjxktjgpekugtf.supabase.co"
+SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA"
 print(f"DEBUG: SUPABASE_URL = {SUPABASE_URL}")
 print(f"DEBUG: SUPABASE_KEY IS SET = {bool(SUPABASE_KEY)}")
 
 # Test de connectivité Supabase
 if SUPABASE_URL:
     try:
-        print(f"DEBUG: Tentative de connexion à {SUPABASE_URL}...")
-        response = httpx.get(SUPABASE_URL, timeout=10.0) # Test simple
-        print(f"DEBUG: Connexion à Supabase URL ({SUPABASE_URL}) réussie, status: {response.status_code}")
-    except httpx.RequestError as e:
-        print(f"ERREUR CRITIQUE: Échec de la connexion directe à {SUPABASE_URL} via httpx: {e}")
-        # Optionnel: lever une exception ici pour arrêter le serveur si la connexion est vitale
-        # raise RuntimeError(f"Impossible de joindre Supabase à {SUPABASE_URL}") from e
+        print(f"DEBUG: Test de l'API Supabase...")
+        headers = {"apikey": SUPABASE_KEY} if SUPABASE_KEY else {}
+        response = httpx.get(f"{SUPABASE_URL}/rest/v1/", headers=headers, timeout=10.0)
+        print(f"DEBUG: API Supabase - Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ Connexion Supabase réussie !")
+        elif response.status_code == 401:
+            print("❌ ERREUR: Clé API Supabase invalide")
+        else:
+            print(f"⚠️  Réponse inattendue de Supabase: {response.status_code}")
+            
+    except Exception as e:
+        print(f"❌ ERREUR de connexion Supabase: {e}")
+else:
+    print("❌ ERREUR: SUPABASE_URL non défini")
 
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -63,7 +72,9 @@ TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "san
 
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-print("DEBUG: MISTRAL_API_KEY =", MISTRAL_API_KEY)
+# SÉCURITE : Ne JAMAIS imprimer les clés API dans les logs !
+# print("DEBUG: MISTRAL_API_KEY =", MISTRAL_API_KEY)  # ❌ SUPPRIMÉ - FUITE DE SÉCURITÉ
+print(f"DEBUG: MISTRAL_API_KEY IS SET = {bool(MISTRAL_API_KEY)}")
 if not MISTRAL_API_KEY:
     raise ValueError("MISTRAL_API_KEY doit être défini dans les variables d'environnement pour que l'application fonctionne.")
 client = MistralClient(api_key=MISTRAL_API_KEY)
@@ -147,7 +158,7 @@ security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Models
 class UserCreate(BaseModel):

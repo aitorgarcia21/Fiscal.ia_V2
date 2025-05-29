@@ -15,11 +15,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (mode === 'signup') setIsLogin(false);
     if (mode === 'login') setIsLogin(true);
+    setError(null);
+    setAgreedToTerms(false);
   }, [mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +33,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
     try {
       if (!isLogin && password !== confirmPassword) {
         throw new Error('Les mots de passe ne correspondent pas');
+      }
+      if (!isLogin && !agreedToTerms) {
+        throw new Error('Veuillez accepter la politique de confidentialité pour continuer.');
       }
 
       if (isLogin) {
@@ -121,26 +127,48 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
           </div>
 
           {!isLogin && (
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
-                Confirmer le mot de passe
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+            <>
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
+                  Confirmer le mot de passe
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-2 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <div className="mt-4 flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="focus:ring-[#c5a572] h-4 w-4 text-[#c5a572] border-gray-500 rounded bg-[#1a2942]/50 cursor-pointer"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="terms" className="font-medium text-gray-300 cursor-pointer">
+                    J'ai lu et j'accepte la 
+                    <a href="/politique-de-confidentialite" target="_blank" rel="noopener noreferrer" className="text-[#c5a572] hover:text-[#e8cfa0] underline ml-1">
+                      Politique de Confidentialité
+                    </a>
+                  </label>
+                </div>
+              </div>
+            </>
           )}
 
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading || (!isLogin && !agreedToTerms)}
+            className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {isLoading ? 'Chargement...' : (isLogin ? 'Se connecter' : "S'inscrire")}
           </button>

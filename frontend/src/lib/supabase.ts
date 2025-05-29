@@ -1,7 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://lqxfjjtjxktjgpekugtf.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA'
+// ATTENTION: Ces valeurs doivent être mises à jour avec votre nouveau projet Supabase
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://[VOTRE-PROJET].supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '[VOTRE-CLE-ANON]'
+
+// Vérification des variables d'environnement
+if (!supabaseUrl || supabaseUrl.includes('[VOTRE-PROJET]')) {
+  console.error('❌ ERREUR: VITE_SUPABASE_URL non configuré correctement')
+}
+if (!supabaseAnonKey || supabaseAnonKey.includes('[VOTRE-CLE]')) {
+  console.error('❌ ERREUR: VITE_SUPABASE_ANON_KEY non configuré correctement')
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
