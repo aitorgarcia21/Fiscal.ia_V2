@@ -436,7 +436,7 @@ export function Dashboard() {
                               <MessageSquare className="w-3.5 h-3.5 text-[#162238]" />
                             </div>
                           )}
-                           <span className={`text-xs font-semibold ${message.role === 'user' ? 'text-[#162238]/90' : 'text-[#e8cfa0]'}">
+                          <span className={`text-xs font-semibold ${message.role === 'user' ? 'text-[#162238]/90' : 'text-[#e8cfa0]'}`}>
                             {message.role === 'user' ? (userEmail || 'Vous') : 'Francis'}
                           </span>
                         </div>
