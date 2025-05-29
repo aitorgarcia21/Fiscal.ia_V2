@@ -53,18 +53,14 @@ client = MistralClient(api_key=MISTRAL_API_KEY)
 app = FastAPI(
     title="Fiscal.ia API",
     description="API pour l'assistant fiscal intelligent",
-    version="1.0.0"
+    version="1.0.0",
+    root_path="/api"
 )
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8085",
-        "http://localhost:8086",
-        "https://fiscaliav2-production.up.railway.app",
-        "https://fiscalia-v2.vercel.app"
-    ],
+    allow_origins=["*"],  # En production, on accepte toutes les origines car tout est sur le même domaine
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

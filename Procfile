@@ -1,0 +1,1 @@
+web: cd backend && python main.py & cd frontend && npm run build && npx serve -s dist 
