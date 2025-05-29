@@ -482,6 +482,11 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
 # Mount the API router
 app.include_router(api_router)
 
+# Test endpoint
+@app.get("/test")
+async def test():
+    return {"status": "ok", "message": "API is working!"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000) 
