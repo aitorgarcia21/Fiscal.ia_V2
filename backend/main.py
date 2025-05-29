@@ -59,7 +59,12 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En production, remplace par ton domaine
+    allow_origins=[
+        "http://localhost:8085",
+        "http://localhost:8086",
+        "https://fiscaliav2-production.up.railway.app",
+        "https://fiscalia-v2.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
