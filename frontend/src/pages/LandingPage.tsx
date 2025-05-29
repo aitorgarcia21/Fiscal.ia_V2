@@ -153,8 +153,10 @@ export function LandingPage() {
           </motion.div>
           <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="bg-gradient-to-br from-[#1A2942]/60 to-[#223C63]/60 shadow-xl rounded-2xl px-8 py-10 sm:px-12 sm:py-14 mx-auto max-w-4xl border border-[#2A3F6C]/60">
             <p className="text-lg sm:text-xl text-gray-200 leading-relaxed text-center">
-              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <strong className="font-semibold text-[#c5a572]">payer moins</strong>, légalement. Pas par manque de volonté, mais parce que <strong className="font-semibold text-white">personne</strong> ne leur explique. <strong className="font-semibold text-[#c5a572]">Ni les impôts, ni les banques, ni les simulateurs incomplets.</strong><br /><br />
-              Francis est là pour changer ça. Nous avons conçu une <strong className="font-semibold text-[#c5a572]">solution unique</strong> : une intelligence artificielle indépendante, dédiée à <strong className="font-semibold text-white">vous défendre, vous guider, et vous faire économiser.</strong>
+              Chaque année, des millions de Français remplissent leur déclaration sans savoir qu'ils pourraient <strong className="font-semibold text-[#c5a572]">payer moins</strong>, en toute légalité.<br /><br />
+              Pas par négligence, mais parce que <strong className="font-semibold text-white">personne ne leur explique</strong>. Ni l'administration. Ni les banques. Ni les simulateurs incomplets.<br /><br />
+              <strong className="font-semibold text-[#c5a572]">Francis change la donne.</strong><br />
+              Nous avons créé une intelligence artificielle indépendante, conçue pour <strong className="font-semibold text-white">vous défendre, vous guider, et vous faire économiser.</strong>
             </p>
           </motion.div>
         </div>

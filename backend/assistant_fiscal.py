@@ -163,7 +163,7 @@ def get_fiscal_response(query: str) -> Tuple[str, List[str], float]:
         chat_response = client.chat(
             model="mistral-large-latest",
             messages=messages,
-            temperature=0.1,
+            temperature=5,
             max_tokens=1500
         )
         
