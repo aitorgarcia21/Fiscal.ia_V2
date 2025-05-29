@@ -99,6 +99,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the API router
+app.include_router(api_router)
+
 # Security
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -484,9 +487,6 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
         scope=token_data.get("scope", ""),
         accounts=accounts_data
     )
-
-# Mount the API router
-app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
