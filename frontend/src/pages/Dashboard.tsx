@@ -344,12 +344,8 @@ export function Dashboard() {
           >
             <div className="flex items-center space-x-3.5 mb-10 px-2">
               <div className="relative inline-flex items-center justify-center group">
-                <img 
-                  src="/fiscalia-logo.svg" 
-                  alt="Fiscal.ia" 
-                  className="h-12 w-12 transition-transform group-hover:scale-110 duration-300" 
-                />
-                <span className="ml-3 text-2xl font-bold text-white">Fiscal.ia</span>
+                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#0D1523] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
             </div>
 

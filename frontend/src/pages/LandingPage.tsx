@@ -38,12 +38,8 @@ export function LandingPage() {
       <header className="fixed top-0 left-0 right-0 bg-[#162238]/95 backdrop-blur-lg border-b border-[#2A3F6C]/50 z-50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="relative inline-flex items-center justify-center group">
-            <img 
-              src="/fiscalia-logo.svg" 
-              alt="Fiscal.ia" 
-              className="h-12 w-12 transition-transform group-hover:scale-110 duration-300" 
-            />
-            <span className="ml-3 text-2xl font-bold text-white">Fiscal.ia</span>
+            <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+            <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
           </div>
           <button
             onClick={() => setShowAuthModal('login')}
@@ -80,7 +76,8 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#162238]/30 via-transparent to-[#234876]/20"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          {/* Logo central épuré */}
+          {/* Logo central épuré - SUPPRIMÉ */}
+          {/* 
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }} 
             animate={{ opacity: 1, scale: 1 }} 
@@ -88,13 +85,13 @@ export function LandingPage() {
             className="mb-12"
           >
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-3xl border border-[#c5a572]/30 shadow-2xl backdrop-blur-sm">
-              <img 
-                src="/fiscalia-logo.svg" 
-                alt="Fiscal.ia" 
-                className="w-14 h-14" 
-              />
+              <div className="relative">
+                <MessageSquare className="w-14 h-14 text-[#c5a572]" />
+                <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-1" />
+              </div>
             </div>
           </motion.div>
+          */}
 
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="mb-12">
             <motion.h1 
