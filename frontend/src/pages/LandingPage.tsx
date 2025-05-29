@@ -35,15 +35,19 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 font-sans antialiased">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-[#162238]/80 backdrop-blur-md border-b border-[#2A3F6C]/50 z-50 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 bg-[#162238]/95 backdrop-blur-lg border-b border-[#2A3F6C]/50 z-50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="relative inline-flex items-center justify-center group">
-            <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-            <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+            <img 
+              src="/fiscalia-logo.svg" 
+              alt="Fiscal.ia" 
+              className="h-12 w-12 transition-transform group-hover:scale-110 duration-300" 
+            />
+            <span className="ml-3 text-2xl font-bold text-white">Fiscal.ia</span>
           </div>
           <button
             onClick={() => setShowAuthModal('login')}
-            className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-md hover:shadow-[#c5a572]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
+            className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
           >
             Se connecter
           </button>
@@ -68,13 +72,33 @@ export function LandingPage() {
 
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-16 sm:pt-40 sm:pb-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #c5a572 0.5px, transparent 0.5px), radial-gradient(circle at 80% 80%, #e8cfa0 0.5px, transparent 0.5px)', backgroundSize: '40px 40px' }}></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-[#162238]/50 via-[#1E3253]/30 to-[#234876]/10"></div>
+        {/* Background pattern amélioré */}
+        <div className="absolute inset-0 opacity-5" style={{ 
+          backgroundImage: 'radial-gradient(circle at 25% 25%, #c5a572 1px, transparent 1px), radial-gradient(circle at 75% 75%, #e8cfa0 1px, transparent 1px)', 
+          backgroundSize: '60px 60px' 
+        }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#162238]/30 via-transparent to-[#234876]/20"></div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="mb-10">
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          {/* Logo central épuré */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ duration: 0.8, ease: "easeOut" }} 
+            className="mb-12"
+          >
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-3xl border border-[#c5a572]/30 shadow-2xl backdrop-blur-sm">
+              <img 
+                src="/fiscalia-logo.svg" 
+                alt="Fiscal.ia" 
+                className="w-14 h-14" 
+              />
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="mb-12">
             <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white mb-10 sm:mb-12 leading-tight shadow-text-hard"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white mb-8 leading-tight"
               initial={{ opacity: 0, y:20 }}
               animate={{ opacity:1, y:0 }}
               transition={{delay: 0.2, duration: 0.7}}
@@ -88,34 +112,42 @@ export function LandingPage() {
                 />
               </span>
             </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light"
+            >
+              L'intelligence artificielle qui vous fait économiser des milliers d'euros sur vos impôts, en toute légalité.
+            </motion.p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }} className="flex flex-col sm:flex-row gap-5 justify-center mb-16 sm:mb-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }} className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
             <motion.button
               onClick={() => setShowAuthModal('signup')}
-              whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(197, 165, 114, 0.3)" }}
+              whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
               whileTap={{ scale: 0.98 }}
-              className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 text-base sm:text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
+              className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
             >
-              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
-              Créer un compte
-              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
+              <CreditCard className="w-6 h-6" />
+              Commencer gratuitement
+              <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
               onClick={() => setShowDemo(true)}
-              className="px-8 py-4 bg-white/10 text-gray-100 font-semibold rounded-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 text-base sm:text-lg border-2 border-transparent hover:border-white/20"
+              className="px-10 py-4 bg-white/5 text-gray-100 font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-white/20 hover:border-white/40 backdrop-blur-sm"
             >
               Voir la démo
-              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
             </motion.button>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }} className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 sm:gap-x-10 opacity-80">
-            {[ { icon: Shield, text: "100% Sécurisé" }, { icon: Users, text: "+100 Utilisateurs" }, { icon: Sparkles, text: "IA de pointe" } ].map((badge, index) => (
-              <motion.div key={index} whileHover={{ scale: 1.05 }} className="flex items-center space-x-2.5 text-gray-300">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }} className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 opacity-70">
+            {[ { icon: Shield, text: "100% Sécurisé" }, { icon: Users, text: "+500 Utilisateurs" }, { icon: Sparkles, text: "IA de pointe" } ].map((badge, index) => (
+              <motion.div key={index} whileHover={{ scale: 1.05 }} className="flex items-center space-x-3 text-gray-300">
                 <badge.icon className="h-5 w-5 text-[#c5a572]" />
-                <span className="text-sm sm:text-base">{badge.text}</span>
+                <span className="text-base font-medium">{badge.text}</span>
               </motion.div>
             ))}
           </motion.div>

@@ -136,19 +136,15 @@ export function Dashboard() {
 
   const calculateProgress = () => {
     const requiredFields: (keyof UserProfile)[] = [
-      'situationFamiliale', 'nombreEnfants', 'localisation', 'zoneFiscale',
-      'situationProfessionnelle', 'secteurActivite', 'regimeImposition', 'statutFiscal',
-      'revenus', 'typeRevenus', 'patrimoine', 'compositionPatrimoine',
-      'investissementsExistants', 'projetsImmobiliers', 'besoinsRetraite',
-      'horizonInvestissement', 'toleranceRisque', 'objectifs',
-      'contraintesFiscales'
+      'situation', 'revenus', 'situationFamiliale', 'nombreEnfants', 'situationProfessionnelle', 'patrimoine', 'toleranceRisque', 'horizonInvestissement', 'localisation'
     ];
-    const filledFields = requiredFields.filter(field => {
+    
+    const completedFields = requiredFields.filter(field => {
       const value = profileData[field];
-      if (Array.isArray(value)) return value.length > 0;
-      return value !== undefined && value !== null && value !== '';
-    });
-    return Math.round((filledFields.length / requiredFields.length) * 100);
+      return value !== undefined && value !== null && value !== '' && value !== 0;
+    }).length;
+    
+    return Math.round((completedFields / requiredFields.length) * 100);
   };
 
   useEffect(() => {
@@ -351,10 +347,10 @@ export function Dashboard() {
                 <img 
                   src="/fiscalia-logo.svg" 
                   alt="Fiscal.ia" 
-                  className="h-10 w-10 transition-transform group-hover:scale-110 duration-300" 
+                  className="h-12 w-12 transition-transform group-hover:scale-110 duration-300" 
                 />
+                <span className="ml-3 text-2xl font-bold text-white">Fiscal.ia</span>
               </div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">Fiscal.ia</h1>
             </div>
 
             <nav className="flex-grow space-y-1.5">
@@ -399,13 +395,15 @@ export function Dashboard() {
               {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
             {!isSidebarOpen && (
-              <div className="flex items-center space-x-3">
-                <img 
-                  src="/fiscalia-logo.svg" 
-                  alt="Fiscal.ia" 
-                  className="h-8 w-8" 
-                />
-                <span className="text-xl font-bold text-white">Fiscal.ia</span>
+              <div className="flex items-center">
+                <div className="relative inline-flex items-center justify-center group">
+                  <img 
+                    src="/fiscalia-logo.svg" 
+                    alt="Fiscal.ia" 
+                    className="h-12 w-12 transition-transform group-hover:scale-110 duration-300" 
+                  />
+                  <span className="ml-3 text-2xl font-bold text-white">Fiscal.ia</span>
+                </div>
               </div>
             )}
           </div>
@@ -580,6 +578,169 @@ export function Dashboard() {
                   ) : (
                     <p className="text-center text-gray-500 text-sm">Aucun document uploadé pour le moment.</p>
                   )}
+                </div>
+              </motion.div>
+            )}
+            
+            {activeTab === 'profile' && (
+              <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+                <h2 className="text-3xl font-semibold text-white mb-6">Mon Profil Fiscal</h2>
+                <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl">
+                  <form onSubmit={handleProfileSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Informations personnelles */}
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-semibold text-white border-b border-[#2A3F6C]/30 pb-2">Informations personnelles</h3>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
+                          <select
+                            value={profileData.situationFamiliale || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, situationFamiliale: e.target.value }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                          >
+                            <option value="">Sélectionnez</option>
+                            <option value="single">Célibataire</option>
+                            <option value="married">Marié(e)</option>
+                            <option value="divorced">Divorcé(e)</option>
+                            <option value="widowed">Veuf/Veuve</option>
+                            <option value="pacs">Pacsé(e)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
+                          <input
+                            type="number"
+                            value={profileData.nombreEnfants || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, nombreEnfants: parseInt(e.target.value) }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                            placeholder="Ex: 2"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Informations financières */}
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-semibold text-white border-b border-[#2A3F6C]/30 pb-2">Informations financières</h3>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels</label>
+                          <input
+                            type="text"
+                            value={profileData.revenus || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, revenus: e.target.value }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                            placeholder="Ex: 45000€ par an"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Situation professionnelle</label>
+                          <select
+                            value={profileData.situationProfessionnelle || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, situationProfessionnelle: e.target.value }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                          >
+                            <option value="">Sélectionnez</option>
+                            <option value="employee">Salarié</option>
+                            <option value="self_employed">Indépendant</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="retired">Retraité</option>
+                            <option value="unemployed">Sans emploi</option>
+                            <option value="student">Étudiant</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Patrimoine</label>
+                          <input
+                            type="text"
+                            value={profileData.patrimoine || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, patrimoine: e.target.value }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                            placeholder="Description de votre patrimoine"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Investissements et épargne */}
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-semibold text-white border-b border-[#2A3F6C]/30 pb-2">Investissements et objectifs</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Tolérance au risque</label>
+                          <select
+                            value={profileData.toleranceRisque || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, toleranceRisque: e.target.value }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                          >
+                            <option value="">Sélectionnez</option>
+                            <option value="low">Faible</option>
+                            <option value="medium">Modérée</option>
+                            <option value="high">Élevée</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Horizon d'investissement</label>
+                          <select
+                            value={profileData.horizonInvestissement || ''}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, horizonInvestissement: e.target.value }))}
+                            className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                          >
+                            <option value="">Sélectionnez</option>
+                            <option value="short">Court terme (moins de 2 ans)</option>
+                            <option value="medium">Moyen terme (2-5 ans)</option>
+                            <option value="long">Long terme (plus de 5 ans)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Localisation</label>
+                        <input
+                          type="text"
+                          value={profileData.localisation || ''}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, localisation: e.target.value }))}
+                          className="w-full rounded-lg bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 transition-all"
+                          placeholder="Votre ville ou région"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Barre de progression */}
+                    <div className="bg-[#101A2E]/50 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-300">Progression du profil</span>
+                        <span className="text-sm font-semibold text-[#c5a572]">{calculateProgress()}%</span>
+                      </div>
+                      <div className="w-full bg-[#162238] rounded-full h-2.5">
+                        <div 
+                          className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2.5 rounded-full transition-all duration-500 ease-out" 
+                          style={{ width: `${calculateProgress()}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        {profileCompleted ? 
+                          "✅ Profil complet ! Francis peut maintenant vous donner des conseils personnalisés." :
+                          "Complétez votre profil pour des recommandations plus précises."
+                        }
+                      </p>
+                    </div>
+
+                    {/* Bouton de sauvegarde */}
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        className="px-8 py-3 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-[#c5a572] transition-all duration-200 shadow-lg hover:shadow-[#c5a572]/30"
+                      >
+                        Sauvegarder le profil
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </motion.div>
             )}

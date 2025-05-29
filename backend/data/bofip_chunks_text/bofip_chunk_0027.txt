@@ -1,0 +1,23 @@
+- Calcul du prélèvement -
+Assiette du prélèvement - Assiette de l’acompte - Règles particulières aux revenus imposables dans les
+catégories BIC, BA ou BNC
+BOI-IR-PAS-20-20  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement - Taux
+du prélèvement
+BOI-IR-PAS-20-20-10  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement -
+Taux du prélèvement - Taux déterminé pour le foyer fiscalDate de publication : 07/05/2025
+ 
+ 
+  https://bofip.impots.gouv.fr/bofip/14435-PGP.html/ACTU-2024-00202
+Exporté le : 29/05/2025
+ Page 39/40
+BOI-IR-PAS-20-20-20  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement -
+Taux du prélèvement - Taux individualisé
+BOI-IR-PAS-20-20-30-20  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement -
+Taux du prélèvement - Taux par défaut - Option pour le taux par défaut
+BOI-IR-PAS-20-30-10  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement -
+Actualisation du prélèvement - Changements de situation
+BOI-IR-PAS-20-30-20-10  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement -
+Actualisation du prélèvement - Modulation - Conditions d’application du droit à modulation
+BOI-IR-PAS-20-30-20-20  : IR - Prélèvement à la source de l’impôt sur le revenu - Calcul du prélèvement -
+Actualisation du prélèvement - Modulation - Mise en œuvre du taux ou des acomptes modulés
+BOI-IR-PAS-30-10  : IR - Prélèvement à la source d
