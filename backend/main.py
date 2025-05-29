@@ -85,6 +85,24 @@ async def test():
 async def health():
     return {"status": "healthy", "message": "Backend is running"}
 
+# Test Francis endpoint (no auth required for testing)
+@app.post("/api/test-francis")
+async def test_francis(request: QuestionRequest):
+    try:
+        if not MISTRAL_API_KEY:
+            raise HTTPException(status_code=500, detail="Service Mistral non disponible")
+
+        answer, sources, confidence = get_fiscal_response(request.question)
+        
+        return QuestionResponse(
+            answer=answer,
+            sources=sources,
+            confidence=confidence
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors du traitement de la question: {str(e)}")
+
 # Mount the API router
 api_router = APIRouter(prefix="/api")
 
