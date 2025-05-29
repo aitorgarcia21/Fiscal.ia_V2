@@ -21,6 +21,13 @@ RUN npm rebuild
 # Copier le code source frontend
 COPY frontend/ .
 
+# Variables d'environnement pour le build Vite
+ARG VITE_SUPABASE_URL=https://lqxfjjtjxktjgpekugtf.supabase.co
+ARG VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA
+
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 # Debug: Vérifier la structure du projet
 RUN echo "=== Structure du projet ==="
 RUN ls -la
@@ -28,6 +35,9 @@ RUN echo "=== Contenu du dossier src ==="
 RUN ls -la src/
 RUN echo "=== Contenu du dossier public ==="
 RUN ls -la public/
+RUN echo "=== Variables d'environnement Vite ==="
+RUN echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL"
+RUN echo "VITE_SUPABASE_ANON_KEY défini: $(test -n "$VITE_SUPABASE_ANON_KEY" && echo "OUI" || echo "NON")"
 
 # Build l'application frontend
 ENV NODE_ENV=production
