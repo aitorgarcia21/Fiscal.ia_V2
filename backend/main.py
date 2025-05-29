@@ -87,21 +87,25 @@ async def health():
 
 # Test Francis endpoint (no auth required for testing)
 @app.post("/api/test-francis")
-async def test_francis(request: QuestionRequest):
+async def test_francis(request: dict):  # Utilise dict au lieu de QuestionRequest
     try:
         if not MISTRAL_API_KEY:
-            raise HTTPException(status_code=500, detail="Service Mistral non disponible")
+            return {"error": "Service Mistral non disponible"}
 
-        answer, sources, confidence = get_fiscal_response(request.question)
+        question = request.get("question", "")
+        if not question:
+            return {"error": "Question manquante"}
+
+        answer, sources, confidence = get_fiscal_response(question)
         
-        return QuestionResponse(
-            answer=answer,
-            sources=sources,
-            confidence=confidence
-        )
+        return {
+            "answer": answer,
+            "sources": sources,
+            "confidence": confidence
+        }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors du traitement de la question: {str(e)}")
+        return {"error": f"Erreur lors du traitement de la question: {str(e)}"}
 
 # Mount the API router
 api_router = APIRouter(prefix="/api")
