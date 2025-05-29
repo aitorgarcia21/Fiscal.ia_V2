@@ -347,8 +347,12 @@ export function Dashboard() {
             className="w-72 bg-[#0D1523]/80 backdrop-blur-xl p-6 flex flex-col border-r border-[#2A3F6C]/20 shadow-2xl fixed inset-y-0 left-0 z-40"
           >
             <div className="flex items-center space-x-3.5 mb-10 px-2">
-              <div className="relative inline-flex items-center justify-center group bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-2.5 rounded-xl shadow-md">
-                <MessageSquare className="h-7 w-7 text-[#162238]" />
+              <div className="relative inline-flex items-center justify-center group">
+                <img 
+                  src="/fiscalia-logo.svg" 
+                  alt="Fiscal.ia" 
+                  className="h-10 w-10 transition-transform group-hover:scale-110 duration-300" 
+                />
               </div>
               <h1 className="text-2xl font-bold text-white tracking-tight">Fiscal.ia</h1>
             </div>
@@ -386,18 +390,32 @@ export function Dashboard() {
       </AnimatePresence>
 
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-easeInOut ${isSidebarOpen ? 'md:ml-72' : 'ml-0'}`}>
-        <header className="h-20 bg-[#162238]/60 backdrop-blur-md flex items-center justify-between px-6 sm:px-8 border-b border-[#2A3F6C]/20 shadow-sm">
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c5a572] transition-colors md:hidden"
-          >
-            {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-          <div className="flex-1">
-          </div>
+        <header className="h-20 bg-[#162238]/80 backdrop-blur-xl flex items-center justify-between px-6 sm:px-8 border-b border-[#2A3F6C]/30 shadow-lg">
           <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c5a572] transition-all duration-200 md:hidden"
+            >
+              {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+            {!isSidebarOpen && (
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/fiscalia-logo.svg" 
+                  alt="Fiscal.ia" 
+                  className="h-8 w-8" 
+                />
+                <span className="text-xl font-bold text-white">Fiscal.ia</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-[#1E3253]/50 rounded-full">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-300">Francis en ligne</span>
+            </div>
             <Bell className="h-5 w-5 text-gray-400 hover:text-[#c5a572] cursor-pointer transition-colors" />
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center text-[#162238] font-semibold text-sm shadow-md">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center text-[#162238] font-semibold text-sm shadow-lg border-2 border-[#162238]/20">
               {userEmail ? userEmail.substring(0,1).toUpperCase() : 'U'}
             </div>
           </div>
@@ -412,7 +430,7 @@ export function Dashboard() {
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }} 
                 transition={{ duration: 0.3 }}
-                className="h-full max-h-[calc(100vh-10rem)] flex flex-col bg-[#162238]/70 backdrop-blur-sm rounded-xl shadow-2xl border border-[#2A3F6C]/25 overflow-hidden"
+                className="h-full max-h-[calc(100vh-10rem)] flex flex-col bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
               >
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin scrollbar-thumb-[#2A3F6C]/70 scrollbar-track-transparent scrollbar-thumb-rounded-full">
                   {chatHistory.map((message, index) => (
@@ -424,10 +442,10 @@ export function Dashboard() {
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[85%] sm:max-w-[70%] p-3.5 rounded-2xl shadow-md text-sm leading-relaxed ${ 
+                        className={`max-w-[85%] sm:max-w-[70%] p-4 rounded-2xl shadow-lg text-sm leading-relaxed backdrop-blur-sm ${ 
                           message.role === 'user' 
-                            ? 'bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-lg' 
-                            : 'bg-[#1E3253]/90 text-gray-100 rounded-bl-lg' 
+                            ? 'bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-md shadow-[#c5a572]/20' 
+                            : 'bg-[#1E3253]/80 text-gray-100 rounded-bl-md border border-white/10' 
                         }`}
                       >
                         <div className="flex items-center space-x-2 mb-1.5">
@@ -465,9 +483,9 @@ export function Dashboard() {
                   </div>
                 )}
 
-                <div className="p-3 sm:p-4 border-t border-[#2A3F6C]/20 bg-[#101A2E]/60">
-                  <form onSubmit={handleSubmit} className="flex items-center space-x-2.5">
-                    <label htmlFor="file-upload-chat" className={`p-2.5 rounded-lg text-gray-400 hover:text-[#c5a572] hover:bg-[#1E3253]/80 transition-colors cursor-pointer ${isLoading || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className="p-4 sm:p-6 border-t border-white/10 bg-[#162238]/40 backdrop-blur-lg">
+                  <form onSubmit={handleSubmit} className="flex items-center space-x-3">
+                    <label htmlFor="file-upload-chat" className={`p-3 rounded-xl text-gray-400 hover:text-[#c5a572] hover:bg-white/10 transition-all duration-200 cursor-pointer ${isLoading || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                       <Paperclip className="w-5 h-5" />
                     </label>
                     <input
@@ -483,19 +501,19 @@ export function Dashboard() {
                       value={question}
                       onChange={(e) => setQuestion(e.target.value)}
                       placeholder="Posez votre question à Francis..."
-                      className="flex-1 rounded-lg bg-[#1E3253]/50 border border-[#2A3F6C]/40 text-gray-100 placeholder-gray-500 focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] px-4 py-2.5 text-sm transition-colors shadow-inner"
+                      className="flex-1 rounded-xl bg-white/5 border border-white/20 text-gray-100 placeholder-gray-400 focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/50 px-4 py-3 text-sm transition-all duration-200 shadow-inner backdrop-blur-sm"
                       disabled={isLoading || isUploading}
                     />
                     <button
                       type="submit"
                       disabled={isLoading || !question.trim() || isUploading}
-                      className="p-2.5 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#101A2E] focus:ring-[#c5a572] transition-all duration-200 transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                      className="p-3 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-[#c5a572] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-[#c5a572]/30"
                     >
                       {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     </button>
                   </form>
                    {isUploading && (
-                    <div className="text-xs text-center text-[#c5a572] pt-1.5">Téléchargement de {uploadedFiles.find(f=>f.status === 'processing')?.name}...</div>
+                    <div className="text-xs text-center text-[#c5a572] pt-2">Téléchargement de {uploadedFiles.find(f=>f.status === 'processing')?.name}...</div>
                   )}
                 </div>
               </motion.div>
