@@ -59,7 +59,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Mount the API under /api
+# Test endpoint
+@app.get("/test")
+async def test():
+    return {"status": "ok", "message": "API is working!"}
+
+# Mount the API router
 api_router = APIRouter(prefix="/api")
 
 # Move all routes to api_router
@@ -481,11 +486,6 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
 
 # Mount the API router
 app.include_router(api_router)
-
-# Test endpoint
-@app.get("/test")
-async def test():
-    return {"status": "ok", "message": "API is working!"}
 
 if __name__ == "__main__":
     import uvicorn
