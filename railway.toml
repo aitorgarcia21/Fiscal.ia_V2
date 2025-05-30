@@ -6,6 +6,7 @@ healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "always"
 
+# Variables d'environnement pour Railway
 [env]
 VITE_SUPABASE_URL = "https://lqxfjjtjxktjgpekugtf.supabase.co"
 VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA"
