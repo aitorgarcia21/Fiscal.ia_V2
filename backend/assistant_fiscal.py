@@ -236,8 +236,6 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         
         # === PHASE 1: RECHERCHE CGI AVEC TIMEOUT ===
         try:
-            import signal
-            
             def timeout_handler(signum, frame):
                 raise TimeoutError("CGI search timeout")
             
@@ -255,7 +253,6 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         except (TimeoutError, Exception) as e:
             # Fallback: pas de recherche CGI, on continue
             similar_cgi_articles = []
-            # print(f"[FALLBACK] CGI search failed: {e}")
         
         # === PHASE 2: RECHERCHE BOFIP AVEC TIMEOUT ===
         try:
@@ -274,7 +271,6 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         except (TimeoutError, Exception) as e:
             # Fallback: pas de recherche BOFIP, on continue
             similar_bofip_chunks = []
-            # print(f"[FALLBACK] BOFIP search failed: {e}")
 
         # === PHASE 3: FALLBACK INTELLIGENT SI PAS DE SOURCES RAG ===
         if not similar_cgi_articles and not similar_bofip_chunks:
