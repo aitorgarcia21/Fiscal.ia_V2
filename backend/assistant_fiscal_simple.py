@@ -28,9 +28,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
 
 Question: {query}
 
-Contexte: Les TMI 2025 officielles sont : 0% jusqu'à 11 497€, 11% jusqu'à 29 315€, 30% jusqu'à 83 823€, 41% jusqu'à 180 294€, 45% au-delà.
-
-Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown. Calcule la TMI exacte si possible."""
+Tu es un expert fiscal français spécialisé dans les TMI et barèmes fiscaux 2025. Réponds de manière précise avec les vrais seuils officiels, sans formatage markdown. Calcule la TMI exacte si possible."""
             all_sources_for_api.append("Barème fiscal 2025")
             confidence_score = 0.9
             
@@ -95,7 +93,7 @@ Tu es un expert fiscal français. Réponds de manière claire et pratique à cet
         query_lower = query.lower()
         
         if 'tmi' in query_lower:
-            return "Avec 50 000€ de revenus en 2025, votre TMI est de 30%. Vos tranches : 0% sur 11 497€, 11% sur 17 818€, 30% sur 20 685€. Voulez-vous que je détaille le calcul ?", ["Barème 2025"], 0.8
+            return "Pour calculer votre TMI précise, j'ai besoin de connaître votre revenu annuel net imposable. Les tranches fiscales 2025 déterminent votre taux marginal selon votre situation. Quel est votre revenu annuel ?", ["Barème 2025"], 0.8
         elif 'pea' in query_lower:
             return "Le PEA vous permet d'investir 150 000€ en actions européennes. Exonération totale après 5 ans. Quels sont vos objectifs d'investissement ?", ["Code fiscal"], 0.8
         elif 'micro' in query_lower:
