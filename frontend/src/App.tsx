@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
+import { TrueLayerCallback } from './pages/TrueLayerCallback';
 import { supabase } from './lib/supabase';
 
 const LEGAL_TEXT = `MENTIONS LÉGALES ET CONDITIONS GÉNÉRALES D'UTILISATION (CGU)
@@ -183,6 +184,10 @@ function App() {
           <Route 
             path="/dashboard" 
             element={user ? <Dashboard /> : <Navigate to="/" replace />} 
+          />
+          <Route 
+            path="/truelayer-callback" 
+            element={user ? <TrueLayerCallback /> : <Navigate to="/" replace />} 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

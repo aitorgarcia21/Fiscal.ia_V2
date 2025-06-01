@@ -8,9 +8,10 @@ import time
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
-# Importer la nouvelle fonction de recherche pour le BOFIP
-# et s'assurer que les variables de chemin sont bien définies au niveau du module si nécessaire.
+# Importer les nouveaux modules RAG
 from mistral_embeddings import search_similar_bofip_chunks, get_embedding as get_embedding_from_mistral_script, cosine_similarity as cosine_similarity_from_mistral_script
+from rag_cgi import get_cgi_response
+from mistral_cgi_embeddings import load_embeddings, search_similar_articles
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -46,46 +47,33 @@ def format_article_for_display(article_data: Dict) -> str:
     
     return f"Article {article_data.get('article_number', 'N/A')}\n\n" + '\n\n'.join(chunks)
 
-def search_similar_cgi_articles(query: str, top_k: int = 3) -> List[Dict]: # Renommage pour clarté
-    """Recherche les articles du CGI les plus similaires à la requête."""
+def search_similar_cgi_articles(query: str, top_k: int = 3) -> List[Dict]:
+    """Recherche les articles du CGI les plus similaires à la requête avec le nouveau système."""
     try:
-        if not client: # Vérifier si le client est initialisé
-            print("Erreur: Client Mistral non initialisé pour la recherche CGI.")
-            return []
-            
-        if not CGI_EMBEDDINGS_DIR.exists() or not CGI_CHUNKS_DIR.exists():
-            print(f"Dossiers CGI manquants: {CGI_EMBEDDINGS_DIR} ou {CGI_CHUNKS_DIR}")
+        embeddings = load_embeddings()
+        if not embeddings:
+            print("Aucun embedding CGI trouvé.")
             return []
         
-        query_embedding = get_embedding(query)
-        similarities = []
+        similar_articles = search_similar_articles(query, embeddings, top_k)
         
-        for embedding_file in CGI_EMBEDDINGS_DIR.glob("*.npy"):
-            try:
-                embedding = np.load(embedding_file)
-                similarity = cosine_similarity(query_embedding, embedding)
-                chunk_file = CGI_CHUNKS_DIR / f"{embedding_file.stem}.json"
-                if chunk_file.exists():
-                    with open(chunk_file, 'r', encoding='utf-8') as f:
-                        chunk_data = json.load(f)
-                    similarities.append({
-                        'similarity': similarity,
-                        'content': format_article_for_display(chunk_data), # Utiliser le formatage pour le contexte
-                        'source': f"CGI Article {chunk_data.get('article_number', 'N/A')}",
-                        'article_id': chunk_data.get('article_number', 'N/A')
-                    })
-            except Exception as e:
-                print(f"Erreur lors du traitement du fichier CGI {embedding_file}: {e}")
-                continue
+        # Formater pour la compatibilité avec le reste du code
+        results = []
+        for article in similar_articles:
+            results.append({
+                'similarity': 0.9,  # Score factice, la recherche vectorielle a déjà fait le tri
+                'content': article.get('text', ''),
+                'source': f"CGI Article {article.get('article_number', 'N/A')}",
+                'article_id': article.get('article_number', 'N/A')
+            })
         
-        similarities.sort(key=lambda x: x['similarity'], reverse=True)
-        return similarities[:top_k]
+        return results
     except Exception as e:
         print(f"Erreur dans search_similar_cgi_articles: {e}")
         return []
 
-def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict]) -> str:
-    """Crée le prompt pour l'assistant fiscal avec contextes CGI et BOFIP."""
+def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict], conversation_history: List[Dict] = None) -> str:
+    """Crée le prompt pour l'assistant fiscal avec contextes CGI et BOFIP et mémoire de conversation."""
     
     cgi_context_str = "N/A"
     if cgi_articles:
@@ -101,9 +89,24 @@ def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict]
             for chunk in bofip_chunks
         ])
     
-    prompt = f"""Tu es Francis, un assistant fiscal expert hautement spécialisé en fiscalité française, créé par la société Fiscal.ia. 
+    # Construire l'historique de conversation
+    history_str = "N/A"
+    if conversation_history and len(conversation_history) > 1:
+        history_items = []
+        for msg in conversation_history[-6:]:  # Garder les 6 derniers messages maximum
+            role = "Utilisateur" if msg.get('role') == 'user' else "Francis"
+            content = msg.get('content', '')[:200] + "..." if len(msg.get('content', '')) > 200 else msg.get('content', '')
+            history_items.append(f"{role}: {content}")
+        history_str = "\n".join(history_items)
+    
+    prompt = f"""Tu es Francis, un assistant fiscal expert hautement spécialisé en fiscalité française, créé par la société Fiscal.ia. Tu es l'accompagnateur fiscal personnel de l'utilisateur.
 
-Question: {query}
+Historique de conversation récente:
+---
+{history_str}
+---
+
+Question actuelle: {query}
 
 Contexte du Code Général des Impôts (CGI):
 ---
@@ -117,20 +120,91 @@ Contexte du BOFIP:
 
 Instructions:
 - Tu es un expert fiscal et tu DOIS aider l'utilisateur en répondant à sa question de manière claire et pratique.
+- RÈGLE ABSOLUE : N'utilise JAMAIS d'astérisques (*), de formatage markdown, de gras, d'italique ou de caractères spéciaux de mise en forme dans tes réponses.
+- Écris EXCLUSIVEMENT en texte simple, clair et lisible.
+- Utilise uniquement des mots, des chiffres, des points, des virgules et des tirets simples pour structurer.
+- INTERDIT : *, **, ___, `, #, etc.
+- AUTORISÉ : texte simple avec numérotation (1., 2., 3.) et tirets (-) pour les listes.
+
+🎯 ACCOMPAGNEMENT FISCAL PROACTIF :
+- MÉMOIRE : Utilise l'historique de conversation pour comprendre le contexte et la situation de l'utilisateur
+- SUIVI : Fais référence aux échanges précédents quand c'est pertinent
+- PROACTIVITÉ : Propose des actions concrètes, des optimisations et des conseils personnalisés
+- ÉCHÉANCES : Rappelle les dates importantes (déclarations, versements, etc.)
+- ANTICIPATION : Identifie les opportunités d'optimisation fiscale
+- QUESTIONS DE SUIVI : Pose des questions pertinentes pour mieux accompagner l'utilisateur
+
+🎯 RÈGLES STRICTES DE PRÉCISION FISCALE :
+- INTERDIT ABSOLU : Inventer des pourcentages, taux ou seuils non mentionnés dans les sources CGI/BOFIP
+- OBLIGATION : Utiliser UNIQUEMENT les chiffres présents dans les textes officiels fournis
+- En cas de doute sur un pourcentage : dire "je dois vérifier cette information précise"
+- JAMAIS d'approximation sur les taux d'imposition, seuils de détention, durées légales
+- Si les sources ne contiennent pas l'information exacte : le préciser clairement
+
+🗓️ ANNÉE FISCALE 2025 :
+- Donne TOUJOURS les informations pour 2025 sauf mention contraire
+- Utilise prioritairement les données du CGI et BOFIP pour les barèmes officiels 2025
+
+📝 MAÎTRISE PARFAITE DES ACRONYMES FISCAUX :
+- TMI = Tranche Marginale d'Imposition | IFI = Impôt Fortune Immobilière | TVA = Taxe Valeur Ajoutée
+- IR = Impôt Revenu | IS = Impôt Sociétés | CFE = Cotisation Foncière Entreprises
+- BIC = Bénéfices Industriels Commerciaux | BNC = Bénéfices Non Commerciaux | BA = Bénéfices Agricoles
+- PEA = Plan Épargne Actions | PER = Plan Épargne Retraite | PERP = Plan Épargne Retraite Populaire
+- LMNP = Location Meublée Non Professionnelle | LMP = Location Meublée Professionnelle
+- SCPI = Société Civile Placement Immobilier | SCI = Société Civile Immobilière
+- SASU = Société par Actions Simplifiée Unipersonnelle | EURL = Entreprise Unipersonnelle Responsabilité Limitée
+- SARL = Société Responsabilité Limitée | SAS = Société par Actions Simplifiée
+- EIRL = Entreprise Individuelle Responsabilité Limitée | EI = Entreprise Individuelle
+- RSI = Régime Social Indépendants | URSSAF = Union Recouvrement Sécurité Sociale
+- CAF = Caisse Allocations Familiales | MSA = Mutualité Sociale Agricole
+- DGFIP = Direction Générale Finances Publiques | SIP = Service Impôts Particuliers
+- SIE = Service Impôts Entreprises | CDI = Centre Des Impôts
+- BOFIP = Bulletin Officiel Finances Publiques | CGI = Code Général Impôts
+- LF = Loi Finances | PLF = Projet Loi Finances | LFSS = Loi Financement Sécurité Sociale
+- CIR = Crédit Impôt Recherche | CICE = Crédit Impôt Compétitivité Emploi
+- CIMR = Contribution Institutions Médicales Retirement | C3S = Contribution Sociale Solidarité
+- CRDS = Contribution Remboursement Dette Sociale | CSG = Contribution Sociale Généralisée
+- CVAE = Cotisation Valeur Ajoutée Entreprises | CET = Contribution Économique Territoriale
+- DMTO = Droits Mutation Titre Onéreux | DMTG = Droits Mutation Titre Gratuit
+- TEOM = Taxe Enlèvement Ordures Ménagères | TH = Taxe Habitation
+- TFPB = Taxe Foncière Propriétés Bâties | TFPNB = Taxe Foncière Propriétés Non Bâties
+
+🎯 EXPERTISE TECHNIQUE COMPLÈTE :
+- Régimes fiscaux : Micro, Réel simplifié, Réel normal, Déclaration contrôlée
+- Niches fiscales : Pinel, Denormandie, Malraux, FCPI, FIP, Girardin
+- Plus-values : Immobilières, mobilières, professionnelles, abattements 2025
+- Transmission : Donation, succession, démembrement, pacte Dutreil
+- International : CUF, conventions, exit tax, revenus étrangers
+- Contrôles : ESFP, vérification comptabilité, contrôle sur pièces
+
+📈 ACCOMPAGNEMENT PERSONNALISÉ :
+- Analyse la situation complète de l'utilisateur
+- Propose des optimisations concrètes et chiffrées
+- Suggère des actions à court et long terme
+- Rappelle les échéances importantes
+- Anticipe les besoins fiscaux futurs
+- Pose des questions de suivi pertinentes
+
 - Utilise prioritairement les informations fournies du CGI et du BOFIP pour construire ta réponse.
 - Si les contextes contiennent des éléments pertinents, même partiels, utilise-les pour donner une réponse utile.
 - Synthétise les informations disponibles et donne des conseils pratiques.
 - Tu peux mentionner tes sources (ex: "Selon l'article X du CGI" ou "D'après le BOFIP") mais ce n'est pas obligatoire.
 - ÉVITE les formules trop formelles comme "En tant que Francis..." ou "les informations ne me permettent pas".
 - Sois direct, utile et professionnel.
-- Si tu n'as vraiment aucune information pertinente, donne quand même une réponse générale basée sur tes connaissances fiscales françaises.
+- Si tu n'as vraiment aucune information pertinente, donne quand même une réponse générale basée sur tes connaissances fiscales françaises pour 2025.
+
+COMPORTEMENT D'ACCOMPAGNEMENT :
+- Si c'est une nouvelle conversation, présente-toi brièvement et demande la situation de l'utilisateur
+- Si l'utilisateur a déjà partagé des informations, fais-y référence et propose des conseils personnalisés
+- Termine toujours par une question de suivi ou une proposition d'action concrète
+- Sois proactif et bienveillant dans tes conseils
 
 Réponds directement à la question:"""
     
     return prompt
 
-def get_fiscal_response(query: str) -> Tuple[str, List[str], float]:
-    """Obtient une réponse de l'assistant fiscal et les sources utilisées."""
+def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> Tuple[str, List[str], float]:
+    """Obtient une réponse de l'assistant fiscal et les sources utilisées avec mémoire de conversation."""
     all_sources_for_api = []
     # Estimer une confiance globale simple. Peut être affiné plus tard.
     # Par exemple, basée sur la similarité moyenne des chunks retenus, ou si des chunks ont été trouvés.
@@ -158,7 +232,7 @@ def get_fiscal_response(query: str) -> Tuple[str, List[str], float]:
             # Pour l'instant, on s'en tient au prompt strict et on s'attend à ce que Mistral dise qu'il ne sait pas.
             confidence_score = 0.2
 
-        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks)
+        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, conversation_history)
         
         messages = [ChatMessage(role="user", content=prompt)]
         

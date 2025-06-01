@@ -25,8 +25,17 @@ COPY frontend/ .
 ARG VITE_SUPABASE_URL=https://lqxfjjtjxktjgpekugtf.supabase.co
 ARG VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA
 
+# Variables TrueLayer pour le build
+ARG VITE_TRUELAYER_CLIENT_ID
+ARG VITE_TRUELAYER_ENV
+
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_TRUELAYER_CLIENT_ID=$VITE_TRUELAYER_CLIENT_ID
+ENV VITE_TRUELAYER_ENV=$VITE_TRUELAYER_ENV
+
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # Debug: Vérifier la structure du projet
 RUN echo "=== Structure du projet ==="
@@ -38,6 +47,9 @@ RUN ls -la public/
 RUN echo "=== Variables d'environnement Vite ==="
 RUN echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL"
 RUN echo "VITE_SUPABASE_ANON_KEY défini: $(test -n "$VITE_SUPABASE_ANON_KEY" && echo "OUI" || echo "NON")"
+RUN echo "Build-time VITE_API_BASE_URL: $VITE_API_BASE_URL"
+RUN echo "VITE_TRUELAYER_CLIENT_ID: $VITE_TRUELAYER_CLIENT_ID"
+RUN echo "VITE_TRUELAYER_ENV: $VITE_TRUELAYER_ENV"
 
 # Build l'application frontend
 ENV NODE_ENV=production
@@ -90,9 +102,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copier le script de démarrage
 COPY start.sh .
-COPY debug-start.sh .
 RUN chmod +x start.sh
-RUN chmod +x debug-start.sh
 
 # Supprimer les fichiers .pyc potentiels pour forcer la réimportation
 RUN find . -type d -name "__pycache__" -exec rm -r {} +
@@ -113,7 +123,7 @@ ENV PORT=8080
 ENV PYTHONPATH=/app/backend
 
 # Exposer le port pour Railway
-EXPOSE 8080
+EXPOSE $PORT
 
 # Démarrer les services
 CMD ["./start.sh"] 

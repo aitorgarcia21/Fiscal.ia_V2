@@ -37,7 +37,8 @@ import {
   Globe,
   Clock,
   AlertTriangle,
-  Link2 // Ajout de l'icône Link2 pour la connexion bancaire
+  Link2,
+  Activity // Ajout de l'icône Activity pour l'analyse IA
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, UserProfile } from '../lib/supabase';
@@ -116,7 +117,7 @@ export function Dashboard() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Bonjour ! Je suis Francis, votre assistant expert en fiscalité française, développé par Fiscal.ia. 🤖\n\nFort de ma connaissance approfondie des textes officiels (Code Général des Impôts, BOFIP), je suis à votre disposition pour :\n• Optimiser vos impôts et déclarations\n• Analyser vos documents fiscaux (avis d'imposition, etc.)\n• Répondre à toutes vos questions sur la fiscalité française\n\nComment puis-je vous aider aujourd'hui ? Vous pouvez me poser une question directement, ou choisir un parcours d'accompagnement si vous le souhaitez.`
+      content: `Bonjour, je suis Francis, votre expert fiscal personnel !\n\nJe connais parfaitement le CGI, le BOFIP et tous les barèmes 2025. Que vous soyez salarié, dirigeant, investisseur ou indépendant, je peux vous accompagner.\n\nQuelle est votre question fiscale aujourd'hui ?`
     }
   ]);
   const [activeTab, setActiveTab] = useState('chat');
@@ -159,7 +160,7 @@ export function Dashboard() {
     "Comment optimiser ma déclaration d'impôts ?",
     "Quelles sont les stratégies de défiscalisation pour 2024 ?",
     "Je suis auto-entrepreneur, comment gérer ma TVA ?",
-    "Quels avantages fiscaux pour un investissement locatif Pinel ?"
+    "Quels avantages fiscaux pour un investisseur locatif Pinel ?"
   ];
 
   const scrollToBottom = () => {
@@ -195,6 +196,23 @@ export function Dashboard() {
         setUserId(session.user.id);
         setUserEmail(session.user.email || null);
         await loadUserProfile(session.user.id);
+        
+        // Charger les données bancaires depuis localStorage si disponibles
+        const savedBankData = localStorage.getItem('bank_data');
+        if (savedBankData) {
+          try {
+            const bankData = JSON.parse(savedBankData);
+            setBankData(bankData);
+            setConnectedBanks(bankData.accounts?.map((acc: any) => acc.display_name || acc.account_id || 'Compte bancaire') || []);
+            setChatHistory(prev => [...prev, { 
+              role: 'assistant', 
+              content: `🎉 Parfait ! Vos comptes bancaires sont connectés. Je peux maintenant analyser vos finances en temps réel pour vous donner des conseils ultra-personnalisés !` 
+            }]);
+          } catch (error) {
+            console.error('Erreur lors du chargement des données bancaires:', error);
+            localStorage.removeItem('bank_data');
+          }
+        }
       } else {
         navigate('/');
       }
@@ -276,7 +294,7 @@ export function Dashboard() {
       // Message de confirmation
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        content: `🎯 **Analyse de profil terminée !**\n\n**Profil principal détecté :** ${getProfileLabel(detectedProfileType.primary)}\n**Niveau de confiance :** ${detectedProfileType.confidence}%\n\nBasé sur vos réponses, je peux maintenant vous donner des conseils fiscaux ultra-personnalisés ! N'hésitez pas à me poser des questions spécifiques.` 
+        content: `🎯 Analyse de profil terminée !\n\nProfil principal détecté : ${getProfileLabel(detectedProfileType.primary)}\nNiveau de confiance : ${detectedProfileType.confidence}%\n\nBasé sur vos réponses, je peux maintenant vous donner des conseils fiscaux ultra-personnalisés ! N'hésitez pas à me poser des questions spécifiques.` 
       }]);
       
       setActiveTab('chat'); // Rediriger vers le chat
@@ -360,36 +378,84 @@ export function Dashboard() {
     };
   };
 
-  const handleSubmit = async (e?: React.FormEvent, suggestedQuestion?: string) => {
+  // Fonction pour nettoyer le formatage markdown
+  const cleanMarkdown = (text: string): string => {
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')  // **gras** → gras
+      .replace(/\*([^*]+)\*/g, '$1')      // *italique* → italique
+      .replace(/\*\*/g, '')               // ** isolés → supprimés
+      .replace(/\*/g, '')                 // * isolés → supprimés
+      .replace(/`([^`]+)`/g, '$1')        // `code` → code
+      .replace(/#{1,6}\s+/g, '')          // # titres → titres
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [lien](url) → lien
+      .replace(/_{1,2}([^_]+)_{1,2}/g, '$1') // _italic_ ou __bold__ → texte
+      .replace(/_/g, '')                  // _ isolés → supprimés
+      .replace(/~~([^~]+)~~/g, '$1')      // ~~barré~~ → texte
+      .replace(/~/g, '');                 // ~ isolés → supprimés
+  };
+
+  const handleSuggestedQuestion = (suggQuestion: string) => {
+    setQuestion(suggQuestion);
+    // Simuler un événement de soumission
+    const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+    handleSubmit(fakeEvent);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     if (e) e.preventDefault();
-    const currentQuestion = suggestedQuestion || question;
+    const currentQuestion = question;
     if (!currentQuestion.trim() || !userId) return;
 
     setIsLoading(true);
     const userQuestion = currentQuestion;
-    if (!suggestedQuestion) setQuestion('');
+    setQuestion('');
     
     setChatHistory(prev => [...prev, { role: 'user', content: userQuestion }]);
     
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      // URL de l'API avec détection automatique Railway
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 
+                         (window.location.hostname.includes('railway.app') ? 
+                          `https://${window.location.hostname}` : 
+                          'http://localhost:8000');
+      
+      console.log('🔍 DEBUG - Variables d\'environnement:');
+      console.log('  - VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+      console.log('  - window.location.hostname:', window.location.hostname);
+      console.log('  - includes railway.app:', window.location.hostname.includes('railway.app'));
+      console.log('  - apiBaseUrl finale:', apiBaseUrl);
+      
       const token = (await supabase.auth.getSession())?.data.session?.access_token;
 
-      // Préparer le payload avec la question et le profil complet
-      const payload = {
-        question: userQuestion,
-        userProfile: profileData // Envoi de toutes les données du profil
-      };
+      console.log('📡 Envoi à Francis via:', apiBaseUrl);
+      
+      const fullUrl = `${apiBaseUrl}/api/test-francis`;
+      console.log('🎯 URL complète appelée:', fullUrl);
 
-      console.log('📡 Envoi des données à l\'API /ask:', payload);
+      // Préparer l'historique de conversation pour Francis (mémoire)
+      const conversationForMemory = chatHistory.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
 
+      // Ajouter la question actuelle à l'historique pour le contexte
+      conversationForMemory.push({
+        role: 'user',
+        content: userQuestion
+      });
+
+      console.log('🧠 Envoi de l\'historique de conversation:', conversationForMemory.length, 'messages');
+      
       const response = await fetch(`${apiBaseUrl}/api/test-francis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           // 'Authorization': `Bearer ${token}`, // Commenté car test-francis n'a pas besoin d'auth
         },
-        body: JSON.stringify({ question: userQuestion }), // Payload simplifié pour test-francis
+        body: JSON.stringify({ 
+          question: userQuestion,
+          conversation_history: conversationForMemory  // 🎯 MÉMOIRE DE CONVERSATION
+        }),
       });
 
       if (!response.ok) {
@@ -400,7 +466,12 @@ export function Dashboard() {
 
       const data = await response.json();
       console.log('🤖 Réponse de l\'API /ask:', data);
-      setChatHistory(prev => [...prev, { role: 'assistant', content: data.answer }]);
+      
+      if (data.memory_active) {
+        console.log('🧠 ✅ Francis a utilisé sa mémoire de conversation');
+      }
+      
+      setChatHistory(prev => [...prev, { role: 'assistant', content: cleanMarkdown(data.answer) }]);
     } catch (error) {
       console.error('Erreur lors de la soumission de la question:', error);
       setChatHistory(prev => [...prev, { 
@@ -570,26 +641,68 @@ export function Dashboard() {
   }, []); // Exécuter une seule fois au montage
 
   const connectBank = async () => {
-    if (!window.TrueLayer || !import.meta.env.VITE_TRUELAYER_CLIENT_ID) {
+    // Configuration temporairement désactivée en attente de corrections
+    setChatHistory(prev => [...prev, { 
+      role: 'assistant', 
+      content: '🔧 **Connexion bancaire en maintenance**\n\nNous finalisons actuellement la configuration bancaire pour vous offrir une expérience parfaite et sécurisée.\n\n**Bientôt disponible :**\n• Connexion sécurisée avec plus de 200 banques européennes\n• Analyse automatique de vos finances par Francis\n• Conseils fiscaux ultra-personnalisés basés sur vos vraies données\n\nEn attendant, n\'hésitez pas à me poser vos questions fiscales ! Je peux déjà vous aider efficacement.' 
+    }]);
+    return;
+
+    // Code de connexion TrueLayer temporairement désactivé
+    if (!import.meta.env.VITE_TRUELAYER_CLIENT_ID) {
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        content: 'La fonctionnalité de connexion bancaire n\'est pas disponible pour le moment. Veuillez vérifier la configuration.' 
+        content: '⚠️ La connexion bancaire sera bientôt disponible ! Nous finalisons la configuration TrueLayer pour vous offrir une expérience sécurisée.' 
       }]);
       return;
     }
+
     setIsConnecting(true);
-    setChatHistory(prev => [...prev, { role: 'assistant', content: '🔄 Initialisation de la connexion bancaire sécurisée...' }]);
+    setChatHistory(prev => [...prev, { 
+      role: 'assistant', 
+      content: '🔄 Initialisation de la connexion bancaire sécurisée via TrueLayer...' 
+    }]);
+
     try {
-      // Lance le flux d'authentification TrueLayer
-      window.TrueLayer.Auth.showPopup(); 
-      // Ou, si vous préférez une redirection complète :
-      // window.TrueLayer.Auth.buildAuthUrl().then(authUrl => window.location.href = authUrl);
+      // Configuration TrueLayer
+      const clientId = import.meta.env.VITE_TRUELAYER_CLIENT_ID;
+      const redirectUri = `${window.location.origin}/truelayer-callback`;
+      const environment = import.meta.env.VITE_TRUELAYER_ENV || 'sandbox';
+      
+      // Construire l'URL d'autorisation TrueLayer
+      const authBaseUrl = environment === 'sandbox' 
+        ? 'https://auth.truelayer-sandbox.com' 
+        : 'https://auth.truelayer.com';
+      
+      const authParams = new URLSearchParams({
+        response_type: 'code',
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        scope: 'accounts balance transactions',
+        state: `user_${userId}_${Date.now()}`, // État pour vérification de sécurité
+        enable_mock: environment === 'sandbox' ? 'true' : 'false', // Mock pour sandbox
+        providers: 'uk-ob-all uk-oauth-all fr-ob-all' // Support UK et France
+      });
+
+      const authUrl = `${authBaseUrl}/connect?${authParams.toString()}`;
+      
+      // Message informatif
+      setChatHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: '🏦 Redirection vers TrueLayer... Vous allez être redirigé vers votre banque pour autoriser la connexion de manière sécurisée.' 
+      }]);
+
+      // Redirection vers TrueLayer
+      setTimeout(() => {
+        window.location.href = authUrl;
+      }, 1500);
+
     } catch (error) {
-      console.error('Erreur lors du lancement de TrueLayer Auth:', error);
+      console.error('Erreur lors de la connexion bancaire:', error);
       setIsConnecting(false);
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Une erreur est survenue lors de l\'initialisation de la connexion bancaire. Veuillez réessayer.' 
+        content: '❌ Une erreur est survenue lors de l\'initialisation de la connexion bancaire. Veuillez réessayer dans quelques instants.' 
       }]);
     }
   };
@@ -674,10 +787,6 @@ export function Dashboard() {
             )}
           </div>
           <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-[#1E3253]/50 rounded-full">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-300">Francis en ligne</span>
-            </div>
             <Bell className="h-5 w-5 text-gray-400 hover:text-[#c5a572] cursor-pointer transition-colors" />
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center text-[#162238] font-semibold text-sm shadow-lg border-2 border-[#162238]/20">
               {userEmail ? userEmail.substring(0,1).toUpperCase() : 'U'}
@@ -737,7 +846,7 @@ export function Dashboard() {
                       {suggestedQuestions.slice(0,3).map((suggQuestion, index) => (
                         <button
                           key={index}
-                          onClick={() => handleSubmit(undefined, suggQuestion)}
+                          onClick={() => handleSuggestedQuestion(suggQuestion)}
                           className="px-3 py-1.5 bg-[#1E3253]/60 hover:bg-[#2A3F6C]/60 text-xs text-gray-300 hover:text-white rounded-full transition-colors shadow-sm"
                         >
                           {suggQuestion}
@@ -808,39 +917,75 @@ export function Dashboard() {
                 
                 {/* Section Connexion Bancaire */}
                 <div className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-6 sm:p-8 shadow-xl mb-8">
-                  <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
                     <Link2 className="w-6 h-6 mr-3 text-[#c5a572]" />
-                    Connexion Bancaire Sécurisée (via TrueLayer)
+                    🏦 Connexion Bancaire Sécurisée
                   </h3>
-                  {connectedBanks.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-green-400 font-medium mb-2">Comptes connectés :</p>
-                      <ul className="list-disc list-inside text-gray-300">
-                        {connectedBanks.map(bank => <li key={bank}>{bank}</li>)}
-                      </ul>
+                  
+                  {/* Message de maintenance */}
+                  <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg mb-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <AlertTriangle className="w-5 h-5 text-orange-400" />
+                      <h4 className="text-orange-400 font-medium">Fonctionnalité en cours de finalisation</h4>
                     </div>
-                  )}
-                  {bankData && (
-                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm">
-                        <p className="text-green-400">Données bancaires prêtes pour analyse par Francis.</p>
-                        {/* Ici, vous pourriez afficher plus de détails ou un résumé des données si nécessaire */}
+                    <p className="text-orange-300 text-sm">
+                      Nous mettons actuellement à jour notre système de connexion bancaire pour vous garantir une expérience optimale et sécurisée. Cette fonctionnalité sera disponible très prochainement !
+                    </p>
+                  </div>
+
+                  {/* Aperçu des fonctionnalités à venir */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="p-4 bg-[#162238]/50 rounded-lg border border-[#2A3F6C]/30">
+                      <h5 className="text-white font-medium mb-2 flex items-center">
+                        <Shield className="w-4 h-4 mr-2 text-green-400" />
+                        🔒 Sécurité maximale
+                      </h5>
+                      <p className="text-xs text-gray-400">
+                        Connexion via TrueLayer (certifié FCA), chiffrement bancaire, aucun stockage de vos identifiants
+                      </p>
                     </div>
-                  )}
+                    <div className="p-4 bg-[#162238]/50 rounded-lg border border-[#2A3F6C]/30">
+                      <h5 className="text-white font-medium mb-2 flex items-center">
+                        <Activity className="w-4 h-4 mr-2 text-blue-400" />
+                        🤖 Analyse IA avancée
+                      </h5>
+                      <p className="text-xs text-gray-400">
+                        Francis analysera vos flux financiers pour des conseils fiscaux ultra-personnalisés
+                      </p>
+                    </div>
+                    <div className="p-4 bg-[#162238]/50 rounded-lg border border-[#2A3F6C]/30">
+                      <h5 className="text-white font-medium mb-2 flex items-center">
+                        <Building2 className="w-4 h-4 mr-2 text-purple-400" />
+                        🏦 200+ banques supportées
+                      </h5>
+                      <p className="text-xs text-gray-400">
+                        Compatibilité avec toutes les principales banques françaises et européennes
+                      </p>
+                    </div>
+                    <div className="p-4 bg-[#162238]/50 rounded-lg border border-[#2A3F6C]/30">
+                      <h5 className="text-white font-medium mb-2 flex items-center">
+                        <Zap className="w-4 h-4 mr-2 text-yellow-400" />
+                        ⚡ Temps réel
+                      </h5>
+                      <p className="text-xs text-gray-400">
+                        Synchronisation automatique et analyse en temps réel de vos finances
+                      </p>
+                    </div>
+                  </div>
+                  
                   <button
-                    onClick={connectBank}
-                    disabled={isConnecting || !window.TrueLayer || !import.meta.env.VITE_TRUELAYER_CLIENT_ID}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={true}
+                    className="w-full px-6 py-4 bg-gray-600 text-gray-300 font-semibold rounded-lg cursor-not-allowed flex items-center justify-center space-x-3"
                   >
-                    {isConnecting ? (
-                      <><Loader2 className="w-6 h-6 animate-spin" /><span>Connexion en cours...</span></>
-                    ) : (
-                      <><Link2 className="w-6 h-6" /><span>{connectedBanks.length > 0 ? 'Connecter un autre compte' : 'Connecter mes comptes bancaires'}</span></>
-                    )}
+                    <Clock className="w-6 h-6" />
+                    <span>Connexion bancaire - Disponible très prochainement</span>
                   </button>
-                  {!import.meta.env.VITE_TRUELAYER_CLIENT_ID && (
-                     <p className="text-xs text-red-400 mt-2 text-center">Configuration TrueLayer manquante (VITE_TRUELAYER_CLIENT_ID).</p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-3 text-center">Francis utilise TrueLayer pour accéder à vos données bancaires en toute sécurité. Nous ne stockons jamais vos identifiants bancaires.</p>
+                  
+                  <div className="mt-4 text-center">
+                    <p className="text-xs text-gray-500">
+                      En attendant, Francis peut déjà répondre à toutes vos questions fiscales ! 💬
+                    </p>
+                  </div>
                 </div>
 
                 {/* Statut de sauvegarde du profil */}
@@ -947,7 +1092,7 @@ export function Dashboard() {
                           onClick={() => {
                             setChatHistory(prev => [...prev, { 
                               role: 'assistant', 
-                              content: `📝 **Pas de problème !** Décrivez-moi votre situation en quelques mots et je m'adapterai automatiquement.\n\nPar exemple :\n• "Je suis salarié + propriétaire de 3 appartements locatifs"\n• "Dirigeant SASU + investisseur crypto"\n• "Retraité expatrié au Portugal avec des SCPI"\n\nJe détecterai automatiquement tous vos profils !` 
+                              content: `📝 Pas de problème ! Décrivez-moi votre situation en quelques mots et je m'adapterai automatiquement.\n\nPar exemple :\n• "Je suis salarié + propriétaire de 3 appartements locatifs"\n• "Dirigeant SASU + investisseur crypto"\n• "Retraité expatrié au Portugal avec des SCPI"\n\nJe détecterai automatiquement tous vos profils !` 
                             }]);
                             setActiveTab('chat');
                           }}

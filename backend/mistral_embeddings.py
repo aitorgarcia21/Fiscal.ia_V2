@@ -10,24 +10,24 @@ import time
 
 # Charger la clé API depuis les variables d'environnement
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-if not MISTRAL_API_KEY:
-    # Solution de repli temporaire si non définie, mais devrait être configurée dans l'environnement
-    print("AVERTISSEMENT: MISTRAL_API_KEY non trouvée dans l'environnement. Utilisation d'une clé de secours.")
-    MISTRAL_API_KEY = "8SZTNsTAi2JUAxdj7wDXa3rCxf7Txcod" # À retirer une fois la variable d'env configurée partout
-    if not MISTRAL_API_KEY: # Si toujours pas de clé
-        raise ValueError("MISTRAL_API_KEY doit être définie dans les variables d'environnement.")
+
+# ⚠️ NE PAS FAIRE DE raise ValueError ICI - cela casse l'import !
+# La vérification se fera dans les fonctions qui en ont besoin
 
 MISTRAL_API_URL = "https://api.mistral.ai/v1/embeddings"
 CHUNKS_DIR = "data/cgi_chunks"
 EMBEDDINGS_DIR = "data/embeddings"
 
-headers = {
-    "Authorization": f"Bearer {MISTRAL_API_KEY}",
-    "Content-Type": "application/json"
-}
-
 def get_embedding(text: str, max_retries: int = 3, delay: float = 1.0) -> np.ndarray:
     """Obtient l'embedding d'un texte via l'API Mistral avec gestion des erreurs et délai."""
+    if not MISTRAL_API_KEY:
+        raise ValueError("MISTRAL_API_KEY doit être définie pour utiliser get_embedding")
+    
+    headers = {
+        "Authorization": f"Bearer {MISTRAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
     for attempt in range(max_retries):
         try:
             req = {

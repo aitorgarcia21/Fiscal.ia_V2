@@ -12,7 +12,7 @@ yarn-error.log*
 .npm
 .yarn
 
-# Python
+# Python cache seulement (pas les .py !)
 __pycache__
 **/__pycache__
 *.pyc
@@ -25,7 +25,7 @@ env/
 venv/
 ENV/
 
-# Build et dist
+# Build et dist frontend
 **/dist
 **/build
 
@@ -50,16 +50,7 @@ coverage/
 .pytest_cache/
 htmlcov/
 
-# Python et backend
-# backend/
-data/
-
-# Python et backend
-*.py
-
-# OS et IDE
-*.swp
-*.swo
-
-# Tests et coverage
-*.log 
+# NE PAS EXCLURE :
+# - backend/ (dossier nécessaire)
+# - data/ (données CGI/BOFIP essentielles)
+# - *.py (code Python nécessaire) 

@@ -17,6 +17,9 @@ export PORT=${PORT:-8080}
 echo "=== Configuration ==="
 echo "PORT: $PORT"
 
+# Mettre à jour la configuration nginx avec le bon port
+sed -i "s/listen 8080;/listen $PORT;/g" /etc/nginx/nginx.conf
+
 # Aller dans le répertoire de l'application
 cd /app
 

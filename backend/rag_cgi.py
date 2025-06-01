@@ -1,124 +1,64 @@
 import os
-import json
 from pathlib import Path
-import logging
+import json
 from typing import List, Dict
-import re
-import openai
-import sys
+import logging
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
+from dotenv import load_dotenv
+from mistral_cgi_embeddings import load_embeddings, search_similar_articles
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration OpenAI
-openai.api_key = "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"
+# Chargement des variables d'environnement
+load_dotenv()
 
-# Chemins des fichiers
-CHUNKS_DIR = Path('data/cgi_chunks')
+# Configuration Mistral
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+if not MISTRAL_API_KEY:
+    raise ValueError("MISTRAL_API_KEY doit être définie dans les variables d'environnement")
 
-def load_articles() -> List[Dict]:
-    """Charge tous les articles depuis les fichiers JSON."""
-    articles = []
-    for json_file in CHUNKS_DIR.glob('*.json'):
-        with open(json_file, 'r', encoding='utf-8') as f:
-            article_data = json.load(f)
-            articles.append(article_data)
-    return articles
-
-def search_articles(query, articles, top_k=3):
-    """Recherche les articles les plus pertinents pour une question donnée."""
-    # Mots-clés importants pour le régime mère-fille
-    keywords = {
-        'mère': 5,
-        'fille': 5,
-        'société': 4,
-        'participation': 4,
-        'dividende': 4,
-        'capital': 3,
-        'détention': 3,
-        'régime': 3,
-        'fiscal': 3
-    }
-    
-    # Bonus pour les articles spécifiques
-    article_bonus = {
-        '145': 10,  # Article sur le régime mère-fille
-        '216': 8,   # Article référencé pour le régime mère-fille
-        '210': 5    # Articles liés aux opérations de groupe
-    }
-    
-    scored_articles = []
-    
-    for article in articles:
-        score = 0
-        text = article.get('full_text', '').lower()
-        article_num = article.get('article_number', '')
-        
-        # Bonus pour les articles spécifiques
-        if article_num in article_bonus:
-            score += article_bonus[article_num]
-        
-        # Score basé sur les mots-clés
-        for keyword, weight in keywords.items():
-            if keyword in text:
-                score += weight
-                # Bonus pour la proximité des mots-clés
-                if 'mère' in text and 'fille' in text:
-                    score += 3
-                if 'société' in text and 'participation' in text:
-                    score += 2
-        
-        # Score pour la correspondance exacte avec la requête
-        query_terms = query.lower().split()
-        for term in query_terms:
-            if term in text:
-                score += 2
-        
-        if score > 0:
-            scored_articles.append((article, score))
-    
-    # Trier par score décroissant
-    scored_articles.sort(key=lambda x: x[1], reverse=True)
-    
-    return [article for article, _ in scored_articles[:top_k]]
+# Initialisation du client Mistral
+client = MistralClient(api_key=MISTRAL_API_KEY)
 
 def format_article_for_gpt(article: Dict) -> str:
-    hierarchy = article['hierarchy']
+    """Formate un article pour l'inclusion dans le prompt."""
+    hierarchy = article.get('hierarchy', {})
     hierarchy_str = " > ".join(filter(None, [
         hierarchy.get('livre', ''),
         hierarchy.get('titre', ''),
         hierarchy.get('chapitre', ''),
         hierarchy.get('section', '')
     ]))
-    text = article['full_text']
+    text = article.get('text', '')
     if len(text) > 5000:
         text = text[:5000] + "..."
     return f"""
-Article {article['article_number']}
+Article {article.get('article_number', '')}
 Hiérarchie : {hierarchy_str}
 Texte : {text}
 """
 
 def get_relevant_articles(query: str, n_results: int = 3) -> str:
-    articles = load_articles()
-    mots_cles_tmi = ["tmi", "taux marginal", "tranche", "barème", "impôt sur le revenu"]
-    if any(mot in query.lower() for mot in mots_cles_tmi):
-        # Chercher l'article 197
-        for a in articles:
-            if str(a.get('article_number', '')).strip() == "197":
-                return a.get('full_text', '')
-    # Sinon, recherche classique
-    relevant_articles = search_articles(query, articles, n_results)
+    """Récupère les articles les plus pertinents pour une question donnée."""
+    embeddings = load_embeddings()
+    if not embeddings:
+        return "Aucun embedding trouvé. Veuillez d'abord générer les embeddings."
+    
+    relevant_articles = search_similar_articles(query, embeddings, n_results)
     if not relevant_articles:
         return "Aucun article pertinent trouvé."
-    # Concaténer les textes des 3 articles les plus pertinents
+    
+    # Concaténer les textes des articles les plus pertinents
     context = "\n\n".join([
-        f"Article {a.get('article_number', '')} :\n{a.get('full_text', '')}" for a in relevant_articles
+        format_article_for_gpt(article) for article in relevant_articles
     ])
     return context
 
-def ask_gpt_with_context(question: str, context: str) -> str:
+def ask_mistral_with_context(question: str, context: str) -> str:
+    """Pose une question à Mistral avec le contexte des articles CGI."""
     prompt = f"""
 Tu es un assistant fiscaliste pédagogue. Voici plusieurs extraits du Code Général des Impôts. Utilise uniquement ces extraits pour répondre à la question.
 
@@ -139,30 +79,45 @@ Instructions pour ta réponse :
 
 Réponse :
 """
-    client = openai.OpenAI(api_key=openai.api_key)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
-        messages=[{"role": "user", "content": prompt}],
+    messages = [ChatMessage(role="user", content=prompt)]
+    response = client.chat(
+        model="mistral-large-latest",
+        messages=messages,
         temperature=0.2,
         max_tokens=800
     )
     return response.choices[0].message.content.strip()
 
-def main():
-    print("\n=== Assistant Fiscaliste CGI ===\n")
-    if len(sys.argv) > 1:
-        question = " ".join(sys.argv[1:])
-    else:
-        question = input("Votre question sur le CGI : ")
-    print(f"\nRecherche des articles pertinents...")
-    context = get_relevant_articles(question, n_results=5)
-    print("\nContexte extrait :\n")
-    print(context[:2000] + ("..." if len(context) > 2000 else ""))
-    print("\nAppel à GPT...\n")
-    reponse = ask_gpt_with_context(question, context)
-    print("\nRéponse de GPT :\n")
-    print(reponse)
-    print("\n" + "="*50 + "\n")
+def get_cgi_response(question: str) -> tuple[str, List[str], float]:
+    """Fonction principale pour obtenir une réponse basée sur le CGI."""
+    try:
+        # Récupérer les articles pertinents
+        context = get_relevant_articles(question)
+        
+        # Obtenir la réponse de Mistral
+        answer = ask_mistral_with_context(question, context)
+        
+        # Extraire les sources (numéros d'articles)
+        sources = []
+        for line in answer.split('\n'):
+            if "Article" in line and "du CGI" in line:
+                article_num = line.split("Article")[1].split("du")[0].strip()
+                sources.append(f"Article {article_num}")
+        
+        # Calculer un score de confiance basé sur la présence de sources
+        confidence = min(1.0, len(sources) / 3.0) if sources else 0.5
+        
+        return answer, sources, confidence
+        
+    except Exception as e:
+        logger.error(f"Erreur lors du traitement de la question : {str(e)}")
+        return f"Erreur lors du traitement de la question : {str(e)}", [], 0.0
 
-if __name__ == '__main__':
-    main() 
+if __name__ == "__main__":
+    print("\n=== Assistant Fiscaliste CGI ===\n")
+    question = input("Votre question sur le CGI : ")
+    answer, sources, confidence = get_cgi_response(question)
+    print("\nRéponse :\n")
+    print(answer)
+    print("\nSources :", sources)
+    print("Confiance :", confidence) 

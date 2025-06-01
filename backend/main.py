@@ -21,6 +21,7 @@ from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
+import concurrent.futures
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -117,35 +118,106 @@ async def health_check():
         "message": "Basic health check OK" # <-- Simplifié
     }
 
-# Test Francis endpoint (no auth required for testing)
+async def run_with_timeout(func, *args, timeout: int = 25):
+    """Exécute une fonction bloquante dans un thread avec timeout asynchrone."""
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        return await asyncio.wait_for(loop.run_in_executor(pool, func, *args), timeout)
+
+# Test Francis endpoint (no auth required for testing) - RAILWAY READY
 @api_router.post("/test-francis")
-async def test_francis(request: dict):  # Utilise dict au lieu de QuestionRequest
+async def test_francis(request: dict):
+    print("[DEBUG] Appel reçu sur /api/test-francis avec payload:", request)
     try:
         if not MISTRAL_API_KEY:
-            return {"error": "Service Mistral non disponible"}
+            return {
+                "error": "Service Mistral non disponible", 
+                "details": "MISTRAL_API_KEY non configurée",
+                "railway_help": "Configurez MISTRAL_API_KEY dans les variables d'environnement Railway"
+            }
 
         question = request.get("question", "")
         if not question:
-            return {"error": "Question manquante"}
+            return {"error": "Question manquante", "example": "Posez une question fiscale à Francis"}
 
-        answer, sources, confidence = get_fiscal_response(question)
+        # Récupérer l'historique de conversation s'il est fourni
+        conversation_history = request.get("conversation_history", None)
+
+        print(f"🤖 Francis traite la question: {question}")
+        if conversation_history:
+            print(f"📖 Avec historique de {len(conversation_history)} messages")
+        
+        # Appeler la vraie logique Francis
+        print("[DEBUG] Appel de get_fiscal_response avec timeout 25s ...")
+        try:
+            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=25)
+            print("[DEBUG] get_fiscal_response terminé avec succès")
+        except asyncio.TimeoutError:
+            print("[WARN] Timeout de 25s atteint pour get_fiscal_response")
+            return {
+                "answer": "Désolé, je prends plus de temps que prévu pour traiter votre question. Veuillez réessayer dans quelques instants.",
+                "sources": [],
+                "confidence": 0.0,
+                "status": "timeout",
+                "francis_says": "⚠️ Timeout IA",
+                "memory_active": bool(conversation_history)
+            }
         
         return {
             "answer": answer,
             "sources": sources,
-            "confidence": confidence
+            "confidence": confidence,
+            "status": "success",
+            "francis_says": "✅ Réponse générée avec succès sur Railway!",
+            "memory_active": bool(conversation_history)
+        }
+        
+    except Exception as e:
+        print(f"❌ Erreur Francis: {str(e)}")
+        return {
+            "error": f"Erreur lors du traitement: {str(e)}",
+            "status": "error",
+            "railway_status": "Francis rencontre un problème technique",
+            "debug_info": str(e)[:200]  # Ajout d'info debug limitée
         }
 
-    except Exception as e:
-        return {"error": f"Erreur lors du traitement de la question: {str(e)}"}
+# CORS - Configuration temporaire permissive pour résoudre le problème fiscal-ia.net
+origins = [
+    "https://fiscal-ia.net",
+    "https://www.fiscal-ia.net",
+    "http://fiscal-ia.net",  # Pour les redirections HTTP
+    "http://www.fiscal-ia.net",  # Pour les redirections HTTP
+    "https://normal-trade-production.up.railway.app",
+    "http://localhost:3000",  # Pour le développement local
+    "http://localhost:5173",  # Pour Vite en développement
+    "http://127.0.0.1:3000",  # Pour le développement local
+    "http://127.0.0.1:5173",  # Pour Vite en développement
+    "*"  # Temporaire pour résoudre le problème CORS
+]
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En production, on accepte toutes les origines car tout est sur le même domaine
+    allow_origins=["*"] if APP_ENV == "development" else origins,  # Permissif en dev, restrictif en prod
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language", 
+        "Content-Language",
+        "Content-Type",
+        "Authorization",
+        "Access-Control-Allow-Credentials",
+        "Access-Control-Allow-Origin",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Methods",
+        "X-Requested-With",
+        "Origin",
+        "Cache-Control",
+        "Pragma",
+        "Expires"
+    ],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # Security
@@ -171,8 +243,13 @@ class UserResponse(BaseModel):
     full_name: Optional[str] = None
     created_at: datetime
 
+class ChatMessage(BaseModel):
+    role: str  # 'user' ou 'assistant'
+    content: str
+
 class QuestionRequest(BaseModel):
     question: str
+    conversation_history: Optional[List[ChatMessage]] = None
 
 class QuestionResponse(BaseModel):
     answer: str
@@ -310,7 +387,15 @@ async def ask_question(
         if not MISTRAL_API_KEY:
             raise HTTPException(status_code=500, detail="Service Mistral non disponible")
 
-        answer, sources, confidence = get_fiscal_response(request.question)
+        # Convertir l'historique de conversation en format dict
+        conversation_history = None
+        if request.conversation_history:
+            conversation_history = [
+                {"role": msg.role, "content": msg.content} 
+                for msg in request.conversation_history
+            ]
+
+        answer, sources, confidence = get_fiscal_response(request.question, conversation_history)
         
         # Sauvegarde en base (optionnel, si vous voulez garder l'historique des questions/réponses)
         if supabase:
@@ -320,7 +405,7 @@ async def ask_question(
                     "user_id": user_id,
                     "question": request.question,
                     "answer": answer,
-                    # "context": json.dumps(sources), # Exemple: stocker les sources en JSON
+                    "context": json.dumps(sources) if sources else None,  # Stocker les sources en JSON
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
             except Exception as e:
