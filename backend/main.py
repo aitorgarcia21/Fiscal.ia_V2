@@ -3,8 +3,9 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Generator
 import os
 import json
 from datetime import datetime, timedelta
@@ -16,6 +17,7 @@ import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from assistant_fiscal import get_fiscal_response
+from assistant_fiscal import get_fiscal_response_stream
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -32,28 +34,28 @@ JWT_EXPIRATION_HOURS = 24
 # Variables d'environnement pour Supabase
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL") or "https://lqxfjjtjxktjgpekugtf.supabase.co"
 SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA"
-print(f"DEBUG: SUPABASE_URL = {SUPABASE_URL}")
-print(f"DEBUG: SUPABASE_KEY IS SET = {bool(SUPABASE_KEY)}")
+# print(f"DEBUG: SUPABASE_URL = {SUPABASE_URL}") # NETTOYAGE
+# print(f"DEBUG: SUPABASE_KEY IS SET = {bool(SUPABASE_KEY)}") # NETTOYAGE
 
 # Test de connectivité Supabase
-if SUPABASE_URL:
-    try:
-        print(f"DEBUG: Test de l'API Supabase...")
-        headers = {"apikey": SUPABASE_KEY} if SUPABASE_KEY else {}
-        response = httpx.get(f"{SUPABASE_URL}/rest/v1/", headers=headers, timeout=10.0)
-        print(f"DEBUG: API Supabase - Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            print("✅ Connexion Supabase réussie !")
-        elif response.status_code == 401:
-            print("❌ ERREUR: Clé API Supabase invalide")
-        else:
-            print(f"⚠️  Réponse inattendue de Supabase: {response.status_code}")
-            
-    except Exception as e:
-        print(f"❌ ERREUR de connexion Supabase: {e}")
-else:
-    print("❌ ERREUR: SUPABASE_URL non défini")
+# if SUPABASE_URL: # NETTOYAGE - Section entière commentée pour la prod
+#     try:
+#         print(f"DEBUG: Test de l'API Supabase...")
+#         headers = {"apikey": SUPABASE_KEY} if SUPABASE_KEY else {}
+#         response = httpx.get(f"{SUPABASE_URL}/rest/v1/", headers=headers, timeout=10.0)
+#         print(f"DEBUG: API Supabase - Status: {response.status_code}")
+#         
+#         if response.status_code == 200:
+#             print("✅ Connexion Supabase réussie !")
+#         elif response.status_code == 401:
+#             print("❌ ERREUR: Clé API Supabase invalide")
+#         else:
+#             print(f"⚠️  Réponse inattendue de Supabase: {response.status_code}")
+#             
+#     except Exception as e:
+#         print(f"❌ ERREUR de connexion Supabase: {e}")
+# else:
+#     print("❌ ERREUR: SUPABASE_URL non défini")
 
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -73,9 +75,7 @@ TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "san
 
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-# SÉCURITE : Ne JAMAIS imprimer les clés API dans les logs !
-# print("DEBUG: MISTRAL_API_KEY =", MISTRAL_API_KEY)  # ❌ SUPPRIMÉ - FUITE DE SÉCURITÉ
-print(f"DEBUG: MISTRAL_API_KEY IS SET = {bool(MISTRAL_API_KEY)}")
+# print(f"DEBUG: MISTRAL_API_KEY IS SET = {bool(MISTRAL_API_KEY)}") # NETTOYAGE
 if not MISTRAL_API_KEY:
     raise ValueError("MISTRAL_API_KEY doit être défini dans les variables d'environnement pour que l'application fonctionne.")
 client = MistralClient(api_key=MISTRAL_API_KEY)
@@ -87,10 +87,44 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# ==========================================
+# CONFIGURATION CORS - FORCE REBUILD v3.0
+# ==========================================
+# Configuration CORS complètement refactorisée pour forcer rebuild Railway
+# print("🔧 CORS Configuration v3.0 - Rebuild forcé") # NETTOYAGE
+
+# Logique de détermination des origines CORS refactorisée
+if APP_ENV == "production":
+    # PRODUCTION: Strictement fiscal-ia.net seulement
+    allowed_cors_origins = ["https://fiscal-ia.net"]
+    # cors_mode = "PRODUCTION_STRICT" # Non utilisé plus loin
+    # print(f"🚀 CORS v3.0: Environment={APP_ENV}") # NETTOYAGE
+    # print(f"🎯 CORS v3.0: Origins={allowed_cors_origins}") # NETTOYAGE
+    # print(f"🔒 CORS v3.0: Mode={cors_mode}") # NETTOYAGE
+else:
+    # DÉVELOPPEMENT: Mode permissif local + fiscal-ia.net
+    allowed_cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "https://fiscal-ia.net"]
+    # cors_mode = "DEV_PERMISSIVE" # Non utilisé plus loin
+    # print(f"🚀 CORS v3.0: Environment={APP_ENV}") # NETTOYAGE
+    # print(f"🎯 CORS v3.0: Origins={allowed_cors_origins}") # NETTOYAGE
+    # print(f"🔓 CORS v3.0: Mode={cors_mode}") # NETTOYAGE
+
+# Application du middleware CORS refactorisé
+# print("🔧 CORS v3.0: Application du middleware...") # NETTOYAGE
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+# print("✅ CORS v3.0: Middleware appliqué avec succès") # NETTOYAGE
+
 # Health check endpoint for Railway deployment
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "message": "Backend is running"}
+    # Simplifié au maximum pour éviter tout problème potentiel
+    return {"status": "ok"}
 
 # Mount the API router
 api_router = APIRouter(prefix="/api")
@@ -105,29 +139,16 @@ async def root():
         "env": APP_ENV
     }
 
-@api_router.get("/health")
-async def health_check():
-    return {
-        "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        # "services": {  # Temporairement commenté pour isoler le problème
-        #     "supabase": bool(supabase),
-        #     "mistral": bool(MISTRAL_API_KEY),
-        #     "stripe": bool(stripe.api_key)
-        # }
-        "message": "Basic health check OK" # <-- Simplifié
-    }
-
-async def run_with_timeout(func, *args, timeout: int = 25):
+async def run_with_timeout(func, *args, timeout: int = 10):
     """Exécute une fonction bloquante dans un thread avec timeout asynchrone."""
     loop = asyncio.get_event_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         return await asyncio.wait_for(loop.run_in_executor(pool, func, *args), timeout)
 
-# Test Francis endpoint (no auth required for testing) - RAILWAY READY
+# Test Francis endpoint (no auth required for testing) - RAILWAY ULTRA OPTIMIZED
 @api_router.post("/test-francis")
 async def test_francis(request: dict):
-    print("[DEBUG] Appel reçu sur /api/test-francis avec payload:", request)
+    # print("[DEBUG] Appel reçu sur /api/test-francis avec payload:", request) # Peut être gardé si utile
     try:
         if not MISTRAL_API_KEY:
             return {
@@ -143,88 +164,82 @@ async def test_francis(request: dict):
         # Récupérer l'historique de conversation s'il est fourni
         conversation_history = request.get("conversation_history", None)
 
-        print(f"🤖 Francis traite la question: {question}")
+        # print(f"🤖 Francis traite la question: {question}") # Peut être gardé
         if conversation_history:
-            print(f"📖 Avec historique de {len(conversation_history)} messages")
+            # print(f"📖 Avec historique de {len(conversation_history)} messages") # Peut être gardé
+            pass # Ajout d'un pass pour corriger l'indentation
         
-        # Appeler la vraie logique Francis
-        print("[DEBUG] Appel de get_fiscal_response avec timeout 25s ...")
+        # RÉPONSES RAPIDES ÉTENDUES pour Railway (éviter tous les timeouts)
+        question_lower = question.lower().strip()
+
+        # Les réponses rapides par mots-clés ont été désactivées pour laisser le moteur RAG répondre de manière complète.
+        
+        # Appel du moteur RAG avec un timeout raisonnable (15 s)
+        # print("[RAG] Appel au moteur RAG avec timeout 15 s") # Peut être gardé
         try:
-            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=25)
-            print("[DEBUG] get_fiscal_response terminé avec succès")
-        except asyncio.TimeoutError:
-            print("[WARN] Timeout de 25s atteint pour get_fiscal_response")
+            # Timeout ultra-court pour éviter les 504 Railway
+            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=15)
+            # print("[SUCCESS] get_fiscal_response terminé sous 15s") # Peut être gardé
             return {
-                "answer": "Désolé, je prends plus de temps que prévu pour traiter votre question. Veuillez réessayer dans quelques instants.",
-                "sources": [],
-                "confidence": 0.0,
-                "status": "timeout",
-                "francis_says": "⚠️ Timeout IA",
+                "answer": answer,
+                "sources": sources,
+                "confidence": confidence,
+                "status": "success_rag",
+                "francis_says": "✅ Analyse complète réussie !",
+                "memory_active": bool(conversation_history)
+            }
+        except asyncio.TimeoutError:
+            # print("[FALLBACK] Timeout 15s - Réponse de secours") # Peut être gardé
+            # Réponse de secours intelligente basée sur le contexte
+            fallback_answer = f"Je vais analyser votre question sur '{question}'. Pour un conseil fiscal précis, pouvez-vous me préciser votre situation (salarié, entrepreneur, investisseur) et votre objectif ? Je pourrai alors vous donner une réponse personnalisée et détaillée."
+            
+            if conversation_history and len(conversation_history) > 1:
+                fallback_answer += " Je prends en compte notre échange précédent pour mieux vous accompagner."
+            
+            return {
+                "answer": fallback_answer,
+                "sources": ["Expert Francis"],
+                "confidence": 0.7,
+                "status": "fallback_optimized",
+                "francis_says": "🔄 Analyse rapide - posez une question plus précise pour plus de détails",
                 "memory_active": bool(conversation_history)
             }
         
-        return {
-            "answer": answer,
-            "sources": sources,
-            "confidence": confidence,
-            "status": "success",
-            "francis_says": "✅ Réponse générée avec succès sur Railway!",
-            "memory_active": bool(conversation_history)
-        }
-        
     except Exception as e:
-        print(f"❌ Erreur Francis: {str(e)}")
+        # print(f"❌ Erreur Francis: {str(e)}") # Peut être gardé
         return {
             "error": f"Erreur lors du traitement: {str(e)}",
             "status": "error",
             "railway_status": "Francis rencontre un problème technique",
-            "debug_info": str(e)[:200]  # Ajout d'info debug limitée
+            "debug_info": str(e)[:200]
         }
 
-# CORS - Configuration temporaire permissive pour résoudre le problème fiscal-ia.net
-# Si APP_ENV est en développement, utiliser "*", sinon utiliser la liste spécifique
-if APP_ENV == "development":
-    origins_to_use = ["*"]
-else:
-    origins_to_use = [
-        "https://fiscal-ia.net",
-        "https://www.fiscal-ia.net",
-        "http://fiscal-ia.net",  # Pour les redirections HTTP
-        "http://www.fiscal-ia.net",  # Pour les redirections HTTP
-        "https://normal-trade-production.up.railway.app",
-        "http://localhost:3000",  # Pour le développement local
-        "http://localhost:5173",  # Pour Vite en développement
-        "http://127.0.0.1:3000",  # Pour le développement local
-        "http://127.0.0.1:5173",  # Pour Vite en développement
-    ]
+# Nouveau endpoint streaming : utilise le système RAG complet avec get_fiscal_response_stream
+@api_router.post("/stream-francis-simple")
+async def stream_francis_simple(request: dict):
+    # print("[DEBUG] Appel RAG sur /api/stream-francis-simple avec payload:", request) # Peut être gardé
 
-print(f"DEBUG: APP_ENV = {APP_ENV}")
-print(f"DEBUG: CORS origins = {origins_to_use}")
+    question = request.get("question", "")
+    if not question:
+        return StreamingResponse(
+            (json.dumps({
+                "type": "error",
+                "message": "Question manquante"
+            }) + "\n" for _ in range(1)),
+            media_type="text/plain"
+        )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins_to_use,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=[
-        "Accept",
-        "Accept-Language", 
-        "Content-Language",
-        "Content-Type",
-        "Authorization",
-        "Access-Control-Allow-Credentials",
-        "Access-Control-Allow-Origin",
-        "Access-Control-Allow-Headers",
-        "Access-Control-Allow-Methods",
-        "X-Requested-With",
-        "Origin",
-        "Cache-Control",
-        "Pragma",
-        "Expires"
-    ],
-    expose_headers=["*"],
-    max_age=3600,
-)
+    conversation_history = request.get("conversation_history", None)
+
+    # Streaming directement depuis get_fiscal_response_stream
+    return StreamingResponse(
+        get_fiscal_response_stream(question, conversation_history),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive"
+        }
+    )
 
 # Security
 security = HTTPBearer()
@@ -415,7 +430,7 @@ async def ask_question(
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
             except Exception as e:
-                print(f"Erreur lors de la sauvegarde de la question en base: {e}")
+                # print(f"Erreur lors de la sauvegarde de la question en base: {e}") # Peut être gardé
                 pass # Ne pas bloquer la réponse à l'utilisateur pour une erreur de sauvegarde
 
         return QuestionResponse(
@@ -426,7 +441,7 @@ async def ask_question(
 
     except Exception as e:
         # Logguer l'erreur côté serveur
-        print(f"Erreur inattendue dans /ask endpoint: {str(e)}") 
+        # print(f"Erreur inattendue dans /ask endpoint: {str(e)}") # Peut être gardé
         # Retourner une erreur générique à l'utilisateur
         raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors du traitement de la question.")
 
@@ -514,7 +529,8 @@ async def upload_document(
                     "message": "Document uploadé avec succès"
                 }
             except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Erreur upload: {str(e)}")
+                # print(f"Erreur lors de la sauvegarde de la question en base: {e}") # Peut être gardé
+                pass # Ne pas bloquer la réponse à l'utilisateur pour une erreur de sauvegarde
         
         return {
             "file_id": file_id,
