@@ -182,22 +182,28 @@ async def test_francis(request: dict):
         }
 
 # CORS - Configuration temporaire permissive pour résoudre le problème fiscal-ia.net
-origins = [
-    "https://fiscal-ia.net",
-    "https://www.fiscal-ia.net",
-    "http://fiscal-ia.net",  # Pour les redirections HTTP
-    "http://www.fiscal-ia.net",  # Pour les redirections HTTP
-    "https://normal-trade-production.up.railway.app",
-    "http://localhost:3000",  # Pour le développement local
-    "http://localhost:5173",  # Pour Vite en développement
-    "http://127.0.0.1:3000",  # Pour le développement local
-    "http://127.0.0.1:5173",  # Pour Vite en développement
-    "*"  # Temporaire pour résoudre le problème CORS
-]
+# Si APP_ENV est en développement, utiliser "*", sinon utiliser la liste spécifique
+if APP_ENV == "development":
+    origins_to_use = ["*"]
+else:
+    origins_to_use = [
+        "https://fiscal-ia.net",
+        "https://www.fiscal-ia.net",
+        "http://fiscal-ia.net",  # Pour les redirections HTTP
+        "http://www.fiscal-ia.net",  # Pour les redirections HTTP
+        "https://normal-trade-production.up.railway.app",
+        "http://localhost:3000",  # Pour le développement local
+        "http://localhost:5173",  # Pour Vite en développement
+        "http://127.0.0.1:3000",  # Pour le développement local
+        "http://127.0.0.1:5173",  # Pour Vite en développement
+    ]
+
+print(f"DEBUG: APP_ENV = {APP_ENV}")
+print(f"DEBUG: CORS origins = {origins_to_use}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if APP_ENV == "development" else origins,  # Permissif en dev, restrictif en prod
+    allow_origins=origins_to_use,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=[
