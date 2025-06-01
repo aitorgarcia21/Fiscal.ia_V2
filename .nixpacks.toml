@@ -1,1 +1,12 @@
- 
+# Configuration Nixpacks - Forcer l'utilisation de Dockerfile
+[variables]
+    NIXPACKS_NO_CACHE = '1'
+
+# Désactiver l'auto-détection et forcer Docker
+[phases.build]
+    dependsOn = []
+    cmds = ['echo "Using Dockerfile instead of Nixpacks"']
+
+[phases.install]
+    dependsOn = []
+    cmds = ['echo "Skipping Nixpacks install phase"'] 
