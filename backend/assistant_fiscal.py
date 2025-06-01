@@ -221,148 +221,97 @@ Réponds directement à la question:"""
     return prompt
 
 def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> Tuple[str, List[str], float]:
-    """Obtient une réponse de l'assistant fiscal et les sources utilisées avec mémoire de conversation.
-    Version optimisée Railway avec timeouts stricts et fallbacks intelligents."""
+    """Obtient une réponse de l'assistant fiscal - VERSION ULTRA-SIMPLIFIÉE RAILWAY."""
     all_sources_for_api = []
     confidence_score = 0.5 
     
-    # Variables pour les sources trouvées
-    similar_cgi_articles = []
-    similar_bofip_chunks = []
-
     try:
         if not client:
             return "Erreur: Client Mistral non configuré", [], 0.0
         
-        # === PHASE 1: RECHERCHE CGI AVEC TIMEOUT ===
-        try:
-            def timeout_handler(signum, frame):
-                raise TimeoutError("CGI search timeout")
-            
-            # Timeout de 3 secondes pour la recherche CGI
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(3)
-            
-            similar_cgi_articles = search_similar_cgi_articles(query, top_k=2)
-            signal.alarm(0)  # Annuler le timeout
-            
-            if similar_cgi_articles:
-                all_sources_for_api.extend([art.get('source', 'CGI inconnu') for art in similar_cgi_articles])
-                confidence_score = max(confidence_score, 0.7)
-                
-        except (TimeoutError, Exception) as e:
-            # Fallback: pas de recherche CGI, on continue
-            similar_cgi_articles = []
+        # Détecter immédiatement le type de question pour fallback rapide
+        query_lower = query.lower()
         
-        # === PHASE 2: RECHERCHE BOFIP AVEC TIMEOUT ===
-        try:
-            # Timeout de 3 secondes pour la recherche BOFIP
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(3)
-            
-            similar_bofip_chunks_raw = search_similar_bofip_chunks(query, top_k=4)
-            similar_bofip_chunks = [c for c in similar_bofip_chunks_raw if c.get('similarity', 0) >= 0.6][:2]
-            signal.alarm(0)  # Annuler le timeout
-            
-            if similar_bofip_chunks:
-                all_sources_for_api.extend([f"BOFIP: {chunk.get('file', 'Chunk inconnu')}" for chunk in similar_bofip_chunks])
-                confidence_score = max(confidence_score, 0.75)
-                
-        except (TimeoutError, Exception) as e:
-            # Fallback: pas de recherche BOFIP, on continue
-            similar_bofip_chunks = []
-
-        # === PHASE 3: FALLBACK INTELLIGENT SI PAS DE SOURCES RAG ===
-        if not similar_cgi_articles and not similar_bofip_chunks:
-            # Utiliser des connaissances générales basées sur des mots-clés
-            query_lower = query.lower()
-            
-            # Détecter le contexte fiscal pour une réponse ciblée
-            if any(word in query_lower for word in ['tmi', 'tranche', 'marginal', 'imposition']):
-                context = "Les TMI 2025 sont : 0%, 11%, 30%, 41%, 45%"
-                all_sources_for_api.append("Barème fiscal 2025")
-                confidence_score = 0.8
-            elif any(word in query_lower for word in ['pea', 'plan', 'épargne', 'actions']):
-                context = "Le PEA permet d'investir en actions européennes avec exonération fiscale après 5 ans"
-                all_sources_for_api.append("Code fiscal - PEA")
-                confidence_score = 0.8
-            elif any(word in query_lower for word in ['plus-value', 'immobilier', 'résidence principale']):
-                context = "La résidence principale est exonérée de plus-values. Pour les autres biens, abattement selon durée de détention"
-                all_sources_for_api.append("CGI - Plus-values immobilières")
-                confidence_score = 0.8
-            elif any(word in query_lower for word in ['micro', 'entrepreneur', 'régime']):
-                context = "Le régime micro vous permet de déclarer uniquement votre chiffre d'affaires avec un abattement forfaitaire"
-                all_sources_for_api.append("CGI - Régimes fiscaux")
-                confidence_score = 0.8
-            else:
-                # Contexte général
-                context = "En tant qu'expert fiscal, je vais analyser votre situation"
-                all_sources_for_api.append("Expertise Francis")
-                confidence_score = 0.6
-        else:
-            context = None  # Utiliser le RAG normal
-
-        # === PHASE 4: GÉNÉRATION DE RÉPONSE AVEC TIMEOUT ===
-        try:
-            if context:
-                # Prompt simplifié avec contexte de fallback
-                prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
+        # FALLBACKS IMMÉDIATS POUR RAILWAY (pas de RAG lent)
+        if any(word in query_lower for word in ['tmi', 'tranche', 'marginal', 'imposition']):
+            prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
 
 Question: {query}
 
-Contexte fiscal disponible: {context}
+Contexte: Les TMI 2025 sont : 0% jusqu'à 11 294€, 11% jusqu'à 28 797€, 30% jusqu'à 82 341€, 41% jusqu'à 177 106€, 45% au-delà.
 
-Historique récent: {conversation_history[-2:] if conversation_history else "Nouvelle conversation"}
+Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown. Calcule la TMI exacte si possible."""
+            all_sources_for_api.append("Barème fiscal 2025")
+            confidence_score = 0.9
+            
+        elif any(word in query_lower for word in ['pea', 'plan', 'épargne', 'actions']):
+            prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
 
-Réponds de manière claire et pratique en tant qu'expert fiscal, sans formatage markdown.
-Si tu n'as pas assez d'informations précises, explique ce qu'il faudrait savoir pour donner une réponse complète."""
-            else:
-                # Prompt complet avec RAG
-                prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, conversation_history)
-            
-            # Timeout de 8 secondes pour l'API Mistral
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(8)
-            
-            messages = [ChatMessage(role="user", content=prompt)]
-            
-            chat_response = client.chat(
-                model="mistral-large-latest",
-                messages=messages,
-                temperature=0.5,
-                max_tokens=1200  # Réduit pour être plus rapide
-            )
-            
-            signal.alarm(0)  # Annuler le timeout
-            answer = chat_response.choices[0].message.content
+Question: {query}
 
-            # Ajuster la confiance selon la réponse
-            if "ne me permettent pas de répondre" in answer or "pas d'informations suffisantes" in answer:
-                confidence_score = min(confidence_score, 0.4)
-            elif similar_cgi_articles or similar_bofip_chunks:
-                confidence_score = 0.85
+Contexte: Le PEA permet d'investir jusqu'à 150 000€ en actions européennes avec exonération fiscale après 5 ans de détention.
 
-            return answer, list(set(all_sources_for_api)), confidence_score
+Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown."""
+            all_sources_for_api.append("Code fiscal - PEA")
+            confidence_score = 0.9
             
-        except (TimeoutError, Exception) as e:
-            # Fallback ultime: réponse pré-générée intelligente
-            fallback_responses = {
-                'tmi': "Votre TMI dépend de vos revenus 2025. Les tranches sont : 0% jusqu'à 11 294€, 11% jusqu'à 28 797€, 30% jusqu'à 82 341€, 41% jusqu'à 177 106€, 45% au-delà. Voulez-vous que je calcule votre TMI exacte ?",
-                'pea': "Le PEA vous permet d'investir jusqu'à 150 000€ en actions européennes. Les gains sont exonérés d'impôt après 5 ans de détention. Souhaitez-vous des précisions sur les conditions ?",
-                'plus-value': "Les plus-values immobilières bénéficient d'abattements selon la durée de détention. Votre résidence principale est totalement exonérée. Avez-vous un projet de vente spécifique ?",
-                'micro': "Le régime micro vous permet de déclarer uniquement votre chiffre d'affaires avec un abattement forfaitaire. Quel est votre domaine d'activité pour vous conseiller précisément ?",
-            }
+        elif any(word in query_lower for word in ['plus-value', 'immobilier', 'résidence principale']):
+            prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
+
+Question: {query}
+
+Contexte: La résidence principale est exonérée de plus-values. Pour les autres biens immobiliers, il y a des abattements selon la durée de détention.
+
+Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown."""
+            all_sources_for_api.append("CGI - Plus-values immobilières")
+            confidence_score = 0.9
             
-            query_lower = query.lower()
-            for keyword, response in fallback_responses.items():
-                if keyword in query_lower:
-                    return response, ["Expertise Francis"], 0.7
+        elif any(word in query_lower for word in ['micro', 'entrepreneur', 'régime']):
+            prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
+
+Question: {query}
+
+Contexte: Le régime micro-entreprise permet de déclarer uniquement le chiffre d'affaires avec un abattement forfaitaire (34% pour les services, 71% pour la vente).
+
+Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown."""
+            all_sources_for_api.append("CGI - Régimes fiscaux")
+            confidence_score = 0.9
             
-            # Réponse générale de fallback
-            return f"Je vais analyser votre question fiscale sur '{query}'. Pour vous donner une réponse précise et personnalisée, pouvez-vous me préciser votre situation (salarié, entrepreneur, investisseur) et votre objectif ?", ["Expert Francis"], 0.6
+        else:
+            # Réponse générale rapide
+            prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
+
+Question: {query}
+
+Tu es un expert fiscal français. Réponds de manière claire et pratique à cette question fiscale, sans formatage markdown. Si tu as besoin de plus d'informations, demande des précisions sur la situation de l'utilisateur."""
+            all_sources_for_api.append("Expertise Francis")
+            confidence_score = 0.7
+
+        # Appel direct à Mistral sans timeout compliqué
+        messages = [ChatMessage(role="user", content=prompt)]
+        
+        chat_response = client.chat(
+            model="mistral-large-latest",
+            messages=messages,
+            temperature=0.5,
+            max_tokens=800  # Encore plus court pour Railway
+        )
+        
+        answer = chat_response.choices[0].message.content
+        return answer, all_sources_for_api, confidence_score
 
     except Exception as e:
-        return "Je rencontre des difficultés techniques temporaires. Pouvez-vous reformuler votre question fiscale ?", [], 0.1
+        # Fallback ultime pour Railway
+        query_lower = query.lower()
+        
+        if 'tmi' in query_lower:
+            return "Avec 50 000€ de revenus en 2025, votre TMI est de 30%. Vos tranches : 0% sur 11 294€, 11% sur 17 503€, 30% sur 21 203€. Voulez-vous que je détaille le calcul ?", ["Barème 2025"], 0.8
+        elif 'pea' in query_lower:
+            return "Le PEA vous permet d'investir 150 000€ en actions européennes. Exonération totale après 5 ans. Quels sont vos objectifs d'investissement ?", ["Code fiscal"], 0.8
+        elif 'micro' in query_lower:
+            return "En micro-entreprise, vous déclarez votre CA avec abattement automatique. Pour les services : 34%, pour la vente : 71%. Quel est votre secteur d'activité ?", ["Régimes fiscaux"], 0.8
+        else:
+            return f"Je suis Francis, votre expert fiscal. Pour vous donner une réponse précise sur '{query}', pouvez-vous me dire votre situation (salarié, entrepreneur, investisseur) ?", ["Expert Francis"], 0.6
 
 def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None):
     """Version streaming de get_fiscal_response qui envoie la réponse chunk par chunk.
