@@ -1,44 +1,14 @@
 import os
 import json
-import numpy as np
-from pathlib import Path
 from typing import List, Dict, Tuple
-import requests
-import time
-import signal
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-
-# Importer les nouveaux modules RAG
-from mistral_embeddings import search_similar_bofip_chunks, get_embedding as get_embedding_from_mistral_script, cosine_similarity as cosine_similarity_from_mistral_script
-from rag_cgi import get_cgi_response
-from mistral_cgi_embeddings import load_embeddings, search_similar_articles
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
-# Pour les articles CGI (existants)
-CGI_EMBEDDINGS_DIR = Path("data/embeddings") # Utiliser Path pour la cohérence
-CGI_CHUNKS_DIR = Path("data/cgi_chunks")
-
-# Pour les chunks BOFIP (nouveaux)
-# Ces chemins sont déjà utilisés par search_similar_bofip_chunks, mais les redéfinir ici peut être utile pour la clarté
-# ou si on voulait accéder aux fichiers directement depuis ce script à l'avenir.
-BOFIP_CHUNKS_TEXT_DIR = Path("data/bofip_chunks_text")
-BOFIP_EMBEDDINGS_DIR = Path("data/bofip_embeddings")
-
-
 # Initialisation du client Mistral
 client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
-
-# Utiliser les fonctions get_embedding et cosine_similarity du script mistral_embeddings
-# pour éviter la redéfinition et assurer la cohérence.
-# Si get_embedding est spécifique à ce fichier (par exemple, gestion d'erreur différente), 
-# il faudrait le clarifier ou le fusionner.
-# Pour l'instant, supposons que celle de mistral_embeddings.py est la référence.
-get_embedding = get_embedding_from_mistral_script
-cosine_similarity = cosine_similarity_from_mistral_script
-
 
 def format_article_for_display(article_data: Dict) -> str:
     """Formate un article du CGI pour l'affichage avec sa structure."""

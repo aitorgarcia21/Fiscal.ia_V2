@@ -16,8 +16,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from assistant_fiscal import get_fiscal_response
-from assistant_fiscal import get_fiscal_response_stream
+from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
