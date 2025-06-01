@@ -45,7 +45,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         if cgi_articles:
             # PROMPT COURT pour vitesse
             cgi_context = "\n\n".join([
-                f"{art['source']}: {art['content'][:500]}"  # Contexte plus court
+                f"{art['source']}: {art['content'][:1200]}"  # Contexte COMPLET pour précision
                 for art in cgi_articles
             ])
             
@@ -84,7 +84,7 @@ Réponse directe:"""
             model="mistral-large-latest",
             messages=messages,
             temperature=0.2,  # Plus déterministe = plus rapide
-            max_tokens=400    # Moins de tokens = plus rapide
+            max_tokens=800    # TOKENS COMPLETS pour réponses détaillées
         )
         
         answer = chat_response.choices[0].message.content
@@ -165,7 +165,7 @@ def search_cgi_embeddings(query: str, max_results: int = 2) -> List[Dict]:
         results = []
         for article_data in similar_articles[:max_results]:
             results.append({
-                'content': article_data.get('text', '')[:800],  # Moins de contenu = plus rapide
+                'content': article_data.get('text', '')[:1500],  # CONTENU COMPLET pour précision
                 'source': f"CGI Article {article_data.get('article_number', 'N/A')}",
                 'article_id': article_data.get('article_number', 'N/A')
             })
