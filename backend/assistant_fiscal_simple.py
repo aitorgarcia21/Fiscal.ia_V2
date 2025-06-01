@@ -21,78 +21,20 @@ client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 _embeddings_cache = None
 _cache_loaded = False
 
-def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> Tuple[str, List[str], float]:
-    """RAG RAPIDE : Recherche CGI + Prompt optimisé pour vitesse."""
-    all_sources_for_api = []
-    confidence_score = 0.5 
-    
+def get_fiscal_response(query: str, conversation_history=None):
+    if not client:
+        return "Erreur: Mistral non configuré", [], 0.0
     try:
-        if not client:
-            return "Erreur: Client Mistral non configuré", [], 0.0
-        
-        # ÉTAPE 1: RAG RAPIDE - 2 articles max
-        cgi_articles = []
-        if CGI_EMBEDDINGS_AVAILABLE:
-            try:
-                cgi_articles = search_cgi_embeddings(query, max_results=2)  # Moins d'articles = plus rapide
-                if cgi_articles:
-                    all_sources_for_api.extend([art.get('source', 'CGI') for art in cgi_articles])
-                    confidence_score = 0.9
-            except Exception:
-                pass  # Fallback silencieux pour vitesse
-        
-        # ÉTAPE 2: Prompt optimisé pour vitesse
-        if cgi_articles:
-            # PROMPT COURT pour vitesse
-            cgi_context = "\n\n".join([
-                f"{art['source']}: {art['content'][:1200]}"  # Contexte COMPLET pour précision
-                for art in cgi_articles
-            ])
-            
-            prompt = f"""Francis, expert fiscal Fiscal.ia.
-
-Question: {query}
-
-Sources CGI:
-{cgi_context}
-
-Consignes RAPIDES:
-- Base-toi sur ces textes CGI uniquement
-- Cite l'article (ex: "Article 197")
-- Utilise les chiffres exacts des textes
-- Réponse claire et directe
-- Pas de markdown
-
-Réponse:"""
-
-        else:
-            # Fallback rapide sans CGI
-            prompt = f"""Francis, expert fiscal Fiscal.ia.
-
-Question: {query}
-
-Pas de source CGI trouvée. Réponds avec tes connaissances fiscales générales. Recommande de vérifier avec le CGI officiel.
-
-Réponse directe:"""
-            all_sources_for_api.append("Connaissances générales")
-            confidence_score = 0.6
-
-        # ÉTAPE 3: Appel Mistral RAPIDE
-        messages = [ChatMessage(role="user", content=prompt)]
-        
-        chat_response = client.chat(
-            model="mistral-large-latest",
+        messages = [ChatMessage(role="user", content=query)]
+        response = client.chat(
+            model="mistral-medium",
             messages=messages,
-            temperature=0.2,  # Plus déterministe = plus rapide
-            max_tokens=800    # TOKENS COMPLETS pour réponses détaillées
+            temperature=0.7,
+            max_tokens=512
         )
-        
-        answer = chat_response.choices[0].message.content
-        return answer, all_sources_for_api, confidence_score
-
+        return response.choices[0].message.content, ["Mistral"], 1.0
     except Exception as e:
-        # Fallback d'urgence ultra-rapide
-        return f"Erreur analyse fiscale. Détail: {str(e)[:50]}", ["Erreur"], 0.2
+        return f"Erreur Mistral: {e}", [], 0.0
 
 def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None):
     """Version streaming ultra-simplifiée pour Railway."""
