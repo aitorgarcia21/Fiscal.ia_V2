@@ -25,7 +25,30 @@ def get_fiscal_response(query: str, conversation_history=None):
     if not client:
         return "Erreur: Mistral non configuré", [], 0.0
     try:
-        messages = [ChatMessage(role="user", content=query)]
+        # ÉTAPE 1: RAG - Recherche dans les embeddings CGI
+        cgi_articles = []
+        if CGI_EMBEDDINGS_AVAILABLE:
+            try:
+                cgi_articles = search_cgi_embeddings(query, max_results=2)
+            except Exception:
+                pass  # Fallback silencieux
+
+        # ÉTAPE 2: Construction du prompt avec contexte CGI si disponible
+        if cgi_articles:
+            cgi_context = "\n\n".join([
+                f"{art['source']}: {art['content'][:1200]}"
+                for art in cgi_articles
+            ])
+            prompt = f"""Tu es Francis, un expert fiscal français. Réponds de façon claire, précise et concrète à la question suivante, en te basant sur les extraits du Code Général des Impôts (CGI) fournis ci-dessous. Cite l'article concerné si possible, sans formatage markdown.
+
+Sources CGI:
+{cgi_context}
+
+Question : {query}"""
+        else:
+            prompt = f"Tu es Francis, un expert fiscal français. Réponds de façon claire, précise et concrète à la question suivante, sans formatage markdown, en citant la législation fiscale française si possible.\n\nQuestion : {query}"
+
+        messages = [ChatMessage(role="user", content=prompt)]
         response = client.chat(
             model="mistral-medium",
             messages=messages,
