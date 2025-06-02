@@ -147,6 +147,10 @@ async def run_with_timeout(func, *args, timeout: int = 10):
     with concurrent.futures.ThreadPoolExecutor() as pool:
         return await asyncio.wait_for(loop.run_in_executor(pool, func, *args), timeout)
 
+# Fonction utilitaire pour supprimer tous les astérisques
+def remove_asterisks(text: str) -> str:
+    return text.replace('*', '') if text else text
+
 # Test Francis endpoint (no auth required for testing) - RAILWAY ULTRA OPTIMIZED
 @api_router.post("/test-francis")
 async def test_francis(request: dict):
@@ -181,6 +185,8 @@ async def test_francis(request: dict):
         try:
             # Timeout augmenté pour laisser plus de temps au RAG
             answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
+            # Nettoyage des * dans la réponse
+            answer = remove_asterisks(answer)
             # print("[SUCCESS] get_fiscal_response terminé sous 30s") # Peut être gardé
             return {
                 "answer": answer,
@@ -197,6 +203,8 @@ async def test_francis(request: dict):
             
             if conversation_history and len(conversation_history) > 1:
                 fallback_answer += " Je prends en compte notre échange précédent pour mieux vous accompagner."
+            
+            fallback_answer = remove_asterisks(fallback_answer)
             
             return {
                 "answer": fallback_answer,
@@ -445,6 +453,7 @@ async def ask_question(
             ]
 
         answer, sources, confidence = get_fiscal_response(request.question, conversation_history)
+        answer = remove_asterisks(answer)
         
         # Sauvegarde en base (optionnel, si vous voulez garder l'historique des questions/réponses)
         if supabase:
