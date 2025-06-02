@@ -4,6 +4,8 @@ import json
 from typing import List, Dict
 import numpy as np
 from dotenv import load_dotenv
+from functools import lru_cache
+import hashlib
 
 load_dotenv()
 
@@ -28,20 +30,28 @@ def load_articles() -> List[Dict]:
 def load_embeddings() -> Dict[str, Dict]:
     """Charge tous les embeddings existants."""
     embeddings = {}
+    
+    # Charger tous les articles une seule fois
+    articles_dict = {}
+    for article in load_articles():
+        article_num = str(article.get('article_number', '')).strip()
+        if article_num:
+            articles_dict[article_num] = article
+    
+    # Charger les embeddings et les associer aux articles
     for npy_file in EMBEDDINGS_DIR.glob('CGI_*.npy'):
         article_num = npy_file.stem.replace('CGI_', '')
         embedding = np.load(npy_file)
         
-        # Trouver l'article correspondant
-        for article in load_articles():
-            if str(article.get('article_number', '')).strip() == article_num:
-                embeddings[article_num] = {
-                    "article_number": article_num,
-                    "embeddings": embedding.tolist(),
-                    "text": article.get('full_text', ''),
-                    "hierarchy": article.get('hierarchy', {})
-                }
-                break
+        # Trouver l'article correspondant dans le dictionnaire
+        if article_num in articles_dict:
+            article = articles_dict[article_num]
+            embeddings[article_num] = {
+                "article_number": article_num,
+                "embeddings": embedding.tolist(),
+                "text": article.get('full_text', ''),
+                "hierarchy": article.get('hierarchy', {})
+            }
     
     return embeddings
 
@@ -49,16 +59,21 @@ def cosine_similarity(a: List[float], b: List[float]) -> float:
     """Calcule la similarité cosinus entre deux vecteurs."""
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def search_similar_articles(query: str, embeddings: Dict[str, Dict], top_k: int = 3) -> List[Dict]:
-    """Recherche les articles les plus similaires à la requête."""
-    # Générer l'embedding de la requête avec Mistral
+@lru_cache(maxsize=128)
+def get_query_embedding(query: str) -> List[float]:
+    """Génère l'embedding d'une requête avec cache."""
     from mistralai.client import MistralClient
     client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
-    query_embedding = client.embeddings(
+    response = client.embeddings(
         model="mistral-embed",
         input=query
-    ).data[0].embedding
-    
+    )
+    return response.data[0].embedding
+
+def search_similar_articles(query: str, embeddings: Dict[str, Dict], top_k: int = 3) -> List[Dict]:
+    """Recherche les articles les plus similaires à la requête."""
+    # Utiliser le cache pour l'embedding de la requête
+    query_embedding = get_query_embedding(query)
     scored_articles = []
     for article_num, article_data in embeddings.items():
         similarity = cosine_similarity(query_embedding, article_data['embeddings'])

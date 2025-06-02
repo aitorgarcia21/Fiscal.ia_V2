@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, MessageCircle, Plus, Filter, Sparkles, TrendingUp, MapPin, Building2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-
-interface UserProfile {
-  id: string;
-  user_id: string;
-  situation_familiale: string;
-  localisation: string;
-  secteur_activite: string;
-  regime_imposition: string;
-  objectifs_financiers: string[];
-  created_at: string;
-}
+import { supabase, UserProfile, getSimilarUsers } from '../lib/supabase';
 
 interface SuggestedUser {
   id: string;
@@ -37,7 +26,10 @@ export function UserDiscovery() {
     try {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return;
+      if (!session?.user) {
+        console.log('Pas de session utilisateur');
+        return;
+      }
 
       // Charger le profil de l'utilisateur actuel
       const { data: currentProfile } = await supabase
@@ -49,311 +41,234 @@ export function UserDiscovery() {
       if (currentProfile) {
         setCurrentUserProfile(currentProfile);
         
-        // Chercher des utilisateurs similaires
-        const { data: otherProfiles } = await supabase
-          .from('user_profiles')
-          .select(`
-            *,
-            users:user_id (email)
-          `)
-          .neq('user_id', session.user.id)
-          .eq('is_active', true)
-          .limit(20);
-
-        if (otherProfiles) {
-          const suggestions = generateSuggestions(currentProfile, otherProfiles);
-          setSuggestedUsers(suggestions);
-        }
+        // Charger les utilisateurs similaires
+        const similarUsers = await getSimilarUsers(currentProfile);
+        setSuggestedUsers(similarUsers);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des découvertes:', error);
+      console.error('Erreur lors du chargement des données:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const generateSuggestions = (currentProfile: UserProfile, otherProfiles: any[]): SuggestedUser[] => {
-    return otherProfiles
-      .map((profile) => {
-        const matchingCriteria: string[] = [];
-        let similarityScore = 0;
-
-        // Critères de similarité
-        if (profile.situation_familiale === currentProfile.situation_familiale) {
-          matchingCriteria.push('Situation familiale similaire');
-          similarityScore += 25;
-        }
-
-        if (profile.localisation === currentProfile.localisation) {
-          matchingCriteria.push('Même région');
-          similarityScore += 20;
-        }
-
-        if (profile.secteur_activite === currentProfile.secteur_activite) {
-          matchingCriteria.push('Même secteur d\'activité');
-          similarityScore += 15;
-        }
-
-        if (profile.regime_imposition === currentProfile.regime_imposition) {
-          matchingCriteria.push('Même régime d\'imposition');
-          similarityScore += 20;
-        }
-
-        // Objectifs communs
-        const commonObjectives = profile.objectifs_financiers?.filter((obj: string) =>
-          currentProfile.objectifs_financiers?.includes(obj)
-        ) || [];
-
-        if (commonObjectives.length > 0) {
-          matchingCriteria.push(`${commonObjectives.length} objectif(s) commun(s)`);
-          similarityScore += commonObjectives.length * 10;
-        }
-
-        return {
-          id: profile.id,
-          email: profile.users?.email || 'Utilisateur anonyme',
-          profile,
-          similarityScore,
-          matchingCriteria
-        };
-      })
-      .filter(user => user.similarityScore > 10)
-      .sort((a, b) => b.similarityScore - a.similarityScore)
-      .slice(0, 12);
+  const filterUsers = () => {
+    if (activeFilter === 'all') return suggestedUsers;
+    
+    return suggestedUsers.filter(user => {
+      switch (activeFilter) {
+        case 'location':
+          return user.profile.localisation === currentUserProfile?.localisation;
+        case 'sector':
+          return user.profile.secteur_activite === currentUserProfile?.secteur_activite;
+        case 'situation':
+          return user.profile.situation_familiale === currentUserProfile?.situation_familiale;
+        case 'regime':
+          return user.profile.regime_imposition === currentUserProfile?.regime_imposition;
+        default:
+          return true;
+      }
+    });
   };
 
-  const filterUsers = (users: SuggestedUser[]) => {
-    switch (activeFilter) {
-      case 'high-match':
-        return users.filter(user => user.similarityScore >= 50);
-      case 'same-region':
-        return users.filter(user => 
-          user.matchingCriteria.some(criteria => criteria.includes('région'))
-        );
-      case 'same-sector':
-        return users.filter(user => 
-          user.matchingCriteria.some(criteria => criteria.includes('secteur'))
-        );
-      default:
-        return users;
-    }
-  };
+  const filteredUsers = filterUsers();
 
-  const filteredUsers = filterUsers(suggestedUsers);
-
-  const getSimilarityColor = (score: number) => {
-    if (score >= 70) return 'text-green-400';
-    if (score >= 50) return 'text-yellow-400';
-    if (score >= 30) return 'text-orange-400';
-    return 'text-gray-400';
-  };
-
-  const getSimilarityBadge = (score: number) => {
-    if (score >= 70) return 'Excellent match';
-    if (score >= 50) return 'Bon match';
-    if (score >= 30) return 'Match modéré';
-    return 'Match faible';
-  };
+  const filters = [
+    { id: 'all', label: 'Tous', icon: Users },
+    { id: 'location', label: 'Même localisation', icon: MapPin },
+    { id: 'sector', label: 'Même secteur', icon: Building2 },
+    { id: 'situation', label: 'Même situation', icon: Users },
+    { id: 'regime', label: 'Même régime', icon: TrendingUp }
+  ];
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-[#c5a572] text-lg">Chargement des suggestions...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] flex items-center justify-center">
+        <div className="text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#c5a572] mx-auto"></div>
+          <p className="mt-4">Chargement des suggestions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUserProfile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
+        <div className="max-w-4xl mx-auto px-4 py-16">
+          <div className="bg-[#1a2942]/80 backdrop-blur-sm rounded-xl p-8 border border-[#c5a572]/20 text-center">
+            <Users className="w-16 h-16 text-[#c5a572] mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">Complétez votre profil</h2>
+            <p className="text-gray-300 mb-6">
+              Pour découvrir des utilisateurs similaires et échanger sur vos stratégies fiscales,
+              veuillez d'abord compléter votre profil fiscal.
+            </p>
+            <button className="bg-[#c5a572] text-[#1a2942] font-bold py-3 px-6 rounded-lg hover:bg-[#e8cfa0] transition-colors">
+              Compléter mon profil
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      {/* En-tête avec filtres */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div className="flex items-center space-x-3">
-          <div className="p-3 rounded-lg bg-gradient-to-br from-[#c5a572] to-[#e8cfa0]">
-            <Sparkles className="w-6 h-6 text-[#162238]" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-semibold text-white">Découverte de Profils</h3>
-            <p className="text-sm text-gray-400">
-              Connectez-vous avec des utilisateurs partageant des profils fiscaux similaires
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center space-x-2 px-4 py-2 bg-[#1E3253]/60 border border-[#2A3F6C]/40 rounded-lg text-gray-300 hover:bg-[#1E3253]/80 transition-colors"
-          >
-            <Filter className="w-4 h-4" />
-            <span>Filtres</span>
-          </button>
-          <div className="text-sm text-gray-400">
-            {filteredUsers.length} suggestion(s)
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres */}
-      {showFilters && (
-        <motion.div 
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          className="bg-[#1E3253]/40 rounded-lg p-4 border border-[#2A3F6C]/30"
+    <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
         >
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'all', label: 'Tous' },
-              { id: 'high-match', label: 'Correspondance élevée' },
-              { id: 'same-region', label: 'Même région' },
-              { id: 'same-sector', label: 'Même secteur' }
-            ].map((filter) => (
+          <h1 className="text-3xl font-bold text-white mb-2">Découverte d'utilisateurs</h1>
+          <p className="text-gray-300">
+            Connectez-vous avec des utilisateurs dans une situation fiscale similaire
+          </p>
+        </motion.div>
+
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <div className="bg-[#1a2942]/80 backdrop-blur-sm rounded-xl p-4 border border-[#c5a572]/20">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Filter className="w-5 h-5 text-[#c5a572]" />
+                Filtres
+              </h3>
               <button
-                key={filter.id}
-                onClick={() => setActiveFilter(filter.id)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                  activeFilter === filter.id
-                    ? 'bg-[#c5a572] text-[#162238] font-medium'
-                    : 'bg-[#101A2E]/50 text-gray-400 hover:text-gray-200'
-                }`}
+                onClick={() => setShowFilters(!showFilters)}
+                className="text-[#c5a572] hover:text-[#e8cfa0] transition-colors"
               >
-                {filter.label}
+                {showFilters ? 'Masquer' : 'Afficher'}
               </button>
-            ))}
+            </div>
+            
+            {showFilters && (
+              <div className="flex flex-wrap gap-2">
+                {filters.map((filter) => {
+                  const Icon = filter.icon;
+                  return (
+                    <button
+                      key={filter.id}
+                      onClick={() => setActiveFilter(filter.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        activeFilter === filter.id
+                          ? 'bg-[#c5a572] text-[#1a2942] font-semibold'
+                          : 'bg-[#1a2942]/50 text-gray-300 hover:bg-[#1a2942]/70'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {filter.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </motion.div>
-      )}
 
-      {/* Grille des utilisateurs suggérés */}
-      {filteredUsers.length > 0 ? (
+        {/* Users Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredUsers.map((user, index) => (
+          {filteredUsers.length === 0 ? (
             <motion.div
-              key={user.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              className="bg-[#1E3253]/60 backdrop-blur-sm rounded-xl border border-[#2A3F6C]/40 p-6 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="col-span-full text-center py-12"
             >
-              {/* Avatar et score */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center text-[#162238] font-semibold text-lg">
-                    {user.email.substring(0, 1).toUpperCase()}
+              <Users className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400">Aucun utilisateur similaire trouvé avec ces critères.</p>
+            </motion.div>
+          ) : (
+            filteredUsers.map((user, index) => (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-[#1a2942]/80 backdrop-blur-sm rounded-xl p-6 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-[#c5a572]/20 rounded-full flex items-center justify-center">
+                      <Users className="w-6 h-6 text-[#c5a572]" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">Utilisateur anonyme</h3>
+                      <p className="text-sm text-gray-400">{user.email.split('@')[0]}***</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-white font-medium">
-                      {user.email.split('@')[0]}
-                    </h4>
-                    <p className="text-xs text-gray-400">
-                      Membre depuis {new Date(user.profile.created_at).getFullYear()}
-                    </p>
+                  <div className="text-right">
+                    <div className="text-[#c5a572] font-bold">{user.similarityScore}%</div>
+                    <div className="text-xs text-gray-400">Similarité</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className={`text-lg font-semibold ${getSimilarityColor(user.similarityScore)}`}>
-                    {user.similarityScore}%
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {getSimilarityBadge(user.similarityScore)}
-                  </div>
-                </div>
-              </div>
 
-              {/* Informations du profil */}
-              <div className="space-y-2 mb-4">
-                {user.profile.localisation && (
-                  <div className="flex items-center space-x-2 text-sm text-gray-300">
-                    <MapPin className="w-4 h-4 text-gray-500" />
-                    <span>{user.profile.localisation}</span>
-                  </div>
-                )}
-                {user.profile.secteur_activite && (
-                  <div className="flex items-center space-x-2 text-sm text-gray-300">
-                    <Building2 className="w-4 h-4 text-gray-500" />
-                    <span>{user.profile.secteur_activite}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Critères de correspondance */}
-              <div className="mb-4">
-                <h5 className="text-sm font-medium text-gray-300 mb-2">Points communs :</h5>
-                <div className="flex flex-wrap gap-1">
-                  {user.matchingCriteria.slice(0, 3).map((criteria, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-block px-2 py-1 bg-[#c5a572]/20 text-[#c5a572] text-xs rounded-full"
-                    >
+                {/* Matching Criteria */}
+                <div className="space-y-2 mb-4">
+                  {user.matchingCriteria.slice(0, 3).map((criteria, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                      <Sparkles className="w-4 h-4 text-[#c5a572]" />
                       {criteria}
-                    </span>
+                    </div>
                   ))}
                   {user.matchingCriteria.length > 3 && (
-                    <span className="inline-block px-2 py-1 bg-gray-600/20 text-gray-400 text-xs rounded-full">
-                      +{user.matchingCriteria.length - 3}
-                    </span>
+                    <p className="text-xs text-gray-400">
+                      +{user.matchingCriteria.length - 3} autre(s) point(s) commun(s)
+                    </p>
                   )}
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex space-x-2">
-                <button className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-[#c5a572]/20 text-[#c5a572] rounded-lg hover:bg-[#c5a572]/30 transition-colors text-sm">
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Message</span>
-                </button>
-                <button className="flex items-center justify-center px-3 py-2 bg-[#101A2E]/50 text-gray-400 rounded-lg hover:text-gray-200 transition-colors">
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <Users className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-gray-300 mb-2">
-            Aucune suggestion trouvée
-          </h3>
-          <p className="text-gray-500">
-            Complétez votre profil pour recevoir des suggestions personnalisées
-          </p>
-        </div>
-      )}
+                {/* Profile Summary */}
+                <div className="border-t border-[#c5a572]/20 pt-4 space-y-1 text-sm">
+                  <p className="text-gray-300">
+                    <span className="text-gray-500">Situation:</span> {user.profile.situation_familiale}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-500">Secteur:</span> {user.profile.secteur_activite}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-500">Localisation:</span> {user.profile.localisation}
+                  </p>
+                </div>
 
-      {/* Statistiques */}
-      {suggestedUsers.length > 0 && (
-        <div className="bg-[#1E3253]/40 rounded-lg p-6 border border-[#2A3F6C]/30">
-          <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
-            <TrendingUp className="w-5 h-5 text-[#c5a572]" />
-            <span>Statistiques de découverte</span>
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-[#c5a572]">
-                {suggestedUsers.filter(u => u.similarityScore >= 50).length}
-              </div>
-              <div className="text-sm text-gray-400">Correspondances élevées</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-[#c5a572]">
-                {Math.round(suggestedUsers.reduce((acc, u) => acc + u.similarityScore, 0) / suggestedUsers.length) || 0}%
-              </div>
-              <div className="text-sm text-gray-400">Score moyen</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-[#c5a572]">
-                {suggestedUsers.filter(u => u.matchingCriteria.length >= 3).length}
-              </div>
-              <div className="text-sm text-gray-400">Profils très similaires</div>
-            </div>
-          </div>
+                {/* Actions */}
+                <div className="mt-4 flex gap-2">
+                  <button className="flex-1 bg-[#c5a572] text-[#1a2942] font-semibold py-2 px-4 rounded-lg hover:bg-[#e8cfa0] transition-colors flex items-center justify-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    Discuter
+                  </button>
+                  <button className="flex-1 bg-[#1a2942]/50 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-[#1a2942]/70 transition-colors flex items-center justify-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    Suivre
+                  </button>
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
-      )}
-    </motion.div>
+
+        {/* Add more users CTA */}
+        {filteredUsers.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 text-center"
+          >
+            <p className="text-gray-400 mb-4">
+              Vous voulez découvrir plus d'utilisateurs similaires ?
+            </p>
+            <button className="bg-[#1a2942]/80 text-[#c5a572] font-semibold py-3 px-6 rounded-lg hover:bg-[#1a2942] transition-colors border border-[#c5a572]/20">
+              Affiner mon profil pour de meilleures suggestions
+            </button>
+          </motion.div>
+        )}
+      </div>
+    </div>
   );
-} 
+}

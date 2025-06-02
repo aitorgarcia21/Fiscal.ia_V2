@@ -43,7 +43,7 @@ def search_similar_cgi_articles(query: str, top_k: int = 3) -> List[Dict]:
                 # On pourrait logger un avertissement ici
                 # Pour l'instant, on ignore cet élément si le format est incorrect
                 pass 
-
+        
         # Formater pour la compatibilité avec le reste du code
         results = []
         # Prendre seulement top_k articles APRÈS filtrage
@@ -194,7 +194,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
     """Obtient une réponse de l'assistant fiscal - VERSION ULTRA-SIMPLIFIÉE RAILWAY."""
     all_sources_for_api = []
     confidence_score = 0.5 
-    
+
     try:
         if not client:
             return "Erreur: Client Mistral non configuré", [], 0.0
@@ -510,7 +510,7 @@ Si tu n'as pas assez d'informations précises, explique ce qu'il faudrait savoir
                 "total_length": len(fallback_answer),
                 "message": "✅ Réponse de fallback fournie!"
             }) + "\n"
-        
+    
     except Exception as e:
         yield json.dumps({
             "type": "error",

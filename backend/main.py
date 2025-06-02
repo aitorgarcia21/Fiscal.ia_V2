@@ -176,9 +176,9 @@ async def test_francis(request: dict):
         # Appel du moteur RAG avec un timeout raisonnable (15 s)
         # print("[RAG] Appel au moteur RAG avec timeout 15 s") # Peut être gardé
         try:
-            # Timeout ultra-court pour éviter les 504 Railway
-            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=15)
-            # print("[SUCCESS] get_fiscal_response terminé sous 15s") # Peut être gardé
+            # Timeout augmenté pour laisser plus de temps au RAG
+            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
+            # print("[SUCCESS] get_fiscal_response terminé sous 30s") # Peut être gardé
             return {
                 "answer": answer,
                 "sources": sources,
@@ -188,7 +188,7 @@ async def test_francis(request: dict):
                 "memory_active": bool(conversation_history)
             }
         except asyncio.TimeoutError:
-            # print("[FALLBACK] Timeout 15s - Réponse de secours") # Peut être gardé
+            # print("[FALLBACK] Timeout 30s - Réponse de secours") # Peut être gardé
             # Réponse de secours intelligente basée sur le contexte
             fallback_answer = f"Je vais analyser votre question sur '{question}'. Pour un conseil fiscal précis, pouvez-vous me préciser votre situation (salarié, entrepreneur, investisseur) et votre objectif ? Je pourrai alors vous donner une réponse personnalisée et détaillée."
             
@@ -642,6 +642,20 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
 
 # Mount the API router finally
 app.include_router(api_router)
+
+# Précharger les embeddings CGI au démarrage
+@app.on_event("startup")
+async def startup_event():
+    """Précharge les embeddings CGI au démarrage pour de meilleures performances."""
+    try:
+        from assistant_fiscal_simple import search_cgi_embeddings
+        print("🚀 Préchargement des embeddings CGI...")
+        # Faire une recherche bidon pour forcer le chargement du cache
+        search_cgi_embeddings("test", max_results=1)
+        print("✅ Embeddings CGI préchargés avec succès!")
+    except Exception as e:
+        print(f"⚠️  Erreur lors du préchargement des embeddings: {e}")
+        # On continue même si les embeddings ne se chargent pas
 
 if __name__ == "__main__":
     import uvicorn

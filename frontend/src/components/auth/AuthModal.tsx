@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -12,57 +12,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
   const [isLogin, setIsLogin] = useState(mode !== 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (mode === 'signup') setIsLogin(false);
-    if (mode === 'login') setIsLogin(true);
-    setError(null);
-    setAgreedToTerms(false);
-  }, [mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError('');
     setIsLoading(true);
 
     try {
-      if (!isLogin && password !== confirmPassword) {
-        throw new Error('Les mots de passe ne correspondent pas');
-      }
-      if (!isLogin && !agreedToTerms) {
-        throw new Error('Veuillez accepter la politique de confidentialité pour continuer.');
-      }
-
       if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-
+        
         if (error) throw error;
+        
         if (data.user) {
-          navigate('/dashboard');
           onClose();
+          navigate('/dashboard');
         }
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
         });
-
+        
         if (error) throw error;
+        
         if (data.user) {
-          navigate('/dashboard');
           onClose();
+          navigate('/dashboard');
         }
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: any) {
+      setError(error.message || 'Une erreur est survenue');
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +74,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
             {isLogin ? 'Bienvenue ! Connectez-vous à votre compte.' : 'Créez votre compte Francis'}
           </p>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -126,51 +106,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode }) => {
             />
           </div>
 
-          {!isLogin && (
-            <>
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
-                  Confirmer le mot de passe
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-              <div className="mt-4 flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="terms"
-                    name="terms"
-                    type="checkbox"
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="focus:ring-[#c5a572] h-4 w-4 text-[#c5a572] border-gray-500 rounded bg-[#1a2942]/50 cursor-pointer"
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="terms" className="font-medium text-gray-300 cursor-pointer">
-                    J'ai lu et j'accepte la 
-                    <a href="/politique-de-confidentialite" target="_blank" rel="noopener noreferrer" className="text-[#c5a572] hover:text-[#e8cfa0] underline ml-1">
-                      Politique de Confidentialité
-                    </a>
-                  </label>
-                </div>
-              </div>
-            </>
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-red-400 text-sm">
+              {error}
+            </div>
           )}
 
           <button
             type="submit"
-            disabled={isLoading || (!isLogin && !agreedToTerms)}
-            className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-bold py-3 px-4 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            disabled={isLoading}
+            className="w-full bg-[#c5a572] text-[#1a2942] font-bold py-3 px-4 rounded-lg hover:bg-[#e8cfa0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Chargement...' : (isLogin ? 'Se connecter' : "S'inscrire")}
+            {isLoading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer un compte')}
           </button>
         </form>
 

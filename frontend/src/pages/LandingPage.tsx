@@ -1,15 +1,16 @@
-import { useState } from 'react';
-import { Shield, ArrowRight, Users, TrendingUp, Check, Sparkles, CreditCard, ChevronDown, X, MessageSquare, Euro, Calculator } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
 import { DemoModal } from '../components/demo/DemoModal';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useStripe } from '../hooks/useStripe';
 import { PRICING } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
 import { DemoConversation } from '../components/demo/DemoConversation';
 
 export function LandingPage() {
+  const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState<false | 'login' | 'signup'>(false);
   const [showDemo, setShowDemo] = useState(false);
   const { handleCheckout, isLoading, error } = useStripe();
@@ -61,7 +62,7 @@ export function LandingPage() {
           onClose={() => setShowDemo(false)}
           onStart={() => {
             setShowDemo(false);
-            setShowAuthModal('signup');
+            navigate('/signup');
           }}
         />
       )}
@@ -121,7 +122,7 @@ export function LandingPage() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }} className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
             <motion.button
-              onClick={() => setShowAuthModal('signup')}
+              onClick={() => navigate('/signup')}
               whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
               whileTap={{ scale: 0.98 }}
               className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
@@ -132,7 +133,7 @@ export function LandingPage() {
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)", boxShadow: "0px 8px 20px rgba(255, 255, 255, 0.1)" }}
-              onClick={() => setShowDemo(true)}
+              onClick={() => navigate('/demo')}
               className="px-10 py-4 bg-white/5 text-gray-100 font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-white/20 hover:border-white/40 backdrop-blur-sm group"
             >
               Voir la démo
@@ -218,7 +219,7 @@ export function LandingPage() {
                   ))}
                 </ul>
                 <motion.button
-                  onClick={() => setShowAuthModal('signup')}
+                  onClick={() => navigate('/signup')}
                   whileHover={{ scale: 1.03, boxShadow: `0px 8px 20px ${offer.popular ? 'rgba(197, 165, 114, 0.3)' : 'rgba(197, 165, 114, 0.2)'}` }}
                   whileTap={{ scale: 0.98 }}
                   className={`w-full mt-auto px-8 py-3.5 font-semibold rounded-lg shadow-md transition-all duration-300 text-base sm:text-lg border-2 ${offer.popular ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] border-transparent hover:border-[#e8cfa0]/50' : 'bg-white/10 text-gray-100 border-transparent hover:bg-white/20 hover:border-white/30'}`}
@@ -245,7 +246,7 @@ export function LandingPage() {
               Rejoignez des centaines d'utilisateurs qui font déjà confiance à Francis pour gérer leurs finances intelligemment.
             </p>
             <motion.button
-              onClick={() => setShowAuthModal('signup')}
+              onClick={() => navigate('/signup')}
               whileHover={{ scale: 1.03, boxShadow: "0px 10px 25px rgba(22, 34, 56, 0.3)" }}
               whileTap={{ scale: 0.98 }}
               className="px-10 py-4 sm:px-12 sm:py-5 bg-[#162238] text-white font-semibold rounded-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-base sm:text-lg mx-auto border-2 border-transparent hover:border-white/30"

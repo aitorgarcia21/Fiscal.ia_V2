@@ -53,7 +53,8 @@ fi
 echo "=== Démarrage du backend ==="
 cd backend
 export PYTHONPATH="/app/backend:$PYTHONPATH"
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info &
+# Utiliser plusieurs workers et augmenter le timeout
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info --workers 2 --timeout-keep-alive 300 &
 BACKEND_PID=$!
 
 # Attendre que le backend soit prêt
