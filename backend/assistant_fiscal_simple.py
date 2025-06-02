@@ -148,4 +148,4 @@ def main():
     print(f"Confiance: {confidence}")
 
 if __name__ == "__main__":
-    main() 
+    main()
