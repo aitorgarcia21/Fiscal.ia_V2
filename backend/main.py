@@ -296,6 +296,22 @@ class TrueLayerExchangeResponse(BaseModel):
     scope: str
     accounts: List[Dict[str, Any]]
 
+class UserProfileResponse(BaseModel):
+    id: int
+    user_id: int
+    tmi: Optional[float] = None
+    situation_familiale: Optional[str] = None
+    nombre_enfants: Optional[int] = None
+    residence_principale: Optional[bool] = None
+    residence_secondaire: Optional[bool] = None
+    revenus_annuels: Optional[float] = None
+    charges_deductibles: Optional[float] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
 # Utils
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -671,7 +687,7 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/user-profile/", response_model=UserProfile)
+@app.post("/user-profile/", response_model=UserProfileResponse)
 def create_user_profile(user_profile: UserProfile, db: Session = Depends(get_db)):
     db_user_profile = UserProfile(**user_profile.dict())
     db.add(db_user_profile)
@@ -679,14 +695,14 @@ def create_user_profile(user_profile: UserProfile, db: Session = Depends(get_db)
     db.refresh(db_user_profile)
     return db_user_profile
 
-@app.get("/user-profile/{user_id}", response_model=UserProfile)
+@app.get("/user-profile/{user_id}", response_model=UserProfileResponse)
 def read_user_profile(user_id: int, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
     return db_user_profile
 
-@app.put("/user-profile/{user_id}", response_model=UserProfile)
+@app.put("/user-profile/{user_id}", response_model=UserProfileResponse)
 def update_user_profile(user_id: int, user_profile: UserProfile, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
@@ -699,7 +715,7 @@ def update_user_profile(user_id: int, user_profile: UserProfile, db: Session = D
     db.refresh(db_user_profile)
     return db_user_profile
 
-@app.delete("/user-profile/{user_id}", response_model=UserProfile)
+@app.delete("/user-profile/{user_id}", response_model=UserProfileResponse)
 def delete_user_profile(user_id: int, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
