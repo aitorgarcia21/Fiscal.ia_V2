@@ -25,6 +25,30 @@ def get_quick_answer(query: str) -> tuple[str, bool]:
     """Retourne toujours une réponse vide pour forcer une recherche approfondie."""
     return "", False
 
+def clean_markdown_formatting(text: str) -> str:
+    """Nettoie automatiquement le formatage markdown d'un texte."""
+    import re
+    
+    # Supprimer les astérisques pour le gras et l'italique
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # **texte** -> texte
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)      # *texte* -> texte
+    
+    # Supprimer les underscores pour le gras et l'italique
+    text = re.sub(r'__([^_]+)__', r'\1', text)      # __texte__ -> texte
+    text = re.sub(r'_([^_]+)_', r'\1', text)        # _texte_ -> texte
+    
+    # Supprimer les backticks pour le code
+    text = re.sub(r'`([^`]+)`', r'\1', text)        # `code` -> code
+    text = re.sub(r'```[^`]*```', r'', text)        # ```bloc``` -> supprimé
+    
+    # Supprimer les # pour les titres
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    
+    # Nettoyer les liens markdown [texte](url)
+    text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    
+    return text.strip()
+
 def get_fiscal_response(query: str, conversation_history: List[Dict] = None):
     """Génère une réponse fiscale précise basée sur le CGI."""
     try:
@@ -49,37 +73,40 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None):
                 sources.append(article_source)
             context += "\n---\n\n"
         
-        # Construire le prompt avec le contexte CGI
+        # Construire le prompt avec le contexte CGI et instructions anti-markdown
         prompt = f"""{context}Tu es Francis, un expert fiscal français sympathique et accessible, avec 20 ans d'expérience. Tu parles de manière naturelle et conversationnelle, comme à un collègue ou un ami.
 
 Question de l'utilisateur : {query}
 
 INSTRUCTIONS IMPORTANTES :
 
-1. TON DE LA RÉPONSE :
+1. FORMATAGE OBLIGATOIRE - AUCUN MARKDOWN :
+   - INTERDIT ABSOLU : astérisques (*), underscores (_), dièses (#), backticks (`), crochets []
+   - UTILISE SEULEMENT : lettres, chiffres, espaces, points, virgules, tirets simples (-), deux points (:)
+   - Pour mettre en valeur : utilise des MAJUSCULES
+   - Pour structurer : utilise des numéros (1., 2., 3.) et des tirets (-)
+   - AUCUN formatage markdown autorisé
+
+2. TON DE LA RÉPONSE :
    - Naturel et conversationnel, comme une discussion entre collègues
    - Utilise des formulations courantes et évite le jargon administratif inutile
    - N'hésite pas à être chaleureux et humain
 
-2. CONTENU :
+3. CONTENU :
    - Donne toujours les informations les plus précises et à jour (2025)
    - Si tu as des articles CGI pertinents, cite-les clairement
    - Complète avec ton expertise quand c'est pertinent
    - Fournis des exemples concrets et des chiffres précis
-
-3. FORME :
-   - Structure claire avec des sauts de ligne pour aérer
-   - Utilise des listes à puces pour les énumérations
-   - Mets en valeur les points importants avec des majuscules ou des guillemets
-   - Pas d'astérisques (*) dans la réponse
 
 4. DÉMARCHE :
    - Si la question est vague, n'hésite pas à demander des précisions
    - Propose des exemples ou des cas pratiques
    - Relie les informations pour donner une vision complète
 
-Exemple de ton style :
-"Ah, excellente question ! Pour le barème 2025, on est sur du 0% jusqu'à 11 294€, puis ça monte progressivement. Par exemple, pour un célibataire à 50 000€, on serait sur..."""
+Exemple de ton style SANS FORMATAGE :
+"Ah, excellente question ! Pour le barème 2025, on est sur du 0 pour cent jusqu'à 11 294 euros, puis ça monte progressivement. Par exemple, pour un célibataire à 50 000 euros, on serait sur..."
+
+RAPPEL : AUCUN ASTÉRISQUE, UNDERSCORE OU AUTRE FORMATAGE MARKDOWN AUTORISÉ"""
 
         messages = [ChatMessage(role="user", content=prompt)]
         response = client.chat(
@@ -90,6 +117,9 @@ Exemple de ton style :
         )
         
         answer = response.choices[0].message.content
+        
+        # Nettoyer automatiquement le formatage markdown
+        answer = clean_markdown_formatting(answer)
         
         # Si pas d'articles CGI trouvés, ajouter Mistral comme source
         if not sources:
@@ -123,7 +153,7 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
             "progress": 80
         }) + "\n"
         
-        # Envoyer la réponse
+        # Envoyer la réponse (déjà nettoyée dans get_fiscal_response)
         yield json.dumps({
             "type": "content",
             "content": answer,

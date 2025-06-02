@@ -1,8 +1,14 @@
 import os
 import json
+import sys
+import time
+import signal
 from typing import List, Dict, Tuple
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
+from config import MISTRAL_API_KEY
+from cgi_search import search_similar_cgi_articles
+from bofip_search import search_similar_bofip_chunks
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -59,31 +65,62 @@ def search_similar_cgi_articles(query: str, top_k: int = 3) -> List[Dict]:
     except Exception as e:
         return []
 
+def clean_markdown_formatting(text: str) -> str:
+    """Nettoie automatiquement le formatage markdown d'un texte."""
+    import re
+    
+    # Supprimer les astérisques pour le gras et l'italique
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # **texte** -> texte
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)      # *texte* -> texte
+    
+    # Supprimer les underscores pour le gras et l'italique
+    text = re.sub(r'__([^_]+)__', r'\1', text)      # __texte__ -> texte
+    text = re.sub(r'_([^_]+)_', r'\1', text)        # _texte_ -> texte
+    
+    # Supprimer les backticks pour le code
+    text = re.sub(r'`([^`]+)`', r'\1', text)        # `code` -> code
+    text = re.sub(r'```[^`]*```', r'', text)        # ```bloc``` -> supprimé
+    
+    # Supprimer les # pour les titres
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    
+    # Nettoyer les liens markdown [texte](url)
+    text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+    
+    return text.strip()
+
 def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict], conversation_history: List[Dict] = None) -> str:
     """Crée le prompt pour l'assistant fiscal avec contextes CGI et BOFIP et mémoire de conversation."""
     
-    cgi_context_str = "N/A"
+    # Formater les articles CGI
+    cgi_context_str = ""
     if cgi_articles:
-        cgi_context_str = "\n\n".join([
-            f"Source: {article.get('source', 'CGI N/A')}\nContenu: {article['content']}"
-            for article in cgi_articles
-        ])
-
-    bofip_context_str = "N/A"
-    if bofip_chunks:
-        bofip_context_str = "\n\n".join([
-            f"Source: BOFIP (fichier: {chunk.get('file', 'N/A')}, similarité: {chunk.get('similarity', 0):.3f})\nContenu: {chunk['text']}"
-            for chunk in bofip_chunks
-        ])
+        for article in cgi_articles:
+            cgi_context_str += format_article_for_display(article) + "\n\n"
+    else:
+        cgi_context_str = "Aucun article CGI spécifique trouvé pour cette question."
     
-    # Construire l'historique de conversation
-    history_str = "N/A"
-    if conversation_history and len(conversation_history) > 1:
+    # Formater les chunks BOFIP
+    bofip_context_str = ""
+    if bofip_chunks:
+        for chunk in bofip_chunks:
+            source = chunk.get('file', 'Source BOFIP inconnue')
+            content = chunk.get('content', chunk.get('text', ''))
+            bofip_context_str += f"Source BOFIP: {source}\n{content}\n\n"
+    else:
+        bofip_context_str = "Aucune documentation BOFIP spécifique trouvée pour cette question."
+    
+    # Préparer l'historique de conversation
+    history_str = "Première conversation avec l'utilisateur."
+    if conversation_history:
         history_items = []
-        for msg in conversation_history[-6:]:  # Garder les 6 derniers messages maximum
-            role = "Utilisateur" if msg.get('role') == 'user' else "Francis"
-            content = msg.get('content', '')[:200] + "..." if len(msg.get('content', '')) > 200 else msg.get('content', '')
-            history_items.append(f"{role}: {content}")
+        for msg in conversation_history[-4:]:  # Garder seulement les 4 derniers échanges
+            role = msg.get('role', '')
+            content = msg.get('content', '')
+            if role == 'user':
+                history_items.append(f"👤 Utilisateur: {content}")
+            elif role == 'assistant':
+                history_items.append(f"🤖 Francis: {content[:150]}...")  # Tronquer les longues réponses
         history_str = "\n".join(history_items)
     
     prompt = f"""Tu es Francis, un assistant fiscal expert hautement spécialisé en fiscalité française, créé par la société Fiscal.ia. Tu es l'accompagnateur fiscal personnel de l'utilisateur.
@@ -107,11 +144,13 @@ Contexte du BOFIP:
 
 Instructions:
 - Tu es un expert fiscal et tu DOIS aider l'utilisateur en répondant à sa question de manière claire et pratique.
-- RÈGLE ABSOLUE : N'utilise JAMAIS d'astérisques (*), de formatage markdown, de gras, d'italique ou de caractères spéciaux de mise en forme dans tes réponses.
-- Écris EXCLUSIVEMENT en texte simple, clair et lisible.
-- Utilise uniquement des mots, des chiffres, des points, des virgules et des tirets simples pour structurer.
-- INTERDIT : *, **, ___, `, #, etc.
-- AUTORISÉ : texte simple avec numérotation (1., 2., 3.) et tirets (-) pour les listes.
+- RÈGLE ABSOLUE ANTI-MARKDOWN : Tu dois répondre UNIQUEMENT en texte brut, sans AUCUN formatage.
+- STRICTEMENT INTERDIT : *, **, ***, _, __, ___, `, ```, #, ##, ###, [liens], > citations
+- TU NE DOIS JAMAIS UTILISER d'astérisques, underscores, dièses (#), backticks (`) ou crochets []. Utilise SEULEMENT : lettres, chiffres, espaces, points, virgules et tirets simples.
+- Pour structurer : utilise des numéros (1., 2., 3.) et des tirets simples (-)
+- Pour mettre en valeur : utilise des MAJUSCULES pour les mots importants
+- EXEMPLE BON : "Les TMI 2025 sont : 0 pour cent jusqu'a 11 294 euros, 11 pour cent jusqu'a 28 797 euros"
+- EXEMPLE MAUVAIS : "Les **TMI 2025** sont : *0%* jusqu'à **11 294€**"
 
 🎯 ACCOMPAGNEMENT FISCAL PROACTIF :
 - MÉMOIRE : Utilise l'historique de conversation pour comprendre le contexte et la situation de l'utilisateur
@@ -186,6 +225,8 @@ COMPORTEMENT D'ACCOMPAGNEMENT :
 - Termine toujours par une question de suivi ou une proposition d'action concrète
 - Sois proactif et bienveillant dans tes conseils
 
+RAPPEL FINAL : AUCUN FORMATAGE MARKDOWN AUTORISÉ - TEXTE BRUT UNIQUEMENT
+
 Réponds directement à la question:"""
     
     return prompt
@@ -210,7 +251,9 @@ Question: {query}
 
 Contexte: Les TMI 2025 sont : 0% jusqu'à 11 294€, 11% jusqu'à 28 797€, 30% jusqu'à 82 341€, 41% jusqu'à 177 106€, 45% au-delà.
 
-Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown. Calcule la TMI exacte si possible."""
+IMPORTANT: Réponds uniquement en texte brut, sans aucun formatage markdown. N'utilise JAMAIS d'astérisques (*), underscores (_), dièses (#), backticks (`) ou crochets []. Utilise seulement des lettres, chiffres, espaces, points, virgules et tirets simples.
+
+Réponds clairement et concrètement en tant qu'expert fiscal. Calcule la TMI exacte si possible."""
             all_sources_for_api.append("Barème fiscal 2025")
             confidence_score = 0.9
             
@@ -221,7 +264,9 @@ Question: {query}
 
 Contexte: Le PEA permet d'investir jusqu'à 150 000€ en actions européennes avec exonération fiscale après 5 ans de détention.
 
-Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown."""
+IMPORTANT: Réponds uniquement en texte brut, sans aucun formatage markdown. N'utilise JAMAIS d'astérisques (*), underscores (_), dièses (#), backticks (`) ou crochets []. Utilise seulement des lettres, chiffres, espaces, points, virgules et tirets simples.
+
+Réponds clairement et concrètement en tant qu'expert fiscal."""
             all_sources_for_api.append("Code fiscal - PEA")
             confidence_score = 0.9
             
@@ -232,7 +277,9 @@ Question: {query}
 
 Contexte: La résidence principale est exonérée de plus-values. Pour les autres biens immobiliers, il y a des abattements selon la durée de détention.
 
-Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown."""
+IMPORTANT: Réponds uniquement en texte brut, sans aucun formatage markdown. N'utilise JAMAIS d'astérisques (*), underscores (_), dièses (#), backticks (`) ou crochets []. Utilise seulement des lettres, chiffres, espaces, points, virgules et tirets simples.
+
+Réponds clairement et concrètement en tant qu'expert fiscal."""
             all_sources_for_api.append("CGI - Plus-values immobilières")
             confidence_score = 0.9
             
@@ -243,7 +290,9 @@ Question: {query}
 
 Contexte: Le régime micro-entreprise permet de déclarer uniquement le chiffre d'affaires avec un abattement forfaitaire (34% pour les services, 71% pour la vente).
 
-Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage markdown."""
+IMPORTANT: Réponds uniquement en texte brut, sans aucun formatage markdown. N'utilise JAMAIS d'astérisques (*), underscores (_), dièses (#), backticks (`) ou crochets []. Utilise seulement des lettres, chiffres, espaces, points, virgules et tirets simples.
+
+Réponds clairement et concrètement en tant qu'expert fiscal."""
             all_sources_for_api.append("CGI - Régimes fiscaux")
             confidence_score = 0.9
             
@@ -253,7 +302,9 @@ Réponds clairement et concrètement en tant qu'expert fiscal, sans formatage ma
 
 Question: {query}
 
-Tu es un expert fiscal français. Réponds de manière claire et pratique à cette question fiscale, sans formatage markdown. Si tu as besoin de plus d'informations, demande des précisions sur la situation de l'utilisateur."""
+IMPORTANT: Réponds uniquement en texte brut, sans aucun formatage markdown. N'utilise JAMAIS d'astérisques (*), underscores (_), dièses (#), backticks (`) ou crochets []. Utilise seulement des lettres, chiffres, espaces, points, virgules et tirets simples.
+
+Tu es un expert fiscal français. Réponds de manière claire et pratique à cette question fiscale. Si tu as besoin de plus d'informations, demande des précisions sur la situation de l'utilisateur."""
             all_sources_for_api.append("Expertise Francis")
             confidence_score = 0.7
 
@@ -268,6 +319,10 @@ Tu es un expert fiscal français. Réponds de manière claire et pratique à cet
         )
         
         answer = chat_response.choices[0].message.content
+        
+        # Nettoyer automatiquement le formatage markdown
+        answer = clean_markdown_formatting(answer)
+        
         return answer, all_sources_for_api, confidence_score
 
     except Exception as e:
@@ -275,11 +330,11 @@ Tu es un expert fiscal français. Réponds de manière claire et pratique à cet
         query_lower = query.lower()
         
         if 'tmi' in query_lower:
-            return "Avec 50 000€ de revenus en 2025, votre TMI est de 30%. Vos tranches : 0% sur 11 294€, 11% sur 17 503€, 30% sur 21 203€. Voulez-vous que je détaille le calcul ?", ["Barème 2025"], 0.8
+            return "Avec 50 000 euros de revenus en 2025, votre TMI est de 30 pour cent. Vos tranches : 0 pour cent sur 11 294 euros, 11 pour cent sur 17 503 euros, 30 pour cent sur 21 203 euros. Voulez-vous que je détaille le calcul ?", ["Barème 2025"], 0.8
         elif 'pea' in query_lower:
-            return "Le PEA vous permet d'investir 150 000€ en actions européennes. Exonération totale après 5 ans. Quels sont vos objectifs d'investissement ?", ["Code fiscal"], 0.8
+            return "Le PEA vous permet d'investir 150 000 euros en actions européennes. Exonération totale après 5 ans. Quels sont vos objectifs d'investissement ?", ["Code fiscal"], 0.8
         elif 'micro' in query_lower:
-            return "En micro-entreprise, vous déclarez votre CA avec abattement automatique. Pour les services : 34%, pour la vente : 71%. Quel est votre secteur d'activité ?", ["Régimes fiscaux"], 0.8
+            return "En micro-entreprise, vous déclarez votre CA avec abattement automatique. Pour les services : 34 pour cent, pour la vente : 71 pour cent. Quel est votre secteur d'activité ?", ["Régimes fiscaux"], 0.8
         else:
             return f"Je suis Francis, votre expert fiscal. Pour vous donner une réponse précise sur '{query}', pouvez-vous me dire votre situation (salarié, entrepreneur, investisseur) ?", ["Expert Francis"], 0.6
 
@@ -369,7 +424,7 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
             query_lower = query.lower()
             
             if any(word in query_lower for word in ['tmi', 'tranche', 'marginal', 'imposition']):
-                context = "Les TMI 2025 sont : 0%, 11%, 30%, 41%, 45%"
+                context = "Les TMI 2025 sont : 0 pour cent, 11 pour cent, 30 pour cent, 41 pour cent, 45 pour cent"
                 all_sources.append("Barème fiscal 2025")
                 confidence_score = 0.8
             elif any(word in query_lower for word in ['pea', 'plan', 'épargne', 'actions']):
@@ -389,7 +444,7 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
                 all_sources.append("Expertise Francis")
                 confidence_score = 0.6
                 
-            # Prompt simplifié
+            # Prompt simplifié avec instructions anti-markdown renforcées
             prompt = f"""Tu es Francis, assistant fiscal expert de Fiscal.ia.
 
 Question: {query}
@@ -398,7 +453,9 @@ Contexte fiscal disponible: {context}
 
 Historique récent: {conversation_history[-2:] if conversation_history else "Nouvelle conversation"}
 
-Réponds de manière claire et pratique en tant qu'expert fiscal, sans formatage markdown.
+IMPORTANT: Réponds uniquement en texte brut, sans aucun formatage markdown. N'utilise JAMAIS d'astérisques (*), underscores (_), dièses (#), backticks (`) ou crochets []. Utilise seulement des lettres, chiffres, espaces, points, virgules et tirets simples.
+
+Réponds de manière claire et pratique en tant qu'expert fiscal.
 Si tu n'as pas assez d'informations précises, explique ce qu'il faudrait savoir pour donner une réponse complète."""
         else:
             # Prompt complet avec RAG
@@ -434,18 +491,25 @@ Si tu n'as pas assez d'informations précises, explique ce qu'il faudrait savoir
             
             full_answer = ""
             
-            # Streamer la réponse chunk par chunk
+            # Streamer la réponse chunk par chunk avec nettoyage en temps réel
             for chunk in chat_response:
                 if chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
-                    full_answer += content
+                    
+                    # Nettoyer le formatage markdown en temps réel
+                    cleaned_content = clean_markdown_formatting(content)
+                    
+                    full_answer += cleaned_content
                     
                     yield json.dumps({
                         "type": "content",
-                        "chunk": content
+                        "chunk": cleaned_content
                     }) + "\n"
             
             signal.alarm(0)  # Annuler le timeout
+            
+            # Nettoyer une fois de plus la réponse complète au cas où
+            full_answer = clean_markdown_formatting(full_answer)
             
             # Finaliser avec les métadonnées
             yield json.dumps({
@@ -464,10 +528,10 @@ Si tu n'as pas assez d'informations précises, explique ce qu'il faudrait savoir
                 "progress": 90
             }) + "\n"
             
-            # Réponses de fallback intelligentes
+            # Réponses de fallback intelligentes (sans formatage)
             fallback_responses = {
-                'tmi': "Votre TMI dépend de vos revenus 2025. Les tranches sont : 0% jusqu'à 11 294€, 11% jusqu'à 28 797€, 30% jusqu'à 82 341€, 41% jusqu'à 177 106€, 45% au-delà. Voulez-vous que je calcule votre TMI exacte ?",
-                'pea': "Le PEA vous permet d'investir jusqu'à 150 000€ en actions européennes. Les gains sont exonérés d'impôt après 5 ans de détention. Souhaitez-vous des précisions sur les conditions ?",
+                'tmi': "Votre TMI dépend de vos revenus 2025. Les tranches sont : 0 pour cent jusqu'à 11 294 euros, 11 pour cent jusqu'à 28 797 euros, 30 pour cent jusqu'à 82 341 euros, 41 pour cent jusqu'à 177 106 euros, 45 pour cent au-delà. Voulez-vous que je calcule votre TMI exacte ?",
+                'pea': "Le PEA vous permet d'investir jusqu'à 150 000 euros en actions européennes. Les gains sont exonérés d'impôt après 5 ans de détention. Souhaitez-vous des précisions sur les conditions ?",
                 'plus-value': "Les plus-values immobilières bénéficient d'abattements selon la durée de détention. Votre résidence principale est totalement exonérée. Avez-vous un projet de vente spécifique ?",
                 'micro': "Le régime micro vous permet de déclarer uniquement votre chiffre d'affaires avec un abattement forfaitaire. Quel est votre domaine d'activité pour vous conseiller précisément ?",
             }
