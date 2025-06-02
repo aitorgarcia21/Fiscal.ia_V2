@@ -2,7 +2,8 @@
 FROM node:20-alpine AS frontend-builder
 
 # CACHE BUSTER FINAL - BUILD DU 01/06/2025 16:00 UTC
-RUN echo "FINAL_BUILD_01062025_1600" > /tmp/final_cache_bust.txt
+# FORCE REBUILD - 02/06/2025 11:47 UTC - Fix supabase.ts
+RUN echo "FINAL_BUILD_01062025_1600_v2" > /tmp/final_cache_bust.txt
 
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
