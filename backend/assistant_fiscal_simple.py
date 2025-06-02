@@ -8,7 +8,8 @@ from mistralai.models.chat_completion import ChatMessage
 try:
     from mistral_cgi_embeddings import load_embeddings, search_similar_articles
     CGI_EMBEDDINGS_AVAILABLE = True
-except ImportError:
+except ImportError as e:
+    print(f"⚠️ Erreur d'import des embeddings CGI: {e}")
     CGI_EMBEDDINGS_AVAILABLE = False
 
 # Configuration
@@ -140,38 +141,52 @@ def search_cgi_embeddings(query: str, max_results: int = 2) -> List[Dict]:
     global _embeddings_cache, _cache_loaded
     
     if not CGI_EMBEDDINGS_AVAILABLE:
+        print("⚠️ RAG désactivé: CGI_EMBEDDINGS_AVAILABLE est False")
         return []
     
     try:
         # Cache des embeddings pour éviter le rechargement
         if not _cache_loaded:
+            print("🔍 Chargement du cache des embeddings...")
             _embeddings_cache = load_embeddings()
             _cache_loaded = True
+            print(f"✅ {len(_embeddings_cache) if _embeddings_cache else 0} embeddings chargés")
         
         if not _embeddings_cache:
+            print("⚠️ Aucun embedding chargé")
             return []
         
         # Optimisation requête rapide
         query_lower = query.lower()
+        print(f"🔍 Recherche pour: {query_lower[:100]}...")
+        
         if any(term in query_lower for term in ['tmi', 'tranche', 'marginal', 'imposition', 'barème']):
-            enhanced_query = "article 197 impôt"  # Requête ultra-ciblée
+            enhanced_query = "article 197 impôt sur le revenu barème progressif"  # Requête plus précise
+            print("🔍 Requête optimisée pour barème d'imposition")
         else:
-            enhanced_query = query[:50]  # Limiter la taille
+            enhanced_query = query[:100]  # Limiter la taille
         
         # Recherche rapide avec moins de résultats
+        print(f"🔍 Recherche d'articles similaires pour: {enhanced_query}")
         similar_articles = search_similar_articles(enhanced_query, _embeddings_cache, top_k=max_results)
+        print(f"✅ {len(similar_articles)} articles similaires trouvés")
         
         # Formatage minimal pour vitesse
         results = []
-        for article_data in similar_articles[:max_results]:
+        for i, article_data in enumerate(similar_articles[:max_results], 1):
+            article_id = article_data.get('article_number', 'N/A')
+            print(f"📄 Article {i}: CGI Article {article_id}")
             results.append({
                 'content': article_data.get('text', '')[:1500],  # CONTENU COMPLET pour précision
-                'source': f"CGI Article {article_data.get('article_number', 'N/A')}",
-                'article_id': article_data.get('article_number', 'N/A')
+                'source': f"CGI Article {article_id}",
+                'article_id': article_id
             })
         
         return results
-    except Exception:
+    except Exception as e:
+        print(f"❌ Erreur dans search_cgi_embeddings: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return []  # Fallback ultra-rapide
 
 def main():
