@@ -261,7 +261,7 @@ class UserLogin(BaseModel):
     password: str
 
 class UserResponse(BaseModel):
-    id: str
+    id: int
     email: str
     full_name: Optional[str] = None
     created_at: datetime
@@ -683,16 +683,18 @@ def create_user_profile(user_profile: UserProfile, db: Session = Depends(get_db)
 def read_user_profile(user_id: int, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
-        raise HTTPException(status_code=404, detail="User profile not found")
+        raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
     return db_user_profile
 
 @app.put("/user-profile/{user_id}", response_model=UserProfile)
 def update_user_profile(user_id: int, user_profile: UserProfile, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
-        raise HTTPException(status_code=404, detail="User profile not found")
+        raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
+    
     for key, value in user_profile.dict().items():
         setattr(db_user_profile, key, value)
+    
     db.commit()
     db.refresh(db_user_profile)
     return db_user_profile
@@ -701,7 +703,8 @@ def update_user_profile(user_id: int, user_profile: UserProfile, db: Session = D
 def delete_user_profile(user_id: int, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
-        raise HTTPException(status_code=404, detail="User profile not found")
+        raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
+    
     db.delete(db_user_profile)
     db.commit()
     return db_user_profile
