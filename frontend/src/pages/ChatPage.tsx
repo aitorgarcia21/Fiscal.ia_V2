@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight } from 'lucide-react';
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Message {
@@ -72,12 +72,9 @@ export function ChatPage() {
         {/* Header */}
         <div className="p-4 border-b border-[#c5a572]/20 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[#c5a572] rounded-full flex items-center justify-center">
-              <Bot className="w-6 h-6 text-[#1a2942]" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">Francis - Assistant Fiscal</h1>
-              <p className="text-xs text-gray-400">En ligne</p>
+            <div className="relative">
+              <MessageSquare className="w-10 h-10 text-[#c5a572]" />
+              <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
             </div>
           </div>
           <button 
@@ -104,8 +101,9 @@ export function ChatPage() {
               >
                 <div className="flex items-start space-x-2">
                   {message.role === 'assistant' && (
-                    <div className="flex-shrink-0 w-6 h-6 bg-[#c5a572] rounded-full flex items-center justify-center">
-                      <Bot className="w-3.5 h-3.5 text-[#1a2942]" />
+                    <div className="flex-shrink-0 w-6 h-6 bg-[#c5a572] rounded-full flex items-center justify-center relative">
+                      <MessageSquare className="w-3.5 h-3.5 text-[#1a2942]" />
+                      <Euro className="w-2.5 h-2.5 text-[#1a2942] absolute -bottom-1 -right-1 bg-[#c5a572] rounded-full p-0.5" />
                     </div>
                   )}
                   <p className="whitespace-pre-wrap">{message.content}</p>

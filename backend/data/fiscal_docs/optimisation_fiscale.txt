@@ -1,3 +1,10 @@
+ATTENTION - FICHIER OBSOLÈTE
+============================
+CE FICHIER NE DOIT PLUS ÊTRE UTILISÉ POUR LE SYSTÈME RAG
+RAISON : Il ne provient pas de sources officielles (CGI ou BOFiP)
+REMPLACEMENT : Utiliser UNIQUEMENT le Code Général des Impôts et le BOFiP
+============================
+
 Optimisation Fiscale - Guide Complet
 
 1. Optimisation de la TMI (Tranche Marginale d'Imposition)

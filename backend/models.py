@@ -4,6 +4,9 @@ from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
 import uuid
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 class User(Base):
     __tablename__ = "users"
@@ -76,4 +79,19 @@ class Settings(Base):
     value = Column(Text, nullable=True)
     description = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class UserProfile(Base):
+    __tablename__ = 'user_profiles'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, unique=True, nullable=False)
+    income = Column(Float, nullable=False)
+    family_status = Column(String, nullable=False)
+    investments = Column(String, nullable=True)
+    tax_optimizations = Column(String, nullable=True)
+    residence = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return f"<UserProfile(user_id={self.user_id}, income={self.income}, family_status='{self.family_status}')>" 

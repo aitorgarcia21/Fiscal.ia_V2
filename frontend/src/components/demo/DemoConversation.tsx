@@ -106,10 +106,6 @@ export function DemoConversation() {
             <MessageSquare className="h-7 w-7 text-[#c5a572]" />
             <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-white drop-shadow-lg">Francis</h2>
-            <p className="text-sm text-[#c5a572] font-medium">Votre conseiller fiscal IA</p>
-          </div>
         </div>
         {/* Zone des messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-[300px] max-h-[50vh]">
@@ -122,8 +118,9 @@ export function DemoConversation() {
               className={`flex items-end ${msg.author === 'paul' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.author === 'francis' && (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center flex-shrink-0 mr-3 shadow-md border border-[#162238]">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center flex-shrink-0 mr-3 shadow-md border border-[#162238] relative">
                   <MessageSquare className="w-5 h-5 text-[#162238]" />
+                  <Euro className="w-3.5 h-3.5 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
                 </div>
               )}
               <div

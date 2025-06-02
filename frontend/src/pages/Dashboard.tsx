@@ -125,51 +125,7 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
-      {/* Header */}
-      <header className="bg-[#1a2332]/95 backdrop-blur-lg border-b border-[#c5a572]/20 sticky top-0 z-50">
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <MessageSquare className="h-8 w-8 text-[#c5a572]" />
-              <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2332] rounded-full p-0.5" />
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="w-full pl-10 pr-4 py-2 bg-[#0f1419]/50 border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-              />
-            </div>
-          </div>
-
-          {/* User Actions */}
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
-                <UserIcon className="h-4 w-4 text-[#1a2332]" />
-              </div>
-              <div className="text-sm">
-                <p className="text-white font-medium">Utilisateur</p>
-                <p className="text-gray-400">Premium</p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-[#c5a572] transition-colors"
-            >
-              {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-        </div>
-      </header>
-
+      {/* Header supprimé */}
       <div className="flex">
         {/* Sidebar */}
         <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:static inset-y-0 left-0 z-40 w-64 bg-[#1a2332]/95 backdrop-blur-lg border-r border-[#c5a572]/20 transition-transform duration-300 ease-in-out overflow-y-auto`}>
@@ -211,16 +167,9 @@ export function Dashboard() {
               {/* Chat Header */}
               <div className="bg-[#1a2332]/50 border-b border-[#c5a572]/20 p-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
-                    <Bot className="h-5 w-5 text-[#1a2332]" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-white">Francis - Assistant Fiscal</h2>
-                    <p className="text-sm text-gray-400">Expert en optimisation fiscale</p>
-                  </div>
-                  <div className="ml-auto flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-xs text-gray-400">En ligne</span>
+                  <div className="relative">
+                    <MessageSquare className="w-10 h-10 text-[#c5a572]" />
+                    <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2332] rounded-full p-0.5" />
                   </div>
                 </div>
               </div>
@@ -241,8 +190,9 @@ export function Dashboard() {
                     >
                       <div className="flex items-start space-x-3">
                         {message.role === 'assistant' && (
-                          <div className="w-6 h-6 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
-                            <Bot className="w-3 h-3 text-[#1a2332]" />
+                          <div className="w-6 h-6 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center relative">
+                            <MessageSquare className="w-3 h-3 text-[#1a2332]" />
+                            <Euro className="w-2 h-2 text-[#1a2332] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
                           </div>
                         )}
                         <div className="flex-1">

@@ -1,20 +1,28 @@
 {
-  "tranches_ir": [
+  "ATTENTION": "CE FICHIER CONTIENT DES DONNÉES NON OFFICIELLES",
+  "STATUS": "OBSOLÈTE - NE PLUS UTILISER",
+  "RAISON": "Seuls le CGI et le BOFiP sont des sources officielles autorisées",
+  "REMPLACEMENT": "Utiliser uniquement les sources CGI et BOFiP",
+  "tranches_ir_obsoletes": [
     {
       "seuil": 0,
-      "taux": 0.11
+      "taux": 0.11,
+      "note": "OBSOLÈTE - Utiliser article 197 du CGI"
     },
     {
       "seuil": 10777,
-      "taux": 0.30
+      "taux": 0.30,
+      "note": "OBSOLÈTE - Utiliser article 197 du CGI"
     },
     {
       "seuil": 27478,
-      "taux": 0.41
+      "taux": 0.41,
+      "note": "OBSOLÈTE - Utiliser article 197 du CGI"
     },
     {
       "seuil": 78570,
-      "taux": 0.45
+      "taux": 0.45,
+      "note": "OBSOLÈTE - Utiliser article 197 du CGI"
     }
   ],
   "niches_fiscales": {

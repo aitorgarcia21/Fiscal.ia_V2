@@ -16,13 +16,16 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream
+from .assistant_fiscal_simple import get_fiscal_response
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
+from sqlalchemy.orm import Session
+from database import SessionLocal, engine
+from models import UserProfile, Base
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -648,7 +651,7 @@ app.include_router(api_router)
 async def startup_event():
     """Précharge les embeddings CGI au démarrage pour de meilleures performances."""
     try:
-        from assistant_fiscal_simple import search_cgi_embeddings
+        from .assistant_fiscal_simple import search_cgi_embeddings
         print("🚀 Préchargement des embeddings CGI...")
         # Faire une recherche bidon pour forcer le chargement du cache
         search_cgi_embeddings("test", max_results=1)
@@ -657,6 +660,52 @@ async def startup_event():
         print(f"⚠️  Erreur lors du préchargement des embeddings: {e}")
         # On continue même si les embeddings ne se chargent pas
 
+# Créer la base de données
+Base.metadata.create_all(bind=engine)
+
+# Dépendance pour obtenir la session de base de données
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/user-profile/", response_model=UserProfile)
+def create_user_profile(user_profile: UserProfile, db: Session = Depends(get_db)):
+    db_user_profile = UserProfile(**user_profile.dict())
+    db.add(db_user_profile)
+    db.commit()
+    db.refresh(db_user_profile)
+    return db_user_profile
+
+@app.get("/user-profile/{user_id}", response_model=UserProfile)
+def read_user_profile(user_id: int, db: Session = Depends(get_db)):
+    db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    if db_user_profile is None:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    return db_user_profile
+
+@app.put("/user-profile/{user_id}", response_model=UserProfile)
+def update_user_profile(user_id: int, user_profile: UserProfile, db: Session = Depends(get_db)):
+    db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    if db_user_profile is None:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    for key, value in user_profile.dict().items():
+        setattr(db_user_profile, key, value)
+    db.commit()
+    db.refresh(db_user_profile)
+    return db_user_profile
+
+@app.delete("/user-profile/{user_id}", response_model=UserProfile)
+def delete_user_profile(user_id: int, db: Session = Depends(get_db)):
+    db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    if db_user_profile is None:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    db.delete(db_user_profile)
+    db.commit()
+    return db_user_profile
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))  # Utiliser le port 8080 par défaut pour Railway 
