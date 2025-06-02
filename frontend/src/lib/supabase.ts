@@ -19,55 +19,28 @@ console.log('✅ Configuration Supabase frontend:', {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Types pour le profil utilisateur - CORRIGÉ pour correspondre à la BD
+// Types TypeScript pour l'utilisateur
 export interface UserProfile {
   id: string
-  user_id: string
-  situation: string
-  revenus: string
-  patrimoine: string
-  objectifs: string[]
-  tolerance_risque: string
-  horizon_investissement: string
-  nombre_enfants: number
-  ages_enfants: string
-  type_revenus: string[]
-  autres_revenus: string
-  created_at: string
-  updated_at: string
-  last_interaction: string
-  situation_professionnelle: string
-  statut_fiscal: string
-  regime_imposition: string
-  investissements_existants: string[]
-  projets_immobiliers: string
-  besoins_retraite: string
-  situation_familiale: string
-  localisation: string
-  zone_fiscale: string
-  secteur_activite: string
-  revenus_passifs: string
-  dettes: string
-  objectifs_financiers: string[]
-  contraintes_fiscales: string[]
-  composition_patrimoine: string[]
-  interaction_history: Array<{
-    question: string
-    response: string
-    timestamp: string
-    insights: Array<{
-      type: string
-      value: string
-      confidence: number
-    }>
-  }>
-  is_active: boolean
-  
-  // Nouveaux champs pour le questionnaire détaillé
-  date_naissance?: string
-  personnes_charge?: string
-  type_contrat?: string
-  societes_detenues?: string
-  tmi?: string
-  endettement?: string
-} 
+  email: string
+  username?: string
+  avatar_url?: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Helper functions
+export const getSession = async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
+}
+
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+export const getCurrentUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
