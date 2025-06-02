@@ -16,7 +16,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from .assistant_fiscal_simple import get_fiscal_response
+from assistant_fiscal_simple import get_fiscal_response
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -651,7 +651,7 @@ app.include_router(api_router)
 async def startup_event():
     """Précharge les embeddings CGI au démarrage pour de meilleures performances."""
     try:
-        from .assistant_fiscal_simple import search_cgi_embeddings
+        from assistant_fiscal_simple import search_cgi_embeddings
         print("🚀 Préchargement des embeddings CGI...")
         # Faire une recherche bidon pour forcer le chargement du cache
         search_cgi_embeddings("test", max_results=1)
