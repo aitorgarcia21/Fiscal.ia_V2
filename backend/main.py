@@ -26,6 +26,7 @@ import concurrent.futures
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from models import UserProfile, Base
+import re
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -148,8 +149,28 @@ async def run_with_timeout(func, *args, timeout: int = 10):
         return await asyncio.wait_for(loop.run_in_executor(pool, func, *args), timeout)
 
 # Fonction utilitaire pour supprimer tous les astérisques
-def remove_asterisks(text: str) -> str:
-    return text.replace('*', '') if text else text
+def clean_markdown_formatting(text: str) -> str:
+    # Nettoie tous les champs textuels
+    text = text.replace('*', '') if text else text
+    if not text:
+        return text
+    
+    # Supprimer les titres markdown (# ## ###)
+    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
+    
+    # Supprimer les astérisques pour l'italique/gras
+    text = text.replace('**', '').replace('*', '')
+    
+    # Supprimer les tirets pour les listes
+    text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
+    
+    # Supprimer les numérotations de liste
+    text = re.sub(r'^\s*\d+\.\s*', '', text, flags=re.MULTILINE)
+    
+    # Nettoyer les espaces multiples
+    text = re.sub(r'\s+', ' ', text)
+    
+    return text
 
 # Test Francis endpoint (no auth required for testing) - RAILWAY ULTRA OPTIMIZED
 @api_router.post("/test-francis")
@@ -186,7 +207,7 @@ async def test_francis(request: dict):
             # Timeout augmenté pour laisser plus de temps au RAG
             answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
             # Nettoyage des * dans la réponse
-            answer = remove_asterisks(answer)
+            answer = clean_markdown_formatting(answer)
             # print("[SUCCESS] get_fiscal_response terminé sous 30s") # Peut être gardé
             return {
                 "answer": answer,
@@ -204,16 +225,16 @@ async def test_francis(request: dict):
             if conversation_history and len(conversation_history) > 1:
                 fallback_answer += " Je prends en compte notre échange précédent pour mieux vous accompagner."
             
-            fallback_answer = remove_asterisks(fallback_answer)
-            
-            return {
+            fallback_answer = clean_markdown_formatting(fallback_answer)
+        
+        return {
                 "answer": fallback_answer,
                 "sources": ["Expert Francis"],
                 "confidence": 0.7,
                 "status": "fallback_optimized",
                 "francis_says": "🔄 Analyse rapide - posez une question plus précise pour plus de détails",
-                "memory_active": bool(conversation_history)
-            }
+            "memory_active": bool(conversation_history)
+        }
         
     except Exception as e:
         # print(f"❌ Erreur Francis: {str(e)}") # Peut être gardé
@@ -249,7 +270,7 @@ async def stream_francis_simple(request: dict):
             "Cache-Control": "no-cache",
             "Connection": "keep-alive"
         }
-    )
+)
 
 # Security
 security = HTTPBearer()
@@ -453,7 +474,7 @@ async def ask_question(
             ]
 
         answer, sources, confidence = get_fiscal_response(request.question, conversation_history)
-        answer = remove_asterisks(answer)
+        answer = clean_markdown_formatting(answer)
         
         # Sauvegarde en base (optionnel, si vous voulez garder l'historique des questions/réponses)
         if supabase:
@@ -706,43 +727,52 @@ def get_db():
     finally:
         db.close()
 
+# Fonction utilitaire pour nettoyer un UserProfileResponse
+def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResponse:
+    # Nettoie tous les champs textuels
+    profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
+    # Les champs booléens ne sont pas concernés
+    # Les autres champs textuels potentiels
+    return profile
+
 @app.post("/user-profile/", response_model=UserProfileResponse)
 def create_user_profile(user_profile: UserProfileCreate, db: Session = Depends(get_db)):
     db_user_profile = UserProfile(**user_profile.dict())
     db.add(db_user_profile)
     db.commit()
     db.refresh(db_user_profile)
-    return db_user_profile
+    response = UserProfileResponse(**db_user_profile.__dict__)
+    return clean_user_profile_response(response)
 
 @app.get("/user-profile/{user_id}", response_model=UserProfileResponse)
 def read_user_profile(user_id: int, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    return db_user_profile
+    response = UserProfileResponse(**db_user_profile.__dict__)
+    return clean_user_profile_response(response)
 
 @app.put("/user-profile/{user_id}", response_model=UserProfileResponse)
 def update_user_profile(user_id: int, user_profile: UserProfileCreate, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    
     for key, value in user_profile.dict().items():
         setattr(db_user_profile, key, value)
-    
     db.commit()
     db.refresh(db_user_profile)
-    return db_user_profile
+    response = UserProfileResponse(**db_user_profile.__dict__)
+    return clean_user_profile_response(response)
 
 @app.delete("/user-profile/{user_id}", response_model=UserProfileResponse)
 def delete_user_profile(user_id: int, db: Session = Depends(get_db)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    
     db.delete(db_user_profile)
     db.commit()
-    return db_user_profile
+    response = UserProfileResponse(**db_user_profile.__dict__)
+    return clean_user_profile_response(response)
 
 if __name__ == "__main__":
     import uvicorn

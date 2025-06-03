@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 import json
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import numpy as np
 from dotenv import load_dotenv
 from functools import lru_cache
@@ -70,19 +70,21 @@ def get_query_embedding(query: str) -> List[float]:
     )
     return response.data[0].embedding
 
-def search_similar_articles(query: str, embeddings: Dict[str, Dict], top_k: int = 3) -> List[Dict]:
-    """Recherche les articles les plus similaires à la requête."""
+def search_similar_articles(query: str, embeddings: Dict[str, Dict], top_k: int = 3) -> List[Tuple[Dict, float]]:
+    """Recherche les articles les plus similaires à la requête et renvoie une liste de tuples (article_data, similarité)."""
     # Utiliser le cache pour l'embedding de la requête
     query_embedding = get_query_embedding(query)
-    scored_articles = []
+    scored_articles: List[Tuple[Dict, float]] = []
+
+    # Calculer la similarité pour chaque article
     for article_num, article_data in embeddings.items():
         similarity = cosine_similarity(query_embedding, article_data['embeddings'])
         scored_articles.append((article_data, similarity))
-    
+
     # Trier par similarité décroissante
     scored_articles.sort(key=lambda x: x[1], reverse=True)
-    
-    return [article for article, _ in scored_articles[:top_k]]
+
+    return scored_articles[:top_k]
 
 if __name__ == "__main__":
     # Test de chargement des embeddings

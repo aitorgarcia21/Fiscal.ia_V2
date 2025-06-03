@@ -77,7 +77,7 @@ class Settings(Base):
     value = Column(Text, nullable=True)
     description = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 
 
 class UserProfile(Base):
     __tablename__ = 'user_profiles'

@@ -47,9 +47,12 @@ def get_relevant_articles(query: str, n_results: int = 3) -> str:
     if not embeddings:
         return "Aucun embedding trouvé. Veuillez d'abord générer les embeddings."
     
-    relevant_articles = search_similar_articles(query, embeddings, n_results)
-    if not relevant_articles:
+    relevant_articles_raw = search_similar_articles(query, embeddings, n_results)
+    if not relevant_articles_raw:
         return "Aucun article pertinent trouvé."
+    
+    # Si search_similar_articles renvoie des tuples (article_data, similarity), extraire la première valeur
+    relevant_articles = [art[0] if isinstance(art, tuple) and len(art) >= 1 else art for art in relevant_articles_raw]
     
     # Concaténer les textes des articles les plus pertinents
     context = "\n\n".join([

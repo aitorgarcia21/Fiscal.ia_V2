@@ -10,8 +10,8 @@ import { DemoPage } from './pages/DemoPage';
 
 function App() {
   return (
-    <Router>
-      <Routes>
+      <Router>
+        <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -19,8 +19,8 @@ function App() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
   );
 }
 

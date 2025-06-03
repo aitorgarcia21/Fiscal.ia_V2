@@ -8,7 +8,7 @@ from mistralai.models.chat_completion import ChatMessage
 
 # Imports pour les embeddings
 try:
-    from mistral_cgi_embeddings import load_embeddings, search_similar_articles
+from mistral_cgi_embeddings import load_embeddings, search_similar_articles
     from mistral_embeddings import search_similar_bofip_chunks
     CGI_EMBEDDINGS_AVAILABLE = True
     BOFIP_EMBEDDINGS_AVAILABLE = True
@@ -220,7 +220,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         confidence_score = min(0.95, len(all_sources_for_api) / 4.0) if all_sources_for_api else 0.3
         
         return answer, all_sources_for_api, confidence_score
-        
+    
     except Exception as e:
         print(f"Erreur lors du traitement de la question : {str(e)}")
         return ("Erreur lors de la consultation des sources officielles. "

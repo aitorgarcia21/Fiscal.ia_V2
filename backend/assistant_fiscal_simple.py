@@ -107,6 +107,14 @@ RÈGLES STRICTES :
 3. Si l'information n'est pas dans les sources fournies, dis-le clairement
 4. Utilise uniquement les textes officiels, jamais d'autres sources
 5. Réponds en français de manière claire et précise
+6. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple
+7. Pour les calculs fiscaux, sois TRÈS précis :
+   - Couple marié = 2 parts (pas 1+1)
+   - 1er et 2ème enfant = 0,5 part chacun
+   - 3ème enfant et suivants = 1 part chacun
+   - Exemple : couple + 3 enfants = 2 + 0,5 + 0,5 + 1 = 4 parts au total
+8. Vérifie tes calculs avant de répondre
+9. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation
 
 SOURCES OFFICIELLES DISPONIBLES :
 """
@@ -124,9 +132,12 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles ci-dessus) :
         # Construire l'historique de conversation si disponible
         messages = []
         if conversation_history:
-            for msg in conversation_history[-3:]:  # Garder les 3 derniers échanges
+            # Inclure jusqu'à 10 messages précédents pour un meilleur contexte
+            for msg in conversation_history[-10:]:
                 if msg.get('role') and msg.get('content'):
-                    messages.append(ChatMessage(role=msg['role'], content=msg['content']))
+                    # Tronquer chaque message pour éviter l'explosion des tokens
+                    truncated_content = msg['content'][:400]
+                    messages.append(ChatMessage(role=msg['role'], content=truncated_content))
         
         messages.append(ChatMessage(role="user", content=full_prompt))
         
@@ -191,39 +202,85 @@ def search_cgi_embeddings(query: str, max_results: int = 3) -> List[Dict]:
         # Amélioration de la requête pour plus de précision
         query_lower = query.lower().strip()
         
-        # Extraction des mots-clés importants pour cibler les articles CGI
+        # ----------------------
+        # Détection du sujet
+        # ----------------------
+        TOPIC_MAP = [
+            {
+                "match": ['tmi', 'tranche', 'marginal', 'imposition', 'barème', 'impôt sur le revenu', 'ir', 'impôt', 'impots', 'payer', 'quotient', 'part'],
+                "enhanced": "article 197 CGI impôt sur le revenu barème progressif tranches marginales taux imposition",
+                "keywords": ['197', 'barème', 'tranche', 'taux', 'impôt', 'revenu', 'quotient', 'part']
+            },
+            {
+                "match": ['tva', 'taxe valeur ajoutée', 'taux tva'],
+                "enhanced": "article 278 279 CGI TVA taux normal réduit super-réduit taxe valeur ajoutée",
+                "keywords": ['278', '279', 'tva', 'taux', 'taxe']
+            },
+            {
+                "match": ['réduction', 'crédit', 'déduction', 'avantage fiscal', 'credit d\'impôt', 'crédit d\'impot'],
+                "enhanced": "article 199 200 CGI réduction crédit impôt déduction fiscale avantage",
+                "keywords": ['199', '200', 'réduction', 'crédit', 'déduction']
+            },
+            {
+                "match": ['plus-value', 'plus value', 'cession', 'vente', 'pv', 'plusvalues'],
+                "enhanced": "article 150 CGI plus-value cession vente immobilier actions",
+                "keywords": ['150', 'plus-value', 'cession', 'vente']
+            },
+            {
+                "match": ['sci', 'société civile', 'immobilier', 'sci familiale'],
+                "enhanced": "CGI société civile immobilière SCI régime fiscal imposition",
+                "keywords": ['sci', 'société', 'civile', 'immobilière']
+            },
+            {
+                "match": ['is', 'impôt sur les sociétés', 'impot sur les societes', 'bénéfice imposable', 'resultat fiscal'],
+                "enhanced": "article 209 CGI impôt sur les sociétés base imposable taux",
+                "keywords": ['209', 'impôt', 'sociétés', 'is', 'taux']
+            },
+            {
+                "match": ['ifi', 'fortune', 'immobilière', 'impôt sur la fortune immobilière'],
+                "enhanced": "article 964 CGI impôt sur la fortune immobilière assiette exonérations",
+                "keywords": ['964', 'ifi', 'fortune', 'immobilière']
+            },
+            {
+                "match": ['cvae', 'cfe', 'cotisation foncière', 'cotisation sur la valeur ajoutée'],
+                "enhanced": "article 1586 CGI cfe cvae cotisation locale valeur ajoutée entreprises",
+                "keywords": ['1586', 'cfe', 'cvae', 'cotisation']
+            }
+        ]
+
+        enhanced_query = None
         keywords = []
-        
-        # Requêtes ciblées selon le type de question avec mots-clés élargis
-        if any(term in query_lower for term in ['tmi', 'tranche', 'marginal', 'imposition', 'barème', 'impôt sur le revenu', 'ir']):
-            enhanced_query = "article 197 CGI impôt sur le revenu barème progressif tranches marginales taux imposition"
-            keywords = ['197', 'barème', 'tranche', 'taux', 'impôt', 'revenu']
-        elif any(term in query_lower for term in ['tva', 'taxe valeur ajoutée', 'taux tva']):
-            enhanced_query = "article 278 279 CGI TVA taux normal réduit super-réduit taxe valeur ajoutée"
-            keywords = ['278', '279', 'tva', 'taux', 'taxe']
-        elif any(term in query_lower for term in ['réduction', 'crédit', 'déduction', 'avantage fiscal']):
-            enhanced_query = "article 199 200 CGI réduction crédit impôt déduction fiscale avantage"
-            keywords = ['199', '200', 'réduction', 'crédit', 'déduction']
-        elif any(term in query_lower for term in ['plus-value', 'cession', 'vente']):
-            enhanced_query = "article 150 CGI plus-value cession vente immobilier actions"
-            keywords = ['150', 'plus-value', 'cession', 'vente']
-        elif any(term in query_lower for term in ['sci', 'société civile', 'immobilier']):
-            enhanced_query = "CGI société civile immobilière SCI régime fiscal imposition"
-            keywords = ['sci', 'société', 'civile', 'immobilière']
-        else:
-            # Pour les autres cas, utiliser la requête originale enrichie
-            enhanced_query = f"CGI code général impôts {query}"
-            # Extraire les mots significatifs de la requête
+        for topic in TOPIC_MAP:
+            if any(term in query_lower for term in topic["match"]):
+                enhanced_query = topic["enhanced"]
+                keywords = topic["keywords"]
+                break
+
+        # Fallback générique
+        if enhanced_query is None:
+            # Utiliser directement la requête de l'utilisateur (sans préfixe générique)
+            enhanced_query = query  # Pas de préfixe "CGI ..." pour éviter un bruit inutile
             keywords = [word for word in query_lower.split() if len(word) > 3]
         
         print(f"🔍 Requête de recherche améliorée : {enhanced_query}")
         
         # Recherche avec plus de résultats pour filtrage
-        similar_articles = search_similar_articles(enhanced_query, _embeddings_cache, top_k=max_results * 4)
+        similar_articles_raw = search_similar_articles(enhanced_query, _embeddings_cache, top_k=max_results * 4)
+        
+        # Gérer le nouveau format éventuel (tuples) et préserver la similarité
+        similar_articles = []
+        for art in similar_articles_raw:
+            if isinstance(art, tuple) and len(art) >= 2:
+                article_data, sim_score = art[0], art[1]
+                # Conserver la similarité pour le scoring
+                article_data['similarity'] = sim_score
+                similar_articles.append(article_data)
+            else:
+                similar_articles.append(art)
         
         # Scoring et filtrage avancé des résultats AVEC validation des sources
         scored_articles = []
-        for article_data in similar_articles:
+        for article_data in similar_articles[:max_results]:
             # VALIDATION STRICTE : Vérifier que c'est bien du CGI
             if not validate_official_source({'type': 'CGI', 'path': 'cgi_chunks'}):
                 continue  # Ignorer les sources non officielles
