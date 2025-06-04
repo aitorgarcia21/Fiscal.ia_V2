@@ -6,6 +6,9 @@ from typing import List, Dict, Tuple
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
+# Année de référence des données officielles
+DATA_YEAR = 2025
+
 # Imports pour les embeddings
 try:
 from mistral_cgi_embeddings import load_embeddings, search_similar_articles
@@ -129,7 +132,7 @@ def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict]
         context = "AUCUNE SOURCE OFFICIELLE TROUVÉE pour cette question.\n\n"
     
     # Système de prompt strict
-    system_prompt = """Tu es Francis, assistant fiscal expert qui se base EXCLUSIVEMENT sur le Code Général des Impôts (CGI) et le Bulletin Officiel des Finances Publiques (BOFiP).
+    system_prompt = f"""Tu es Francis, assistant fiscal expert qui se base EXCLUSIVEMENT sur le Code Général des Impôts (CGI) et le Bulletin Officiel des Finances Publiques (BOFiP) à jour pour {DATA_YEAR}.
 
 RÈGLES IMPÉRATIVES :
 1. Tu ne peux répondre qu'en te basant sur le CGI et le BOFiP fournis ci-dessous
