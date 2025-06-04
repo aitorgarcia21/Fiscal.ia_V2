@@ -14,6 +14,9 @@ except ImportError:
     CGI_EMBEDDINGS_AVAILABLE = False
     BOFIP_EMBEDDINGS_AVAILABLE = False
 
+# Année de référence des données officielles
+DATA_YEAR = 2025
+
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
@@ -99,7 +102,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None):
                    "Cela peut être dû à un problème de chargement des données. Pourriez-vous reformuler votre question ?"), [], 0.0
         
         # Construire le prompt avec UNIQUEMENT les sources officielles
-        system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français.
+        system_message = f"""Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français à jour pour {DATA_YEAR}.
 
 RÈGLES STRICTES :
 1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous
