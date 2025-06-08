@@ -27,11 +27,13 @@ _cache_loaded = False
 # Sources officielles autorisées
 OFFICIAL_SOURCES = {
     'CGI': ['cgi_chunks', 'CGI'],
-    'BOFIP': ['bofip_chunks_text', 'bofip_embeddings', 'BOFIP']
+    'BOFIP': ['bofip_chunks_text', 'bofip_embeddings', 'BOFiP'],
+    'CODE_CIVIL': ['code_civil'],
+    'CODE_TRAVAIL': ['code_du_travail']
 }
 
 def validate_official_source(source_info: Dict) -> bool:
-    """Valide qu'une source est officielle (CGI ou BOFiP uniquement)."""
+    """Valide qu'une source est officielle (CGI, BOFiP ou codes Légifrance)."""
     if not source_info:
         return False
     
@@ -44,6 +46,14 @@ def validate_official_source(source_info: Dict) -> bool:
     
     # Vérifier si c'est une source BOFiP
     if source_type == 'BOFIP' or any(bofip_marker in source_path for bofip_marker in OFFICIAL_SOURCES['BOFIP']):
+        return True
+
+    # Vérifier Code civil
+    if source_type == 'CODE_CIVIL' or any(cc_marker in source_path for cc_marker in OFFICIAL_SOURCES['CODE_CIVIL']):
+        return True
+
+    # Vérifier Code du travail
+    if source_type == 'CODE_TRAVAIL' or any(ct_marker in source_path for ct_marker in OFFICIAL_SOURCES['CODE_TRAVAIL']):
         return True
     
     return False
@@ -99,10 +109,10 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None):
                    "Cela peut être dû à un problème de chargement des données. Pourriez-vous reformuler votre question ?"), [], 0.0
         
         # Construire le prompt avec UNIQUEMENT les sources officielles
-        system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français.
+        system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français (CGI, BOFiP et codes issus de Légifrance comme le Code civil ou le Code du travail).
 
 RÈGLES STRICTES :
-1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous
+1. Tu ne dois répondre qu'en te basant sur ces sources officielles fournies ci-dessous
 2. Cite TOUJOURS l'article du CGI ou la référence BOFiP exacte
 3. Si l'information n'est pas dans les sources fournies, dis-le clairement
 4. Utilise uniquement les textes officiels, jamais d'autres sources
