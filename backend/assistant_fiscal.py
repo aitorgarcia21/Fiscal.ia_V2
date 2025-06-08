@@ -8,7 +8,7 @@ from mistralai.models.chat_completion import ChatMessage
 
 # Imports pour les embeddings
 try:
-from mistral_cgi_embeddings import load_embeddings, search_similar_articles
+    from mistral_cgi_embeddings import load_embeddings, search_similar_articles
     from mistral_embeddings import search_similar_bofip_chunks
     CGI_EMBEDDINGS_AVAILABLE = True
     BOFIP_EMBEDDINGS_AVAILABLE = True
@@ -23,11 +23,13 @@ client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 # Sources officielles autorisées UNIQUEMENT
 OFFICIAL_SOURCES = {
     'CGI': ['cgi_chunks', 'CGI'],
-    'BOFIP': ['bofip_chunks_text', 'bofip_embeddings', 'BOFIP']
+    'BOFIP': ['bofip_chunks_text', 'bofip_embeddings', 'BOFiP'],
+    'CODE_CIVIL': ['code_civil'],
+    'CODE_TRAVAIL': ['code_du_travail']
 }
 
 def validate_official_source(source_info: Dict) -> bool:
-    """Valide qu'une source est officielle (CGI ou BOFiP uniquement)."""
+    """Valide qu'une source est officielle (CGI, BOFiP ou codes Légifrance)."""
     if not source_info:
         return False
     
@@ -38,8 +40,17 @@ def validate_official_source(source_info: Dict) -> bool:
     if source_type == 'CGI' or any(cgi_marker in source_path for cgi_marker in OFFICIAL_SOURCES['CGI']):
         return True
     
+
     # Vérifier si c'est une source BOFiP
     if source_type == 'BOFIP' or any(bofip_marker in source_path for bofip_marker in OFFICIAL_SOURCES['BOFIP']):
+        return True
+
+    # Vérifier Code civil
+    if source_type == 'CODE_CIVIL' or any(cc_marker in source_path for cc_marker in OFFICIAL_SOURCES['CODE_CIVIL']):
+        return True
+
+    # Vérifier Code du travail
+    if source_type == 'CODE_TRAVAIL' or any(ct_marker in source_path for ct_marker in OFFICIAL_SOURCES['CODE_TRAVAIL']):
         return True
     
     return False
@@ -129,10 +140,10 @@ def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict]
         context = "AUCUNE SOURCE OFFICIELLE TROUVÉE pour cette question.\n\n"
     
     # Système de prompt strict
-    system_prompt = """Tu es Francis, assistant fiscal expert qui se base EXCLUSIVEMENT sur le Code Général des Impôts (CGI) et le Bulletin Officiel des Finances Publiques (BOFiP).
+    system_prompt = """Tu es Francis, assistant fiscal expert qui se base EXCLUSIVEMENT sur les textes officiels : le Code Général des Impôts (CGI), le Bulletin Officiel des Finances Publiques (BOFiP) et les codes publiés sur Légifrance (par ex. Code civil, Code du travail).
 
 RÈGLES IMPÉRATIVES :
-1. Tu ne peux répondre qu'en te basant sur le CGI et le BOFiP fournis ci-dessous
+1. Tu ne peux répondre qu'en te basant sur ces sources officielles fournies ci-dessous
 2. Cite OBLIGATOIREMENT l'article du CGI ou la référence BOFiP exacte
 3. Si l'information n'est pas dans les sources fournies, dis clairement : "Cette information n'est pas disponible dans les sources officielles consultées"
 4. INTERDICTION ABSOLUE d'utiliser d'autres sources ou tes connaissances générales

@@ -8,6 +8,7 @@ API FastAPI pour l'assistant fiscal intelligent.
 - **Assistant IA** : Questions/réponses fiscales avec OpenAI GPT-4
 - **Upload de documents** : Traitement de documents fiscaux
 - **Paiements** : Intégration Stripe pour les abonnements
+- **Mise à jour Légifrance** : Scripts d'ingestion du Code civil, du Code du travail et autres codes via l'API officielle
 - **Historique** : Sauvegarde des conversations
 - **Sécurité** : CORS, validation, authentification Bearer
 
@@ -97,4 +98,11 @@ export LOG_LEVEL=debug
 
 Une fois lancé, accédez à :
 - `http://localhost:8000/docs` - Documentation Swagger
-- `http://localhost:8000/redoc` - Documentation ReDoc 
+- `http://localhost:8000/redoc` - Documentation ReDoc
+
+### Mise à jour des codes Légifrance
+
+```
+python update_legifrance_codes.py
+```
+Ce script récupère les articles des principaux codes français via l'API Légifrance (token requis dans `LEGIFRANCE_TOKEN`) et les stocke dans `data/legifrance/`.
