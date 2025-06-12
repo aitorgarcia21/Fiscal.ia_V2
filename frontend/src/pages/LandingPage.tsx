@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check } from 'lucide-react';
+import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check, Briefcase, FileText, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
@@ -188,6 +188,46 @@ export function LandingPage() {
               <strong className="font-semibold text-[#c5a572]">Francis change la donne.</strong><br />
               Nous avons créé une intelligence artificielle indépendante, conçue pour <strong className="font-semibold text-white">vous défendre, vous guider, et vous faire économiser.</strong>
             </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* NOUVELLE SECTION: Francis pour les Professionnels */}
+      <section className="py-16 sm:py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 sm:mb-6 leading-tight shadow-text">
+              <span className="text-[#c5a572]">Francis Pro</span> : L'Avantage Professionnel
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Découvrez Francis pour les pros de la Fiscalité et de la Gestion de Patrimoine : des outils conçus pour maximiser votre efficacité et la valeur pour vos clients.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 items-stretch mb-12">
+            {[
+              { icon: Briefcase, title: "Dossiers Clients Dynamiques", description: "Créez des fiches clients détaillées dès le début de la relation et suivez l'évolution de leur situation fiscale et patrimoniale en temps réel." },
+              { icon: FileText, title: "Optimisation Fiscale Intelligente", description: "Notre IA analyse les données, propose des optimisations et vous fournit toutes les informations nécessaires (lois, options possibles) pour conseiller au mieux vos clients." },
+              { icon: Zap, title: "Support Expert & Efficacité Pro", description: "Bénéficiez d'un support prioritaire et d'outils conçus pour maximiser votre productivité et la satisfaction de vos clients." }
+            ].map((feature, index) => (
+              <motion.div key={index} custom={index} variants={stepItemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-gradient-to-br from-[#1A2942]/70 to-[#223C63]/70 rounded-2xl border border-[#2A3F6C]/60 p-8 flex flex-col items-center shadow-xl hover:shadow-2xl hover:border-[#c5a572]/50 transition-all duration-300 transform hover:-translate-y-1">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 sm:mb-8 shadow-lg border-4 border-[#162238]/50">
+                  <feature.icon className="w-10 h-10 sm:w-12 sm:h-12 text-[#162238]" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 text-center">{feature.title}</h3>
+                <p className="text-gray-300 text-base sm:text-lg text-center leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3}} className="text-center">
+            <motion.button
+                onClick={() => navigate('/contact-pro')} // TODO: Mettre une vraie route ou fonction
+                whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
+                whileTap={{ scale: 0.98 }}
+                className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50 mx-auto"
+            >
+                Découvrir l'Offre Pro
+                <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
+            </motion.button>
           </motion.div>
         </div>
       </section>

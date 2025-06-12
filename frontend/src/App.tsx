@@ -7,6 +7,7 @@ import { SignupPage } from './pages/SignupPage';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { ChatPage } from './pages/ChatPage';
 import { DemoPage } from './pages/DemoPage';
+import { ContactProPage } from './pages/ContactProPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
+        <Route path="/contact-pro" element={<ContactProPage />} />
         </Routes>
       </Router>
   );
