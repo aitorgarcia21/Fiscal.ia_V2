@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { ChevronLeft, Save, AlertCircle, CheckCircle as CheckCircleIcon, UserCog } from 'lucide-react';
 
 interface UserProfileData {
-  auth_user_id?: string;
+  auth_user_id?: string; 
   tmi: number | null;
   situation_familiale: string | null;
   nombre_enfants: number | null;
@@ -27,7 +27,7 @@ const initialProfileData: Omit<UserProfileData, 'auth_user_id'> = {
 
 export function UserProfilePage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth(); 
   const [profileData, setProfileData] = useState<Omit<UserProfileData, 'auth_user_id'>>(initialProfileData);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,7 +42,7 @@ export function UserProfilePage() {
       return;
     }
 
-    if (!authUserId) {
+    if (!authUserId) { 
         setError("Attention : Votre identifiant utilisateur n'est pas disponible. Impossible de charger ou sauvegarder le profil.");
         setIsLoading(false);
         return; 
@@ -104,7 +104,7 @@ export function UserProfilePage() {
 
     const payload: UserProfileData = {
       ...profileData,
-      auth_user_id: authUserId,
+      auth_user_id: authUserId, 
       tmi: profileData.tmi === null || profileData.tmi === undefined ? null : Number(profileData.tmi),
       nombre_enfants: profileData.nombre_enfants === null || profileData.nombre_enfants === undefined ? null : Number(profileData.nombre_enfants),
       revenus_annuels: profileData.revenus_annuels === null || profileData.revenus_annuels === undefined ? null : Number(profileData.revenus_annuels),
@@ -164,7 +164,7 @@ export function UserProfilePage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-white text-center">Mon Profil Fiscal</h1>
             <p className="text-sm text-gray-400 text-center mt-1">Ces informations permettent à Francis de mieux adapter ses conseils.</p>
           </div>
-          
+
           {error && (
             <div className="mb-6 p-3 bg-red-800/60 border border-red-700 text-red-200 rounded-md flex items-center text-sm">
               <AlertCircle className="w-5 h-5 mr-2.5 flex-shrink-0" />
@@ -177,7 +177,7 @@ export function UserProfilePage() {
               <span>{successMessage}</span>
             </div>
           )}
-
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="tmi" className="block text-sm font-medium text-gray-300 mb-1">TMI (Tranche Marginale d'Imposition) en %</label>
