@@ -17,6 +17,7 @@ import { ProEditClientPage } from './pages/ProEditClientPage';
 import { PatrimoniaLandingPage } from './pages/PatrimoniaLandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 
+// Commentaire pour forcer un nouveau build - v1
 function App() {
   return (
       <Router>
