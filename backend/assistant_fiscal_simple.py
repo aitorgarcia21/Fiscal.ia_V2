@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Dict, Tuple, AsyncGenerator, Optional
+from typing import List, Dict, Tuple, AsyncGenerator, Optional, Any
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
