@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveau Questionnaire - Francis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pro_theme.css') }}">
+</head>
+<body class="pro-interface">
+    <header class="pro-main-header">
+        <h1>Francis - Nouveau Questionnaire Client</h1>
+    </header>
+    <div class="container">
+        <div class="nav-links">
+            <a href="{{ url_for('pro_client_detail', client_id=client_id) }}">&larr; Retour au Dossier Client</a>
+        </div>
+
+        {% if error_messages %}
+            <div class="error-summary">
+                <p><strong>Erreurs de validation :</strong></p>
+                <ul>
+                    {% for error in error_messages %}
+                        <li>{{ error.loc | join('.') if error.loc else 'Erreur générale' }}: {{ error.msg }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+        <form action="{{ url_for('pro_nouveau_questionnaire_pour_client', client_id=client_id) }}" method="POST">
+            
+            <fieldset>
+                <legend>Identité</legend>
+                <div class="form-group">
+                    <label for="identite_nom">Nom :</label>
+                    <input type="text" id="identite_nom" name="identite_nom" value="{{ form_data.get('identite_nom', '') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="identite_prenom">Prénom :</label>
+                    <input type="text" id="identite_prenom" name="identite_prenom" value="{{ form_data.get('identite_prenom', '') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="identite_date_naissance">Date de naissance :</label>
+                    <input type="date" id="identite_date_naissance" name="identite_date_naissance" value="{{ form_data.get('identite_date_naissance', '') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="identite_situation_familiale">Situation familiale :</label>
+                    <select id="identite_situation_familiale" name="identite_situation_familiale" required>
+                        {% set current_sit = form_data.get('identite_situation_familiale', 'celibataire') %}
+                        <option value="celibataire" {% if current_sit == 'celibataire' %}selected{% endif %}>Célibataire</option>
+                        <option value="marie" {% if current_sit == 'marie' %}selected{% endif %}>Marié(e)</option>
+                        <option value="pacse" {% if current_sit == 'pacse' %}selected{% endif %}>Pacsé(e)</option>
+                        <option value="divorce" {% if current_sit == 'divorce' %}selected{% endif %}>Divorcé(e)</option>
+                        <option value="veuf" {% if current_sit == 'veuf' %}selected{% endif %}>Veuf/Veuve</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="identite_enfants">Nombre d'enfants à charge :</label>
+                    <input type="number" id="identite_enfants" name="identite_enfants" min="0" value="{{ form_data.get('identite_enfants', 0) }}" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Revenus et Charges Annuels (€)</legend>
+                <div class="form-group">
+                    <label for="revenus_charges_salaires">Salaires et traitements :</label>
+                    <input type="number" id="revenus_charges_salaires" name="revenus_charges_salaires" min="0" step="any" value="{{ form_data.get('revenus_charges_salaires', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="revenus_charges_pensions">Pensions, retraites :</label>
+                    <input type="number" id="revenus_charges_pensions" name="revenus_charges_pensions" min="0" step="any" value="{{ form_data.get('revenus_charges_pensions', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="revenus_charges_revenus_locatifs">Revenus locatifs bruts :</label>
+                    <input type="number" id="revenus_charges_revenus_locatifs" name="revenus_charges_revenus_locatifs" min="0" step="any" value="{{ form_data.get('revenus_charges_revenus_locatifs', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="revenus_charges_autres_revenus">Autres revenus :</label>
+                    <input type="number" id="revenus_charges_autres_revenus" name="revenus_charges_autres_revenus" min="0" step="any" value="{{ form_data.get('revenus_charges_autres_revenus', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="revenus_charges_charges_deductibles">Charges déductibles (hors PER) :</label>
+                    <input type="number" id="revenus_charges_charges_deductibles" name="revenus_charges_charges_deductibles" min="0" step="any" value="{{ form_data.get('revenus_charges_charges_deductibles', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="revenus_charges_revenu_professionnel_n1">Revenu professionnel N-1 :</label>
+                    <input type="number" id="revenus_charges_revenu_professionnel_n1" name="revenus_charges_revenu_professionnel_n1" min="0" step="any" value="{{ form_data.get('revenus_charges_revenu_professionnel_n1', '') }}" placeholder="Optionnel">
+                    <small>Revenu net de l'activité professionnelle de l'année N-1.</small>
+                </div>
+                <div class="form-group">
+                    <label for="revenus_charges_disponible_fiscal_per_n">Disponible fiscal PER (avis N) :</label>
+                    <input type="number" id="revenus_charges_disponible_fiscal_per_n" name="revenus_charges_disponible_fiscal_per_n" min="0" step="any" value="{{ form_data.get('revenus_charges_disponible_fiscal_per_n', '') }}" placeholder="Optionnel">
+                    <small>Disponible pour versements PER indiqué sur l'avis d'imposition des revenus N-1.</small>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Patrimoine Immobilier (€)</legend>
+                <div class="form-group">
+                    <label for="patrimoine_immobilier_residence_principale_valeur_brute">Valeur brute Résidence Principale :</label>
+                    <input type="number" id="patrimoine_immobilier_residence_principale_valeur_brute" name="patrimoine_immobilier_residence_principale_valeur_brute" min="0" step="any" value="{{ form_data.get('patrimoine_immobilier_residence_principale_valeur_brute', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_immobilier_residences_secondaires_valeur_brute">Total valeur brute Résidences Secondaires :</label>
+                    <input type="number" id="patrimoine_immobilier_residences_secondaires_valeur_brute" name="patrimoine_immobilier_residences_secondaires_valeur_brute" min="0" step="any" value="{{ form_data.get('patrimoine_immobilier_residences_secondaires_valeur_brute', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_immobilier_immobilier_locatif_valeur_brute">Total valeur brute Immobilier Locatif (hors SCI) :</label>
+                    <input type="number" id="patrimoine_immobilier_immobilier_locatif_valeur_brute" name="patrimoine_immobilier_immobilier_locatif_valeur_brute" min="0" step="any" value="{{ form_data.get('patrimoine_immobilier_immobilier_locatif_valeur_brute', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_immobilier_sci_parts_valeur_nette">Valeur nette parts de SCI (pour IFI) :</label>
+                    <input type="number" id="patrimoine_immobilier_sci_parts_valeur_nette" name="patrimoine_immobilier_sci_parts_valeur_nette" min="0" step="any" value="{{ form_data.get('patrimoine_immobilier_sci_parts_valeur_nette', '') }}" placeholder="0">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Patrimoine Financier (€)</legend>
+                <div class="form-group">
+                    <label for="patrimoine_financier_pea">PEA (valeur totale) :</label>
+                    <input type="number" id="patrimoine_financier_pea" name="patrimoine_financier_pea" min="0" step="any" value="{{ form_data.get('patrimoine_financier_pea', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_financier_assurance_vie">Assurance Vie (fraction taxable IFI) :</label>
+                    <input type="number" id="patrimoine_financier_assurance_vie" name="patrimoine_financier_assurance_vie" min="0" step="any" value="{{ form_data.get('patrimoine_financier_assurance_vie', '') }}" placeholder="0">
+                    <small>Uniquement la fraction taxable à l'IFI.</small>
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_financier_compte_titres">Compte-Titres Ordinaire (valeur totale) :</label>
+                    <input type="number" id="patrimoine_financier_compte_titres" name="patrimoine_financier_compte_titres" min="0" step="any" value="{{ form_data.get('patrimoine_financier_compte_titres', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_financier_crypto">Crypto-actifs (valeur totale) :</label>
+                    <input type="number" id="patrimoine_financier_crypto" name="patrimoine_financier_crypto" min="0" step="any" value="{{ form_data.get('patrimoine_financier_crypto', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_financier_liquidites">Liquidités (comptes courants, livrets) :</label>
+                    <input type="number" id="patrimoine_financier_liquidites" name="patrimoine_financier_liquidites" min="0" step="any" value="{{ form_data.get('patrimoine_financier_liquidites', '') }}" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="patrimoine_financier_autres_actifs_ifi">Autres actifs entrant dans l'IFI :</label>
+                    <input type="number" id="patrimoine_financier_autres_actifs_ifi" name="patrimoine_financier_autres_actifs_ifi" min="0" step="any" value="{{ form_data.get('patrimoine_financier_autres_actifs_ifi', '') }}" placeholder="0">
+                    <small>Ex: objets d'art si non exonérés.</small>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Dettes Déductibles pour l'IFI (€) (Optionnel)</legend>
+                <div class="form-group">
+                    <label for="dettes_ifi_emprunt_rp_capital_restant_du">CRD Emprunt Résidence Principale (part IFI) :</label>
+                    <input type="number" id="dettes_ifi_emprunt_rp_capital_restant_du" name="dettes_ifi_emprunt_rp_capital_restant_du" min="0" step="any" value="{{ form_data.get('dettes_ifi_emprunt_rp_capital_restant_du', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <label for="dettes_ifi_emprunts_rs_capital_restant_du">Total CRD Emprunts Résidences Secondaires :</label>
+                    <input type="number" id="dettes_ifi_emprunts_rs_capital_restant_du" name="dettes_ifi_emprunts_rs_capital_restant_du" min="0" step="any" value="{{ form_data.get('dettes_ifi_emprunts_rs_capital_restant_du', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <label for="dettes_ifi_emprunts_locatif_capital_restant_du">Total CRD Emprunts Immobilier Locatif (hors SCI) :</label>
+                    <input type="number" id="dettes_ifi_emprunts_locatif_capital_restant_du" name="dettes_ifi_emprunts_locatif_capital_restant_du" min="0" step="any" value="{{ form_data.get('dettes_ifi_emprunts_locatif_capital_restant_du', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <label for="dettes_ifi_autres_dettes_ifi">Autres dettes déductibles IFI :</label>
+                    <input type="number" id="dettes_ifi_autres_dettes_ifi" name="dettes_ifi_autres_dettes_ifi" min="0" step="any" value="{{ form_data.get('dettes_ifi_autres_dettes_ifi', '') }}" placeholder="Optionnel">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Objectifs Patrimoniaux</legend>
+                <div class="form-group">
+                    <input type="checkbox" id="objectifs_retraite" name="objectifs_retraite" value="on" {% if form_data.get('objectifs_retraite') == 'on' %}checked{% endif %}> 
+                    <label for="objectifs_retraite" class="checkbox-label">Préparer la retraite</label>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="objectifs_transmission" name="objectifs_transmission" value="on" {% if form_data.get('objectifs_transmission') == 'on' %}checked{% endif %}> 
+                    <label for="objectifs_transmission" class="checkbox-label">Anticiper la transmission</label>
+                </div>
+                 <div class="form-group">
+                    <input type="checkbox" id="objectifs_reduction_ir" name="objectifs_reduction_ir" value="on" {% if form_data.get('objectifs_reduction_ir') == 'on' %}checked{% endif %}> 
+                    <label for="objectifs_reduction_ir" class="checkbox-label">Réduire l'Impôt sur le Revenu</label>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="objectifs_optimisation_ifi" name="objectifs_optimisation_ifi" value="on" {% if form_data.get('objectifs_optimisation_ifi') == 'on' %}checked{% endif %}> 
+                    <label for="objectifs_optimisation_ifi" class="checkbox-label">Optimiser l'IFI</label>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="objectifs_revenus_complementaires" name="objectifs_revenus_complementaires" value="on" {% if form_data.get('objectifs_revenus_complementaires') == 'on' %}checked{% endif %}> 
+                    <label for="objectifs_revenus_complementaires" class="checkbox-label">Générer des revenus complémentaires</label>
+                </div>
+                 <div class="form-group">
+                    <label for="objectifs_montant_donation_envisagee">Montant d'une donation envisagée (€) :</label>
+                    <input type="number" id="objectifs_montant_donation_envisagee" name="objectifs_montant_donation_envisagee" min="0" step="any" value="{{ form_data.get('objectifs_montant_donation_envisagee', '') }}" placeholder="Optionnel">
+                    <small>Pour simulation impact IFI d'une donation.</small>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Données pour Optimisations Spécifiques (Optionnel)</legend>
+                
+                <div class="form-group">
+                    <label>PVI: Prix de cession envisagé (€) :</label>
+                    <input type="number" name="opti_pvi_prix_cession_envisage" min="0" step="any" value="{{ form_data.get('opti_pvi_prix_cession_envisage', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <label>PVI: Prix d'acquisition estimé (€) :</label>
+                    <input type="number" name="opti_pvi_prix_acquisition_estime" min="0" step="any" value="{{ form_data.get('opti_pvi_prix_acquisition_estime', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <label>PVI: Durée de détention estimée (années) :</label>
+                    <input type="number" name="opti_pvi_duree_detention_estimee" min="0" value="{{ form_data.get('opti_pvi_duree_detention_estimee', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <label>PVI: Frais d'acquisition réels (€) :</label>
+                    <input type="number" name="opti_pvi_frais_acquisition_reels" min="0" step="any" value="{{ form_data.get('opti_pvi_frais_acquisition_reels', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" name="opti_pvi_appliquer_forfait_frais_acquisition" value="on" {% if form_data.get('opti_pvi_appliquer_forfait_frais_acquisition', 'on') == 'on' %}checked{% endif %}>
+                    <label class="checkbox-label">PVI: Appliquer forfait frais acquisition (7.5%)</label>
+                </div>
+                <div class="form-group">
+                    <label>PVI: Montant travaux déductibles (€) :</label>
+                    <input type="number" name="opti_pvi_montant_travaux_deductibles" min="0" step="any" value="{{ form_data.get('opti_pvi_montant_travaux_deductibles', '') }}" placeholder="Optionnel">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" name="opti_pvi_appliquer_forfait_travaux" value="on" {% if form_data.get('opti_pvi_appliquer_forfait_travaux', 'on') == 'on' %}checked{% endif %}>
+                    <label class="checkbox-label">PVI: Appliquer forfait travaux (15%)</label>
+                </div>
+                <hr style="margin: 20px 0;">
+                <div class="form-group">
+                    <label>Dons aux œuvres: Montant annuel envisagé (€) :</label>
+                    <input type="number" name="opti_don_aux_oeuvres_montant" min="0" step="any" value="{{ form_data.get('opti_don_aux_oeuvres_montant', '') }}" placeholder="Optionnel">
+                </div>
+                <hr style="margin: 20px 0;">
+                <div class="form-group">
+                    <label>Emploi à domicile: Dépenses annuelles (€) :</label>
+                    <input type="number" name="opti_emploi_domicile_depenses" min="0" step="any" value="{{ form_data.get('opti_emploi_domicile_depenses', '') }}" placeholder="Optionnel">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Profil Investisseur (Optionnel)</legend>
+                <div class="form-group">
+                    <label for="profil_horizon">Horizon de placement :</label>
+                    <select id="profil_horizon" name="profil_horizon">
+                        {% set current_horizon = form_data.get('profil_horizon', '') %}
+                        <option value="" {% if not current_horizon %}selected{% endif %}>Non défini</option>
+                        <option value="court" {% if current_horizon == 'court' %}selected{% endif %}>Court terme</option>
+                        <option value="moyen" {% if current_horizon == 'moyen' %}selected{% endif %}>Moyen terme</option>
+                        <option value="long" {% if current_horizon == 'long' %}selected{% endif %}>Long terme</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="profil_risque">Profil de risque :</label>
+                     <select id="profil_risque" name="profil_risque">
+                        {% set current_risque = form_data.get('profil_risque', '') %}
+                        <option value="" {% if not current_risque %}selected{% endif %}>Non défini</option>
+                        <option value="prudent" {% if current_risque == 'prudent' %}selected{% endif %}>Prudent</option>
+                        <option value="modere" {% if current_risque == 'modere' %}selected{% endif %}>Modéré</option>
+                        <option value="dynamique" {% if current_risque == 'dynamique' %}selected{% endif %}>Dynamique</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <button type="submit">Enregistrer le Questionnaire</button>
+        </form>
+    </div>
+</body>
+</html> 

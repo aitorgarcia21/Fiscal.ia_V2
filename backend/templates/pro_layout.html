@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Interface Professionnelle - Francis{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pro_theme.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="pro-interface">
+    <header class="pro-main-header">
+        <h1>{% block header_title %}Francis - Espace Professionnel{% endblock %}</h1>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        <!-- Le contenu spécifique de la page sera injecté ici -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <!-- Vous pourriez ajouter un pied de page commun ici si nécessaire -->
+    </footer>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

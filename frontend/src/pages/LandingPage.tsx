@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
 import { DemoModal } from '../components/demo/DemoModal';
 import { useStripe } from '../hooks/useStripe';
-import { PRICING } from '../config/pricing';
+import { PRICING, PricingPlan } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
 import { DemoConversation } from '../components/demo/DemoConversation';
 
@@ -42,32 +42,31 @@ export function LandingPage() {
             <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
             <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
           </div>
-          <button
-            onClick={() => setShowAuthModal('login')}
-            className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
-          >
-            Se connecter
-          </button>
+          <div className="flex items-center gap-x-3 sm:gap-x-5">
+            <button
+              onClick={() => navigate('/patrimonia')}
+              className="px-4 py-2 sm:px-5 sm:py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+            >
+              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Espace</span> Pro
+            </button>
+            <button
+              onClick={() => setShowAuthModal('login')}
+              className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
+            >
+              Se connecter
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Modale d'authentification */}
-      {showAuthModal && (
-        <AuthModal mode={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      )}
+      {/* Modale d'authentification - Décommenté */}
+      {showAuthModal && ( <AuthModal mode={showAuthModal} onClose={() => setShowAuthModal(false)} /> )}
 
-      {/* Modale de démo */}
-      {showDemo && (
-        <DemoModal
-          onClose={() => setShowDemo(false)}
-          onStart={() => {
-            setShowDemo(false);
-            navigate('/signup');
-          }}
-        />
-      )}
+      {/* Modale de démo - Décommenté */}
+      {showDemo && ( <DemoModal onClose={() => setShowDemo(false)} onStart={() => { setShowDemo(false); navigate('/signup'); }} /> )}
 
-      {/* Hero Section */}
+      {/* Hero Section - Restauré */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-16 sm:pt-40 sm:pb-20 relative overflow-hidden">
         {/* Background pattern amélioré */}
         <div className="absolute inset-0 opacity-5" style={{ 
@@ -77,23 +76,6 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#162238]/30 via-transparent to-[#234876]/20"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          {/* Logo central épuré - SUPPRIMÉ */}
-          {/* 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            transition={{ duration: 0.8, ease: "easeOut" }} 
-            className="mb-12"
-          >
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-3xl border border-[#c5a572]/30 shadow-2xl backdrop-blur-sm">
-              <div className="relative">
-                <MessageSquare className="w-14 h-14 text-[#c5a572]" />
-                <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-1" />
-              </div>
-            </div>
-          </motion.div>
-          */}
-
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="mb-12">
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white mb-8 leading-tight"
@@ -149,10 +131,12 @@ export function LandingPage() {
               </motion.div>
             ))}
           </motion.div>
+           {/* Afficher l'erreur Stripe si elle existe (pour le test) */}
+           {error && <p className="text-red-400 mt-4">Erreur Stripe: {error}</p>} 
         </div>
       </section>
 
-      {/* Section Comment ça marche */}
+      {/* Section Comment ça marche - Restauré */}
       <section className="py-16 sm:py-24 px-4 bg-[#1E3253]/30">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
@@ -173,7 +157,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Section Pourquoi choisir Francis */}
+      {/* Section Pourquoi choisir Francis - Restauré */}
       <section className="py-16 sm:py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
@@ -192,47 +176,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* NOUVELLE SECTION: Francis pour les Professionnels */}
-      <section className="py-16 sm:py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 sm:mb-6 leading-tight shadow-text">
-              <span className="text-[#c5a572]">Francis Pro</span> : L'Avantage Professionnel
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Découvrez Francis pour les pros de la Fiscalité et de la Gestion de Patrimoine : des outils conçus pour maximiser votre efficacité et la valeur pour vos clients.
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 items-stretch mb-12">
-            {[
-              { icon: Briefcase, title: "Dossiers Clients Dynamiques", description: "Créez des fiches clients détaillées dès le début de la relation et suivez l'évolution de leur situation fiscale et patrimoniale en temps réel." },
-              { icon: FileText, title: "Optimisation Fiscale Intelligente", description: "Notre IA analyse les données, propose des optimisations et vous fournit toutes les informations nécessaires (lois, options possibles) pour conseiller au mieux vos clients." },
-              { icon: Zap, title: "Support Expert & Efficacité Pro", description: "Bénéficiez d'un support prioritaire et d'outils conçus pour maximiser votre productivité et la satisfaction de vos clients." }
-            ].map((feature, index) => (
-              <motion.div key={index} custom={index} variants={stepItemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="bg-gradient-to-br from-[#1A2942]/70 to-[#223C63]/70 rounded-2xl border border-[#2A3F6C]/60 p-8 flex flex-col items-center shadow-xl hover:shadow-2xl hover:border-[#c5a572]/50 transition-all duration-300 transform hover:-translate-y-1">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center mb-6 sm:mb-8 shadow-lg border-4 border-[#162238]/50">
-                  <feature.icon className="w-10 h-10 sm:w-12 sm:h-12 text-[#162238]" />
-                </div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 text-center">{feature.title}</h3>
-                <p className="text-gray-300 text-base sm:text-lg text-center leading-relaxed">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3}} className="text-center">
-            <motion.button
-                onClick={() => navigate('/contact-pro')} // TODO: Mettre une vraie route ou fonction
-                whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
-                whileTap={{ scale: 0.98 }}
-                className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50 mx-auto"
-            >
-                Découvrir l'Offre Pro
-                <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Section Offre */} 
+      {/* Section Offre - Restauré */} 
       <section className="py-16 sm:py-24 px-4 bg-[#1E3253]/30">
         <div className="max-w-5xl mx-auto">
           <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
@@ -241,7 +185,7 @@ export function LandingPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 items-stretch mb-12 sm:mb-16">
-            {[ { title: "Offre Mensuelle", price: "9,99€", period: "par mois", features: ["Accès illimité 24/7", "Analyse personnalisée", "Recommandations adaptées", "Suivi en temps réel", "Mises à jour quotidiennes", "Sans engagement"], popular: false, originalPrice: null }, { title: "Offre Annuelle", price: "99,99€", period: "par an", features: ["Tous les avantages mensuels", "Économisez 17%", "Support prioritaire", "Accès anticipé aux nouveautés"], popular: true, originalPrice: "119,88€" } ].map((offer, index) => (
+            {[ { title: "Offre Mensuelle", price: "9,99€", period: "par mois", features: ["Accès illimité 24/7", "Analyse personnalisée", "Recommandations adaptées", "Suivi en temps réel", "Mises à jour quotidiennes", "Sans engagement"], popular: false, originalPrice: null, id: 'MONTHLY' as PricingPlan }, { title: "Offre Annuelle", price: "99,99€", period: "par an", features: ["Tous les avantages mensuels", "Économisez 17%", "Support prioritaire", "Accès anticipé aux nouveautés"], popular: true, originalPrice: "119,88€", id: 'ANNUAL' as PricingPlan } ].map((offer, index) => (
               <motion.div key={index} custom={index} variants={stepItemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className={`bg-gradient-to-br from-[#1A2942]/80 to-[#223C63]/80 rounded-2xl border ${offer.popular ? 'border-[#c5a572]/80 shadow-2xl' : 'border-[#2A3F6C]/60 shadow-xl'} p-8 flex flex-col relative overflow-hidden hover:border-[#c5a572]/70 transition-all duration-300 transform hover:scale-[1.02]`}>
                 {offer.popular && <div className="absolute top-0 right-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-5 py-1.5 text-sm font-semibold tracking-wider uppercase transform rotate-45 translate-x-1/3 translate-y-1/3 origin-top-right shadow-md">Populaire</div>}
                 <h3 className={`text-2xl sm:text-3xl font-bold mb-2 text-center ${offer.popular ? 'text-[#c5a572]' : 'text-white'}`}>{offer.title}</h3>
@@ -259,12 +203,20 @@ export function LandingPage() {
                   ))}
                 </ul>
                 <motion.button
-                  onClick={() => navigate('/signup')}
+                  onClick={() => {
+                    if (PRICING[offer.id]) {
+                        handleCheckout(offer.id);
+                    } else {
+                        console.error("Plan de tarification non reconnu:", offer.id);
+                        navigate('/signup'); // Fallback
+                    }
+                  }}
+                  disabled={isLoading}
                   whileHover={{ scale: 1.03, boxShadow: `0px 8px 20px ${offer.popular ? 'rgba(197, 165, 114, 0.3)' : 'rgba(197, 165, 114, 0.2)'}` }}
                   whileTap={{ scale: 0.98 }}
-                  className={`w-full mt-auto px-8 py-3.5 font-semibold rounded-lg shadow-md transition-all duration-300 text-base sm:text-lg border-2 ${offer.popular ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] border-transparent hover:border-[#e8cfa0]/50' : 'bg-white/10 text-gray-100 border-transparent hover:bg-white/20 hover:border-white/30'}`}
+                  className={`w-full mt-auto px-8 py-3.5 font-semibold rounded-lg shadow-md transition-all duration-300 text-base sm:text-lg border-2 ${offer.popular ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] border-transparent hover:border-[#e8cfa0]/50' : 'bg-white/10 text-gray-100 border-transparent hover:bg-white/20 hover:border-white/30'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Choisir cette offre
+                  {isLoading ? 'Chargement...' : 'Choisir cette offre'}
                 </motion.button>
               </motion.div>
             ))}
@@ -272,33 +224,14 @@ export function LandingPage() {
           <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center text-gray-400 text-sm">
              Paiement sécurisé. Annulation facile à tout moment.
           </motion.div>
+          {error && <StripeError message={typeof error === 'string' ? error : 'Une erreur de paiement est survenue'} />}
         </div>
       </section>
 
-      {/* Section CTA */}
-      <section className="py-16 sm:py-24 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="bg-gradient-to-br from-[#c5a572]/90 to-[#e8cfa0]/90 rounded-2xl p-10 sm:p-16 shadow-2xl border border-[#c5a572]/50">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#162238] mb-6 sm:mb-8 leading-tight shadow-text-dark">
-              Prêt à optimiser votre fiscalité&nbsp;?
-            </h2>
-            <p className="text-lg sm:text-xl text-[#1E3253]/80 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed">
-              Rejoignez des centaines d'utilisateurs qui font déjà confiance à Francis pour gérer leurs finances intelligemment.
-            </p>
-            <motion.button
-              onClick={() => navigate('/signup')}
-              whileHover={{ scale: 1.03, boxShadow: "0px 10px 25px rgba(22, 34, 56, 0.3)" }}
-              whileTap={{ scale: 0.98 }}
-              className="px-10 py-4 sm:px-12 sm:py-5 bg-[#162238] text-white font-semibold rounded-lg shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-base sm:text-lg mx-auto border-2 border-transparent hover:border-white/30"
-            >
-              Créer mon compte
-              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 opacity-80 group-hover:opacity-100 transition-opacity" />
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
+      {/* Section CTA - Temporarily commented */}
+      {/* <section className="py-16 sm:py-24 px-4"> ... </section> */}
 
-      {/* Footer - Minimaliste pour ne pas surcharger */}
+      {/* Footer - Minimaliste */}
       <footer className="py-8 text-center">
         <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Francis. Tous droits réservés.</p>
       </footer>

@@ -1,0 +1,62 @@
+{% extends "pro_layout.html" %}
+
+{% block title %}Détail Client - {{ client.nom_complet or client.id }} - Francis{% endblock %}
+
+{% block header_title %}Francis - Dossier Client{% endblock %}
+
+{% block content %}
+    <div class="nav-links">
+        <a href="{{ url_for('pro_dashboard') }}"> &larr; Retour au Tableau de Bord</a>
+    </div>
+
+    {% if client %}
+        <h2>{{ client.nom_complet or client.id }}</h2>
+        
+        <div class="client-info">
+            <h3>Informations du Client</h3>
+            <p><strong>ID Client:</strong> {{ client.id }}</p>
+            {% if client.email %}<p><strong>Email:</strong> {{ client.email }}</p>{% endif %}
+            {% if client.telephone %}<p><strong>Téléphone:</strong> {{ client.telephone }}</p>{% endif %}
+            {% if client.adresse %}<p><strong>Adresse:</strong> <br>{{ client.adresse | replace('\n', '<br>') | safe }}</p>{% endif %}
+            {% if client.notes_objectifs %}<p><strong>Notes / Objectifs initiaux:</strong><br>{{ client.notes_objectifs | replace('\n', '<br>') | safe }}</p>{% endif %}
+            {% if client.created_at %}<p><strong>Date de création profil:</strong> {{ client.created_at.split('T')[0] if 'T' in client.created_at else client.created_at }}</p>{% endif %}
+            <a href="{{ url_for('pro_modifier_client', client_id=client.id) }}" class="button-link warning" style="margin-top:10px;">Modifier Informations Client</a>
+        </div>
+
+        <div class="actions-section">
+            <h3>Actions pour ce Client</h3>
+            <a href="{{ url_for('pro_nouveau_questionnaire_pour_client', client_id=client.id) }}" class="button-link">Nouveau Questionnaire</a>
+        </div>
+
+        <div class="questionnaire-list">
+            <h3>Historique des Questionnaires</h3>
+            {% if questionnaires %}
+                {% for q in questionnaires %}
+                    <div class="questionnaire-item">
+                        <strong>Questionnaire ID:</strong> {{ q.id }}<br>
+                        <strong>Date:</strong> {{ q.created_at.split('T')[0] if 'T' in q.created_at else q.created_at }}<br>
+                        {% if q.answers and q.answers.objectifs %}
+                            <div class="objectifs-preview">
+                                Objectifs principaux: 
+                                {% if q.answers.objectifs.reduction_ir %}Réduction IR; {% endif %}
+                                {% if q.answers.objectifs.revenus_complementaires %}Revenus Compl.; {% endif %}
+                                {% if q.answers.objectifs.transmission_anticipee %}Transmission; {% endif %}
+                                {% if q.answers.objectifs.retraite %}Retraite; {% endif %}
+                                {% if q.answers.objectifs.proteger_famille %}Protéger Famille; {% endif %}
+                                {% if q.answers.objectifs.autre_objectif_specific %}{{q.answers.objectifs.autre_objectif_specific | truncate(30)}}{% endif %}
+                            </div>
+                        {% endif %}
+                        <a href="{{ url_for('pro_voir_questionnaire', client_id=client.id, questionnaire_id=q.id) }}" class="button-link secondary" style="margin-top:5px;">Voir ce Questionnaire</a>
+                        <a href="{{ url_for('pro_generer_rapport_pour_questionnaire', client_id=client.id, questionnaire_id=q.id) }}" class="button-link success" style="margin-top:5px;">Rapport pour ce Questionnaire</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Aucun questionnaire enregistré pour ce client.</p>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <h2>Client non trouvé</h2>
+        <p>Le client avec l'ID demandé n'a pas été trouvé.</p>
+    {% endif %}
+{% endblock %} 

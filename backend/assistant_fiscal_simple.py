@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, AsyncGenerator
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
@@ -360,6 +360,32 @@ def get_relevant_context(query: str) -> str:
             context += f"BOFiP: {chunk.get('text', '')[:1000]}...\n\n"
     
     return context if context else "Aucune source officielle trouvée pour cette question."
+
+# NOUVELLE FONCTION STREAMING
+async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None) -> AsyncGenerator[str, None]:
+    """Génère une réponse fiscale en streaming (actuellement, une seule réponse complète)."""
+    try:
+        # Appel de la fonction non-streamée existante
+        answer, sources, confidence = get_fiscal_response(query, conversation_history)
+        
+        response_data = {
+            "type": "full_response", # Indique que c'est la réponse complète
+            "answer": answer,
+            "sources": sources,
+            "confidence": confidence,
+            "status": "success"
+        }
+        yield json.dumps(response_data) + "\n"
+        
+    except Exception as e:
+        error_message = f"Erreur lors du traitement de la question en streaming: {str(e)}"
+        print(error_message) # Log côté serveur
+        error_response = {
+            "type": "error",
+            "message": error_message,
+            "status": "error"
+        }
+        yield json.dumps(error_response) + "\n"
 
 def main():
     """Test principal pour développement local."""

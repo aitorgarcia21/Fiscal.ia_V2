@@ -1,0 +1,35 @@
+{% extends "pro_layout.html" %} {# Supposant un layout de base pour les pages pro #}
+{% block title %}Tableau de Bord Professionnel{% endblock %}
+
+{% block header_title %}Francis - Tableau de Bord Professionnel{% endblock %}
+
+{% block content %}
+    {# La classe container est maintenant gérée par pro_layout.html dans la balise <main> #}
+    <h2>Mes Clients</h2>
+    <div class="actions">
+        <a href="{{ url_for('pro_nouveau_client') }}" class="button-link">Nouveau Client</a>
+    </div>
+    <div class="client-list">
+        {% if clients %}
+            {% for client in clients %}
+            <div class="client-item">
+                <strong>Nom du Client:</strong> {{ client.nom_complet or client.id }}<br>
+                {% if client.created_at %}
+                <strong>Date de création:</strong> {{ client.created_at.split('T')[0] if 'T' in client.created_at else client.created_at }}<br>
+                {% endif %}
+                {% if client.email %}
+                <strong>Email:</strong> {{ client.email }}<br>
+                {% endif %}
+                <a href="{{ url_for('pro_client_detail', client_id=client.id) }}" class="button-link secondary">Voir détails</a>
+                <a href="{{ url_for('pro_nouveau_questionnaire_pour_client', client_id=client.id) }}" class="button-link">Nouveau Questionnaire</a>
+                <!-- <a href="#" class="button-link success">Générer Rapport Global</a> -->
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Aucun client pour le moment. <a href="{{ url_for('pro_nouveau_client') }}">Ajoutez votre premier client</a>.</p>
+        {% endif %}
+    </div>
+
+    <h2>Autres Actions</h2>
+    <p class="nav-links"><a href="{{ url_for('serve_react_spa') }}">Retour à l'interface principale de Francis</a></p>
+{% endblock %} 

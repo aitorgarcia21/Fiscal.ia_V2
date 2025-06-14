@@ -1,10 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base
+from backend.database import Base
 from datetime import datetime
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
 
 class User(Base):
     __tablename__ = "users"
@@ -21,6 +18,7 @@ class User(Base):
     questions = relationship("Question", back_populates="user")
     documents = relationship("Document", back_populates="user")
     payments = relationship("Payment", back_populates="user")
+    profile = relationship("UserProfile", back_populates="user", uselist=False)
 
 class Question(Base):
     __tablename__ = "questions"
@@ -82,14 +80,21 @@ class Settings(Base):
 class UserProfile(Base):
     __tablename__ = 'user_profiles'
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, unique=True, nullable=False)
-    income = Column(Float, nullable=False)
-    family_status = Column(String, nullable=False)
-    investments = Column(String, nullable=True)
-    tax_optimizations = Column(String, nullable=True)
-    residence = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=False, index=True)
+    
+    tmi = Column(Float, nullable=True)
+    situation_familiale = Column(String, nullable=True)
+    nombre_enfants = Column(Integer, nullable=True)
+    residence_principale = Column(Boolean, nullable=True)
+    residence_secondaire = Column(Boolean, nullable=True)
+    revenus_annuels = Column(Float, nullable=True)
+    charges_deductibles = Column(Float, nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="profile")
 
     def __repr__(self):
-        return f"<UserProfile(user_id={self.user_id}, income={self.income}, family_status='{self.family_status}')>" 
+        return f"<UserProfile(id={self.id}, user_id={self.user_id}, tmi={self.tmi})>" 

@@ -1,0 +1,41 @@
+{% extends "pro_layout.html" %}
+
+{% block title %}Modifier Client - {{ client.nom_complet or client.id }} - Francis{% endblock %}
+
+{% block header_title %}Francis - Modifier les Informations du Client{% endblock %}
+
+{% block content %}
+    {% if client %}
+        <h2>Client: {{ client.nom_complet or client.id }}</h2>
+        <form action="{{ url_for('pro_modifier_client', client_id=client.id) }}" method="POST">
+            <div class="form-group">
+                <label for="nom_complet">Nom complet :</label>
+                <input type="text" id="nom_complet" name="nom_complet" value="{{ client.nom_complet or '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" value="{{ client.email or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="telephone">Téléphone :</label>
+                <input type="text" id="telephone" name="telephone" value="{{ client.telephone or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse :</label>
+                <textarea id="adresse" name="adresse">{{ client.adresse or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="notes_objectifs">Notes / Objectifs initiaux :</label>
+                <textarea id="notes_objectifs" name="notes_objectifs">{{ client.notes_objectifs or '' }}</textarea>
+            </div>
+            <button type="submit">Enregistrer les Modifications</button>
+        </form>
+    {% else %}
+        <h2>Client non trouvé</h2>
+        <p>Impossible de charger les informations pour modification.</p>
+    {% endif %}
+    <div class="nav-links" style="margin-top: 20px;">
+        <p><a href="{{ url_for('pro_client_detail', client_id=client.id if client else '' ) }}">Annuler et Retourner au Dossier Client</a></p>
+        <p><a href="{{ url_for('pro_dashboard') }}">Retour au Tableau de Bord</a></p>
+    </div>
+{% endblock %} 

@@ -1,0 +1,35 @@
+{% extends "pro_layout.html" %}
+
+{% block title %}Nouveau Client - Francis{% endblock %}
+
+{% block header_title %}Francis - Ajouter un Nouveau Client{% endblock %}
+
+{% block content %}
+    <h2>Informations du Client</h2>
+    <form action="{{ url_for('pro_nouveau_client') }}" method="POST">
+        <div class="form-group">
+            <label for="nom_complet">Nom complet :</label>
+            <input type="text" id="nom_complet" name="nom_complet" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email">
+        </div>
+        <div class="form-group">
+            <label for="telephone">Téléphone :</label>
+            <input type="text" id="telephone" name="telephone">
+        </div>
+        <div class="form-group">
+            <label for="adresse">Adresse :</label>
+            <textarea id="adresse" name="adresse"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="notes_objectifs">Notes / Objectifs initiaux :</label>
+            <textarea id="notes_objectifs" name="notes_objectifs"></textarea>
+        </div>
+        <button type="submit">Enregistrer le Client</button>
+    </form>
+    <div class="nav-links" style="margin-top: 20px;">
+        <p><a href="{{ url_for('pro_dashboard') }}">Retour au Tableau de Bord</a></p>
+    </div>
+{% endblock %} 

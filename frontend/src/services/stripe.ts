@@ -5,7 +5,7 @@ export class StripeService {
   private baseUrl: string;
 
   private constructor() {
-    this.baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
   }
 
   public static getInstance(): StripeService {

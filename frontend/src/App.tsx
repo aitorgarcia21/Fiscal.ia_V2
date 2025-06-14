@@ -8,19 +8,32 @@ import { DiscoverPage } from './pages/DiscoverPage';
 import { ChatPage } from './pages/ChatPage';
 import { DemoPage } from './pages/DemoPage';
 import { ContactProPage } from './pages/ContactProPage';
+import { ProDashboardPage } from './pages/ProDashboardPage';
+import { ProProtectedRoute } from './components/auth/ProProtectedRoute';
+import { ProCreateClientPage } from './pages/ProCreateClientPage';
+import { ProClientDetailPage } from './pages/ProClientDetailPage';
+import { ProEditClientPage } from './pages/ProEditClientPage';
+import { PatrimoniaLandingPage } from './pages/PatrimoniaLandingPage';
 
 function App() {
   return (
       <Router>
         <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/demo" element={<DemoPage />} />
-        <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
-        <Route path="/contact-pro" element={<ContactProPage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/patrimonia" element={<PatrimoniaLandingPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/demo" element={<DemoPage />} />
+          <Route path="/contact-pro" element={<ContactProPage />} />
+          <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/discover" element={<DiscoverPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route element={<ProProtectedRoute />}>
+            <Route path="/pro/dashboard" element={<ProDashboardPage />} />
+            <Route path="/pro/clients/new" element={<ProCreateClientPage />} />
+            <Route path="/pro/clients/:clientId" element={<ProClientDetailPage />} />
+            <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
+          </Route>
         </Routes>
       </Router>
   );

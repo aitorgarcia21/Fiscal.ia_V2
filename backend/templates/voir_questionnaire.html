@@ -1,0 +1,126 @@
+{% extends "pro_layout.html" %}
+
+{% block title %}Détail Questionnaire - {{ client.nom_complet or client.id }} - Francis{% endblock %}
+
+{% block header_title %}Francis - Détail du Questionnaire{% endblock %}
+
+{% block content %}
+    <div class="nav-links">
+        <a href="{{ url_for('pro_client_detail', client_id=client_id) }}">&larr; Retour au Dossier Client</a>
+    </div>
+
+    {% if error_message %}
+        <div class="error-summary">
+            <p><strong>Erreur :</strong> {{ error_message }}</p>
+        </div>
+    {% endif %}
+
+    {% if questionnaire and client %}
+        <h2>Questionnaire du {{ questionnaire_data.created_at.split('T')[0] if questionnaire_data and questionnaire_data.created_at else 'Date inconnue' }}</h2>
+        <p><strong>Client:</strong> {{ client.nom_complet or client.id }} (ID: {{ client_id }})</p>
+        <p><strong>ID du Questionnaire:</strong> {{ questionnaire_id }}</p>
+        {% if questionnaire_data and questionnaire_data.updated_at %}
+            <p><em>Dernière modification : {{ questionnaire_data.updated_at.split('T')[0] }}</em></p>
+        {% endif %}
+
+        <div class="actions-section">
+            <a href="{{ url_for('pro_generer_rapport_pour_questionnaire', client_id=client_id, questionnaire_id=questionnaire_id) }}" class="button-link success">Rapport PDF pour ce Questionnaire</a>
+            <a href="{{ url_for('pro_modifier_questionnaire', client_id=client_id, questionnaire_id=questionnaire_id) }}" class="button-link warning">Modifier ce Questionnaire</a>
+        </div>
+
+        <fieldset>
+            <legend>Identité</legend>
+            <div class="data-group"><strong>Nom:</strong> <span>{{ questionnaire.identite.nom }}</span></div>
+            <div class="data-group"><strong>Prénom:</strong> <span>{{ questionnaire.identite.prenom }}</span></div>
+            <div class="data-group"><strong>Date de naissance:</strong> <span>{{ questionnaire.identite.date_naissance }}</span></div>
+            <div class="data-group"><strong>Situation familiale:</strong> <span>{{ questionnaire.identite.situation_familiale }}</span></div>
+            <div class="data-group"><strong>Nombre d'enfants à charge:</strong> <span>{{ questionnaire.identite.enfants }}</span></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Revenus et Charges Annuels (€)</legend>
+            <div class="data-group"><strong>Salaires et traitements:</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.salaires) if questionnaire.revenus_charges.salaires is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Pensions, retraites:</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.pensions) if questionnaire.revenus_charges.pensions is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Revenus locatifs bruts:</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.revenus_locatifs) if questionnaire.revenus_charges.revenus_locatifs is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Autres revenus:</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.autres_revenus) if questionnaire.revenus_charges.autres_revenus is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Charges déductibles (hors PER):</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.charges_deductibles) if questionnaire.revenus_charges.charges_deductibles is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Revenu professionnel N-1 (plafond PER):</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.revenu_professionnel_n1) if questionnaire.revenus_charges.revenu_professionnel_n1 is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Disponible fiscal PER (avis N):</strong> <span>{{ "{:,.2f} €".format(questionnaire.revenus_charges.disponible_fiscal_per_n) if questionnaire.revenus_charges.disponible_fiscal_per_n is not None else 'Non spécifié' }}</span></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Patrimoine Immobilier (€)</legend>
+            <div class="data-group"><strong>Valeur brute Résidence Principale:</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_immobilier.residence_principale_valeur_brute) if questionnaire.patrimoine_immobilier.residence_principale_valeur_brute is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Total valeur brute Résidences Secondaires:</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_immobilier.residences_secondaires_valeur_brute) if questionnaire.patrimoine_immobilier.residences_secondaires_valeur_brute is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Total valeur brute Immobilier Locatif (hors SCI):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_immobilier.immobilier_locatif_valeur_brute) if questionnaire.patrimoine_immobilier.immobilier_locatif_valeur_brute is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Valeur nette parts de SCI (pour IFI):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_immobilier.sci_parts_valeur_nette) if questionnaire.patrimoine_immobilier.sci_parts_valeur_nette is not None else 'Non spécifié' }}</span></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Patrimoine Financier (€)</legend>
+            <div class="data-group"><strong>PEA (valeur totale):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_financier.pea) if questionnaire.patrimoine_financier.pea is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Assurance Vie (fraction taxable IFI):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_financier.assurance_vie) if questionnaire.patrimoine_financier.assurance_vie is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Compte-Titres Ordinaire (valeur totale):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_financier.compte_titres) if questionnaire.patrimoine_financier.compte_titres is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Crypto-actifs (valeur totale):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_financier.crypto) if questionnaire.patrimoine_financier.crypto is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Liquidités (comptes courants, livrets):</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_financier.liquidites) if questionnaire.patrimoine_financier.liquidites is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Autres actifs entrant dans l'IFI:</strong> <span>{{ "{:,.2f} €".format(questionnaire.patrimoine_financier.autres_actifs_ifi) if questionnaire.patrimoine_financier.autres_actifs_ifi is not None else 'Non spécifié' }}</span></div>
+        </fieldset>
+
+        {% if questionnaire.dettes_ifi_deductibles %}
+        <fieldset>
+            <legend>Dettes Déductibles pour l'IFI (€)</legend>
+            <div class="data-group"><strong>CRD Emprunt Résidence Principale (part IFI):</strong> <span>{{ "{:,.2f} €".format(questionnaire.dettes_ifi_deductibles.emprunt_rp_capital_restant_du) if questionnaire.dettes_ifi_deductibles.emprunt_rp_capital_restant_du is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Total CRD Emprunts Résidences Secondaires:</strong> <span>{{ "{:,.2f} €".format(questionnaire.dettes_ifi_deductibles.emprunts_rs_capital_restant_du) if questionnaire.dettes_ifi_deductibles.emprunts_rs_capital_restant_du is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Total CRD Emprunts Immobilier Locatif (hors SCI):</strong> <span>{{ "{:,.2f} €".format(questionnaire.dettes_ifi_deductibles.emprunts_locatif_capital_restant_du) if questionnaire.dettes_ifi_deductibles.emprunts_locatif_capital_restant_du is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Autres dettes déductibles IFI:</strong> <span>{{ "{:,.2f} €".format(questionnaire.dettes_ifi_deductibles.autres_dettes_ifi) if questionnaire.dettes_ifi_deductibles.autres_dettes_ifi is not None else 'Non spécifié' }}</span></div>
+        </fieldset>
+        {% else %}
+            <p class="not-specified"><i>Aucune dette IFI déductible spécifiée.</i></p>
+        {% endif %}
+
+        <fieldset>
+            <legend>Objectifs Patrimoniaux</legend>
+            <div class="data-group"><strong>Préparer la retraite:</strong> <span class="{{ 'boolean-true' if questionnaire.objectifs.retraite else 'boolean-false' }}">{{ 'Oui' if questionnaire.objectifs.retraite else 'Non' }}</span></div>
+            <div class="data-group"><strong>Anticiper la transmission:</strong> <span class="{{ 'boolean-true' if questionnaire.objectifs.transmission else 'boolean-false' }}">{{ 'Oui' if questionnaire.objectifs.transmission else 'Non' }}</span></div>
+            <div class="data-group"><strong>Réduire l'Impôt sur le Revenu:</strong> <span class="{{ 'boolean-true' if questionnaire.objectifs.reduction_ir else 'boolean-false' }}">{{ 'Oui' if questionnaire.objectifs.reduction_ir else 'Non' }}</span></div>
+            <div class="data-group"><strong>Optimiser l'IFI:</strong> <span class="{{ 'boolean-true' if questionnaire.objectifs.optimisation_ifi else 'boolean-false' }}">{{ 'Oui' if questionnaire.objectifs.optimisation_ifi else 'Non' }}</span></div>
+            <div class="data-group"><strong>Générer des revenus complémentaires:</strong> <span class="{{ 'boolean-true' if questionnaire.objectifs.revenus_complementaires else 'boolean-false' }}">{{ 'Oui' if questionnaire.objectifs.revenus_complementaires else 'Non' }}</span></div>
+            <div class="data-group"><strong>Montant d'une donation envisagée (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.objectifs.montant_donation_envisagee) if questionnaire.objectifs.montant_donation_envisagee is not None else 'Non spécifié' }}</span></div>
+        </fieldset>
+        
+        {% if questionnaire.optimisations_specifiques %}
+        <fieldset>
+            <legend>Données pour Optimisations Spécifiques</legend>
+            <h3>Plus-Value Immobilière</h3>
+            <div class="data-group"><strong>PVI: Prix de cession envisagé (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.optimisations_specifiques.pvi_prix_cession_envisage) if questionnaire.optimisations_specifiques.pvi_prix_cession_envisage is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>PVI: Prix d'acquisition estimé (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.optimisations_specifiques.pvi_prix_acquisition_estime) if questionnaire.optimisations_specifiques.pvi_prix_acquisition_estime is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>PVI: Durée de détention estimée (années):</strong> <span>{{ questionnaire.optimisations_specifiques.pvi_duree_detention_estimee if questionnaire.optimisations_specifiques.pvi_duree_detention_estimee is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>PVI: Frais d'acquisition réels (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.optimisations_specifiques.pvi_frais_acquisition_reels) if questionnaire.optimisations_specifiques.pvi_frais_acquisition_reels is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>PVI: Appliquer forfait frais acquisition:</strong> <span class="{{ 'boolean-true' if questionnaire.optimisations_specifiques.pvi_appliquer_forfait_frais_acquisition else 'boolean-false' }}">{{ 'Oui' if questionnaire.optimisations_specifiques.pvi_appliquer_forfait_frais_acquisition else 'Non' }}</span></div>
+            <div class="data-group"><strong>PVI: Montant travaux déductibles (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.optimisations_specifiques.pvi_montant_travaux_deductibles) if questionnaire.optimisations_specifiques.pvi_montant_travaux_deductibles is not None else 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>PVI: Appliquer forfait travaux:</strong> <span class="{{ 'boolean-true' if questionnaire.optimisations_specifiques.pvi_appliquer_forfait_travaux else 'boolean-false' }}">{{ 'Oui' if questionnaire.optimisations_specifiques.pvi_appliquer_forfait_travaux else 'Non' }}</span></div>
+            <hr>
+            <h3>Dons aux œuvres</h3>
+            <div class="data-group"><strong>Montant annuel envisagé (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.optimisations_specifiques.don_aux_oeuvres_montant) if questionnaire.optimisations_specifiques.don_aux_oeuvres_montant is not None else 'Non spécifié' }}</span></div>
+            <hr>
+            <h3>Emploi à domicile</h3>
+            <div class="data-group"><strong>Dépenses annuelles envisagées (€):</strong> <span>{{ "{:,.2f} €".format(questionnaire.optimisations_specifiques.emploi_domicile_depenses) if questionnaire.optimisations_specifiques.emploi_domicile_depenses is not None else 'Non spécifié' }}</span></div>
+        </fieldset>
+        {% else %}
+            <p class="not-specified"><i>Aucune donnée pour optimisation spécifique fournie.</i></p>
+        {% endif %}
+
+        <fieldset>
+            <legend>Profil Investisseur</legend>
+            <div class="data-group"><strong>Horizon de placement:</strong> <span>{{ questionnaire.horizon or 'Non spécifié' }}</span></div>
+            <div class="data-group"><strong>Profil de risque:</strong> <span>{{ questionnaire.profil_risque or 'Non spécifié' }}</span></div>
+        </fieldset>
+
+    {% else %}
+        <h2>Questionnaire non trouvé</h2>
+        <p>Le questionnaire demandé n'a pas pu être chargé ou n'existe pas.</p>
+         {% if not client %}
+            <p>Le client associé n'a pas non plus été trouvé.</p>
+         {% endif %}
+    {% endif %}
+{% endblock %} 

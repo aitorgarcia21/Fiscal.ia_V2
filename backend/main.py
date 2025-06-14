@@ -16,7 +16,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from assistant_fiscal_simple import get_fiscal_response
+from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -24,9 +24,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-from models import UserProfile, Base
+from database import SessionLocal, engine, Base, get_db as get_db_session
+from models import UserProfile
+from models_pro import BasePro
+from routers import pro_clients as pro_clients_router
+from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
+import sys
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -81,7 +85,7 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 # print(f"DEBUG: MISTRAL_API_KEY IS SET = {bool(MISTRAL_API_KEY)}") # NETTOYAGE
 if not MISTRAL_API_KEY:
     raise ValueError("MISTRAL_API_KEY doit être défini dans les variables d'environnement pour que l'application fonctionne.")
-client = MistralClient(api_key=MISTRAL_API_KEY)
+mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 
 # FastAPI app
 app = FastAPI(
@@ -441,20 +445,45 @@ async def login(user: UserLogin):
 async def get_current_user(user_id: str = Depends(verify_token)):
     try:
         if not supabase:
-            raise HTTPException(status_code=500, detail="Service non disponible")
+            raise HTTPException(status_code=500, detail="Service Supabase non disponible")
         
-        response = supabase.auth.get_user()
-        if response.user:
-            return {
-                "id": response.user.id,
-                "email": response.user.email,
-                "user_metadata": response.user.user_metadata
-            }
-        else:
-            raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+        auth_user_response = supabase.auth.get_user()
+        
+        if not auth_user_response.user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utilisateur non trouvé via token")
+
+        user_data_to_return = {
+            "id": auth_user_response.user.id,
+            "email": auth_user_response.user.email,
+            "user_metadata": auth_user_response.user.user_metadata,
+            "taper": None  # Valeur par défaut si le profil n'est pas trouvé ou n'a pas de rôle
+        }
+
+        # Essayer de récupérer le profil utilisateur et le rôle (taper)
+        try:
+            profile_response = (
+                supabase.table("profils_utilisateurs")
+                .select("user_id, taper")
+                .eq("user_id", auth_user_response.user.id)
+                .maybe_single() # Utiliser maybe_single pour ne pas lever d'erreur si non trouvé
+                .execute()
+            )
             
+            if profile_response.data:
+                user_data_to_return["taper"] = profile_response.data.get("taper")
+        
+        except Exception as profile_exc:
+            # print(f"Avertissement: Impossible de récupérer le profil utilisateur pour {auth_user_response.user.id}: {profile_exc}", file=sys.stderr)
+            # Ne pas bloquer la réponse si la récupération du profil échoue, taper restera None
+            pass
+            
+        return user_data_to_return
+            
+    except HTTPException as http_exc: # Laisser passer les HTTPException déjà levées
+        raise http_exc
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        # print(f"Erreur inattendue dans /auth/me: {str(e)}", file=sys.stderr)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erreur interne du serveur: {str(e)}")
 
 @api_router.post("/ask", response_model=QuestionResponse)
 async def ask_question(
@@ -702,77 +731,87 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
 # Mount the API router finally
 app.include_router(api_router)
 
+# AJOUT: Inclure le routeur pour la gestion des clients Pro
+app.include_router(pro_clients_router.router)
+
 # Précharger les embeddings CGI au démarrage
 @app.on_event("startup")
 async def startup_event():
-    """Précharge les embeddings CGI au démarrage pour de meilleures performances."""
     try:
-        from assistant_fiscal_simple import search_cgi_embeddings
         print("🚀 Préchargement des embeddings CGI...")
-        # Faire une recherche bidon pour forcer le chargement du cache
         search_cgi_embeddings("test", max_results=1)
         print("✅ Embeddings CGI préchargés avec succès!")
     except Exception as e:
         print(f"⚠️  Erreur lors du préchargement des embeddings: {e}")
-        # On continue même si les embeddings ne se chargent pas
+        pass
 
-# Créer la base de données
-Base.metadata.create_all(bind=engine)
+# Créer les tables de la base de données
+print("MAIN_PY_LOG: Tentative de création des tables via Base.metadata.create_all()", file=sys.stderr)
+Base.metadata.create_all(bind=engine) 
+BasePro.metadata.create_all(bind=engine)
 
-# Dépendance pour obtenir la session de base de données
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Importer get_db depuis backend.database pour être utilisé par les routes UserProfile
+from backend.database import get_db as get_db_session # Utiliser un alias pour plus de clarté si besoin, ou direct get_db
 
-# Fonction utilitaire pour nettoyer un UserProfileResponse
-def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResponse:
-    # Nettoie tous les champs textuels
-    profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
-    # Les champs booléens ne sont pas concernés
-    # Les autres champs textuels potentiels
-    return profile
+# La fonction clean_user_profile_response doit être définie avant son utilisation (elle est plus bas)
+# ... (code existant pour clean_markdown_formatting)
 
+# USER PROFILE CRUD (devrait peut-être être dans son propre routeur)
 @app.post("/user-profile/", response_model=UserProfileResponse)
-def create_user_profile(user_profile: UserProfileCreate, db: Session = Depends(get_db)):
-    db_user_profile = UserProfile(**user_profile.dict())
+def create_user_profile(user_profile: UserProfileCreate, db: Session = Depends(get_db_session)):
+    db_user_profile = UserProfile(**user_profile.model_dump())
     db.add(db_user_profile)
     db.commit()
     db.refresh(db_user_profile)
-    response = UserProfileResponse(**db_user_profile.__dict__)
+    # Assurer que UserProfileResponse est initialisé correctement depuis l'objet SQLAlchemy
+    response_data = {**db_user_profile.__dict__}
+    # Supprimer les états non désirés si présents
+    response_data.pop('_sa_instance_state', None)
+    response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
 @app.get("/user-profile/{user_id}", response_model=UserProfileResponse)
-def read_user_profile(user_id: int, db: Session = Depends(get_db)):
+def read_user_profile(user_id: int, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    response = UserProfileResponse(**db_user_profile.__dict__)
+    response_data = {**db_user_profile.__dict__}
+    response_data.pop('_sa_instance_state', None)
+    response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
 @app.put("/user-profile/{user_id}", response_model=UserProfileResponse)
-def update_user_profile(user_id: int, user_profile: UserProfileCreate, db: Session = Depends(get_db)):
+def update_user_profile(user_id: int, user_profile: UserProfileCreate, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    for key, value in user_profile.dict().items():
+    update_data = user_profile.model_dump(exclude_unset=True) # Exclude_unset est une bonne pratique
+    for key, value in update_data.items():
         setattr(db_user_profile, key, value)
     db.commit()
     db.refresh(db_user_profile)
-    response = UserProfileResponse(**db_user_profile.__dict__)
+    response_data = {**db_user_profile.__dict__}
+    response_data.pop('_sa_instance_state', None)
+    response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
 @app.delete("/user-profile/{user_id}", response_model=UserProfileResponse)
-def delete_user_profile(user_id: int, db: Session = Depends(get_db)):
+def delete_user_profile(user_id: int, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
     if db_user_profile is None:
         raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
+    response_data_before_delete = {**db_user_profile.__dict__} # Copier avant de supprimer
+    response_data_before_delete.pop('_sa_instance_state', None)
     db.delete(db_user_profile)
     db.commit()
-    response = UserProfileResponse(**db_user_profile.__dict__)
+    # Il est d'usage de retourner l'objet supprimé ou un message de succès
+    # Ici, UserProfileResponse attend les champs de l'objet, donc on le reconstruit à partir des données avant suppression.
+    response = UserProfileResponse(**response_data_before_delete)
     return clean_user_profile_response(response)
+
+# clean_user_profile_response est déjà défini plus bas dans le fichier, ce qui est correct.
+# if __name__ == "__main__": ... (ne pas toucher à cette partie pour l'instant)
+# ... (reste du code, y compris clean_user_profile_response et if __name__ == "__main__")
 
 if __name__ == "__main__":
     import uvicorn
