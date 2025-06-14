@@ -229,7 +229,7 @@ export function UserProfilePage() {
             </div>
 
             {renderSelectBoolean('residence_principale', 'Êtes-vous propriétaire de votre résidence principale ?')}
-            {renderSelectBoolean('residence_secondaire', 'Êtes-vous propriétaire d'une résidence secondaire ?')}
+            {renderSelectBoolean('residence_secondaire', 'Êtes-vous propriétaire d’une résidence secondaire ?')}
 
             <div>
               <label htmlFor="revenus_annuels" className="block text-sm font-medium text-gray-300 mb-1">Revenus annuels nets (€)</label>
@@ -282,4 +282,4 @@ export function UserProfilePage() {
       </div>
     </div>
   );
-} 
+}
