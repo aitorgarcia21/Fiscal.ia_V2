@@ -81,7 +81,9 @@ class UserProfile(Base):
     __tablename__ = 'user_profiles'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=True, index=True)
+    
+    auth_user_id = Column(String(36), unique=True, index=True, nullable=False)
     
     tmi = Column(Float, nullable=True)
     situation_familiale = Column(String, nullable=True)
@@ -97,4 +99,4 @@ class UserProfile(Base):
     user = relationship("User", back_populates="profile")
 
     def __repr__(self):
-        return f"<UserProfile(id={self.id}, user_id={self.user_id}, tmi={self.tmi})>" 
+        return f"<UserProfile(id={self.id}, auth_user_id={self.auth_user_id}, tmi={self.tmi})>" 

@@ -41,83 +41,35 @@ JWT_EXPIRATION_HOURS = 24
 # Variables d'environnement pour Supabase
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL") or "https://lqxfjjtjxktjgpekugtf.supabase.co"
 SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxeGZqanRqeGt0amdwZWt1Z3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3OTgyMDMsImV4cCI6MjA2MzM3NDIwM30.-E66kbBxRAVcJcPdhhUJWq5BZB-2GRpiBEaGtiWLVrA"
-# print(f"DEBUG: SUPABASE_URL = {SUPABASE_URL}") # NETTOYAGE
-# print(f"DEBUG: SUPABASE_KEY IS SET = {bool(SUPABASE_KEY)}") # NETTOYAGE
-
-# Test de connectivité Supabase
-# if SUPABASE_URL: # NETTOYAGE - Section entière commentée pour la prod
-#     try:
-#         print(f"DEBUG: Test de l'API Supabase...")
-#         headers = {"apikey": SUPABASE_KEY} if SUPABASE_KEY else {}
-#         response = httpx.get(f"{SUPABASE_URL}/rest/v1/", headers=headers, timeout=10.0)
-#         print(f"DEBUG: API Supabase - Status: {response.status_code}")
-#         
-#         if response.status_code == 200:
-#             print("✅ Connexion Supabase réussie !")
-#         elif response.status_code == 401:
-#             print("❌ ERREUR: Clé API Supabase invalide")
-#         else:
-#             print(f"⚠️  Réponse inattendue de Supabase: {response.status_code}")
-#             
-#     except Exception as e:
-#         print(f"❌ ERREUR de connexion Supabase: {e}")
-# else:
-#     print("❌ ERREUR: SUPABASE_URL non défini")
 
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
-# -----------------------------
 # TrueLayer Configuration
-# -----------------------------
 TRUELAYER_CLIENT_ID = os.getenv("TRUELAYER_CLIENT_ID")
 TRUELAYER_CLIENT_SECRET = os.getenv("TRUELAYER_CLIENT_SECRET")
 TRUELAYER_REDIRECT_URI = os.getenv("TRUELAYER_REDIRECT_URI", "http://localhost:3000/truelayer-callback")
-TRUELAYER_ENV = os.getenv("TRUELAYER_ENV", "sandbox")  # 'live' ou 'sandbox'
-
+TRUELAYER_ENV = os.getenv("TRUELAYER_ENV", "sandbox")
 TRUELAYER_BASE_AUTH_URL = "https://auth.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://auth.truelayer.com"
 TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://api.truelayer.com"
 
-# -----------------------------
-
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-# print(f"DEBUG: MISTRAL_API_KEY IS SET = {bool(MISTRAL_API_KEY)}") # NETTOYAGE
 if not MISTRAL_API_KEY:
     raise ValueError("MISTRAL_API_KEY doit être défini dans les variables d'environnement pour que l'application fonctionne.")
 mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 
-# FastAPI app
 app = FastAPI(
     title="Fiscal.ia API",
     description="API pour l'assistant fiscal intelligent",
     version="1.0.0"
 )
 
-# ==========================================
-# CONFIGURATION CORS - FORCE REBUILD v3.0
-# ==========================================
-# Configuration CORS complètement refactorisée pour forcer rebuild Railway
-# print("🔧 CORS Configuration v3.0 - Rebuild forcé") # NETTOYAGE
-
-# Logique de détermination des origines CORS refactorisée
 if APP_ENV == "production":
-    # PRODUCTION: Strictement fiscal-ia.net seulement
     allowed_cors_origins = ["https://fiscal-ia.net"]
-    # cors_mode = "PRODUCTION_STRICT" # Non utilisé plus loin
-    # print(f"🚀 CORS v3.0: Environment={APP_ENV}") # NETTOYAGE
-    # print(f"🎯 CORS v3.0: Origins={allowed_cors_origins}") # NETTOYAGE
-    # print(f"🔒 CORS v3.0: Mode={cors_mode}") # NETTOYAGE
 else:
-    # DÉVELOPPEMENT: Mode permissif local + fiscal-ia.net
     allowed_cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "https://fiscal-ia.net"]
-    # cors_mode = "DEV_PERMISSIVE" # Non utilisé plus loin
-    # print(f"🚀 CORS v3.0: Environment={APP_ENV}") # NETTOYAGE
-    # print(f"🎯 CORS v3.0: Origins={allowed_cors_origins}") # NETTOYAGE
-    # print(f"🔓 CORS v3.0: Mode={cors_mode}") # NETTOYAGE
 
-# Application du middleware CORS refactorisé
-# print("🔧 CORS v3.0: Application du middleware...") # NETTOYAGE
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_cors_origins,
@@ -125,18 +77,13 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
-# print("✅ CORS v3.0: Middleware appliqué avec succès") # NETTOYAGE
 
-# Health check endpoint for Railway deployment
 @app.get("/health")
 async def health():
-    # Simplifié au maximum pour éviter tout problème potentiel
     return {"status": "ok"}
 
-# Mount the API router
 api_router = APIRouter(prefix="/api")
 
-# Move all routes to api_router
 @api_router.get("/")
 async def root():
     return {
@@ -147,39 +94,23 @@ async def root():
     }
 
 async def run_with_timeout(func, *args, timeout: int = 10):
-    """Exécute une fonction bloquante dans un thread avec timeout asynchrone."""
     loop = asyncio.get_event_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         return await asyncio.wait_for(loop.run_in_executor(pool, func, *args), timeout)
 
-# Fonction utilitaire pour supprimer tous les astérisques
 def clean_markdown_formatting(text: str) -> str:
-    # Nettoie tous les champs textuels
     text = text.replace('*', '') if text else text
     if not text:
         return text
-    
-    # Supprimer les titres markdown (# ## ###)
     text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
-    
-    # Supprimer les astérisques pour l'italique/gras
     text = text.replace('**', '').replace('*', '')
-    
-    # Supprimer les tirets pour les listes
     text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
-    
-    # Supprimer les numérotations de liste
     text = re.sub(r'^\s*\d+\.\s*', '', text, flags=re.MULTILINE)
-    
-    # Nettoyer les espaces multiples
     text = re.sub(r'\s+', ' ', text)
-    
     return text
 
-# Test Francis endpoint (no auth required for testing) - RAILWAY ULTRA OPTIMIZED
 @api_router.post("/test-francis")
 async def test_francis(request: dict):
-    # print("[DEBUG] Appel reçu sur /api/test-francis avec payload:", request) # Peut être gardé si utile
     try:
         if not MISTRAL_API_KEY:
             return {
@@ -187,32 +118,13 @@ async def test_francis(request: dict):
                 "details": "MISTRAL_API_KEY non configurée",
                 "railway_help": "Configurez MISTRAL_API_KEY dans les variables d'environnement Railway"
             }
-
         question = request.get("question", "")
         if not question:
             return {"error": "Question manquante", "example": "Posez une question fiscale à Francis"}
-
-        # Récupérer l'historique de conversation s'il est fourni
         conversation_history = request.get("conversation_history", None)
-
-        # print(f"🤖 Francis traite la question: {question}") # Peut être gardé
-        if conversation_history:
-            # print(f"📖 Avec historique de {len(conversation_history)} messages") # Peut être gardé
-            pass # Ajout d'un pass pour corriger l'indentation
-        
-        # RÉPONSES RAPIDES ÉTENDUES pour Railway (éviter tous les timeouts)
-        question_lower = question.lower().strip()
-
-        # Les réponses rapides par mots-clés ont été désactivées pour laisser le moteur RAG répondre de manière complète.
-        
-        # Appel du moteur RAG avec un timeout raisonnable (15 s)
-        # print("[RAG] Appel au moteur RAG avec timeout 15 s") # Peut être gardé
         try:
-            # Timeout augmenté pour laisser plus de temps au RAG
             answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
-            # Nettoyage des * dans la réponse
             answer = clean_markdown_formatting(answer)
-            # print("[SUCCESS] get_fiscal_response terminé sous 30s") # Peut être gardé
             return {
                 "answer": answer,
                 "sources": sources,
@@ -222,26 +134,19 @@ async def test_francis(request: dict):
                 "memory_active": bool(conversation_history)
             }
         except asyncio.TimeoutError:
-            # print("[FALLBACK] Timeout 30s - Réponse de secours") # Peut être gardé
-            # Réponse de secours intelligente basée sur le contexte
             fallback_answer = f"Je vais analyser votre question sur '{question}'. Pour un conseil fiscal précis, pouvez-vous me préciser votre situation (salarié, entrepreneur, investisseur) et votre objectif ? Je pourrai alors vous donner une réponse personnalisée et détaillée."
-            
             if conversation_history and len(conversation_history) > 1:
                 fallback_answer += " Je prends en compte notre échange précédent pour mieux vous accompagner."
-            
             fallback_answer = clean_markdown_formatting(fallback_answer)
-        
-        return {
+            return {
                 "answer": fallback_answer,
                 "sources": ["Expert Francis"],
                 "confidence": 0.7,
                 "status": "fallback_optimized",
                 "francis_says": "🔄 Analyse rapide - posez une question plus précise pour plus de détails",
-            "memory_active": bool(conversation_history)
-        }
-        
+                "memory_active": bool(conversation_history)
+            }
     except Exception as e:
-        # print(f"❌ Erreur Francis: {str(e)}") # Peut être gardé
         return {
             "error": f"Erreur lors du traitement: {str(e)}",
             "status": "error",
@@ -249,32 +154,20 @@ async def test_francis(request: dict):
             "debug_info": str(e)[:200]
         }
 
-# Nouveau endpoint streaming : utilise le système RAG complet avec get_fiscal_response_stream
 @api_router.post("/stream-francis-simple")
 async def stream_francis_simple(request: dict):
-    # print("[DEBUG] Appel RAG sur /api/stream-francis-simple avec payload:", request) # Peut être gardé
-
     question = request.get("question", "")
     if not question:
         return StreamingResponse(
-            (json.dumps({
-                "type": "error",
-                "message": "Question manquante"
-            }) + "\n" for _ in range(1)),
+            (json.dumps({"type": "error", "message": "Question manquante"}) + "\n" for _ in range(1)),
             media_type="text/plain"
         )
-
     conversation_history = request.get("conversation_history", None)
-
-    # Streaming directement depuis get_fiscal_response_stream
     return StreamingResponse(
         get_fiscal_response_stream(question, conversation_history),
         media_type="text/plain",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive"
-        }
-)
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
+    )
 
 # Security
 security = HTTPBearer()
@@ -300,12 +193,13 @@ class UserResponse(BaseModel):
     created_at: datetime
 
 class ChatMessage(BaseModel):
-    role: str  # 'user' ou 'assistant'
+    role: str
     content: str
 
 class QuestionRequest(BaseModel):
     question: str
     conversation_history: Optional[List[ChatMessage]] = None
+    user_profile_context: Optional[Dict[str, Any]] = None
 
 class QuestionResponse(BaseModel):
     answer: str
@@ -330,8 +224,9 @@ class TrueLayerExchangeResponse(BaseModel):
     accounts: List[Dict[str, Any]]
 
 class UserProfileResponse(BaseModel):
-    id: int
-    user_id: int
+    id: int # Clé primaire de la table user_profiles
+    auth_user_id: str # UUID de Supabase Auth
+    user_id: Optional[int] = None # Clé étrangère vers users.id (devient optionnelle ou sa gestion revue)
     tmi: Optional[float] = None
     situation_familiale: Optional[str] = None
     nombre_enfants: Optional[int] = None
@@ -341,12 +236,12 @@ class UserProfileResponse(BaseModel):
     charges_deductibles: Optional[float] = None
     created_at: datetime
     updated_at: datetime
-
     class Config:
         from_attributes = True
 
 class UserProfileCreate(BaseModel):
-    user_id: int
+    auth_user_id: str # UUID de Supabase Auth, requis
+    user_id: Optional[int] = None # Optionnel, pour la FK vers la table users si encore pertinent
     tmi: Optional[float] = None
     situation_familiale: Optional[str] = None
     nombre_enfants: Optional[int] = None
@@ -385,8 +280,6 @@ async def register(user: UserCreate):
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Service non disponible")
-        
-        # Créer l'utilisateur avec Supabase Auth
         response = supabase.auth.sign_up({
             "email": user.email,
             "password": user.password,
@@ -396,7 +289,6 @@ async def register(user: UserCreate):
                 }
             }
         })
-        
         if response.user:
             token = create_access_token({"sub": response.user.id})
             return {
@@ -410,7 +302,6 @@ async def register(user: UserCreate):
             }
         else:
             raise HTTPException(status_code=400, detail="Erreur lors de la création du compte")
-            
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -419,12 +310,10 @@ async def login(user: UserLogin):
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Service non disponible")
-        
         response = supabase.auth.sign_in_with_password({
             "email": user.email,
             "password": user.password
         })
-        
         if response.user:
             token = create_access_token({"sub": response.user.id})
             return {
@@ -437,7 +326,6 @@ async def login(user: UserLogin):
             }
         else:
             raise HTTPException(status_code=401, detail="Identifiants invalides")
-            
     except Exception as e:
         raise HTTPException(status_code=401, detail="Identifiants invalides")
 
@@ -446,43 +334,31 @@ async def get_current_user(user_id: str = Depends(verify_token)):
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Service Supabase non disponible")
-        
         auth_user_response = supabase.auth.get_user()
-        
         if not auth_user_response.user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utilisateur non trouvé via token")
-
         user_data_to_return = {
             "id": auth_user_response.user.id,
             "email": auth_user_response.user.email,
             "user_metadata": auth_user_response.user.user_metadata,
-            "taper": None  # Valeur par défaut si le profil n'est pas trouvé ou n'a pas de rôle
+            "taper": None
         }
-
-        # Essayer de récupérer le profil utilisateur et le rôle (taper)
         try:
             profile_response = (
                 supabase.table("profils_utilisateurs")
                 .select("user_id, taper")
                 .eq("user_id", auth_user_response.user.id)
-                .maybe_single() # Utiliser maybe_single pour ne pas lever d'erreur si non trouvé
+                .maybe_single()
                 .execute()
             )
-            
             if profile_response.data:
                 user_data_to_return["taper"] = profile_response.data.get("taper")
-        
         except Exception as profile_exc:
-            # print(f"Avertissement: Impossible de récupérer le profil utilisateur pour {auth_user_response.user.id}: {profile_exc}", file=sys.stderr)
-            # Ne pas bloquer la réponse si la récupération du profil échoue, taper restera None
             pass
-            
         return user_data_to_return
-            
-    except HTTPException as http_exc: # Laisser passer les HTTPException déjà levées
+    except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
-        # print(f"Erreur inattendue dans /auth/me: {str(e)}", file=sys.stderr)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erreur interne du serveur: {str(e)}")
 
 @api_router.post("/ask", response_model=QuestionResponse)
@@ -493,43 +369,35 @@ async def ask_question(
     try:
         if not MISTRAL_API_KEY:
             raise HTTPException(status_code=500, detail="Service Mistral non disponible")
-
-        # Convertir l'historique de conversation en format dict
-        conversation_history = None
+        conversation_history_dicts = None
         if request.conversation_history:
-            conversation_history = [
+            conversation_history_dicts = [
                 {"role": msg.role, "content": msg.content} 
                 for msg in request.conversation_history
             ]
-
-        answer, sources, confidence = get_fiscal_response(request.question, conversation_history)
+        answer, sources, confidence = get_fiscal_response(
+            request.question, 
+            conversation_history_dicts, 
+            request.user_profile_context
+        )
         answer = clean_markdown_formatting(answer)
-        
-        # Sauvegarde en base (optionnel, si vous voulez garder l'historique des questions/réponses)
         if supabase:
             try:
-                # Adapter le contexte sauvegardé si nécessaire. Pour l'instant, on peut omettre ou stocker les sources.
                 supabase.table("questions").insert({
                     "user_id": user_id,
                     "question": request.question,
                     "answer": answer,
-                    "context": json.dumps(sources) if sources else None,  # Stocker les sources en JSON
+                    "context": json.dumps(sources) if sources else None, 
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
             except Exception as e:
-                # print(f"Erreur lors de la sauvegarde de la question en base: {e}") # Peut être gardé
-                pass # Ne pas bloquer la réponse à l'utilisateur pour une erreur de sauvegarde
-
+                pass 
         return QuestionResponse(
             answer=answer,
             sources=sources,
             confidence=confidence
         )
-
     except Exception as e:
-        # Logguer l'erreur côté serveur
-        # print(f"Erreur inattendue dans /ask endpoint: {str(e)}") # Peut être gardé
-        # Retourner une erreur générique à l'utilisateur
         raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors du traitement de la question.")
 
 @api_router.get("/questions/history")
@@ -540,10 +408,8 @@ async def get_question_history(
     try:
         if not supabase:
             return []
-        
         response = supabase.table("questions").select("*").eq("user_id", user_id).order("created_at", desc=True).limit(limit).execute()
         return response.data
-        
     except Exception as e:
         return []
 
@@ -555,7 +421,6 @@ async def create_payment_intent(
     try:
         if not stripe.api_key:
             raise HTTPException(status_code=500, detail="Service de paiement non disponible")
-        
         intent = stripe.PaymentIntent.create(
             amount=request.amount,
             currency=request.currency,
@@ -564,12 +429,10 @@ async def create_payment_intent(
                 'user_id': user_id
             }
         )
-        
         return {
             "client_secret": intent.client_secret,
             "payment_intent_id": intent.id
         }
-        
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -579,26 +442,17 @@ async def upload_document(
     user_id: str = Depends(verify_token)
 ):
     try:
-        # Vérifier le type de fichier
         allowed_types = ["application/pdf", "image/jpeg", "image/png"]
         if file.content_type not in allowed_types:
             raise HTTPException(status_code=400, detail="Type de fichier non supporté")
-        
-        # Lire le contenu du fichier
         content = await file.read()
-        
-        # Générer un nom unique
         file_id = str(uuid.uuid4())
         file_extension = file.filename.split('.')[-1]
         storage_path = f"documents/{user_id}/{file_id}.{file_extension}"
-        
-        # Uploader vers Supabase Storage (si configuré)
         if supabase:
             try:
                 response = supabase.storage.from_("documents").upload(storage_path, content)
                 public_url = supabase.storage.from_("documents").get_public_url(storage_path)
-                
-                # Sauvegarder les métadonnées en base
                 supabase.table("documents").insert({
                     "id": file_id,
                     "user_id": user_id,
@@ -608,7 +462,6 @@ async def upload_document(
                     "public_url": public_url,
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
-                
                 return {
                     "file_id": file_id,
                     "filename": file.filename,
@@ -616,15 +469,12 @@ async def upload_document(
                     "message": "Document uploadé avec succès"
                 }
             except Exception as e:
-                # print(f"Erreur lors de la sauvegarde de la question en base: {e}") # Peut être gardé
-                pass # Ne pas bloquer la réponse à l'utilisateur pour une erreur de sauvegarde
-        
+                pass
         return {
             "file_id": file_id,
             "filename": file.filename,
             "message": "Document reçu (stockage non configuré)"
         }
-        
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -633,25 +483,18 @@ async def get_user_documents(user_id: str = Depends(verify_token)):
     try:
         if not supabase:
             return []
-        
         response = supabase.table("documents").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
         return response.data
-        
     except Exception as e:
         return []
 
-# Webhook Stripe (optionnel)
 @api_router.post("/webhooks/stripe")
 async def stripe_webhook(request: dict):
     try:
-        # Traiter les événements Stripe
         event_type = request.get("type")
-        
         if event_type == "payment_intent.succeeded":
             payment_intent = request["data"]["object"]
             user_id = payment_intent["metadata"]["user_id"]
-            
-            # Mettre à jour le statut de l'utilisateur, débloquer des fonctionnalités, etc.
             if supabase:
                 supabase.table("payments").insert({
                     "user_id": user_id,
@@ -661,19 +504,14 @@ async def stripe_webhook(request: dict):
                     "status": "succeeded",
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
-        
         return {"received": True}
-        
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @api_router.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
 async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depends(verify_token)):
-    """Échange le code d'autorisation TrueLayer contre un token et renvoie la liste des comptes de l'utilisateur."""
     if not (TRUELAYER_CLIENT_ID and TRUELAYER_CLIENT_SECRET):
         raise HTTPException(status_code=500, detail="TrueLayer n'est pas configuré côté serveur")
-
-    # 1) Échange du code contre un access_token / refresh_token
     token_payload = {
         "grant_type": "authorization_code",
         "client_id": TRUELAYER_CLIENT_ID,
@@ -687,22 +525,15 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
             data=token_payload,
             headers={"Content-Type": "application/x-www-form-urlencoded"}
         )
-
         if token_resp.status_code != 200:
-            print("❌ TrueLayer token exchange error: ", token_resp.text)
             raise HTTPException(status_code=400, detail="Échec de l'échange de code TrueLayer")
-
         token_data = token_resp.json()
         access_token = token_data.get("access_token")
-
-        # 2) Récupération des comptes avec l'access_token
         accounts_resp = await client.get(
             f"{TRUELAYER_API_URL}/data/v1/accounts",
             headers={"Authorization": f"Bearer {access_token}"}
         )
         accounts_data = accounts_resp.json().get("results", []) if accounts_resp.status_code == 200 else []
-
-    # 3) (Optionnel) Sauvegarde en base
     if supabase:
         try:
             supabase.table("bank_connections").insert({
@@ -715,10 +546,8 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
                 "created_at": datetime.utcnow().isoformat()
             }).execute()
         except Exception as e:
-            # Ne pas bloquer si la table n'existe pas encore
-            print("[TrueLayer] Erreur sauvegarde Supabase:", e)
+            print(f"[TrueLayer] Erreur sauvegarde Supabase pour user {user_id}: {e}", file=sys.stderr)
             pass
-
     return TrueLayerExchangeResponse(
         access_token=access_token,
         refresh_token=token_data.get("refresh_token"),
@@ -728,13 +557,9 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
         accounts=accounts_data
     )
 
-# Mount the API router finally
 app.include_router(api_router)
-
-# AJOUT: Inclure le routeur pour la gestion des clients Pro
 app.include_router(pro_clients_router.router)
 
-# Précharger les embeddings CGI au démarrage
 @app.on_event("startup")
 async def startup_event():
     try:
@@ -742,77 +567,104 @@ async def startup_event():
         search_cgi_embeddings("test", max_results=1)
         print("✅ Embeddings CGI préchargés avec succès!")
     except Exception as e:
-        print(f"⚠️  Erreur lors du préchargement des embeddings: {e}")
+        print(f"⚠️  Erreur lors du préchargement des embeddings: {e}", file=sys.stderr)
         pass
 
-# Créer les tables de la base de données
 print("MAIN_PY_LOG: Tentative de création des tables via Base.metadata.create_all()", file=sys.stderr)
 Base.metadata.create_all(bind=engine) 
 BasePro.metadata.create_all(bind=engine)
 
-# Importer get_db depuis backend.database pour être utilisé par les routes UserProfile
-from backend.database import get_db as get_db_session # Utiliser un alias pour plus de clarté si besoin, ou direct get_db
+from backend.database import get_db as get_db_session 
 
-# La fonction clean_user_profile_response doit être définie avant son utilisation (elle est plus bas)
-# ... (code existant pour clean_markdown_formatting)
+def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResponse:
+    profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
+    return profile
 
-# USER PROFILE CRUD (devrait peut-être être dans son propre routeur)
 @app.post("/user-profile/", response_model=UserProfileResponse)
-def create_user_profile(user_profile: UserProfileCreate, db: Session = Depends(get_db_session)):
-    db_user_profile = UserProfile(**user_profile.model_dump())
+def create_user_profile(user_profile_data: UserProfileCreate, db: Session = Depends(get_db_session)):
+    # Vérifier si un profil existe déjà pour cet auth_user_id
+    existing_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == user_profile_data.auth_user_id).first()
+    if existing_profile:
+        raise HTTPException(status_code=400, detail=f"Un profil pour l'utilisateur avec auth_id {user_profile_data.auth_user_id} existe déjà.")
+    
+    # Créer l'instance UserProfile. user_profile_data contient auth_user_id.
+    # Si user_profile_data.user_id (Integer) est fourni, il sera utilisé pour la FK.
+    # Sinon, UserProfile.user_id (Integer) sera NULL (car nullable=True dans le modèle).
+    db_user_profile = UserProfile(**user_profile_data.model_dump())
     db.add(db_user_profile)
     db.commit()
     db.refresh(db_user_profile)
-    # Assurer que UserProfileResponse est initialisé correctement depuis l'objet SQLAlchemy
+    
     response_data = {**db_user_profile.__dict__}
-    # Supprimer les états non désirés si présents
     response_data.pop('_sa_instance_state', None)
+    # Assurer que auth_user_id est bien une chaîne dans la réponse si ce n'est pas déjà le cas
+    response_data['auth_user_id'] = str(db_user_profile.auth_user_id)
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.get("/user-profile/{user_id}", response_model=UserProfileResponse)
-def read_user_profile(user_id: int, db: Session = Depends(get_db_session)):
-    db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+@app.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse) # Paramètre de chemin changé en auth_user_id: str
+def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
+    db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
-        raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
+        raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé")
+    
     response_data = {**db_user_profile.__dict__}
     response_data.pop('_sa_instance_state', None)
+    response_data['auth_user_id'] = str(db_user_profile.auth_user_id)
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.put("/user-profile/{user_id}", response_model=UserProfileResponse)
-def update_user_profile(user_id: int, user_profile: UserProfileCreate, db: Session = Depends(get_db_session)):
-    db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+@app.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse) # Paramètre de chemin changé
+def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfileCreate, db: Session = Depends(get_db_session)):
+    db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
-        raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    update_data = user_profile.model_dump(exclude_unset=True) # Exclude_unset est une bonne pratique
+        # Option: créer le profil s'il n'existe pas (comportement PUT)
+        # Pour cela, il faudrait s'assurer que user_profile_update_data.auth_user_id est bien auth_user_id du path
+        if user_profile_update_data.auth_user_id != auth_user_id:
+             raise HTTPException(status_code=400, detail="L'auth_user_id dans le payload ne correspond pas à l'auth_user_id dans l'URL.")
+        
+        # Si on décide de créer au lieu de lever une erreur 404:
+        # db_user_profile = UserProfile(**user_profile_update_data.model_dump())
+        # db.add(db_user_profile)
+        # else:
+        #     raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé pour mise à jour")
+        # Pour l'instant, suivons le comportement strict : lever 404 si non trouvé
+        raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé. Utilisez POST pour créer un nouveau profil.")
+
+    update_data = user_profile_update_data.model_dump(exclude_unset=True)
+    # S'assurer de ne pas essayer de mettre à jour auth_user_id via le payload si ce n'est pas l'intention
+    # ou si l'auth_user_id du payload est différent de celui du path (déjà vérifié plus haut si on crée)
+    update_data.pop('auth_user_id', None) # On ne modifie pas l'auth_user_id via un PUT sur cette ressource
+    update_data.pop('user_id', None) # Idem pour l'ID entier, sa gestion est plus complexe
+
     for key, value in update_data.items():
         setattr(db_user_profile, key, value)
+    
     db.commit()
     db.refresh(db_user_profile)
+    
     response_data = {**db_user_profile.__dict__}
     response_data.pop('_sa_instance_state', None)
+    response_data['auth_user_id'] = str(db_user_profile.auth_user_id)
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.delete("/user-profile/{user_id}", response_model=UserProfileResponse)
-def delete_user_profile(user_id: int, db: Session = Depends(get_db_session)):
-    db_user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+@app.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse) # Paramètre de chemin changé
+def delete_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
+    db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
-        raise HTTPException(status_code=404, detail="Profil utilisateur non trouvé")
-    response_data_before_delete = {**db_user_profile.__dict__} # Copier avant de supprimer
+        raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé")
+    
+    response_data_before_delete = {**db_user_profile.__dict__}
     response_data_before_delete.pop('_sa_instance_state', None)
+    response_data_before_delete['auth_user_id'] = str(db_user_profile.auth_user_id)
+
     db.delete(db_user_profile)
     db.commit()
-    # Il est d'usage de retourner l'objet supprimé ou un message de succès
-    # Ici, UserProfileResponse attend les champs de l'objet, donc on le reconstruit à partir des données avant suppression.
+    
     response = UserProfileResponse(**response_data_before_delete)
     return clean_user_profile_response(response)
 
-# clean_user_profile_response est déjà défini plus bas dans le fichier, ce qui est correct.
-# if __name__ == "__main__": ... (ne pas toucher à cette partie pour l'instant)
-# ... (reste du code, y compris clean_user_profile_response et if __name__ == "__main__")
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080)))  # Utiliser le port 8080 par défaut pour Railway 
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080))) 

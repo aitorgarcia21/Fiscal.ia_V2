@@ -10,10 +10,12 @@ import { DemoPage } from './pages/DemoPage';
 import { ContactProPage } from './pages/ContactProPage';
 import { ProDashboardPage } from './pages/ProDashboardPage';
 import { ProProtectedRoute } from './components/auth/ProProtectedRoute';
+import { ParticulierProtectedRoute } from './components/auth/ParticulierProtectedRoute';
 import { ProCreateClientPage } from './pages/ProCreateClientPage';
 import { ProClientDetailPage } from './pages/ProClientDetailPage';
 import { ProEditClientPage } from './pages/ProEditClientPage';
 import { PatrimoniaLandingPage } from './pages/PatrimoniaLandingPage';
+import { UserProfilePage } from './pages/UserProfilePage';
 
 function App() {
   return (
@@ -25,9 +27,12 @@ function App() {
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/contact-pro" element={<ContactProPage />} />
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/discover" element={<DiscoverPage />} />
-          <Route path="/chat" element={<ChatPage />} />
+          <Route element={<ParticulierProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/profil" element={<UserProfilePage />} />
+            <Route path="/discover" element={<DiscoverPage />} />
+          </Route>
           <Route element={<ProProtectedRoute />}>
             <Route path="/pro/dashboard" element={<ProDashboardPage />} />
             <Route path="/pro/clients/new" element={<ProCreateClientPage />} />

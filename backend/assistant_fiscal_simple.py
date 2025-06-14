@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Dict, Tuple, AsyncGenerator
+from typing import List, Dict, Tuple, AsyncGenerator, Optional
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
@@ -52,99 +52,112 @@ def get_quick_answer(query: str) -> tuple[str, bool]:
     """Retourne toujours une réponse vide pour forcer une recherche approfondie dans les sources officielles."""
     return "", False
 
-def get_fiscal_response(query: str, conversation_history: List[Dict] = None):
-    """Génère une réponse fiscale précise basée EXCLUSIVEMENT sur le CGI et le BOFiP."""
+def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, Any]] = None):
+    """Génère une réponse fiscale précise basée EXCLUSIVEMENT sur le CGI et le BOFiP, en tenant compte du profil utilisateur si fourni."""
     try:
         # Initialisation du client Mistral
         client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
         if not client:
             return "Erreur: Clé API Mistral non configurée", [], 0.0
         
-        # Rechercher UNIQUEMENT dans les sources officielles
         official_sources = []
-        context = ""
+        context_from_sources = "" # Renommé pour clarté
         
         # 1. Recherche dans le CGI (priorité absolue) - CHARGEMENT À LA DEMANDE
         try:
-            cgi_articles = search_cgi_embeddings(query, max_results=3)  # Limiter à 3 résultats
+            cgi_articles = search_cgi_embeddings(query, max_results=3)
             if cgi_articles:
-                context += "=== ARTICLES DU CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
+                context_from_sources += "=== ARTICLES DU CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
                 for article in cgi_articles:
                     if validate_official_source({'type': 'CGI', 'path': 'cgi_chunks'}):
                         article_content = article['content']
                         article_source = article['source']
-                        context += f"{article_source}:\n{article_content}\n\n"
+                        context_from_sources += f"{article_source}:\n{article_content}\n\n"
                         official_sources.append(article_source)
-                context += "\n" + "="*60 + "\n\n"
+                context_from_sources += "\n" + "="*60 + "\n\n"
         except Exception as e:
-            print(f"Erreur CGI (non bloquante): {e}")
+            print(f"Erreur lors de la recherche CGI (non bloquante): {e}")
         
         # 2. Recherche dans le BOFiP (complément officiel)
         try:
-            bofip_chunks = search_bofip_embeddings(query, max_results=3)  # Limiter à 3 résultats
+            bofip_chunks = search_bofip_embeddings(query, max_results=3)
             if bofip_chunks:
-                context += "=== BULLETIN OFFICIEL DES FINANCES PUBLIQUES (BOFiP) ===\n\n"
+                context_from_sources += "=== BULLETIN OFFICIEL DES FINANCES PUBLIQUES (BOFiP) ===\n\n"
                 for chunk in bofip_chunks:
                     if validate_official_source({'type': 'BOFIP', 'path': 'bofip_chunks'}):
-                        chunk_content = chunk.get('text', '')[:2000]  # Limiter la taille
+                        chunk_content = chunk.get('text', '')[:2000]
                         chunk_source = f"BOFiP - {chunk.get('file', 'Chunk N/A')}"
-                        context += f"{chunk_source}:\n{chunk_content}\n\n"
+                        context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
                         official_sources.append(chunk_source)
-                context += "\n" + "="*60 + "\n\n"
+                context_from_sources += "\n" + "="*60 + "\n\n"
         except Exception as e:
-            print(f"Erreur BOFiP (non bloquante): {e}")
+            print(f"Erreur lors de la recherche BOFiP (non bloquante): {e}")
         
-        if not context:
+        if not context_from_sources:
             return ("Je ne trouve pas d'informations dans les sources officielles (CGI et BOFiP) disponibles pour répondre à votre question. "
                    "Cela peut être dû à un problème de chargement des données. Pourriez-vous reformuler votre question ?"), [], 0.0
         
-        # Construire le prompt avec UNIQUEMENT les sources officielles
+        # Construction du contexte utilisateur si fourni
+        user_context_str = ""
+        if user_profile_context:
+            user_context_str += "\nCONTEXTE FISCAL DE L'UTILISATEUR (pour mieux cibler la réponse dans les textes officiels) :\n"
+            if user_profile_context.get('tmi') is not None:
+                user_context_str += f"- TMI (Tranche Marginale d'Imposition) : {user_profile_context['tmi']}%\n"
+            if user_profile_context.get('situation_familiale'):
+                user_context_str += f"- Situation familiale : {user_profile_context['situation_familiale']}\n"
+            if user_profile_context.get('nombre_enfants') is not None:
+                user_context_str += f"- Nombre d'enfants à charge : {user_profile_context['nombre_enfants']}\n"
+            if user_profile_context.get('revenus_annuels') is not None:
+                user_context_str += f"- Revenus annuels nets : {user_profile_context['revenus_annuels']} €\n"
+            if user_profile_context.get('charges_deductibles') is not None:
+                user_context_str += f"- Charges déductibles annuelles : {user_profile_context['charges_deductibles']} €\n"
+            if user_profile_context.get('residence_principale') is not None:
+                user_context_str += f"- Propriétaire résidence principale : {'Oui' if user_profile_context['residence_principale'] else 'Non'}\n"
+            if user_profile_context.get('residence_secondaire') is not None:
+                user_context_str += f"- Propriétaire résidence secondaire : {'Oui' if user_profile_context['residence_secondaire'] else 'Non'}\n"
+            user_context_str += "NE PAS MENTIONNER EXPLICITEMENT CES DONNÉES PERSONNELLES DANS LA RÉPONSE, MAIS LES UTILISER POUR INTERPRÉTER LA QUESTION.\n\n"
+
         system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français.
 
 RÈGLES STRICTES :
-1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous
-2. Cite TOUJOURS l'article du CGI ou la référence BOFiP exacte
-3. Si l'information n'est pas dans les sources fournies, dis-le clairement
-4. Utilise uniquement les textes officiels, jamais d'autres sources
-5. Réponds en français de manière claire et précise
-6. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple
-7. Pour les calculs fiscaux, sois TRÈS précis :
-   - Couple marié = 2 parts (pas 1+1)
-   - 1er et 2ème enfant = 0,5 part chacun
-   - 3ème enfant et suivants = 1 part chacun
-   - Exemple : couple + 3 enfants = 2 + 0,5 + 0,5 + 1 = 4 parts au total
-8. Vérifie tes calculs avant de répondre
-9. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation
+1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous.
+2. Le contexte utilisateur fourni (si présent) t'aide à mieux comprendre la question et à cibler les articles pertinents, mais ta réponse doit TOUJOURS se fonder sur les textes officiels.
+3. Cite TOUJOURS l'article du CGI ou la référence BOFiP exacte qui justifie ta réponse.
+4. Si l'information n'est pas dans les sources fournies, ou si la question sort du cadre fiscal français, dis-le clairement.
+5. Utilise uniquement les textes officiels, jamais d'autres sources ou tes connaissances générales.
+6. Réponds en français de manière claire, précise et concise.
+7. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
+8. Pour les calculs fiscaux (ex: nombre de parts), sois TRÈS précis et explique ta méthode basée sur le CGI.
+9. Vérifie tes calculs avant de répondre.
+10. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
 
 SOURCES OFFICIELLES DISPONIBLES :
 """
         
         full_prompt = f"""{system_message}
-
-{context}
-
-QUESTION DE L'UTILISATEUR :
+{context_from_sources}
+{user_context_str}QUESTION DE L'UTILISATEUR :
 {query}
 
-RÉPONSE (basée UNIQUEMENT sur les sources officielles ci-dessus) :
+RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisateur pour l'interprétation) :
 """
 
         # Construire l'historique de conversation si disponible
-        messages = []
+        messages_for_api = []
         if conversation_history:
             # Inclure jusqu'à 10 messages précédents pour un meilleur contexte
             for msg in conversation_history[-10:]:
                 if msg.get('role') and msg.get('content'):
                     # Tronquer chaque message pour éviter l'explosion des tokens
                     truncated_content = msg['content'][:400]
-                    messages.append(ChatMessage(role=msg['role'], content=truncated_content))
+                    messages_for_api.append(ChatMessage(role=msg['role'], content=truncated_content))
         
-        messages.append(ChatMessage(role="user", content=full_prompt))
+        messages_for_api.append(ChatMessage(role="user", content=full_prompt))
         
         # Appel à Mistral avec température basse pour plus de précision
         response = client.chat(
             model="mistral-large-latest",
-            messages=messages,
+            messages=messages_for_api,
             temperature=0.1,  # Très faible pour privilégier la précision
             max_tokens=1000
         )
@@ -152,21 +165,21 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles ci-dessus) :
         answer = response.choices[0].message.content.strip()
         
         # Conditionner l'affichage des sources
-        if "CGI" in answer or "BOFiP" in answer:
-            disclaimer = "\n\n📚 **Sources officielles consultées :** " + ", ".join(official_sources[:3])  # Limiter à 3 sources
-            if len(official_sources) > 3:
-                disclaimer += f" et {len(official_sources) - 3} autres sources officielles"
+        if "CGI" in answer or "BOFiP" in answer or any(src.upper() in answer.upper() for src in official_sources):
+            disclaimer = "\n\nRéférence(s) officielle(s) principale(s) utilisée(s) pour cette réponse : " + ", ".join(list(set(official_sources))[:3])
+            if len(list(set(official_sources))) > 3:
+                disclaimer += f" et {len(list(set(official_sources))) - 3} autre(s)"
             final_answer = answer + disclaimer
         else:
             final_answer = answer
         
         # Score de confiance basé sur la qualité des sources officielles
-        confidence_score = min(1.0, len(official_sources) / 3.0) if official_sources else 0.2
+        confidence_score = min(1.0, len(official_sources) / 2.0) if official_sources else 0.1 # Ajusté pour être plus sensible
         
-        return final_answer, official_sources, confidence_score
+        return final_answer, list(set(official_sources)), confidence_score
         
     except Exception as e:
-        print(f"Erreur lors du traitement de la question: {e}")
+        print(f"Erreur lors du traitement de la question get_fiscal_response: {e}")
         return ("Erreur lors de la consultation des sources officielles. "
                "Veuillez réessayer ou reformuler votre question."), [], 0.0
 
@@ -262,7 +275,7 @@ def search_cgi_embeddings(query: str, max_results: int = 3) -> List[Dict]:
             enhanced_query = query  # Pas de préfixe "CGI ..." pour éviter un bruit inutile
             keywords = [word for word in query_lower.split() if len(word) > 3]
         
-        print(f"🔍 Requête de recherche améliorée : {enhanced_query}")
+        # print(f"🔍 Requête de recherche améliorée : {enhanced_query}") # Supprimé car trop verbeux
         
         # Recherche avec plus de résultats pour filtrage
         similar_articles_raw = search_similar_articles(enhanced_query, _embeddings_cache, top_k=max_results * 4)
@@ -328,7 +341,7 @@ def search_cgi_embeddings(query: str, max_results: int = 3) -> List[Dict]:
                     else:
                         text = text[:3000]
             
-            print(f"📄 Article trouvé : {article_data.get('article_number', 'N/A')} avec score {article_data.get('final_score', 0)}")
+            # print(f"📄 Article trouvé : {article_data.get('article_number', 'N/A')} avec score {article_data.get('final_score', 0)}") # Supprimé car trop verbeux
             results.append({
                 'content': text,
                 'source': f"CGI Article {article_data.get('article_number', 'N/A')}",
@@ -362,14 +375,13 @@ def get_relevant_context(query: str) -> str:
     return context if context else "Aucune source officielle trouvée pour cette question."
 
 # NOUVELLE FONCTION STREAMING
-async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None) -> AsyncGenerator[str, None]:
+async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, Any]] = None) -> AsyncGenerator[str, None]:
     """Génère une réponse fiscale en streaming (actuellement, une seule réponse complète)."""
     try:
-        # Appel de la fonction non-streamée existante
-        answer, sources, confidence = get_fiscal_response(query, conversation_history)
+        answer, sources, confidence = get_fiscal_response(query, conversation_history, user_profile_context)
         
         response_data = {
-            "type": "full_response", # Indique que c'est la réponse complète
+            "type": "full_response",
             "answer": answer,
             "sources": sources,
             "confidence": confidence,
@@ -379,7 +391,7 @@ async def get_fiscal_response_stream(query: str, conversation_history: List[Dict
         
     except Exception as e:
         error_message = f"Erreur lors du traitement de la question en streaming: {str(e)}"
-        print(error_message) # Log côté serveur
+        print(error_message)
         error_response = {
             "type": "error",
             "message": error_message,
