@@ -3,10 +3,16 @@ from sqlalchemy.orm import Session
 from typing import List, Any, Dict, Optional, Union
 import asyncio
 import json
+import uuid
+from datetime import datetime
 
 from backend.database import get_db
-from backend.models_pro import ClientProfile
-from backend.schemas_pro import ClientProfileCreate, ClientProfileResponse, ClientProfileUpdate, AnalysisResultSchema, AnalysisRecommendation
+from backend.models_pro import ClientProfile, RendezVousProfessionnel
+from backend.schemas_pro import (
+    ClientProfileCreate, ClientProfileResponse, ClientProfileUpdate, 
+    AnalysisResultSchema, AnalysisRecommendation,
+    RendezVousCreate, RendezVousResponse, RendezVousUpdate
+)
 from backend.dependencies import supabase, verify_token
 from backend.assistant_fiscal_simple import get_fiscal_response
 from pydantic import BaseModel
@@ -423,3 +429,293 @@ async def ask_francis_for_client(
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erreur lors de la génération de la réponse fiscale: {str(e)}") 
+
+# Modèle pour la réponse d'une analyse IRPP (exemple)
+class IRPPAnalysisResponse(BaseModel):
+    revenu_brut_global: float
+    revenu_net_imposable: float
+    nombre_parts: float
+    quotient_familial: float
+    impot_brut_calcule: float
+    decote_applicable: Optional[float] = None
+    impot_net_avant_credits: float
+    reductions_credits_impot: Optional[Dict[str, float]] = None # Exemple: {"pinel": 5000, "emploi_domicile": 1000}
+    impot_final_estime: float
+    taux_marginal_imposition: float
+    taux_moyen_imposition: float
+    notes_explicatives: Optional[List[str]] = None
+
+# --- Fonctions de calcul IRPP 2025 (Placeholders) ---
+# Ces fonctions devront être remplies avec la logique réelle et les données du CGI 2025
+
+def _get_bareme_irpp_2025() -> List[Dict[str, float]]:
+    # Exemple de structure, à remplacer par les vraies tranches et taux 2025
+    # return [
+    #     {"limite_inf": 0, "limite_sup": 11294, "taux": 0.0},
+    #     {"limite_inf": 11294, "limite_sup": 28797, "taux": 0.11},
+    #     {"limite_inf": 28797, "limite_sup": 82341, "taux": 0.30},
+    #     {"limite_inf": 82341, "limite_sup": 177106, "taux": 0.41},
+    #     {"limite_inf": 177106, "limite_sup": float('inf'), "taux": 0.45}
+    # ]
+    print("WARN: _get_bareme_irpp_2025 utilisant des données fictives!")
+    return [] # Doit être rempli
+
+def _calculate_nombre_parts(situation_maritale_client: Optional[str], nombre_enfants_a_charge: Optional[int]) -> float:
+    parts = 1.0
+    if situation_maritale_client and ("Marié" in situation_maritale_client or "Pacsé" in situation_maritale_client):
+        parts = 2.0
+    
+    if nombre_enfants_a_charge:
+        if nombre_enfants_a_charge == 1:
+            parts += 0.5
+        elif nombre_enfants_a_charge == 2:
+            parts += 1.0 # 0.5 pour chaque
+        elif nombre_enfants_a_charge > 2:
+            parts += 1.0 + (nombre_enfants_a_charge - 2) # 0.5 pour les deux premiers, 1 pour chaque suivant
+    print(f"WARN: _calculate_nombre_parts - situation: {situation_maritale_client}, enfants: {nombre_enfants_a_charge}, parts calculées (simplifié): {parts}")
+    return parts # Logique simplifiée, à affiner avec les règles CGI 2025 exactes
+
+def _calculate_revenu_net_global_imposable(client_profile: ClientProfile) -> float:
+    # TODO: Implémenter le calcul détaillé du revenu net global imposable
+    #       (Revenus catégoriels nets, abattements spéciaux, charges déductibles du revenu global etc.)
+    #       Utiliser les champs de client_profile: revenu_net_annuel_client1, revenu_net_annuel_client2,
+    #       revenus_fonciers_annuels_bruts_foyer, charges_foncieres_deductibles_foyer, etc.
+    #       Appliquer l'abattement de 10% ou les frais réels pour les salaires.
+    print("WARN: _calculate_revenu_net_global_imposable utilisant une logique fictive!")
+    revenu_brut_global_estime = 0
+    try:
+        rev1 = float(client_profile.revenu_net_annuel_client1 or 0)
+        rev2 = float(client_profile.revenu_net_annuel_client2 or 0)
+        rev_foncier_brut = float(client_profile.revenus_fonciers_annuels_bruts_foyer or 0)
+        charges_foncieres = float(client_profile.charges_foncieres_deductibles_foyer or 0)
+        # Simplification extrême
+        revenu_brut_global_estime = (rev1 + rev2) * 0.9 + (rev_foncier_brut - charges_foncieres) # Abattement 10% sur salaires
+    except ValueError:
+        pass
+    return max(0, revenu_brut_global_estime) # Le revenu imposable ne peut être négatif pour ce calcul simplifié
+
+def _apply_bareme_irpp(revenu_imposable_par_part: float, bareme: List[Dict[str, float]]) -> float:
+    impot_brut = 0
+    if not bareme or revenu_imposable_par_part <= 0:
+        return 0.0
+    
+    # TODO: Implémenter l'application correcte du barème progressif 2025
+    print("WARN: _apply_bareme_irpp utilisant une logique fictive/incomplète!")
+    # Exemple très simplifié (NE PAS UTILISER EN PRODUCTION):
+    # if revenu_imposable_par_part > bareme[0]["limite_sup"] and len(bareme) > 1:
+    #     impot_brut = (revenu_imposable_par_part - bareme[0]["limite_sup"]) * bareme[1]["taux"]
+    return 5000.0 # Placeholder
+
+# --- Fin des fonctions de calcul IRPP 2025 (Placeholders) ---
+
+@router.post("/clients/{client_id}/analyze_irpp_2025", response_model=IRPPAnalysisResponse)
+async def analyze_irpp_for_client(
+    client_id: int,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    db_client_profile = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if db_client_profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fiche client non trouvée ou accès non autorisé.")
+
+    # 1. Calculer le nombre de parts
+    nombre_parts = _calculate_nombre_parts(
+        db_client_profile.situation_maritale_client,
+        db_client_profile.nombre_enfants_a_charge_client
+    )
+
+    # 2. Calculer le revenu net global imposable
+    revenu_net_imposable = _calculate_revenu_net_global_imposable(db_client_profile)
+
+    # 3. Obtenir le barème IRPP 2025
+    bareme_2025 = _get_bareme_irpp_2025()
+    if not bareme_2025: # Si le barème n'est pas chargé/disponible
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Barème IRPP 2025 non disponible pour l'analyse.")
+
+    # 4. Calculer le quotient familial
+    quotient_familial = revenu_net_imposable / nombre_parts if nombre_parts > 0 else revenu_net_imposable
+
+    # 5. Appliquer le barème pour obtenir l'impôt brut
+    impot_brut_avant_plafonnement = _apply_bareme_irpp(quotient_familial, bareme_2025) * nombre_parts
+    
+    # TODO: 6. Appliquer le plafonnement du quotient familial
+    # impot_brut_apres_plafonnement = ...
+    impot_brut_apres_plafonnement = impot_brut_avant_plafonnement # Placeholder
+    print(f"WARN: Plafonnement du quotient familial non implémenté pour client {client_id}")
+
+    # TODO: 7. Calculer la décote
+    # decote = ...
+    decote_simulee = 0.0 # Placeholder
+    impot_apres_decote = impot_brut_apres_plafonnement - decote_simulee
+    print(f"WARN: Calcul de la décote non implémenté pour client {client_id}")
+
+    # TODO: 8. Appliquer les réductions et crédits d'impôt
+    # reductions_credits = ...
+    # impot_final = impot_apres_decote - total_reductions_credits
+    reductions_credits_simules = {"exemple_rc": 100.0} # Placeholder
+    impot_final_estime = max(0, impot_apres_decote - sum(reductions_credits_simules.values()))
+    print(f"WARN: Réductions/Crédits d'impôt non implémentés pour client {client_id}")
+
+    # TODO: 9. Calculer TMI et Taux Moyen
+    tmi_simule = 30.0 # Placeholder, devra être déterminé à partir du barème et du revenu
+    taux_moyen_simule = (impot_final_estime / revenu_net_imposable * 100) if revenu_net_imposable > 0 else 0
+
+    return IRPPAnalysisResponse(
+        revenu_brut_global= _calculate_revenu_net_global_imposable(db_client_profile) + (db_client_profile.charges_foncieres_deductibles_foyer or 0), # Approximation du brut global
+        revenu_net_imposable=revenu_net_imposable,
+        nombre_parts=nombre_parts,
+        quotient_familial=quotient_familial,
+        impot_brut_calcule=impot_brut_apres_plafonnement, # Ce devrait être l'impôt après plafonnement QF
+        decote_applicable=decote_simulee if decote_simulee > 0 else None,
+        impot_net_avant_credits=impot_apres_decote, # Impôt après décote mais avant RICI
+        reductions_credits_impot=reductions_credits_simules if sum(reductions_credits_simules.values()) > 0 else None,
+        impot_final_estime=impot_final_estime,
+        taux_marginal_imposition=tmi_simule,
+        taux_moyen_imposition=taux_moyen_simule,
+        notes_explicatives=[
+            "Ceci est une simulation basée sur des données partielles et des règles de calcul simplifiées/fictives pour 2025.",
+            "Le calcul complet nécessite l'intégration des barèmes, seuils, et règles détaillées du CGI 2025.",
+            "Les étapes de plafonnement du quotient familial, décote, et certaines RICI ne sont pas encore implémentées."
+        ]
+    ) 
+
+# --- Endpoints CRUD pour les Rendez-vous Professionnels ---
+
+@router.post("/rendezvous", response_model=RendezVousResponse, status_code=status.HTTP_201_CREATED)
+async def create_rendez_vous(
+    rdv_data: RendezVousCreate,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user) # Assure que l'utilisateur est un pro et récupère son ID
+):
+    """
+    Crée un nouveau rendez-vous pour le professionnel authentifié.
+    """
+    # Vérifier si le client existe et appartient au professionnel (optionnel, mais bonne pratique)
+    client_exists = db.query(ClientProfile).filter(
+        ClientProfile.id == rdv_data.id_client,
+        ClientProfile.id_professionnel == professional_user_id
+    ).first()
+    if not client_exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Client avec ID {rdv_data.id_client} non trouvé ou non associé à ce professionnel.")
+
+    if rdv_data.date_heure_fin < rdv_data.date_heure_debut:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La date de fin ne peut pas être antérieure à la date de début.")
+
+    db_rdv = RendezVousProfessionnel(
+        **rdv_data.model_dump(), 
+        id_professionnel=uuid.UUID(professional_user_id) # professional_user_id est un str, le modèle attend un UUID
+    )
+    db.add(db_rdv)
+    db.commit()
+    db.refresh(db_rdv)
+    return db_rdv
+
+@router.get("/rendezvous", response_model=List[RendezVousResponse])
+async def list_rendez_vous(
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user),
+    skip: int = 0, 
+    limit: int = 100,
+    start_date: Optional[datetime] = None, # Filtre par date de début
+    end_date: Optional[datetime] = None     # Filtre par date de fin
+):
+    """
+    Liste les rendez-vous pour le professionnel authentifié.
+    Permet de filtrer par plage de dates.
+    """
+    query = db.query(RendezVousProfessionnel).filter(RendezVousProfessionnel.id_professionnel == uuid.UUID(professional_user_id))
+    
+    if start_date:
+        query = query.filter(RendezVousProfessionnel.date_heure_debut >= start_date)
+    if end_date:
+        # Pour inclure les RDV qui se terminent jusqu'à la fin de la journée end_date
+        from datetime import timedelta
+        query = query.filter(RendezVousProfessionnel.date_heure_fin < (end_date + timedelta(days=1)))
+        # Alternative: query = query.filter(RendezVousProfessionnel.date_heure_debut <= end_date) # si on filtre sur le début
+
+    rendez_vous_list = query.order_by(RendezVousProfessionnel.date_heure_debut.asc()).offset(skip).limit(limit).all()
+    return rendez_vous_list
+
+@router.get("/rendezvous/{rdv_id}", response_model=RendezVousResponse)
+async def get_rendez_vous_by_id(
+    rdv_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    """
+    Récupère un rendez-vous spécifique par son ID.
+    Vérifie que le RDV appartient au professionnel authentifié.
+    """
+    db_rdv = db.query(RendezVousProfessionnel).filter(
+        RendezVousProfessionnel.id == rdv_id,
+        RendezVousProfessionnel.id_professionnel == uuid.UUID(professional_user_id)
+    ).first()
+    
+    if db_rdv is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Rendez-vous non trouvé ou non autorisé.")
+    return db_rdv
+
+@router.put("/rendezvous/{rdv_id}", response_model=RendezVousResponse)
+async def update_rendez_vous(
+    rdv_id: uuid.UUID,
+    rdv_update_data: RendezVousUpdate,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    """
+    Met à jour un rendez-vous existant.
+    Vérifie que le RDV appartient au professionnel authentifié.
+    """
+    db_rdv = db.query(RendezVousProfessionnel).filter(
+        RendezVousProfessionnel.id == rdv_id,
+        RendezVousProfessionnel.id_professionnel == uuid.UUID(professional_user_id)
+    ).first()
+
+    if db_rdv is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Rendez-vous non trouvé ou non autorisé pour la mise à jour.")
+
+    update_data = rdv_update_data.model_dump(exclude_unset=True)
+    
+    if "date_heure_debut" in update_data and "date_heure_fin" in update_data:
+        if update_data["date_heure_fin"] < update_data["date_heure_debut"]:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La date de fin ne peut pas être antérieure à la date de début.")
+    elif "date_heure_debut" in update_data:
+        if db_rdv.date_heure_fin < update_data["date_heure_debut"]:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La date de fin existante ne peut pas être antérieure à la nouvelle date de début.")
+    elif "date_heure_fin" in update_data:
+        if update_data["date_heure_fin"] < db_rdv.date_heure_debut:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La nouvelle date de fin ne peut pas être antérieure à la date de début existante.")
+
+    for key, value in update_data.items():
+        setattr(db_rdv, key, value)
+    
+    db_rdv.updated_at = datetime.utcnow() # Mettre à jour manuellement updated_at car onupdate n'est pas toujours trigger par setattr
+    db.commit()
+    db.refresh(db_rdv)
+    return db_rdv
+
+@router.delete("/rendezvous/{rdv_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_rendez_vous(
+    rdv_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    """
+    Supprime un rendez-vous.
+    Vérifie que le RDV appartient au professionnel authentifié.
+    """
+    db_rdv = db.query(RendezVousProfessionnel).filter(
+        RendezVousProfessionnel.id == rdv_id,
+        RendezVousProfessionnel.id_professionnel == uuid.UUID(professional_user_id)
+    ).first()
+
+    if db_rdv is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Rendez-vous non trouvé ou non autorisé pour la suppression.")
+
+    db.delete(db_rdv)
+    db.commit()
+    return # FastAPI gère la réponse 204 No Content 

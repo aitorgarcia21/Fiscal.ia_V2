@@ -1,8 +1,10 @@
-from sqlalchemy import Column, Integer, String, Date, Numeric, Text, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Date, Numeric, Text, ForeignKey, DateTime, JSON, UUID, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 import uuid # Pour les ID uuid si nécessaire, mais nous utiliserons Integer auto-incrémenté pour la PK de ClientProfile
+from datetime import datetime
+from typing import Optional
 
 BasePro = declarative_base()
 
@@ -125,3 +127,31 @@ class ClientProfile(BasePro):
 # from .models_pro import BasePro
 # ...
 # BasePro.metadata.create_all(bind=engine) # à appeler au démarrage de l'application 
+
+# --- Nouveaux modèles pour l'agenda --- 
+class RendezVousProfessionnel(BasePro): # Hérite de Base pour être une table SQLAlchemy
+    __tablename__ = "rendez_vous_professionnels"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id_professionnel = Column(UUID(as_uuid=True), ForeignKey("auth.users.id", ondelete="CASCADE"), nullable=False) # ou ForeignKey("profils_utilisateurs.user_id") si profils_utilisateurs est la table principale des pros
+    id_client = Column(Integer, ForeignKey("client_profiles.id", ondelete="CASCADE"), nullable=False)
+    
+    titre = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    date_heure_debut = Column(DateTime(timezone=True), nullable=False)
+    date_heure_fin = Column(DateTime(timezone=True), nullable=False)
+    lieu = Column(String, nullable=True)
+    statut = Column(String, default='Confirmé') # Ex: 'Confirmé', 'En attente', 'Annulé', 'Terminé'
+    notes_rdv = Column(String, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relations SQLAlchemy (optionnel, mais utile)
+    # client = relationship("ClientProfile", back_populates="rendez_vous")
+    # professionnel = relationship("User", backref="rendez_vous_professionnels") # Si User est votre modèle pour auth.users
+
+    __table_args__ = (CheckConstraint('date_heure_fin >= date_heure_debut', name='chk_date_ordre_rdv'),)
+
+# S'assurer que BasePro (si vous l'utilisez pour d'autres modèles pro) est défini
+# ou que RendezVousProfessionnel est ajouté à la bonne instance de Base.metadata.create_all() 

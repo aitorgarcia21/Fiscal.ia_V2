@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any
 from datetime import date, datetime
 from decimal import Decimal # Pour les champs Numeric
+import uuid
 
 # Schéma de base pour ClientProfile, la plupart des champs sont optionnels ici
 # car il sera utilisé pour la création (où certains sont requis) et la mise à jour (où tout est optionnel)
@@ -137,3 +138,38 @@ class AnalysisResultSchema(BaseModel):
 
     class Config:
         from_attributes = True 
+
+# --- Schémas Pydantic pour les Rendez-vous Professionnels ---
+class RendezVousBase(BaseModel):
+    id_client: int
+    titre: str
+    description: Optional[str] = None
+    date_heure_debut: datetime
+    date_heure_fin: datetime
+    lieu: Optional[str] = None
+    statut: Optional[str] = 'Confirmé'
+    notes_rdv: Optional[str] = None
+
+class RendezVousCreate(RendezVousBase):
+    # id_professionnel sera ajouté par le backend à partir de l'utilisateur authentifié
+    pass
+
+class RendezVousUpdate(BaseModel):
+    # Tous les champs sont optionnels pour la mise à jour partielle
+    id_client: Optional[int] = None
+    titre: Optional[str] = None
+    description: Optional[str] = None
+    date_heure_debut: Optional[datetime] = None
+    date_heure_fin: Optional[datetime] = None
+    lieu: Optional[str] = None
+    statut: Optional[str] = None
+    notes_rdv: Optional[str] = None
+
+class RendezVousResponse(RendezVousBase):
+    id: uuid.UUID # Utilisation de uuid.UUID si votre ID est de ce type
+    id_professionnel: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True # Était orm_mode = True dans Pydantic v1 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, User as UserIcon, Search, Edit3, Trash2, Eye, ChevronLeft, ChevronRight, Briefcase, Users, UserCheck, CalendarClock, MessageSquare as MessageSquareIcon } from 'lucide-react';
+import { PlusCircle, User as UserIcon, Search, Edit3, Trash2, Eye, ChevronLeft, ChevronRight, Briefcase, Users, UserCheck, CalendarClock, MessageSquare as MessageSquareIcon, CalendarDays as CalendarDaysIcon } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -110,19 +110,26 @@ export function ProDashboardPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <h1 className="text-3xl sm:text-4xl font-bold text-white">Tableau de Bord Clients</h1>
-            <div className="flex items-center gap-x-4">
+            <div className="flex items-center gap-x-3 sm:gap-x-4">
+              <button
+                onClick={() => navigate('/pro/agenda')}
+                className="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#81A1C1] to-[#A3BE8C] text-[#0A192F] font-semibold rounded-xl shadow-lg hover:shadow-[#81A1C1]/40 hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
+              >
+                <CalendarDaysIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                Agenda
+              </button>
               <button
                 onClick={() => navigate('/pro/chat')}
-                className="px-6 py-3 bg-gradient-to-r from-[#81A1C1] to-[#A3BE8C] text-[#0A192F] font-semibold rounded-xl shadow-lg hover:shadow-[#81A1C1]/40 hover:scale-105 transition-all duration-300 flex items-center gap-2 text-base"
+                className="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#81A1C1] to-[#A3BE8C] text-[#0A192F] font-semibold rounded-xl shadow-lg hover:shadow-[#81A1C1]/40 hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
               >
-                <MessageSquareIcon className="w-5 h-5" />
+                <MessageSquareIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 Consulter Francis
               </button>
               <button
                 onClick={handleAddNewClient}
-                className="px-6 py-3 bg-gradient-to-r from-[#88C0D0] to-[#81A1C1] text-[#0A192F] font-semibold rounded-xl shadow-lg hover:shadow-[#88C0D0]/40 hover:scale-105 transition-all duration-300 flex items-center gap-2 text-base"
+                className="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#88C0D0] to-[#81A1C1] text-[#0A192F] font-semibold rounded-xl shadow-lg hover:shadow-[#88C0D0]/40 hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
               >
-                <PlusCircle className="w-5 h-5" />
+                <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 Nouveau Client
               </button>
             </div>

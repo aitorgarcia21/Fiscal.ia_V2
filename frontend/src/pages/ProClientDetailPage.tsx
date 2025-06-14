@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon } from 'lucide-react';
+import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon } from 'lucide-react';
 
 // TODO: Déplacer vers un fichier de types partagés si utilisé ailleurs
 interface AnalysisResult {
@@ -19,6 +19,22 @@ interface FrancisMessage {
   error?: boolean;
 }
 
+// Interface pour la réponse de l'analyse IRPP (doit correspondre à IRPPAnalysisResponse du backend)
+interface IRPPAnalysisClientResponse {
+    revenu_brut_global: number;
+    revenu_net_imposable: number;
+    nombre_parts: number;
+    quotient_familial: number;
+    impot_brut_calcule: number;
+    decote_applicable?: number | null;
+    impot_net_avant_credits: number;
+    reductions_credits_impot?: Record<string, number> | null;
+    impot_final_estime: number;
+    taux_marginal_imposition: number;
+    taux_moyen_imposition: number;
+    notes_explicatives?: string[] | null;
+}
+
 export function ProClientDetailPage() {
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
@@ -27,6 +43,11 @@ export function ProClientDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  // Nouveaux états pour l'analyse IRPP 2025
+  const [isIrppAnalyzing, setIsIrppAnalyzing] = useState(false);
+  const [irppAnalysisResult, setIrppAnalysisResult] = useState<IRPPAnalysisClientResponse | null>(null);
+  const [irppAnalysisError, setIrppAnalysisError] = useState<string | null>(null);
 
   // États pour le chat avec Francis
   const [francisQuery, setFrancisQuery] = useState('');
@@ -59,7 +80,7 @@ export function ProClientDetailPage() {
     fetchClientDetails();
   }, [clientId]);
 
-  // Réinitialiser le chat de Francis si l'ID du client change ou au premier chargement
+  // Réinitialiser le chat de Francis et les analyses si l'ID du client change
   useEffect(() => {
     setFrancisConversation([
       {
@@ -69,7 +90,10 @@ export function ProClientDetailPage() {
     ]);
     setFrancisQuery('');
     setFrancisChatError(null);
-  }, [clientId, client?.prenom_client, client?.nom_client]); // Se déclenche si le client (et donc son nom) change
+    setAnalysisResult(null); // Réinitialiser l'ancienne analyse aussi
+    setIrppAnalysisResult(null); // Réinitialiser l'analyse IRPP
+    setIrppAnalysisError(null);
+  }, [clientId, client?.prenom_client, client?.nom_client]);
 
   useEffect(() => {
     francisMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -78,18 +102,41 @@ export function ProClientDetailPage() {
   const handleLaunchAnalysis = async () => {
     if (!client) return;
     setIsAnalyzing(true);
+    setIrppAnalysisResult(null); // Cacher l'analyse IRPP si on lance l'autre
     setAnalysisResult(null);
     setError(null);
+    setIrppAnalysisError(null);
 
     try {
       const result = await apiClient<AnalysisResult>(`/api/pro/clients/${clientId}/analyze`, { method: 'POST' });
       setAnalysisResult(result);
     } catch (err: any) {
-      console.error("Erreur lors du lancement de l'analyse:", err);
-      setError(err.data?.detail || err.message || 'Une erreur est survenue lors de l\'analyse.');
+      console.error("Erreur lors du lancement de l'analyse générale:", err);
+      setError(err.data?.detail || err.message || 'Une erreur est survenue lors de l\'analyse générale.');
       setAnalysisResult(null);
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleLaunchIrppAnalysis = async () => {
+    if (!client || !clientId) return;
+    setIsIrppAnalyzing(true);
+    setAnalysisResult(null); // Cacher l'ancienne analyse si on lance IRPP
+    setIrppAnalysisResult(null);
+    setIrppAnalysisError(null);
+    setError(null);
+
+    try {
+      const result = await apiClient<IRPPAnalysisClientResponse>(`/api/pro/clients/${clientId}/analyze_irpp_2025`, { method: 'POST' });
+      setIrppAnalysisResult(result);
+    } catch (err: any) {
+      console.error("Erreur lors du lancement de l'analyse IRPP 2025:", err);
+      const errorMessage = err.data?.detail || err.message || 'Une erreur est survenue lors de l\'analyse IRPP 2025.';
+      setIrppAnalysisError(errorMessage);
+      setIrppAnalysisResult(null);
+    } finally {
+      setIsIrppAnalyzing(false);
     }
   };
 
@@ -175,7 +222,7 @@ export function ProClientDetailPage() {
   };
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-white"><div className="w-10 h-10 border-4 border-dashed border-[#88C0D0] rounded-full animate-spin"></div><span className="ml-3 text-lg">Chargement des informations...</span></div>;
-  if (error && !client && !analysisResult) return <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-red-400 p-8"><p className="text-xl mb-4">{error}</p><button onClick={() => navigate('/pro/dashboard')} className="mt-4 px-6 py-2.5 bg-gradient-to-r from-[#88C0D0] to-[#81A1C1] text-[#0A192F] font-semibold rounded-lg shadow-md hover:scale-105 transition-all">Retour au Tableau de Bord</button></div>;
+  if (error && !client && !analysisResult && !irppAnalysisResult) return <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-red-400 p-8"><p className="text-xl mb-4">{error}</p><button onClick={() => navigate('/pro/dashboard')} className="mt-4 px-6 py-2.5 bg-gradient-to-r from-[#88C0D0] to-[#81A1C1] text-[#0A192F] font-semibold rounded-lg shadow-md hover:scale-105 transition-all">Retour au Tableau de Bord</button></div>;
   if (!client) return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-white">Client non trouvé.</div>;
 
   const identiteDetails = { civilite_client: client.civilite_client, nom_client: client.nom_client, prenom_client: client.prenom_client, nom_usage_client: client.nom_usage_client, date_naissance_client: client.date_naissance_client, lieu_naissance_client: client.lieu_naissance_client, nationalite_client: client.nationalite_client, numero_fiscal_client: client.numero_fiscal_client };
@@ -204,11 +251,19 @@ export function ProClientDetailPage() {
           <div className="flex items-center gap-3">
             <button 
                 onClick={handleLaunchAnalysis}
-                disabled={isAnalyzing}
+                disabled={isAnalyzing || isIrppAnalyzing}
                 className="px-4 py-2 bg-gradient-to-r from-[#B48EAD] to-[#A3BE8C] text-[#0A192F] font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? <RotateCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                {isAnalyzing ? 'Analyse en cours...' : 'Lancer l\'Analyse'}
+                {isAnalyzing ? 'Analyse en cours...' : 'Analyse Générale'}
+              </button>
+            <button 
+                onClick={handleLaunchIrppAnalysis}
+                disabled={isIrppAnalyzing || isAnalyzing}
+                className="px-4 py-2 bg-gradient-to-r from-[#8FBCBB] to-[#88C0D0] text-[#0A192F] font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isIrppAnalyzing ? <RotateCw className="w-4 h-4 animate-spin" /> : <TrendingUpIcon className="w-4 h-4" />}
+                {isIrppAnalyzing ? 'Calcul IRPP en cours...' : 'Analyser IRPP 2025'}
               </button>
             <button 
               onClick={() => navigate(`/pro/clients/${clientId}/edit`)}
@@ -223,7 +278,7 @@ export function ProClientDetailPage() {
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
-          {error && !analysisResult && (
+          {error && !analysisResult && !irppAnalysisResult && (
             <div className="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-center">
               <p>{error}</p>
             </div>
@@ -268,6 +323,64 @@ export function ProClientDetailPage() {
                {error && (
                 <div className="mt-6 p-3 bg-red-900/40 border border-red-700/60 rounded-md text-red-300 text-sm">
                   <p>Erreur pendant l'analyse : {error}</p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {isIrppAnalyzing && (
+            <section className="mb-8 p-6 bg-[#0E2444]/70 rounded-xl shadow-xl border border-[#3E5F8A]/60 text-center">
+              <div className="flex justify-center items-center mb-4">
+                <RotateCw className="w-10 h-10 text-[#8FBCBB] animate-spin mr-3" />
+                <h2 className="text-2xl font-semibold text-white">Calcul de l'IRPP 2025 en cours...</h2>
+              </div>
+              <p className="text-gray-400">Francis prépare une estimation de l'impôt sur le revenu pour 2025 pour ce client.</p>
+            </section>
+          )}
+          {irppAnalysisError && !isIrppAnalyzing && (
+             <div className="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-center">
+              <p>Erreur lors de l'analyse IRPP : {irppAnalysisError}</p>
+            </div>
+          )}
+          {irppAnalysisResult && !isIrppAnalyzing && (
+            <section className="mb-8 p-6 bg-gradient-to-br from-[#1C3A6D] to-[#122C4A] rounded-xl shadow-2xl border border-[#8FBCBB]/50">
+              <div className="flex items-center mb-5">
+                <TrendingUpIcon className="w-8 h-8 text-[#8FBCBB] mr-3 flex-shrink-0" />
+                <h2 className="text-2xl font-bold text-white">Résultats de l'Analyse IRPP 2025 (Estimation)</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Revenu Brut Global Estimé :</span> <span className="font-semibold text-white">{irppAnalysisResult.revenu_brut_global?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Revenu Net Imposable :</span> <span className="font-semibold text-white">{irppAnalysisResult.revenu_net_imposable?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Nombre de Parts Fiscales :</span> <span className="font-semibold text-white">{irppAnalysisResult.nombre_parts?.toFixed(2)}</span></div>
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Quotient Familial :</span> <span className="font-semibold text-white">{irppAnalysisResult.quotient_familial?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Impôt Brut Calculé :</span> <span className="font-semibold text-white">{irppAnalysisResult.impot_brut_calcule?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>
+                {irppAnalysisResult.decote_applicable != null && <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Décote Applicable :</span> <span className="font-semibold text-white">{irppAnalysisResult.decote_applicable?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>}
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Impôt Net Avant RICI :</span> <span className="font-semibold text-white">{irppAnalysisResult.impot_net_avant_credits?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>
+                {irppAnalysisResult.reductions_credits_impot && Object.keys(irppAnalysisResult.reductions_credits_impot).length > 0 && (
+                    <div className="md:col-span-2 p-3 bg-[#0A192F]/40 rounded-md">
+                        <span className="text-gray-400 block mb-1">Réductions/Crédits d'Impôt Estimés :</span>
+                        <ul className="list-disc list-inside pl-4">
+                            {Object.entries(irppAnalysisResult.reductions_credits_impot).map(([key, value]) => (
+                                <li key={key} className="text-white"><span className="capitalize">{key.replace(/_/g, ' ')}</span>: {value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                <div className="md:col-span-2 p-3 bg-gradient-to-r from-[#8FBCBB]/20 to-[#88C0D0]/20 rounded-md mt-2">
+                    <span className="text-gray-300 text-lg">Impôt Final Estimé 2025 :</span> 
+                    <span className="font-bold text-xl text-white ml-2">{irppAnalysisResult.impot_final_estime?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+                </div>
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Taux Marginal d'Imposition :</span> <span className="font-semibold text-white">{irppAnalysisResult.taux_marginal_imposition?.toFixed(2)}%</span></div>
+                <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Taux Moyen d'Imposition :</span> <span className="font-semibold text-white">{irppAnalysisResult.taux_moyen_imposition?.toFixed(2)}%</span></div>
+              </div>
+              {irppAnalysisResult.notes_explicatives && irppAnalysisResult.notes_explicatives.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-700/50">
+                  <h4 className="text-md font-semibold text-gray-300 mb-2">Notes et Avertissements :</h4>
+                  <ul className="list-disc list-inside pl-4 space-y-1 text-xs text-gray-400">
+                    {irppAnalysisResult.notes_explicatives.map((note, index) => (
+                      <li key={index}>{note}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </section>

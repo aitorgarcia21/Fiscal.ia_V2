@@ -1,6 +1,7 @@
 import os
 import json
 from typing import List, Dict, Tuple, AsyncGenerator, Optional
+import typing
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
@@ -122,7 +123,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
 RÈGLES STRICTES :
 1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous.
 2. Le contexte utilisateur fourni (si présent) t'aide à mieux comprendre la question et à cibler les articles pertinents, mais ta réponse doit TOUJOURS se fonder sur les textes officiels.
-3. Cite TOUJOURS l'article du CGI ou la référence BOFiP exacte qui justifie ta réponse.
+3. Lorsque cela est pertinent et justifie directement ta réponse, cite l'article du CGI ou la référence BOFiP exacte. Si ta réponse est de nature générale et ne s'appuie pas sur un texte spécifique pour être comprise, une citation n'est pas nécessaire.
 4. Si l'information n'est pas dans les sources fournies, ou si la question sort du cadre fiscal français, dis-le clairement.
 5. Utilise uniquement les textes officiels, jamais d'autres sources ou tes connaissances générales.
 6. Réponds en français de manière claire, précise et concise.
@@ -164,14 +165,8 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisate
         
         answer = response.choices[0].message.content.strip()
         
-        # Conditionner l'affichage des sources
-        if "CGI" in answer or "BOFiP" in answer or any(src.upper() in answer.upper() for src in official_sources):
-            disclaimer = "\n\nRéférence(s) officielle(s) principale(s) utilisée(s) pour cette réponse : " + ", ".join(list(set(official_sources))[:3])
-            if len(list(set(official_sources))) > 3:
-                disclaimer += f" et {len(list(set(official_sources))) - 3} autre(s)"
-            final_answer = answer + disclaimer
-        else:
-            final_answer = answer
+        # Supprimer la logique d'ajout du disclaimer. Francis gère les citations.
+        final_answer = answer
         
         # Score de confiance basé sur la qualité des sources officielles
         confidence_score = min(1.0, len(official_sources) / 2.0) if official_sources else 0.1 # Ajusté pour être plus sensible
