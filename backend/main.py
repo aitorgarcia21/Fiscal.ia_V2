@@ -574,8 +574,6 @@ print("MAIN_PY_LOG: Tentative de création des tables via Base.metadata.create_a
 Base.metadata.create_all(bind=engine) 
 BasePro.metadata.create_all(bind=engine)
 
-from backend.database import get_db as get_db_session 
-
 def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResponse:
     profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
     return profile
