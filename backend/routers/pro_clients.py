@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Any
+from typing import List, Any, Dict, Optional, Union
 import asyncio
 import json
 
@@ -9,6 +9,8 @@ from backend.models_pro import ClientProfile
 from backend.schemas_pro import ClientProfileCreate, ClientProfileResponse, ClientProfileUpdate, AnalysisResultSchema, AnalysisRecommendation
 from backend.dependencies import supabase, verify_token
 from backend.assistant_fiscal_simple import get_fiscal_response
+from pydantic import BaseModel
+from decimal import Decimal
 
 router = APIRouter(
     prefix="/api/pro",
@@ -298,3 +300,126 @@ async def analyze_client_profile(
         recommendations=recommendations_list[:5], # Limiter à 5 pour l'affichage
         actionPoints=action_points_list[:3] # Limiter à 3 pour l'affichage
     ) 
+
+# Nouveaux modèles Pydantic pour l'endpoint ask_francis
+class AskFrancisRequest(BaseModel):
+    query: str
+    conversation_history: Optional[List[Dict[str, str]]] = None
+
+class FrancisClientResponse(BaseModel):
+    answer: str
+    sources: List[str]
+    confidence: float
+
+# Fonction d'assistance pour convertir les données du client en contexte pour Francis
+def _create_client_context_for_francis(client_profile: ClientProfile) -> Dict[str, Any]:
+    context = {}
+
+    def _safe_float_convert(value: Optional[Union[Decimal, str, int, float]]) -> Optional[float]:
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return None
+
+    # TMI (Tranche Marginale d'Imposition)
+    if client_profile.tranche_marginale_imposition_estimee is not None:
+        # Supposons que c'est un nombre ou une chaîne convertible en nombre (sans '%')
+        tmi_value = str(client_profile.tranche_marginale_imposition_estimee).replace('%', '').strip()
+        context['tmi'] = _safe_float_convert(tmi_value)
+
+    # Situation familiale
+    if client_profile.situation_maritale_client:
+        context['situation_familiale'] = client_profile.situation_maritale_client
+
+    # Nombre d'enfants
+    if client_profile.nombre_enfants_a_charge_client is not None:
+        context['nombre_enfants'] = client_profile.nombre_enfants_a_charge_client
+
+    # Revenus annuels nets (Agrégation)
+    revenus_sources = [
+        client_profile.revenu_net_annuel_client1,
+        client_profile.revenu_net_annuel_client2,
+        client_profile.revenus_fonciers_annuels_bruts_foyer, # Bruts, mais c'est ce qu'on a
+        client_profile.revenus_capitaux_mobiliers_foyer,
+        client_profile.plus_values_mobilieres_foyer,
+        client_profile.plus_values_immobilieres_foyer,
+        client_profile.benefices_industriels_commerciaux_foyer,
+        client_profile.benefices_non_commerciaux_foyer,
+        client_profile.pensions_retraites_percues_foyer,
+        client_profile.pensions_alimentaires_percues_foyer,
+    ]
+    total_revenus = sum(filter(None, map(_safe_float_convert, revenus_sources)))
+    if total_revenus > 0 or revenus_sources: # Mettre le champ même si c'est 0 mais qu'il y a des sources
+         context['revenus_annuels'] = total_revenus
+    
+    # Charges déductibles annuelles
+    # On n'a que les charges foncières pour l'instant
+    charges_deductibles = _safe_float_convert(client_profile.charges_foncieres_deductibles_foyer)
+    if charges_deductibles is not None:
+        context['charges_deductibles'] = charges_deductibles
+
+    # Propriétaire résidence principale
+    # On infère du fait que les détails existent et ne sont pas "vides"
+    if client_profile.residence_principale_details:
+        # details peut être un str JSON ou un dict. Si str, on essaie de parser.
+        # Pour une simple vérification d'existence, on peut juste voir si ce n'est pas None/vide.
+        # Une logique plus fine pourrait vérifier le contenu.
+        try:
+            details_obj = json.loads(client_profile.residence_principale_details) if isinstance(client_profile.residence_principale_details, str) else client_profile.residence_principale_details
+            if details_obj and details_obj != {}: # Non vide si c'est un objet
+                 context['residence_principale'] = True
+            # Si c'est une liste (peu probable pour RP) : if details_obj and details_obj != []:
+        except (json.JSONDecodeError, TypeError):
+            # Si ce n'est pas un JSON valide ou pas le bon type, on ne peut pas déterminer
+            pass # context['residence_principale'] reste non défini ou False
+
+    # Propriétaire résidence secondaire
+    if client_profile.residences_secondaires_details:
+        try:
+            details_obj = json.loads(client_profile.residences_secondaires_details) if isinstance(client_profile.residences_secondaires_details, str) else client_profile.residences_secondaires_details
+            # Typiquement une liste de résidences secondaires
+            if isinstance(details_obj, list) and len(details_obj) > 0:
+                context['residence_secondaire'] = True
+        except (json.JSONDecodeError, TypeError):
+            pass
+            
+    return context
+
+@router.post("/clients/{client_id}/ask_francis", response_model=FrancisClientResponse)
+async def ask_francis_for_client(
+    client_id: int,
+    request: AskFrancisRequest,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user) # Assure que l'utilisateur est un pro
+):
+    """
+    Permet à un professionnel de poser une question à Francis concernant un client spécifique.
+    Le contexte du client est automatiquement extrait et fourni à Francis.
+    """
+    db_client_profile = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if db_client_profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fiche client non trouvée ou accès non autorisé.")
+
+    # Créer le contexte pour Francis à partir des données du client
+    client_context = _create_client_context_for_francis(db_client_profile)
+    
+    # Appeler Francis (get_fiscal_response n'est pas async, FastAPI le gère)
+    try:
+        answer, sources, confidence = get_fiscal_response(
+            query=request.query,
+            conversation_history=request.conversation_history,
+            user_profile_context=client_context 
+        )
+        return FrancisClientResponse(answer=answer, sources=sources, confidence=confidence)
+    except Exception as e:
+        print(f"Erreur lors de l'appel à get_fiscal_response pour client {client_id}: {e}")
+        # Imprimer le traceback complet pour le débogage serveur
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erreur lors de la génération de la réponse fiscale: {str(e)}") 

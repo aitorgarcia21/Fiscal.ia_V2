@@ -9,7 +9,8 @@ interface AuthModalProps {
   onClose: () => void;
   mode?: 'login' | 'signup';
   // Ajout d'un callback optionnel en cas de succès pour plus de flexibilité
-  onSuccess?: (data: any) => void; 
+  onSuccess?: (data: any) => void;
+  expectedRole?: 'particulier' | 'professionnel'; // Nouvelle prop
 }
 
 // L'interface AuthUser ici peut être simplifiée ou alignée avec celle de AuthContext si nécessaire
@@ -26,11 +27,12 @@ interface BackendAuthResponse {
     user: BackendAuthResponseUser;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess, expectedRole }) => {
   const [isLogin, setIsLogin] = useState(mode !== 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState(''); // Pour l'inscription
+  const [accountType, setAccountType] = useState('particulier'); // Ajout pour le type de compte
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -51,19 +53,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess }
       } else {
         responseData = await apiClient<BackendAuthResponse>('/api/auth/register', {
           method: 'POST',
-          data: { email, password, full_name: fullName }, // Envoyer full_name pour l'inscription
+          data: { email, password, full_name: fullName, account_type: accountType }, // Envoyer full_name et account_type
         });
       }
       
       if (responseData && responseData.access_token && responseData.user) {
-        // Utiliser la fonction login du contexte pour mettre à jour l'état global
-        // L'AuthUser de AuthContext attend id, email, user_metadata, taper
-        // On mappe BackendAuthResponseUser vers AuthUser du contexte
+        const actualUserRole = responseData.user.taper;
+
+        // Vérifier si le rôle réel correspond au rôle attendu, si un rôle attendu est fourni
+        if (expectedRole && actualUserRole !== expectedRole) {
+          if (expectedRole === 'professionnel') {
+            setError("Ce compte n'est pas un compte Professionnel. Veuillez vous connecter avec un compte Professionnel pour accéder à cet espace.");
+          } else if (expectedRole === 'particulier') {
+            setError("Ce compte n'est pas un compte Particulier. Veuillez vous connecter avec un compte Particulier.");
+          } else {
+            setError("Le type de votre compte ne correspond pas à l'accès demandé.");
+          }
+          setIsLoading(false);
+          return; // Ne pas continuer la connexion/redirection
+        }
+
+        // Si la vérification du rôle attendu passe (ou si aucun rôle n'est attendu)
         const contextUser = {
             id: responseData.user.id,
             email: responseData.user.email,
             user_metadata: { full_name: responseData.user.full_name }, // Exemple de mapping
-            taper: responseData.user.taper
+            taper: actualUserRole
         };
         await auth.login(responseData.access_token, contextUser);
         
@@ -74,7 +89,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess }
         // La redirection sera gérée par ProProtectedRoute ou la logique de la page appelante
         // si l'utilisateur est pro, il ira vers /pro/dashboard via ProProtectedRoute
         // sinon, on pourrait le laisser sur la page actuelle ou le rediriger vers /dashboard si c'est un utilisateur standard
-        if (contextUser.taper === 'professionnel') {
+        if (actualUserRole === 'professionnel') {
             navigate('/pro/dashboard');
         } else {
             navigate('/dashboard'); // Ou une autre page par défaut pour les non-pros
@@ -116,20 +131,55 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess }
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
-                Nom complet
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-2 bg-[#1a2942]/60 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                placeholder="Votre nom complet"
-                required={!isLogin}
-              />
-            </div>
+            <>
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
+                  Nom complet
+                </label>
+                <input
+                  type="text"
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full px-4 py-2 bg-[#1a2942]/60 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
+                  placeholder="Votre nom complet"
+                  required={!isLogin}
+                />
+              </div>
+
+              {/* Sélecteur de type de compte */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Type de compte
+                </label>
+                <div className="flex items-center space-x-4">
+                  <label htmlFor="particulier" className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="particulier"
+                      name="accountType"
+                      value="particulier"
+                      checked={accountType === 'particulier'}
+                      onChange={() => setAccountType('particulier')}
+                      className="form-radio h-4 w-4 text-[#c5a572] bg-gray-700 border-gray-600 focus:ring-[#c5a572]"
+                    />
+                    <span className="ml-2 text-sm text-gray-200">Particulier</span>
+                  </label>
+                  <label htmlFor="professionnel" className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="professionnel"
+                      name="accountType"
+                      value="professionnel"
+                      checked={accountType === 'professionnel'}
+                      onChange={() => setAccountType('professionnel')}
+                      className="form-radio h-4 w-4 text-[#c5a572] bg-gray-700 border-gray-600 focus:ring-[#c5a572]"
+                    />
+                    <span className="ml-2 text-sm text-gray-200">Professionnel (Patrimonia)</span>
+                  </label>
+                </div>
+              </div>
+            </>
           )}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">

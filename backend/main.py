@@ -174,13 +174,34 @@ security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Supabase client
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Initialisation cohérente avec dependencies.py
+supabase: Client = None
+if SUPABASE_URL:
+    key_to_use_main = os.getenv("SUPABASE_SERVICE_KEY") # Priorité à la service key
+    if not key_to_use_main:
+        print("⚠️ WARNING: SUPABASE_SERVICE_KEY is not set in main.py. Falling back to VITE_SUPABASE_ANON_KEY. This is not recommended for production writes if RLS is enabled.")
+        key_to_use_main = os.getenv("VITE_SUPABASE_ANON_KEY")
+
+    if key_to_use_main:
+        try:
+            supabase = create_client(SUPABASE_URL, key_to_use_main)
+            if key_to_use_main == os.getenv("SUPABASE_SERVICE_KEY"):
+                print("✅ Supabase client initialized with SERVICE_ROLE_KEY in main.py.")
+            else:
+                print("✅ Supabase client initialized with ANON_KEY in main.py (fallback).")
+        except Exception as e_main_supabase:
+            print(f"❌ ERROR initializing Supabase client in main.py: {e_main_supabase}")
+    else:
+        print("❌ ERROR: No Supabase key found (SUPABASE_SERVICE_KEY or VITE_SUPABASE_ANON_KEY) in main.py. Supabase client not initialized.")
+else:
+    print("❌ ERROR: SUPABASE_URL is not set in main.py. Supabase client not initialized.")
 
 # Models
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: Optional[str] = None
+    account_type: Optional[str] = "particulier"
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -279,86 +300,284 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 async def register(user: UserCreate):
     try:
         if not supabase:
-            raise HTTPException(status_code=500, detail="Service non disponible")
+            raise HTTPException(status_code=500, detail="Service Supabase non disponible")
+
+        # Création de l'utilisateur dans Supabase Auth
+        sign_up_options = {"data": {}}
+        if user.full_name:
+            sign_up_options["data"]["full_name"] = user.full_name
+        
         response = supabase.auth.sign_up({
             "email": user.email,
             "password": user.password,
-            "options": {
-                "data": {
-                    "full_name": user.full_name
-                }
-            }
+            "options": sign_up_options # S'assurer que options.data est bien structuré
         })
-        if response.user:
-            token = create_access_token({"sub": response.user.id})
+
+        if response.user and response.user.id:
+            user_id = response.user.id
+            user_email = response.user.email # Email de la réponse Supabase Auth
+            
+            # full_name à partir des options d'inscription ou metadata
+            actual_full_name = user.full_name # Celui fourni à l'inscription
+            if response.user.user_metadata and response.user.user_metadata.get('full_name'):
+                actual_full_name = response.user.user_metadata.get('full_name')
+
+
+            final_taper = "particulier" # Par défaut
+            profile_to_insert = {
+                "user_id": user_id,
+                "email": user_email,
+                "taper": final_taper # Sera écrasé si pro
+            }
+
+            if user.account_type == "professionnel":
+                profile_to_insert["taper"] = "professionnel"
+                final_taper = "professionnel"
+            
+            # La dérogation pour aitorgarcia2112@gmail.com prime sur tout
+            if user_email == "aitorgarcia2112@gmail.com":
+                profile_to_insert["taper"] = "professionnel"
+                final_taper = "professionnel"
+            
+            # Insérer/Mettre à jour le profil utilisateur dans profils_utilisateurs
+            try:
+                # Utiliser upsert pour créer ou mettre à jour si l'utilisateur s'inscrit à nouveau (rare)
+                # ou si on veut s'assurer que les infos sont là.
+                profile_upsert_response = (
+                    supabase.table("profils_utilisateurs")
+                    .upsert(profile_to_insert, on_conflict="user_id")
+                    .execute()
+                )
+                if not (profile_upsert_response.data and len(profile_upsert_response.data) > 0):
+                    print(f"WARN: /auth/register - Profile upsert for {user_id} seemed to fail or returned no data. Supabase error: {profile_upsert_response.error}")
+                    # Ne pas changer final_taper ici, il est déjà basé sur la logique précédente.
+                    # Mais c'est un signe que la DB n'a peut-être pas les bonnes infos.
+                else:
+                    print(f"INFO: /auth/register - User {user_id} profile upserted with taper: {final_taper}.")
+
+            except Exception as e_profile:
+                print(f"ERROR: /auth/register - Could not upsert profile for user {user_id}: {e_profile}. Taper might not be correctly stored for non-aitor accounts.")
+                # Si l'upsert échoue, final_taper (déterminé avant l'upsert) est toujours renvoyé au client,
+                # mais la base de données pourrait ne pas refléter cet état.
+
+            token = create_access_token({"sub": user_id})
+
+            user_data_to_return = {
+                "id": user_id,
+                "email": user_email,
+                "full_name": actual_full_name,
+                "user_metadata": {"full_name": actual_full_name}, # Pour correspondre à ce que AuthContext pourrait attendre
+                "taper": final_taper
+            }
+
             return {
                 "access_token": token,
                 "token_type": "bearer",
-                "user": {
-                    "id": response.user.id,
-                    "email": response.user.email,
-                    "full_name": user.full_name
-                }
+                "user": user_data_to_return
             }
         else:
-            raise HTTPException(status_code=400, detail="Erreur lors de la création du compte")
+            error_detail = "Erreur lors de la création du compte."
+            if hasattr(response, 'error') and response.error: # Vérifier si response.error existe
+                error_detail = response.error.message
+            print(f"ERROR: Supabase sign_up failed. Email: {user.email}, Response Error: {response.error if hasattr(response, 'error') else 'N/A'}")
+            raise HTTPException(status_code=400, detail=error_detail)
+
+    except HTTPException as http_exc:
+        raise http_exc
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        print(f"ERROR: Unexpected error in /auth/register for email {user.email if 'user' in locals() and hasattr(user, 'email') else 'N/A'}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors de l'inscription.")
 
 @api_router.post("/auth/login", response_model=Dict[str, Any])
 async def login(user: UserLogin):
     try:
         if not supabase:
-            raise HTTPException(status_code=500, detail="Service non disponible")
+            raise HTTPException(status_code=500, detail="Service Supabase non disponible")
+        
         response = supabase.auth.sign_in_with_password({
             "email": user.email,
             "password": user.password
         })
-        if response.user:
-            token = create_access_token({"sub": response.user.id})
+
+        if response.user and response.user.id:
+            user_id = response.user.id
+            user_email = response.user.email
+            
+            actual_full_name = None
+            # Essayer de récupérer user_metadata via un appel get_user après le sign_in
+            # Cela fonctionne car sign_in_with_password établit une session pour le client Supabase
+            try:
+                current_user_data_supabase = supabase.auth.get_user() 
+                if current_user_data_supabase and current_user_data_supabase.user and current_user_data_supabase.user.user_metadata:
+                    actual_full_name = current_user_data_supabase.user.user_metadata.get('full_name')
+            except Exception as e_get_user_meta:
+                 print(f"WARN: /auth/login - Could not fetch user_metadata via supabase.auth.get_user() for {user_id}: {e_get_user_meta}")
+
+
+            # Logique pour récupérer le taper de l'utilisateur depuis profils_utilisateurs
+            user_taper = "particulier" # Par défaut
+            # Essayer de lire le profil existant pour obtenir le taper et potentiellement full_name
+            try:
+                profile_response = (
+                    supabase.table("profils_utilisateurs")
+                    .select("user_id, email, taper, full_name") # full_name optionnel
+                    .eq("user_id", user_id)
+                    .maybe_single()
+                    .execute()
+                )
+                if profile_response.data:
+                    if profile_response.data.get("taper"):
+                        user_taper = profile_response.data.get("taper")
+                    if actual_full_name is None and profile_response.data.get("full_name"): 
+                        actual_full_name = profile_response.data.get("full_name")
+                    if user_email is None and profile_response.data.get("email"):
+                         user_email = profile_response.data.get("email")
+
+            except Exception as e_profile_login:
+                print(f"WARN: /auth/login - Could not fetch profile for user {user_id}: {e_profile_login}. Defaulting taper to '{user_taper}'.")
+
+
+            # Override pour aitorgarcia2112@gmail.com (devrait être prioritaire)
+            if user_email == "aitorgarcia2112@gmail.com":
+                user_taper = "professionnel"
+            
+            # Upsert dans profils_utilisateurs pour s'assurer que les infos (y compris email, full_name, taper) sont à jour
+            try:
+                profile_to_upsert = {
+                    "user_id": user_id,
+                    "email": user_email, # Crucial
+                    # "full_name": actual_full_name, # Rendre optionnel
+                    "taper": user_taper # Crucial
+                }
+                if actual_full_name: # N'ajouter full_name que s'il existe et n'est pas vide
+                    profile_to_upsert["full_name"] = actual_full_name
+
+                upsert_response = supabase.table("profils_utilisateurs").upsert(profile_to_upsert, on_conflict="user_id").execute()
+                if not (upsert_response.data and len(upsert_response.data) > 0):
+                     print(f"WARN: /auth/login - Profile upsert for {user_id} seemed to fail or returned no data. Supabase error: {upsert_response.error}")
+                else:
+                    print(f"INFO: /auth/login - User {user_id} profile upserted/verified with taper: {user_taper}.")
+
+            except Exception as e_upsert_login:
+                print(f"WARN: /auth/login - Could not upsert profile for {user_email} ({user_id}): {e_upsert_login}")
+
+            token = create_access_token({"sub": user_id})
+            
+            user_data_for_response = {
+                "id": user_id,
+                "email": user_email,
+                "full_name": actual_full_name, 
+                "user_metadata": {"full_name": actual_full_name} if actual_full_name else {},
+                "taper": user_taper
+            }
+            
             return {
                 "access_token": token,
                 "token_type": "bearer",
-                "user": {
-                    "id": response.user.id,
-                    "email": response.user.email
-                }
+                "user": user_data_for_response
             }
         else:
-            raise HTTPException(status_code=401, detail="Identifiants invalides")
+            error_detail = "Identifiants invalides."
+            if hasattr(response, 'error') and response.error:
+                error_detail = response.error.message
+            print(f"ERROR: Supabase sign_in failed for email {user.email}. Error: {response.error if hasattr(response, 'error') else 'N/A'}")
+            raise HTTPException(status_code=401, detail=error_detail)
+            
+    except HTTPException as http_exc:
+        raise http_exc
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Identifiants invalides")
+        print(f"ERROR: Unexpected error in /auth/login for email {user.email if hasattr(user, 'email') else 'N/A'}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Erreur interne du serveur lors de la connexion.")
 
 @api_router.get("/auth/me", response_model=Dict[str, Any])
 async def get_current_user(user_id: str = Depends(verify_token)):
     try:
         if not supabase:
             raise HTTPException(status_code=500, detail="Service Supabase non disponible")
-        auth_user_response = supabase.auth.get_user()
-        if not auth_user_response.user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utilisateur non trouvé via token")
-        user_data_to_return = {
-            "id": auth_user_response.user.id,
-            "email": auth_user_response.user.email,
-            "user_metadata": auth_user_response.user.user_metadata,
-            "taper": None
-        }
+
+        # Récupérer les informations depuis la table profils_utilisateurs
+        # On s'attend à ce que cette table contienne user_id, email, full_name, taper
+        profile_data = None
+        db_email = None
+        db_full_name = None
+        db_taper = "particulier" # Défaut si non trouvé ou partiel
+
         try:
             profile_response = (
                 supabase.table("profils_utilisateurs")
-                .select("user_id, taper")
-                .eq("user_id", auth_user_response.user.id)
+                .select("user_id, email, taper, full_name") # full_name est optionnel ici
+                .eq("user_id", user_id)
                 .maybe_single()
                 .execute()
             )
             if profile_response.data:
-                user_data_to_return["taper"] = profile_response.data.get("taper")
+                profile_data = profile_response.data
+                db_email = profile_data.get("email") # Crucial
+                db_full_name = profile_data.get("full_name") # Optionnel
+                if profile_data.get("taper"): 
+                    db_taper = profile_data.get("taper") # Crucial
+            else:
+                # Si aucun profil n'est trouvé, cela pourrait être un problème, 
+                # car login/register devraient le créer.
+                # Pour l'instant, on ne lève pas d'erreur mais on logge.
+                # L'email pourrait être récupéré autrement si nécessaire pour la dérogation.
+                print(f"WARN: /api/auth/me - No profile found in 'profils_utilisateurs' for user_id: {user_id}")
+                # Tentative de récupérer l'email pour la dérogation aitorgarcia si db_email est None
+                # Ceci nécessiterait un appel admin ou une autre source fiable pour l'email basé sur user_id.
+                # Pour l'instant, si l'email n'est pas dans profils_utilisateurs, la dérogation basée sur l'email ne fonctionnera pas ici.
+                # Il est crucial que login/register peuplent correctement profils_utilisateurs.
+
         except Exception as profile_exc:
-            pass
+            print(f"ERROR: /api/auth/me - Could not fetch from 'profils_utilisateurs' for user_id {user_id}: {profile_exc}. Defaulting taper.")
+            # db_taper reste "particulier"
+
+        # Construction de la réponse initiale
+        user_data_to_return = {
+            "id": user_id,
+            "email": db_email, # Peut être None si pas dans profils_utilisateurs
+            "user_metadata": {"full_name": db_full_name} if db_full_name else {}, # Structure attendue par le frontend
+            "taper": db_taper
+        }
+        
+        # Dérogation pour aitorgarcia2112@gmail.com
+        # Cette dérogation est plus fiable si db_email est correctement peuplé.
+        if db_email == "aitorgarcia2112@gmail.com":
+            user_data_to_return["taper"] = "professionnel"
+            print(f"INFO: /api/auth/me - Overriding 'taper' to 'professionnel' for user {db_email}")
+            # Assurer que l'entrée existe aussi dans profils_utilisateurs pour cet email spécifique
+            # Ceci est important si le profil n'existait pas ou si le taper était différent.
+            try:
+                upsert_data = {"user_id": user_id, "taper": "professionnel"}
+                if db_email: # N'écrire l'email que s'il est connu
+                    upsert_data["email"] = db_email
+                if db_full_name: # N'écrire full_name que s'il est connu
+                     upsert_data["full_name"] = db_full_name
+                supabase.table("profils_utilisateurs").upsert(upsert_data, on_conflict="user_id").execute()
+                print(f"INFO: /api/auth/me - Ensured 'professionnel' profile exists/updated for {db_email} ({user_id})")
+            except Exception as e_upsert_aitor:
+                print(f"WARN: /api/auth/me - Could not ensure professional profile for {db_email} during /me: {e_upsert_aitor}")
+
+
+        # Si l'email n'a pas été trouvé dans profils_utilisateurs, user_data_to_return["email"] sera None.
+        # Le frontend (AuthContext) s'attend à un email. Si c'est None, cela peut poser problème.
+        # Il faut s'assurer que `profils_utilisateurs` est la source de vérité.
+        if user_data_to_return["email"] is None and user_id:
+             print(f"CRITICAL_WARN: /api/auth/me - Email for user_id {user_id} is None. 'profils_utilisateurs' might be missing email for this user.")
+             # Dans un cas réel, on pourrait tenter un dernier fallback pour l'email ici si vital pour le frontend,
+             # mais cela indiquerait un problème de synchronisation des données.
+
         return user_data_to_return
+
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
+        print(f"ERROR: /api/auth/me - Unexpected error for user_id {user_id if 'user_id' in locals() else 'unknown'}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erreur interne du serveur: {str(e)}")
 
 @api_router.post("/ask", response_model=QuestionResponse)
@@ -618,14 +837,7 @@ def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfile
     if db_user_profile is None:
         # Option: créer le profil s'il n'existe pas (comportement PUT)
         # Pour cela, il faudrait s'assurer que user_profile_update_data.auth_user_id est bien auth_user_id du path
-        if user_profile_update_data.auth_user_id != auth_user_id:
-             raise HTTPException(status_code=400, detail="L'auth_user_id dans le payload ne correspond pas à l'auth_user_id dans l'URL.")
-        
-        # Si on décide de créer au lieu de lever une erreur 404:
-        # db_user_profile = UserProfile(**user_profile_update_data.model_dump())
-        # db.add(db_user_profile)
-        # else:
-        #     raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé pour mise à jour")
+        # ou si l'auth_user_id du payload est différent de celui du path (déjà vérifié plus haut si on crée)
         # Pour l'instant, suivons le comportement strict : lever 404 si non trouvé
         raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé. Utilisez POST pour créer un nouveau profil.")
 

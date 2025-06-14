@@ -565,7 +565,11 @@ export function PatrimoniaLandingPage() { // RENOMMÉ ICI
       </header>
 
       {showAuthModal && (
-        <AuthModal mode={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        <AuthModal 
+          mode={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+          expectedRole="professionnel"
+        />
       )}
 
       {/* Hero Section Pro */}

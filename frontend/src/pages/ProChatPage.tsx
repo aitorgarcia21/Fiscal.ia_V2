@@ -1,0 +1,259 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users } from 'lucide-react'; // Ajout de Briefcase, Users pour sélection client future
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import apiClient from '../services/apiClient';
+import { ClientProfile } from '../types/clientProfile'; // Pour la sélection client future
+
+interface ProMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  sources?: string[];
+  error?: boolean;
+}
+
+// Pourrait être utilisé si on sélectionne un client
+interface ClientContextForFrancis {
+  tmi?: number | null;
+  situation_familiale?: string | null;
+  nombre_enfants?: number | null;
+  residence_principale?: boolean | null;
+  residence_secondaire?: boolean | null;
+  revenus_annuels?: number | null;
+  charges_deductibles?: string | number | null; // Modifié pour correspondre à ce qu'on a dans ClientProfile
+}
+
+export function ProChatPage() {
+  const [messages, setMessages] = useState<ProMessage[]>([
+    {
+      role: 'assistant',
+      content: "Bonjour ! Je suis Francis, votre assistant personnel ! Comment puis-je vous aider aujourd'hui ?"
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isProfessional } = useAuth(); // isProfessional sera utile
+
+  // États pour la sélection de client (à développer)
+  const [clients, setClients] = useState<ClientProfile[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
+
+  // Charger la liste des clients du professionnel au montage
+  useEffect(() => {
+    const fetchClients = async () => {
+      if (isAuthenticated && isProfessional) {
+        setIsLoadingClients(true);
+        try {
+          const response = await apiClient<ClientProfile[]>('/api/pro/clients/');
+          setClients(response || []);
+        } catch (err) {
+          console.error("Erreur chargement des clients pour le chat pro:", err);
+          setClients([]);
+        }
+        setIsLoadingClients(false);
+      }
+    };
+    fetchClients();
+  }, [isAuthenticated, isProfessional]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage: ProMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
+    setInput('');
+    setIsLoading(true);
+
+    let endpoint = '/api/ask'; // Endpoint par défaut (comme pour les particuliers)
+    let payload: any = {
+      question: currentInput,
+      // L'historique est constitué des messages précédents avant le nouveau message utilisateur
+      conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content }))
+    };
+
+    if (selectedClientId) {
+      endpoint = `/api/pro/clients/${selectedClientId}/ask_francis`;
+      // Le payload pour cet endpoint spécifique (query, conversation_history) est différent
+      // conversation_history est attendu à la racine par get_fiscal_response
+      payload = {
+        query: currentInput,
+        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content }))
+      };
+      // Le contexte client sera géré par le backend pour cet endpoint
+    } else {
+      // Pour l'endpoint /api/ask, on pourrait vouloir envoyer un user_profile_context
+      // si Francis pour pro sans client sélectionné doit avoir le contexte du pro lui-même.
+      // Pour l'instant, on envoie sans contexte utilisateur spécifique si aucun client n'est choisi.
+      // payload.user_profile_context = { ... } // à définir si besoin
+    }
+
+    try {
+      // apiClient gère déjà l'authentification via le token stocké
+      const responseData = await apiClient<any>(endpoint, { 
+        method: 'POST',
+        data: payload,
+      });
+
+      const assistantMessage: ProMessage = {
+        role: 'assistant',
+        // La réponse de /api/ask et /api/pro/clients/.../ask_francis a la même structure attendue ici
+        content: responseData.answer || 'Je n\'ai pas pu traiter votre demande.',
+        sources: responseData.sources || []
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error: any) {
+      console.error('Erreur lors de l_envoi du message (ProChatPage):', error);
+      const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite. Veuillez réessayer.";
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: errorMessage,
+        error: true 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] p-4 flex flex-col">
+      <div className="max-w-4xl w-full mx-auto bg-[#0A192F]/90 backdrop-blur-md rounded-xl border border-[#2A3F6C]/40 overflow-hidden flex flex-col shadow-2xl flex-grow">
+        {/* Header adapté pour l'espace Pro */}
+        <div className="p-4 border-b border-[#2A3F6C]/30 flex justify-between items-center bg-[#0E2444]/60">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/pro/dashboard')}>
+            <div className="relative">
+              <Briefcase className="w-10 h-10 text-[#88C0D0]" /> {/* Icône Pro */}
+            </div>
+            <span className="text-xl font-semibold text-[#88C0D0]">Francis Pro</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            {/* Potentiellement un lien vers le dashboard pro */}
+            <button 
+              onClick={() => navigate('/pro/dashboard')}
+              className="text-sm text-[#88C0D0] hover:text-white transition-colors flex items-center"
+            >
+              Tableau de Bord <ArrowRight className="ml-1 w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Zone de sélection de client (placeholder, à améliorer) */}
+        {clients.length > 0 && (
+          <div className="p-3 border-b border-[#2A3F6C]/30 bg-[#0E2444]/50">
+            <label htmlFor="client-select" className="text-xs text-gray-400 mr-2">Question pour le client :</label>
+            <select 
+              id="client-select"
+              value={selectedClientId || ''}
+              onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
+              disabled={isLoadingClients || isLoading}
+              className="px-3 py-1.5 bg-[#0A192F]/70 border border-[#2A3F6C]/50 rounded-md text-sm text-gray-200 focus:outline-none focus:border-[#88C0D0] focus:ring-1 focus:ring-[#88C0D0] min-w-[200px]"
+            >
+              <option value="">Général (sans client spécifique)</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.id}>
+                  {client.prenom_client} {client.nom_client}
+                </option>
+              ))}
+            </select>
+            {isLoadingClients && <span className='text-xs text-gray-500 ml-2'>Chargement clients...</span>}
+          </div>
+        )}
+
+        {/* Messages (similaire à ChatPage) */}
+        <div className="flex-grow overflow-y-auto p-4 space-y-4">
+          {messages.map((message, index) => (
+            <div 
+              key={index} 
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div 
+                className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
+                  message.role === 'user'
+                    ? 'bg-[#88C0D0] text-[#0A192F] rounded-br-none' // Style Pro User
+                    : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#152844] text-white rounded-bl-none' // Style Pro Assistant
+                }`}
+              >
+                <div className="flex items-start space-x-2">
+                  {message.role === 'assistant' && (
+                    <div className="flex-shrink-0 w-7 h-7 bg-[#88C0D0] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
+                      <Briefcase className="w-4 h-4 text-[#0A192F]" /> {/* Icône Pro Assistant */}
+                    </div>
+                  )}
+                  <div className='flex-grow'>
+                    <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
+                    {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-white/20">
+                        <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
+                        <ul className="list-disc list-inside pl-1 space-y-0.5">
+                            {message.sources.slice(0, 3).map((source, idx) => (
+                            <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
+                            ))}
+                        </ul>
+                        </div>
+                    )}
+                  </div>
+                  {message.role === 'user' && (
+                    <div className="flex-shrink-0 w-7 h-7 bg-[#0A192F] rounded-full flex items-center justify-center border-2 border-[#88C0D0]">
+                      <UserIcon className="w-4 h-4 text-[#88C0D0]" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start p-3">
+                <div className="flex items-center space-x-2">
+                    <div className="flex-shrink-0 w-7 h-7 bg-[#88C0D0] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
+                        <Briefcase className="w-4 h-4 text-[#0A192F]" />
+                    </div>
+                    <div className="flex items-center space-x-1.5 bg-[#152844] p-3 rounded-lg rounded-bl-none shadow-md">
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input (similaire à ChatPage) */}
+        <form onSubmit={handleSend} className="p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60">
+          <div className="flex space-x-2">
+            <textarea // Utilisation de textarea pour questions plus longues
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
+              className="flex-1 px-4 py-3 bg-[#0A192F]/70 border border-[#2A3F6C]/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#88C0D0] focus:ring-1 focus:ring-[#88C0D0] transition-colors resize-none"
+              rows={2} // Hauteur initiale pour 2 lignes
+              disabled={isLoading}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend(e as any); // type assertion for event
+                }
+              }}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="bg-[#88C0D0] text-[#0A192F] p-3 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
+              aria-label="Envoyer le message" 
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+} 

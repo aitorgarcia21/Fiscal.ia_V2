@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Dict, Tuple, AsyncGenerator, Optional, Any
+from typing import List, Dict, Tuple, AsyncGenerator, Optional
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
@@ -52,7 +52,7 @@ def get_quick_answer(query: str) -> tuple[str, bool]:
     """Retourne toujours une réponse vide pour forcer une recherche approfondie dans les sources officielles."""
     return "", False
 
-def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, Any]] = None):
+def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None):
     """Génère une réponse fiscale précise basée EXCLUSIVEMENT sur le CGI et le BOFiP, en tenant compte du profil utilisateur si fourni."""
     try:
         # Initialisation du client Mistral
@@ -375,7 +375,7 @@ def get_relevant_context(query: str) -> str:
     return context if context else "Aucune source officielle trouvée pour cette question."
 
 # NOUVELLE FONCTION STREAMING
-async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, Any]] = None) -> AsyncGenerator[str, None]:
+async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None) -> AsyncGenerator[str, None]:
     """Génère une réponse fiscale en streaming (actuellement, une seule réponse complète)."""
     try:
         answer, sources, confidence = get_fiscal_response(query, conversation_history, user_profile_context)

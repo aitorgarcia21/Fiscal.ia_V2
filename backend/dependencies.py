@@ -7,23 +7,37 @@ import os
 from datetime import datetime, timedelta
 
 # Configuration
-JWT_SECRET = os.getenv("JWT_SECRET", "your-very-secret-key-that-should-be-long-and-random") # Assurez-vous que c'est le même que dans main.py ou via .env
+JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key") # MODIFIÉ pour correspondre à main.py
 JWT_ALGORITHM = "HS256" # Assurez-vous que c'est le même
 JWT_EXPIRATION_HOURS = 24 # Assurez-vous que c'est le même
 
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
-SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
+# Utiliser la SERVICE_ROLE_KEY pour le backend, beaucoup plus sûr et outrepasse RLS
+# Garder ANON_KEY en fallback pour dev local si SERVICE_KEY n'est pas set, mais ce n'est pas idéal.
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+SUPABASE_ANON_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
 
 # Supabase client
 supabase: Client = None
-if SUPABASE_URL and SUPABASE_KEY:
-    try:
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("✅ Supabase client initialized in dependencies.py.")
-    except Exception as e:
-        print(f"❌ ERROR initializing Supabase client in dependencies.py: {e}")
+if SUPABASE_URL:
+    key_to_use = SUPABASE_SERVICE_KEY # Priorité à la service key
+    if not key_to_use:
+        print("⚠️ WARNING: SUPABASE_SERVICE_KEY is not set. Falling back to VITE_SUPABASE_ANON_KEY for Supabase client in dependencies.py. This is not recommended for production writes if RLS is enabled.")
+        key_to_use = SUPABASE_ANON_KEY
+
+    if key_to_use:
+        try:
+            supabase = create_client(SUPABASE_URL, key_to_use)
+            if key_to_use == SUPABASE_SERVICE_KEY:
+                print("✅ Supabase client initialized with SERVICE_ROLE_KEY in dependencies.py.")
+            else:
+                print("✅ Supabase client initialized with ANON_KEY in dependencies.py (fallback).")
+        except Exception as e:
+            print(f"❌ ERROR initializing Supabase client in dependencies.py: {e}")
+    else:
+        print("❌ ERROR: No Supabase key found (SUPABASE_SERVICE_KEY or VITE_SUPABASE_ANON_KEY). Supabase client not initialized in dependencies.py.")
 else:
-    print("⚠️ WARNING: SUPABASE_URL or SUPABASE_KEY is not set. Supabase client not initialized in dependencies.py.")
+    print("❌ ERROR: SUPABASE_URL is not set. Supabase client not initialized in dependencies.py.")
 
 # Password Hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

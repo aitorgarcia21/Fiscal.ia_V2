@@ -16,6 +16,7 @@ import { ProClientDetailPage } from './pages/ProClientDetailPage';
 import { ProEditClientPage } from './pages/ProEditClientPage';
 import { PatrimoniaLandingPage } from './pages/PatrimoniaLandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
+import { ProChatPage } from './pages/ProChatPage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -39,6 +40,7 @@ function App() {
             <Route path="/pro/clients/new" element={<ProCreateClientPage />} />
             <Route path="/pro/clients/:clientId" element={<ProClientDetailPage />} />
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
+            <Route path="/pro/chat" element={<ProChatPage />} />
           </Route>
         </Routes>
       </Router>

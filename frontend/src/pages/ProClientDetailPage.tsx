@@ -1,14 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon } from 'lucide-react';
 
 // TODO: Déplacer vers un fichier de types partagés si utilisé ailleurs
 interface AnalysisResult {
   summary: string;
   recommendations: string[];
   actionPoints: string[];
+}
+
+// Interface pour les messages de Francis
+interface FrancisMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  sources?: string[];
+  error?: boolean;
 }
 
 export function ProClientDetailPage() {
@@ -19,6 +27,13 @@ export function ProClientDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  // États pour le chat avec Francis
+  const [francisQuery, setFrancisQuery] = useState('');
+  const [francisConversation, setFrancisConversation] = useState<FrancisMessage[]>([]);
+  const [isFrancisLoading, setIsFrancisLoading] = useState(false);
+  const [francisChatError, setFrancisChatError] = useState<string | null>(null);
+  const francisMessagesEndRef = useRef<HTMLDivElement>(null); // Pour le défilement automatique
 
   useEffect(() => {
     if (!clientId) {
@@ -44,6 +59,22 @@ export function ProClientDetailPage() {
     fetchClientDetails();
   }, [clientId]);
 
+  // Réinitialiser le chat de Francis si l'ID du client change ou au premier chargement
+  useEffect(() => {
+    setFrancisConversation([
+      {
+        role: 'assistant',
+        content: `Bonjour ! Vous pouvez me poser des questions spécifiques concernant ${client?.prenom_client || 'ce client'} ${client?.nom_client || ''}. J'utiliserai son profil pour affiner mes réponses.`
+      }
+    ]);
+    setFrancisQuery('');
+    setFrancisChatError(null);
+  }, [clientId, client?.prenom_client, client?.nom_client]); // Se déclenche si le client (et donc son nom) change
+
+  useEffect(() => {
+    francisMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [francisConversation]);
+
   const handleLaunchAnalysis = async () => {
     if (!client) return;
     setIsAnalyzing(true);
@@ -59,6 +90,51 @@ export function ProClientDetailPage() {
       setAnalysisResult(null);
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleAskFrancisSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!francisQuery.trim() || !clientId) return;
+
+    const userMessageContent = francisQuery;
+    const newUserMessage: FrancisMessage = { role: 'user', content: userMessageContent };
+
+    setFrancisConversation(prev => [...prev, newUserMessage]);
+    setFrancisQuery('');
+    setIsFrancisLoading(true);
+    setFrancisChatError(null);
+
+    // Préparer l'historique pour l'API (uniquement les messages précédents, pas le message actuel de l'utilisateur qui est dans `query`)
+    const historyForApi = francisConversation.map(msg => ({ role: msg.role, content: msg.content }));
+
+    try {
+      const response = await apiClient<any>(`/api/pro/clients/${clientId}/ask_francis`, {
+        method: 'POST',
+        data: { 
+          query: userMessageContent, 
+          conversation_history: historyForApi 
+        },
+      });
+
+      const assistantMessage: FrancisMessage = {
+        role: 'assistant',
+        content: response.answer || 'Je n\'ai pas pu traiter votre demande.',
+        sources: response.sources || []
+      };
+      setFrancisConversation(prev => [...prev, assistantMessage]);
+
+    } catch (err: any) {
+      console.error("Erreur lors de la communication avec Francis:", err);
+      const errorMessage = err.data?.detail || err.message || "Désolé, une erreur s'est produite avec Francis.";
+      setFrancisChatError(errorMessage);
+      setFrancisConversation(prev => [...prev, { 
+        role: 'assistant', 
+        content: errorMessage,
+        error: true 
+      }]);
+    } finally {
+      setIsFrancisLoading(false);
     }
   };
 
@@ -205,6 +281,107 @@ export function ProClientDetailPage() {
           {renderDetailSection("Objectifs & Projets", Info, objectifsDetails)}
           {renderDetailSection("Informations Fiscales", FileTextLtr, fiscaliteDetails)}
           {renderDetailSection("Suivi Professionnel", Edit3, suiviProDetails)}
+
+          {/* Section Chat avec Francis */}
+          <section className="mt-8 mb-6 p-6 bg-[#0E2444]/70 rounded-xl shadow-xl border border-[#3E5F8A]/60">
+            <div className="flex items-center mb-4">
+              <MessageSquare className="w-7 h-7 text-[#c5a572] mr-3 flex-shrink-0" />
+              <h2 className="text-xl font-semibold text-white">Consulter Francis pour {client.prenom_client} {client.nom_client}</h2>
+            </div>
+
+            {/* Zone d'affichage des messages */}
+            <div className="h-96 overflow-y-auto p-4 space-y-4 bg-[#0A192F]/50 rounded-md mb-4 border border-[#2A3F6C]/30">
+              {francisConversation.map((message, index) => (
+                <div 
+                  key={index} 
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div 
+                    className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
+                      message.role === 'user'
+                        ? 'bg-[#c5a572] text-[#1a2942] rounded-br-none'
+                        : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#223c63]/90 text-white rounded-bl-none'
+                    }`}
+                  >
+                    <div className="flex items-start space-x-2">
+                      {message.role === 'assistant' && (
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
+                          <BotIcon className="w-4 h-4 text-[#1a2942]" />
+                        </div>
+                      )}
+                      <div className="flex-grow">
+                        <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
+                        {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-white/20">
+                            <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
+                            <ul className="list-disc list-inside pl-1 space-y-0.5">
+                              {message.sources.slice(0, 3).map((source, idx) => (
+                                <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      {message.role === 'user' && (
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#0A192F] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                          <User className="w-4 h-4 text-[#c5a572]" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {isFrancisLoading && (
+                <div className="flex justify-start p-3">
+                    <div className="flex items-center space-x-2">
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
+                            <BotIcon className="w-4 h-4 text-[#1a2942]" />
+                        </div>
+                        <div className="flex items-center space-x-1.5 bg-[#223c63]/90 p-3 rounded-lg rounded-bl-none shadow-md">
+                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                    </div>
+                </div>
+              )}
+              <div ref={francisMessagesEndRef} />
+            </div>
+
+            {francisChatError && (
+              <div className="my-2 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm">
+                <p>Erreur Francis : {francisChatError}</p>
+              </div>
+            )}
+
+            {/* Formulaire de saisie */}
+            <form onSubmit={handleAskFrancisSubmit} className="mt-2">
+              <div className="flex space-x-2">
+                <textarea
+                  value={francisQuery}
+                  onChange={(e) => setFrancisQuery(e.target.value)}
+                  placeholder={`Posez une question sur ${client.prenom_client} ${client.nom_client}... (ex: Quel serait l'impact d'un investissement Pinel ?)`}
+                  className="flex-1 px-4 py-3 bg-[#0A192F]/50 border border-[#c5a572]/40 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
+                  rows={2}
+                  disabled={isFrancisLoading}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAskFrancisSubmit(e as any); // type assertion for event
+                    }
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={!francisQuery.trim() || isFrancisLoading}
+                  className="bg-[#c5a572] text-[#0A192F] p-3 rounded-lg hover:bg-[#e8cfa0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
+                  aria-label="Envoyer le message à Francis" 
+                >
+                  <SendIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
+          </section>
 
         </div>
       </main>
