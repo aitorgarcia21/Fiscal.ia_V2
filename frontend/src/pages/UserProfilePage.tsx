@@ -4,6 +4,7 @@ import apiClient from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import { ChevronLeft, Save, AlertCircle, CheckCircle as CheckCircleIcon, UserCog } from 'lucide-react';
 
+// Commentaire de test pour forcer rebuild v2
 interface UserProfileData {
   auth_user_id?: string; 
   tmi: number | null;
