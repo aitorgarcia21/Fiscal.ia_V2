@@ -123,14 +123,9 @@ export function ProfilePage() {
             </button>
             
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl blur-md opacity-60"></div>
-                <div className="relative bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-2 rounded-xl">
-                  <div className="relative inline-flex items-center justify-center">
-                    <MessageSquare className="h-6 w-6 text-[#162238]" />
-                    <Euro className="h-4 w-4 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
-                  </div>
-                </div>
+              <div className="relative inline-flex items-center justify-center group">
+                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">
