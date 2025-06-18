@@ -36,7 +36,7 @@ export const PRICING = {
     price: 49.99,
     currency: 'EUR',
     interval: 'month',
-    stripePriceId: 'price_pro_monthly_test', // À remplacer par le vrai ID Stripe
+    stripePriceId: 'price_1QVVfZGZEuLRLMp4FZd4eqCH', // Utilisation temporaire de l'ID particulier pour test
     type: 'professionnel',
     features: [
       'Interface Pro complète',
@@ -52,7 +52,7 @@ export const PRICING = {
     price: 499.99,
     currency: 'EUR',
     interval: 'year',
-    stripePriceId: 'price_pro_annual_test', // À remplacer par le vrai ID Stripe
+    stripePriceId: 'price_1QVVh0GZEuLRLMp4qwjkFxrE', // Utilisation temporaire de l'ID particulier pour test
     type: 'professionnel',
     features: [
       'Interface Pro complète',
