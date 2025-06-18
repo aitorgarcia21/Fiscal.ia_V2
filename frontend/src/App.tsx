@@ -6,6 +6,7 @@ import { TrueLayerCallback } from './pages/TrueLayerCallback';
 import { SignupPage } from './pages/SignupPage';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { ChatPage } from './pages/ChatPage';
+
 import { DemoPage } from './pages/DemoPage';
 import { ContactProPage } from './pages/ContactProPage';
 import { ProDashboardPage } from './pages/ProDashboardPage';

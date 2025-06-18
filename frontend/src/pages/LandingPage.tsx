@@ -70,10 +70,10 @@ export function LandingPage() {
         </div>
       </header>
 
-      {/* Modale d'authentification - Décommenté */}
+      {/* Modale d'authentification */}
       {showAuthModal && ( <AuthModal mode={showAuthModal} onClose={() => setShowAuthModal(false)} /> )}
 
-      {/* Modale de démo - Décommenté */}
+      {/* Modale de démo */}
       {showDemo && ( <DemoModal onClose={() => setShowDemo(false)} onStart={() => { setShowDemo(false); navigate('/signup'); }} /> )}
 
       {/* Hero Section - Restauré */}
