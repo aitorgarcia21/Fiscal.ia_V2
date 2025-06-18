@@ -86,7 +86,7 @@ export function ProDashboardPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">
-                Fiscal.ia Pro
+                Pro
               </h1>
               <p className="text-xs text-gray-400">Gestion Clients</p>
             </div>
