@@ -93,10 +93,38 @@ class UserProfile(Base):
     revenus_annuels = Column(Float, nullable=True)
     charges_deductibles = Column(Float, nullable=True)
     
+    # Nouveaux champs pour le profiling initial
+    activite_principale = Column(String, nullable=True)
+    revenus_passifs = Column(Text, nullable=True)  # JSON array as text
+    revenus_complementaires = Column(Text, nullable=True)  # JSON array as text
+    statuts_juridiques = Column(Text, nullable=True)  # JSON array as text
+    pays_residence = Column(String, nullable=True)
+    age = Column(Integer, nullable=True)
+    patrimoine_immobilier = Column(Boolean, nullable=True)
+    residence_fiscale = Column(String, nullable=True)
+    patrimoine_situation = Column(String, nullable=True)
+    has_completed_onboarding = Column(Boolean, default=False)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="profile")
 
     def __repr__(self):
-        return f"<UserProfile(id={self.id}, auth_user_id={self.auth_user_id}, tmi={self.tmi})>" 
+        return f"<UserProfile(id={self.id}, auth_user_id={self.auth_user_id}, activite_principale={self.activite_principale})>" 
+
+class RendezVousProfessionnel(Base):
+    __tablename__ = 'rendez_vous_professionnels'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_professionnel = Column(String(36), nullable=False)  # UUID de l'utilisateur Supabase
+    date_rdv = Column(DateTime, nullable=False)
+    duree = Column(Integer, nullable=False)  # Durée en minutes
+    type_rdv = Column(String, nullable=False)  # Type de rendez-vous
+    statut = Column(String, nullable=False, default='en_attente')  # en_attente, confirmé, annulé
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<RendezVousProfessionnel(id={self.id}, date_rdv={self.date_rdv}, type_rdv={self.type_rdv})>" 

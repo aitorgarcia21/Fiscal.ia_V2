@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { TrueLayerCallback } from './pages/TrueLayerCallback';
@@ -14,7 +14,7 @@ import { ParticulierProtectedRoute } from './components/auth/ParticulierProtecte
 import { ProCreateClientPage } from './pages/ProCreateClientPage';
 import { ProClientDetailPage } from './pages/ProClientDetailPage';
 import { ProEditClientPage } from './pages/ProEditClientPage';
-import { PatrimoniaLandingPage } from './pages/PatrimoniaLandingPage';
+import ProLandingPage from './pages/ProLandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { ProChatPage } from './pages/ProChatPage';
 import { ProAgendaPage } from './pages/ProAgendaPage';
@@ -25,7 +25,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/patrimonia" element={<PatrimoniaLandingPage />} />
+          <Route path="/pro" element={<ProLandingPage />} />
+          <Route path="/patrimonia" element={<Navigate to="/pro" replace />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/contact-pro" element={<ContactProPage />} />

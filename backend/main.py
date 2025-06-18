@@ -255,8 +255,20 @@ class UserProfileResponse(BaseModel):
     residence_secondaire: Optional[bool] = None
     revenus_annuels: Optional[float] = None
     charges_deductibles: Optional[float] = None
+    # Nouveaux champs pour le profiling initial
+    activite_principale: Optional[str] = None
+    revenus_passifs: Optional[str] = None  # JSON string
+    revenus_complementaires: Optional[str] = None  # JSON string
+    statuts_juridiques: Optional[str] = None  # JSON string
+    pays_residence: Optional[str] = None
+    age: Optional[int] = None
+    patrimoine_immobilier: Optional[bool] = None
+    residence_fiscale: Optional[str] = None
+    patrimoine_situation: Optional[str] = None
+    has_completed_onboarding: Optional[bool] = None
     created_at: datetime
     updated_at: datetime
+
     class Config:
         from_attributes = True
 
@@ -270,6 +282,17 @@ class UserProfileCreate(BaseModel):
     residence_secondaire: Optional[bool] = None
     revenus_annuels: Optional[float] = None
     charges_deductibles: Optional[float] = None
+    # Nouveaux champs pour le profiling initial
+    activite_principale: Optional[str] = None
+    revenus_passifs: Optional[List[str]] = None  # Liste convertie en JSON
+    revenus_complementaires: Optional[List[str]] = None  # Liste convertie en JSON
+    statuts_juridiques: Optional[List[str]] = None  # Liste convertie en JSON
+    pays_residence: Optional[str] = None
+    age: Optional[int] = None
+    patrimoine_immobilier: Optional[bool] = None
+    residence_fiscale: Optional[str] = None
+    patrimoine_situation: Optional[str] = None
+    has_completed_onboarding: Optional[bool] = None
 
 # Utils
 def create_access_token(data: dict):
@@ -789,9 +812,20 @@ async def startup_event():
         print(f"⚠️  Erreur lors du préchargement des embeddings: {e}", file=sys.stderr)
         pass
 
-print("MAIN_PY_LOG: Tentative de création des tables via Base.metadata.create_all()", file=sys.stderr)
-Base.metadata.create_all(bind=engine) 
-BasePro.metadata.create_all(bind=engine)
+print("MAIN_PY_LOG: Tentative de création des tables via Base.metadata.create_all()", file=sys.stderr, flush=True)
+try:
+    print("MAIN_PY_LOG: Avant Base.metadata.create_all", file=sys.stderr, flush=True)
+    # Base.metadata.create_all(bind=engine)
+    print("MAIN_PY_LOG: Après Base.metadata.create_all", file=sys.stderr, flush=True)
+    print("MAIN_PY_LOG: Avant BasePro.metadata.create_all", file=sys.stderr, flush=True)
+    # BasePro.metadata.create_all(bind=engine)
+    print("MAIN_PY_LOG: Après BasePro.metadata.create_all", file=sys.stderr, flush=True)
+except Exception as e:
+    print(f"MAIN_PY_LOG: ERREUR lors de la création des tables: {e}", file=sys.stderr, flush=True)
+    import traceback
+    traceback.print_exc(file=sys.stderr)
+    sys.stderr.flush()
+    raise
 
 def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResponse:
     profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
@@ -804,22 +838,33 @@ def create_user_profile(user_profile_data: UserProfileCreate, db: Session = Depe
     if existing_profile:
         raise HTTPException(status_code=400, detail=f"Un profil pour l'utilisateur avec auth_id {user_profile_data.auth_user_id} existe déjà.")
     
-    # Créer l'instance UserProfile. user_profile_data contient auth_user_id.
-    # Si user_profile_data.user_id (Integer) est fourni, il sera utilisé pour la FK.
-    # Sinon, UserProfile.user_id (Integer) sera NULL (car nullable=True dans le modèle).
-    db_user_profile = UserProfile(**user_profile_data.model_dump())
+    # Convertir les listes en JSON strings avant sauvegarde
+    profile_data = user_profile_data.model_dump()
+    if profile_data.get('revenus_passifs'):
+        profile_data['revenus_passifs'] = json.dumps(profile_data['revenus_passifs'])
+    if profile_data.get('revenus_complementaires'):
+        profile_data['revenus_complementaires'] = json.dumps(profile_data['revenus_complementaires'])
+    if profile_data.get('statuts_juridiques'):
+        profile_data['statuts_juridiques'] = json.dumps(profile_data['statuts_juridiques'])
+    
+    db_user_profile = UserProfile(**profile_data)
     db.add(db_user_profile)
     db.commit()
     db.refresh(db_user_profile)
     
     response_data = {**db_user_profile.__dict__}
     response_data.pop('_sa_instance_state', None)
-    # Assurer que auth_user_id est bien une chaîne dans la réponse si ce n'est pas déjà le cas
     response_data['auth_user_id'] = str(db_user_profile.auth_user_id)
+    
+    # Convertir les JSON strings de retour en strings pour la réponse
+    for field in ['revenus_passifs', 'revenus_complementaires', 'statuts_juridiques']:
+        if response_data.get(field):
+            response_data[field] = response_data[field]  # Garder comme string JSON
+    
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse) # Paramètre de chemin changé en auth_user_id: str
+@app.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
@@ -828,24 +873,33 @@ def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     response_data = {**db_user_profile.__dict__}
     response_data.pop('_sa_instance_state', None)
     response_data['auth_user_id'] = str(db_user_profile.auth_user_id)
+    
+    # Convertir les JSON strings de retour en strings pour la réponse
+    for field in ['revenus_passifs', 'revenus_complementaires', 'statuts_juridiques']:
+        if response_data.get(field):
+            response_data[field] = response_data[field]  # Garder comme string JSON
+    
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse) # Paramètre de chemin changé
+@app.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfileCreate, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
-        # Option: créer le profil s'il n'existe pas (comportement PUT)
-        # Pour cela, il faudrait s'assurer que user_profile_update_data.auth_user_id est bien auth_user_id du path
-        # ou si l'auth_user_id du payload est différent de celui du path (déjà vérifié plus haut si on crée)
-        # Pour l'instant, suivons le comportement strict : lever 404 si non trouvé
-        raise HTTPException(status_code=404, detail=f"Profil utilisateur avec auth_id {auth_user_id} non trouvé. Utilisez POST pour créer un nouveau profil.")
+        # Créer le profil s'il n'existe pas (comportement PUT)
+        return create_user_profile(user_profile_update_data, db)
 
     update_data = user_profile_update_data.model_dump(exclude_unset=True)
-    # S'assurer de ne pas essayer de mettre à jour auth_user_id via le payload si ce n'est pas l'intention
-    # ou si l'auth_user_id du payload est différent de celui du path (déjà vérifié plus haut si on crée)
-    update_data.pop('auth_user_id', None) # On ne modifie pas l'auth_user_id via un PUT sur cette ressource
-    update_data.pop('user_id', None) # Idem pour l'ID entier, sa gestion est plus complexe
+    update_data.pop('auth_user_id', None)
+    update_data.pop('user_id', None)
+    
+    # Convertir les listes en JSON strings avant mise à jour
+    if update_data.get('revenus_passifs'):
+        update_data['revenus_passifs'] = json.dumps(update_data['revenus_passifs'])
+    if update_data.get('revenus_complementaires'):
+        update_data['revenus_complementaires'] = json.dumps(update_data['revenus_complementaires'])
+    if update_data.get('statuts_juridiques'):
+        update_data['statuts_juridiques'] = json.dumps(update_data['statuts_juridiques'])
 
     for key, value in update_data.items():
         setattr(db_user_profile, key, value)
@@ -856,10 +910,16 @@ def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfile
     response_data = {**db_user_profile.__dict__}
     response_data.pop('_sa_instance_state', None)
     response_data['auth_user_id'] = str(db_user_profile.auth_user_id)
+    
+    # Convertir les JSON strings de retour en strings pour la réponse
+    for field in ['revenus_passifs', 'revenus_complementaires', 'statuts_juridiques']:
+        if response_data.get(field):
+            response_data[field] = response_data[field]  # Garder comme string JSON
+    
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse) # Paramètre de chemin changé
+@app.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def delete_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:

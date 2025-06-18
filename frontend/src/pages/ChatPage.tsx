@@ -110,11 +110,11 @@ export function ChatPage() {
         {/* Header */}
         <div className="p-4 border-b border-[#c5a572]/20 flex justify-between items-center">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="relative">
-              <MessageSquare className="w-10 h-10 text-[#c5a572]" />
-              <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
+            <div className="relative inline-flex items-center justify-center group">
+              <MessageSquare className="w-10 h-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <span className="text-xl font-semibold text-[#c5a572]">Francis IA</span>
+            <span className="text-xl font-semibold text-[#c5a572] ml-2">Fiscal.ia</span>
           </div>
           <div className="flex items-center space-x-4">
             {isAuthenticated && (

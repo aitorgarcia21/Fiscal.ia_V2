@@ -152,12 +152,12 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
   const IconComponent = currentQ.icon;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6">
       {/* Progress Bar */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-400">Question {currentQuestion + 1} sur {questions.length}</span>
-          <span className="text-sm text-[#c5a572]">{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span>
+          <span className="text-xs sm:text-sm text-gray-400">Question {currentQuestion + 1} sur {questions.length}</span>
+          <span className="text-xs sm:text-sm text-[#c5a572] font-semibold">{Math.round(((currentQuestion + 1) / questions.length) * 100)}%</span>
         </div>
         <div className="w-full bg-[#162238] rounded-full h-2">
           <motion.div 
@@ -176,17 +176,17 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -50 }}
         transition={{ duration: 0.3 }}
-        className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-8 shadow-xl"
+        className="bg-[#1E3253]/60 backdrop-blur-md rounded-xl border border-[#2A3F6C]/30 p-4 sm:p-6 lg:p-8 shadow-xl"
       >
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full mb-4">
-            <IconComponent className="w-8 h-8 text-[#162238]" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full mb-3 sm:mb-4">
+            <IconComponent className="w-6 h-6 sm:w-8 sm:h-8 text-[#162238]" />
           </div>
-          <h2 className="text-2xl font-semibold text-white mb-2">{currentQ.title}</h2>
-          <p className="text-gray-400">Cette information nous aide à personnaliser vos conseils fiscaux</p>
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white mb-2 px-2">{currentQ.title}</h2>
+          <p className="text-sm sm:text-base text-gray-400 px-2">Cette information nous aide à personnaliser vos conseils fiscaux</p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {currentQ.options.map((option, index) => (
             <motion.button
               key={option.value}
@@ -212,7 +212,7 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
                   setAnswers(prev => ({ ...prev, [currentQ.id]: newValues }));
                 }
               }}
-              className={`w-full p-4 text-left rounded-lg border transition-all duration-200 hover:scale-[1.02] ${
+              className={`w-full p-3 sm:p-4 text-left rounded-lg border transition-all duration-200 active:scale-95 sm:hover:scale-[1.02] ${
                 currentQ.type === 'multiple-choice' && 
                 ((answers[currentQ.id as keyof InitialData] as string[]) || []).includes(option.value)
                   ? 'bg-[#c5a572]/20 border-[#c5a572] text-white'
@@ -220,16 +220,18 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium">{option.label}</span>
-                {currentQ.type === 'single-choice' && (
-                  <ArrowRight className="w-5 h-5 text-[#c5a572] opacity-70" />
-                )}
-                {currentQ.type === 'multiple-choice' && 
-                 ((answers[currentQ.id as keyof InitialData] as string[]) || []).includes(option.value) && (
-                  <div className="w-5 h-5 bg-[#c5a572] rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full" />
-                  </div>
-                )}
+                <span className="text-sm sm:text-base font-medium pr-2">{option.label}</span>
+                <div className="flex-shrink-0">
+                  {currentQ.type === 'single-choice' && (
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#c5a572] opacity-70" />
+                  )}
+                  {currentQ.type === 'multiple-choice' && 
+                   ((answers[currentQ.id as keyof InitialData] as string[]) || []).includes(option.value) && (
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 bg-[#c5a572] rounded-full flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full" />
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.button>
           ))}
@@ -245,10 +247,10 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
           >
             <button
               onClick={() => handleAnswer(answers[currentQ.id as keyof InitialData] as string[])}
-              className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all duration-300 flex items-center space-x-2 mx-auto"
+              className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg shadow-lg hover:shadow-[#c5a572]/40 active:scale-95 sm:hover:scale-105 transition-all duration-300 flex items-center space-x-2 mx-auto text-sm sm:text-base"
             >
               <span>Continuer</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </motion.div>
         )}
@@ -260,7 +262,7 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => setCurrentQuestion(currentQuestion - 1)}
-          className="mt-4 text-gray-400 hover:text-white transition-colors text-sm flex items-center"
+          className="mt-4 text-gray-400 hover:text-white transition-colors text-sm flex items-center px-4 sm:px-0"
         >
           ← Question précédente
         </motion.button>

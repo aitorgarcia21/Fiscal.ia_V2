@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check, Briefcase, FileText, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, Variants, Transition } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
 import { DemoModal } from '../components/demo/DemoModal';
 import { useStripe } from '../hooks/useStripe';
@@ -9,29 +9,39 @@ import { PRICING, PricingPlan } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
 import { DemoConversation } from '../components/demo/DemoConversation';
 
+// Définir un type plus précis pour les transitions si nécessaire, ou utiliser Transition directement
+const cardTransition: Transition = { duration: 0.6 };
+const stepTransition = (i: number): Transition => ({ delay: i * 0.15, duration: 0.5 });
+const heroTransition: Transition = { duration: 0.8, delay: 0.2 }; // example
+const heroTextTransition: Transition = { duration: 0.8, delay: 0.4 };
+const heroButtonTransition: Transition = { duration: 0.8, delay: 0.5 };
+const heroBadgeTransition: Transition = { duration: 0.8, delay: 0.8 };
+const heroH1Transition: Transition = {delay: 0.2, duration: 0.7};
+const heroH1SpanTransition: Transition = { duration: 0.7, delay: 0.8};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: cardTransition
+  }
+};
+
+const stepItemVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.85 },
+  visible: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: stepTransition(i)
+  })
+};
+
 export function LandingPage() {
   const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState<false | 'login' | 'signup'>(false);
   const [showDemo, setShowDemo] = useState(false);
   const { handleCheckout, isLoading, error } = useStripe();
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
-
-  const stepItemVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: (i: number) => ({
-      opacity: 1,
-      scale: 1,
-      transition: { delay: i * 0.2, duration: 0.5, ease: "easeOut" }
-    })
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 font-sans antialiased">
@@ -76,33 +86,33 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#162238]/30 via-transparent to-[#234876]/20"></div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="mb-12">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={heroTransition} className="mb-12">
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white mb-8 leading-tight"
               initial={{ opacity: 0, y:20 }}
               animate={{ opacity:1, y:0 }}
-              transition={{delay: 0.2, duration: 0.7}}
+              transition={heroH1Transition}
             >
               Optimisez votre fiscalité avec <span className="relative inline-block text-[#c5a572]">Francis
                 <motion.span 
                   className="absolute -bottom-2.5 left-0 w-full h-1.5 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"
                   initial={{ scaleX: 0 }} 
                   animate={{ scaleX: 1 }} 
-                  transition={{ duration: 0.7, delay: 0.8, ease: "circOut" }}
+                  transition={heroH1SpanTransition}
                 />
               </span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={heroTextTransition}
               className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light"
             >
               L'intelligence artificielle qui vous fait économiser des milliers d'euros sur vos impôts, en toute légalité.
             </motion.p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }} className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={heroButtonTransition} className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
             <motion.button
               onClick={() => navigate('/signup')}
               whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
@@ -123,7 +133,7 @@ export function LandingPage() {
             </motion.button>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }} className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 opacity-70">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={heroBadgeTransition} className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 sm:gap-x-12 opacity-70">
             {[ { icon: Shield, text: "100% Sécurisé" }, { icon: Users, text: "+500 Utilisateurs" }, { icon: Sparkles, text: "IA de pointe" } ].map((badge, index) => (
               <motion.div key={index} whileHover={{ scale: 1.05 }} className="flex items-center space-x-3 text-gray-300">
                 <badge.icon className="h-5 w-5 text-[#c5a572]" />

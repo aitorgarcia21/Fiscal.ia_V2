@@ -4,34 +4,36 @@ import os
 from sqlalchemy.sql import func
 import sys
 from sqlalchemy.ext.declarative import declarative_base
+from supabase import create_client, Client
 # Importer la nouvelle Base pour les modèles Pro - Inutile ici si create_all est dans main.py
-# from .models_pro import BasePro
+# from .models_pro import Base
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-print(f"DATABASE_PY_LOG: DATABASE_URL lue depuis os.getenv: {DATABASE_URL}", file=sys.stderr)
+# Configuration Supabase
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
-if DATABASE_URL:
-    print(f"DATABASE_PY_LOG: DATABASE_URL non vide détectée: {DATABASE_URL}", file=sys.stderr)
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
-        print(f"DATABASE_PY_LOG: DATABASE_URL modifiée (était postgres://): {DATABASE_URL}", file=sys.stderr)
-    elif DATABASE_URL.startswith("postgresql://"):
-        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
-        print(f"DATABASE_PY_LOG: DATABASE_URL modifiée (était postgresql://): {DATABASE_URL}", file=sys.stderr)
-    else:
-        print(f"DATABASE_PY_LOG: DATABASE_URL ne commence ni par postgres:// ni par postgresql://. Utilisation telle quelle: {DATABASE_URL}", file=sys.stderr)
-    
-    engine = create_engine(DATABASE_URL)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    # Base = declarative_base() # Supprimé - Base est définie dans models.py
-else:
-    print(f"DATABASE_PY_LOG: DATABASE_URL est VIDE ou None. Passage à SQLite.", file=sys.stderr)
-    SQLITE_DATABASE_URL = "sqlite:///./fiscal_app.db"
-    engine = create_engine(SQLITE_DATABASE_URL, connect_args={"check_same_thread": False})
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    # Base = declarative_base() # Supprimé - Base est définie dans models.py
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("SUPABASE_URL et SUPABASE_SERVICE_KEY doivent être configurés")
 
-# Ajout de la définition de Base ici pour résoudre l'ImportError
+print(f"DATABASE_PY_LOG: SUPABASE_URL configuré: {SUPABASE_URL}", file=sys.stderr)
+print(f"DATABASE_PY_LOG: SUPABASE_KEY configuré: {'*' * len(SUPABASE_KEY) if SUPABASE_KEY else 'Non configuré'}", file=sys.stderr)
+
+# Initialisation du client Supabase
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Configuration SQLAlchemy pour Supabase
+DATABASE_URL = "postgresql://postgres.lqxfjjtjxktjgpekugtf:21AiPa01....@aws-0-eu-west-3.pooler.supabase.com:5432/postgres"
+
+print(f"DATABASE_PY_LOG: DATABASE_URL construit: {DATABASE_URL.replace('21AiPa01....', '********')}", file=sys.stderr)
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,  # Vérifie la connexion avant utilisation
+    pool_recycle=3600,   # Recycle les connexions après 1 heure
+    pool_size=5,         # Nombre de connexions dans le pool
+    max_overflow=10      # Nombre maximum de connexions supplémentaires
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db():

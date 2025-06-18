@@ -56,26 +56,33 @@ export PYTHONPATH=$PYTHONPATH:/app/backend
 echo "=== Démarrage du backend ==="
 cd backend
 # Utiliser plusieurs workers et augmenter le timeout
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level info --workers 2 --timeout-keep-alive 300 &
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level debug --workers 2 --timeout-keep-alive 300 > /app/backend.log 2>&1 &
 BACKEND_PID=$!
 
 # Attendre que le backend soit prêt
 echo "Attente du démarrage du backend..."
-sleep 10
+sleep 20  # Augmenté de 10 à 20 secondes
 
 # Vérifier que le backend répond
 echo "Vérification de la santé du backend..."
 for i in {1..10}; do
-    if curl -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
+    echo "Tentative $i/10..."
+    if curl -v http://127.0.0.1:8000/health > /dev/null 2>&1; then
         echo "Backend démarré avec succès"
         break
     fi
     if [ $i -eq 10 ]; then
         echo "Erreur: Le backend ne répond pas"
+        echo "Vérification des processus..."
+        ps aux | grep uvicorn || true
+        echo "Vérification des logs nginx..."
+        tail -n 50 /var/log/nginx/error.log || true
+        echo "Vérification des logs backend Python..."
+        tail -n 50 /app/backend.log || true
         exit 1
     fi
-    echo "Tentative $i/10..."
-    sleep 2
+    echo "Attente avant la prochaine tentative..."
+    sleep 5  # Augmenté de 2 à 5 secondes
 done
 
 # Configurer nginx
