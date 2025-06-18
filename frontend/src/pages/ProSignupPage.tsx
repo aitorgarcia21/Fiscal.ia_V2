@@ -74,7 +74,7 @@ export function ProSignupPage() {
             </h1>
           </div>
           <p className="text-xl text-gray-200">
-            Rejoignez les experts-comptables qui révolutionnent leur cabinet
+            Rejoignez les professionnels du conseil en patrimoine et fiscalité
           </p>
         </div>
 
@@ -196,7 +196,7 @@ export function ProSignupPage() {
                 </div>
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-1">
-                    Nom du cabinet
+                    Nom de votre société/cabinet
                   </label>
                   <input
                     type="text"
@@ -205,7 +205,7 @@ export function ProSignupPage() {
                     value={formData.company}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                    placeholder="Cabinet Dubois & Associés"
+                    placeholder="Cabinet Conseil Patrimoine, SARL ConseilFiscal..."
                     required
                   />
                 </div>
@@ -222,11 +222,12 @@ export function ProSignupPage() {
                     required
                   >
                     <option value="">Sélectionnez votre fonction</option>
-                    <option value="expert-comptable">Expert-comptable</option>
-                    <option value="comptable">Comptable</option>
+                    <option value="conseiller-patrimoine">Conseiller en gestion de patrimoine</option>
                     <option value="conseiller-fiscal">Conseiller fiscal</option>
-                    <option value="directeur">Directeur de cabinet</option>
-                    <option value="associe">Associé</option>
+                    <option value="expert-comptable">Expert-comptable</option>
+                    <option value="avocat-fiscaliste">Avocat fiscaliste</option>
+                    <option value="notaire">Notaire</option>
+                    <option value="directeur">Directeur/Associé</option>
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">

@@ -225,7 +225,7 @@ export function SignupPage() {
                     <option value="salarie">Salarié</option>
                     <option value="independant">Indépendant</option>
                     <option value="retraite">Retraité</option>
-                    <option value="professionnel">Professionnel (Expert-comptable, etc.)</option>
+                    <option value="professionnel">Professionnel (Conseil patrimoine, fiscal, etc.)</option>
                   </select>
                 </div>
               </>

@@ -205,7 +205,9 @@ export function ProDemoSection() {
                   <Building className="w-6 h-6 text-[#162238]" />
                 </div>
                                  <div>
-                   <h3 className="text-xl font-bold text-white">Cabinet Pro</h3>
+                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                     <span>🏛️</span> Pro
+                   </h3>
                    <p className="text-[#c5a572] text-sm">47 clients actifs</p>
                  </div>
               </div>
@@ -543,7 +545,7 @@ export function ProDemoSection() {
                Prêt à essayer la version Pro ?
              </h3>
              <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-               Rejoignez les professionnels qui utilisent notre interface Pro pour gérer leurs clients.
+               Rejoignez les conseillers en patrimoine et fiscalité qui utilisent notre interface Pro.
              </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

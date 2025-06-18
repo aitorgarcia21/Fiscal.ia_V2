@@ -41,7 +41,7 @@ export const PRICING = {
     features: [
       'Interface Pro complète',
       'Gestion illimitée de clients',
-      'Analyses fiscales automatisées',
+      'Analyses patrimoniales et fiscales automatisées',
       'Rapports professionnels personnalisés',
       'Dashboard temps réel',
       'Support prioritaire',
@@ -57,7 +57,7 @@ export const PRICING = {
     features: [
       'Interface Pro complète',
       'Gestion illimitée de clients',
-      'Analyses fiscales automatisées',
+      'Analyses patrimoniales et fiscales automatisées',
       'Rapports professionnels personnalisés',
       'Dashboard temps réel',
       'Support prioritaire',
