@@ -77,10 +77,10 @@ export function ProDashboardPage() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl blur-md opacity-60"></div>
-              <div className="relative bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-2 rounded-xl">
+              <div className="relative p-2 rounded-xl">
                 <div className="relative inline-flex items-center justify-center">
-                  <MessageSquareIcon className="h-6 w-6 text-[#162238]" />
-                  <Euro className="h-4 w-4 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
+                  <MessageSquareIcon className="h-6 w-6 text-[#c5a572]" />
+                  <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1" />
                 </div>
               </div>
             </div>
