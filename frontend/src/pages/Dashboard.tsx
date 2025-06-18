@@ -95,7 +95,7 @@ export function Dashboard() {
     try {
       const response = await fetch('/api/user-profile', {
         headers: {
-          'Authorization': `Bearer ${user.access_token}`
+          'Content-Type': 'application/json'
         }
       });
       
@@ -117,8 +117,7 @@ export function Dashboard() {
       const response = await fetch('/api/user-profile', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.access_token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           ...profileData,
@@ -164,8 +163,7 @@ export function Dashboard() {
       const response = await fetch('/api/test-francis', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.access_token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           message: inputMessage,
