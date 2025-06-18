@@ -166,7 +166,7 @@ export function Dashboard() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          message: inputMessage,
+          question: inputMessage,
           conversation_history: messages.slice(-5),
           user_profile: userProfile
         })
@@ -176,7 +176,7 @@ export function Dashboard() {
         const data = await response.json();
         const assistantMessage: ChatMessage = {
           role: 'assistant',
-          content: data.response || 'Je suis désolé, je n\'ai pas pu traiter votre demande.',
+          content: data.answer || 'Je suis désolé, je n\'ai pas pu traiter votre demande.',
           timestamp: new Date()
         };
         setMessages(prev => [...prev, assistantMessage]);
