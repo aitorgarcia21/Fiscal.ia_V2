@@ -1,67 +1,61 @@
-import { PRICING, PricingPlan } from '../config/pricing';
+import apiClient from './apiClient';
 
-export class StripeService {
-  private static instance: StripeService;
-  private baseUrl: string;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-  private constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-  }
+export interface CreateCheckoutSessionRequest {
+  priceId: string;
+  successUrl?: string;
+  cancelUrl?: string;
+}
 
-  public static getInstance(): StripeService {
-    if (!StripeService.instance) {
-      StripeService.instance = new StripeService();
-    }
-    return StripeService.instance;
-  }
+export interface CreatePortalSessionRequest {
+  returnUrl?: string;
+}
 
-  public async createCheckoutSession(plan: PricingPlan): Promise<string> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: PRICING[plan].stripePriceId,
-          successUrl: `${window.location.origin}/success`,
-          cancelUrl: `${window.location.origin}/pricing`,
-        }),
-      });
+export interface CheckoutSessionResponse {
+  url: string;
+}
 
-      if (!response.ok) {
-        throw new Error('Erreur lors de la création de la session de paiement');
+export interface PortalSessionResponse {
+  url: string;
+}
+
+export async function createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse> {
+  try {
+    const response = await apiClient<CheckoutSessionResponse>('/api/create-checkout-session', {
+      method: 'POST',
+      data: {
+        priceId: data.priceId,
+        successUrl: data.successUrl || `${window.location.origin}/success`,
+        cancelUrl: data.cancelUrl || `${window.location.origin}/pricing`
       }
-
-      const { url } = await response.json();
-      return url;
-    } catch (error) {
-      console.error('Erreur Stripe:', error);
-      throw error;
-    }
+    });
+    
+    return response;
+  } catch (error: any) {
+    console.error('Erreur lors de la création de la session de checkout:', error);
+    throw new Error(
+      error.data?.detail || 
+      'Erreur lors de la création de la session de paiement'
+    );
   }
+}
 
-  public async createPortalSession(): Promise<string> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/create-portal-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          returnUrl: `${window.location.origin}/account`,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la création de la session du portail');
+export async function createPortalSession(data: CreatePortalSessionRequest = {}): Promise<PortalSessionResponse> {
+  try {
+    const response = await apiClient<PortalSessionResponse>('/api/create-portal-session', {
+      method: 'POST',
+      data: {
+        returnUrl: data.returnUrl || `${window.location.origin}/account`
       }
-
-      const { url } = await response.json();
-      return url;
-    } catch (error) {
-      console.error('Erreur Stripe:', error);
-      throw error;
-    }
+    });
+    
+    return response;
+  } catch (error: any) {
+    console.error('Erreur lors de la création de la session portal:', error);
+    throw new Error(
+      error.data?.detail || 
+      'Erreur lors de l\'accès au portail de gestion'
+    );
   }
 } 

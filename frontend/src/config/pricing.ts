@@ -3,7 +3,7 @@ export const PRICING = {
     price: 9.99,
     currency: 'EUR',
     interval: 'month',
-    stripePriceId: 'price_monthly', // À remplacer par l'ID réel de Stripe
+    stripePriceId: 'price_1QVVfZGZEuLRLMp4FZd4eqCH', // ID de test Stripe pour 9.99€/mois
     features: [
       'Accès illimité à Francis 24/7',
       'Analyse personnalisée de votre situation fiscale',
@@ -17,7 +17,7 @@ export const PRICING = {
     price: 99.99,
     currency: 'EUR',
     interval: 'year',
-    stripePriceId: 'price_annual', // À remplacer par l'ID réel de Stripe
+    stripePriceId: 'price_1QVVh0GZEuLRLMp4qwjkFxrE', // ID de test Stripe pour 99.99€/an
     features: [
       'Accès illimité à Francis 24/7',
       'Analyse personnalisée de votre situation fiscale',

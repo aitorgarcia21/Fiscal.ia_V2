@@ -41,7 +41,7 @@ export function LandingPage() {
   const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState<false | 'login' | 'signup'>(false);
   const [showDemo, setShowDemo] = useState(false);
-  const { handleCheckout, isLoading, error } = useStripe();
+  const { redirectToCheckout, isLoading, error } = useStripe();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 font-sans antialiased">
@@ -215,7 +215,11 @@ export function LandingPage() {
                 <motion.button
                   onClick={() => {
                     if (PRICING[offer.id]) {
-                        handleCheckout(offer.id);
+                        redirectToCheckout({
+                          priceId: PRICING[offer.id].stripePriceId,
+                          successUrl: `${window.location.origin}/success`,
+                          cancelUrl: `${window.location.origin}/pricing`
+                        });
                     } else {
                         console.error("Plan de tarification non reconnu:", offer.id);
                         navigate('/signup'); // Fallback

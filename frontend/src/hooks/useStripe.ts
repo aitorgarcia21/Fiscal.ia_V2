@@ -1,42 +1,44 @@
 import { useState } from 'react';
-import { StripeService } from '../services/stripe';
-import { PricingPlan } from '../config/pricing';
+import { createCheckoutSession, createPortalSession, CreateCheckoutSessionRequest, CreatePortalSessionRequest } from '../services/stripe';
 
 export const useStripe = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const stripeService = StripeService.getInstance();
 
-  const handleCheckout = async (plan: PricingPlan) => {
+  const redirectToCheckout = async (data: CreateCheckoutSessionRequest) => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      setIsLoading(true);
-      setError(null);
-      const url = await stripeService.createCheckoutSession(plan);
+      const { url } = await createCheckoutSession(data);
       window.location.href = url;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Erreur redirection checkout:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePortal = async () => {
+  const redirectToPortal = async (data?: CreatePortalSessionRequest) => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      setIsLoading(true);
-      setError(null);
-      const url = await stripeService.createPortalSession();
+      const { url } = await createPortalSession(data);
       window.location.href = url;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Erreur redirection portal:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return {
-    handleCheckout,
-    handlePortal,
     isLoading,
-    error
+    error,
+    redirectToCheckout,
+    redirectToPortal,
   };
 }; 

@@ -20,6 +20,8 @@ import { UserProfilePage } from './pages/UserProfilePage';
 import { ProChatPage } from './pages/ProChatPage';
 import { ProAgendaPage } from './pages/ProAgendaPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SuccessPage } from './pages/SuccessPage';
+import { AccountPage } from './pages/AccountPage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -32,11 +34,13 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/contact-pro" element={<ContactProPage />} />
+          <Route path="/success" element={<SuccessPage />} />
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
           <Route element={<ParticulierProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/account" element={<AccountPage />} />
             <Route path="/discover" element={<DiscoverPage />} />
           </Route>
           <Route element={<ProProtectedRoute />}>

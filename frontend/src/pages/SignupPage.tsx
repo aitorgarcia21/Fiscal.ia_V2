@@ -17,7 +17,7 @@ export function SignupPage() {
     role: '',
   });
   const [plan, setPlan] = useState<PricingPlan>('MONTHLY');
-  const { handleCheckout, isLoading, error } = useStripe();
+  const { redirectToCheckout, isLoading, error } = useStripe();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -33,7 +33,11 @@ export function SignupPage() {
       setStep(step + 1);
     } else {
       try {
-        await handleCheckout(plan);
+        await redirectToCheckout({
+          priceId: PRICING[plan].stripePriceId,
+          successUrl: `${window.location.origin}/success`,
+          cancelUrl: `${window.location.origin}/signup`
+        });
       } catch (err) {
         console.error('Erreur lors du paiement:', err);
       }
