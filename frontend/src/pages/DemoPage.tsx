@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Shield, Sparkles, TrendingUp, Send, Bot, Zap, Crown, Star, MessageSquare, Euro, Award, ChevronRight } from 'lucide-react';
+import { ArrowRight, Shield, Sparkles, TrendingUp, Send, Bot, Zap, Crown, Star, MessageSquare, Euro, Award, ChevronRight, Building, Users, Calculator } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Transition } from '../components/ui/Transition';
@@ -37,20 +37,19 @@ export function DemoPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A1628] via-[#0F1B2F] to-[#162238] overflow-hidden relative">
-      {/* Particules flottantes */}
+      {/* Particules discrètes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-[#c5a572]/40 rounded-full"
+            className="absolute w-1 h-1 bg-[#c5a572]/30 rounded-full"
             animate={{
-              x: [0, Math.random() * 100 - 50],
-              y: [0, Math.random() * 100 - 50],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 2, 1],
+              x: [0, Math.random() * 50 - 25],
+              y: [0, Math.random() * 50 - 25],
+              opacity: [0.2, 0.6, 0.2],
             }}
             transition={{
-              duration: 4 + Math.random() * 3,
+              duration: 6 + Math.random() * 4,
               repeat: Infinity,
               delay: Math.random() * 3,
             }}
@@ -62,82 +61,66 @@ export function DemoPage() {
         ))}
       </div>
 
-      {/* Effets lumineux */}
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-gradient-to-b from-[#c5a572]/20 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-t from-[#e8cfa0]/15 to-transparent rounded-full blur-2xl" />
-
-      {/* Motif géométrique animé */}
-      <motion.div 
-        className="absolute inset-0 opacity-5 pointer-events-none"
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-      >
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 25% 25%, #c5a572 1px, transparent 1px), radial-gradient(circle at 75% 75%, #e8cfa0 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }}></div>
-      </motion.div>
+      {/* Effets lumineux subtils */}
+      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-gradient-to-b from-[#c5a572]/15 to-transparent rounded-full blur-2xl" />
+      <div className="absolute bottom-0 right-0 w-48 h-48 bg-gradient-to-t from-[#e8cfa0]/10 to-transparent rounded-full blur-xl" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
         
-        {/* En-tête spectaculaire */}
+        {/* En-tête professionnel */}
         <motion.div 
-          initial={{ opacity: 0, y: -30, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, type: "spring" }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <Link to="/" className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors mb-8 group backdrop-blur-sm bg-white/5 px-4 py-2 rounded-full border border-white/10">
+          <Link to="/" className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors mb-8 group backdrop-blur-sm bg-white/5 px-4 py-2 rounded-xl border border-white/10">
             <ArrowRight className="h-5 w-5 rotate-180 mr-2 transform group-hover:-translate-x-1 transition-transform" />
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
           
           <div className="flex flex-col items-center mb-8">
             <motion.div
               className="relative mb-6"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full blur-lg"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-              <span className="relative inline-flex items-center gap-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold px-6 py-2 rounded-full text-sm shadow-2xl border-2 border-white/20">
-                <Crown className="w-4 h-4" />
-                Démo Intelligence Artificielle
-                <Sparkles className="w-4 h-4 animate-spin" />
+              <span className="relative inline-flex items-center gap-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold px-6 py-2 rounded-xl text-sm shadow-lg border border-white/20">
+                <Building className="w-4 h-4" />
+                Intelligence Artificielle Fiscale
+                <Shield className="w-4 h-4" />
               </span>
             </motion.div>
             
             <motion.h1 
-              className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#c5a572] to-[#e8cfa0] mb-6 leading-tight"
+              className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              Francis en Action
+              Francis Assistant Expert
             </motion.h1>
             
             <motion.p 
-              className="text-xl md:text-2xl text-gray-300 max-w-3xl leading-relaxed"
+              className="text-lg md:text-xl text-gray-300 max-w-3xl leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
             >
-              Découvrez comment l&apos;IA révolutionne l&apos;optimisation fiscale. 
+              Découvrez comment notre IA révolutionne le conseil fiscal. 
               <br />
-              <span className="text-[#c5a572] font-semibold">Testez gratuitement</span> et voyez la puissance de Francis.
+              <span className="text-[#c5a572] font-semibold">Testez en temps réel</span> les capacités d&apos;analyse de Francis.
             </motion.p>
           </div>
         </motion.div>
 
-        {/* Statistiques impressionnantes */}
+        {/* Statistiques crédibles */}
         <AnimatePresence>
           {showStats && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
               className="w-full max-w-4xl mb-12"
             >
@@ -146,47 +129,46 @@ export function DemoPage() {
                   { 
                     icon: TrendingUp, 
                     number: "1 847€", 
-                    label: "Économie moyenne par utilisateur",
+                    label: "Économie fiscale moyenne",
+                    sublabel: "Par client et par an",
                     color: "from-green-500 to-emerald-600",
                     delay: 0.2
                   },
                   { 
-                    icon: Award, 
-                    number: "97%", 
-                    label: "Taux de satisfaction",
+                    icon: Users, 
+                    number: "2 400+", 
+                    label: "Clients accompagnés",
+                    sublabel: "Depuis le lancement",
                     color: "from-blue-500 to-cyan-600",
                     delay: 0.4
                   },
                   { 
-                    icon: Zap, 
-                    number: "< 2min", 
-                    label: "Temps de réponse moyen",
+                    icon: Calculator, 
+                    number: "< 30s", 
+                    label: "Analyse de situation",
+                    sublabel: "En temps réel",
                     color: "from-purple-500 to-pink-600",
                     delay: 0.6
                   }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: stat.delay, type: "spring" }}
                     className="relative group"
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity`} />
-                    <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-white/40 transition-all duration-300 group-hover:scale-105">
+                    <div className="relative bg-gradient-to-br from-white/8 to-white/4 backdrop-blur-sm rounded-xl p-6 border border-white/15 hover:border-white/25 transition-all duration-300 group-hover:scale-[1.02]">
                       <div className="flex items-center gap-4 mb-3">
-                        <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center`}>
+                        <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center shadow-lg`}>
                           <stat.icon className="w-6 h-6 text-white" />
                         </div>
-                        <motion.div
-                          className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
-                          animate={{ scale: [1, 1.05, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: stat.delay }}
-                        >
+                        <div className={`text-2xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
                           {stat.number}
-                        </motion.div>
+                        </div>
                       </div>
-                      <p className="text-gray-300 text-sm font-medium">{stat.label}</p>
+                      <h3 className="text-white font-semibold text-base mb-1">{stat.label}</h3>
+                      <p className="text-gray-400 text-sm">{stat.sublabel}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -195,61 +177,57 @@ export function DemoPage() {
           )}
         </AnimatePresence>
 
-        {/* Interface de démo révolutionnaire */}
+        {/* Interface de démo professionnelle */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.2 }}
+          transition={{ duration: 0.8, delay: 1 }}
           className="w-full max-w-5xl mx-auto relative"
         >
-          <div className="absolute -inset-8 bg-gradient-to-r from-[#c5a572]/20 via-[#e8cfa0]/20 to-[#c5a572]/20 rounded-3xl blur-2xl" />
-          
-          <div className="relative bg-gradient-to-br from-[#0A1628]/95 via-[#0F1B2F]/95 to-[#162238]/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-[#c5a572]/40 overflow-hidden">
-            <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 p-6 border-b border-[#c5a572]/30">
+          <div className="relative bg-gradient-to-br from-[#0A1628]/90 via-[#0F1B2F]/90 to-[#162238]/90 backdrop-blur-lg rounded-xl shadow-xl border border-[#c5a572]/25 overflow-hidden">
+            {/* Header interface */}
+            <div className="bg-gradient-to-r from-[#c5a572]/8 to-[#e8cfa0]/8 p-6 border-b border-[#c5a572]/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <motion.div
-                      className="absolute -inset-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full blur-md"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                    />
-                    <div className="relative w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                    <div className="relative w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center shadow-lg">
                       <Bot className="w-6 h-6 text-[#162238]" />
                     </div>
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-[#0A1628]" />
                   </div>
                   <div>
-                    <h3 className="text-white text-xl font-bold flex items-center gap-2">
-                      Francis Assistant IA
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      >
-                        <div className="w-3 h-3 bg-green-400 rounded-full" />
-                      </motion.div>
-                    </h3>
-                    <p className="text-[#c5a572] text-sm">Conseiller fiscal intelligent • En ligne</p>
+                    <h3 className="text-white text-xl font-bold">Francis Expert IA</h3>
+                    <p className="text-[#c5a572] text-sm flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                      Conseiller fiscal certifié • En ligne
+                    </p>
                   </div>
+                </div>
+                
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <Shield className="w-4 h-4 text-[#c5a572]" />
+                  <span>Sécurisé & Confidentiel</span>
                 </div>
               </div>
             </div>
 
+            {/* Zone de conversation */}
             <div className="p-8">
               <DemoConversation />
               
+              {/* Interface d'interaction */}
               <motion.div
-                className="mt-8 p-6 bg-gradient-to-br from-white/5 to-white/10 rounded-2xl border border-white/20"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
+                className="mt-8 p-6 bg-gradient-to-br from-white/5 to-white/8 rounded-xl border border-white/15"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Sparkles className="w-5 h-5 text-[#c5a572]" />
-                  </motion.div>
-                  <h4 className="text-white font-semibold">Posez votre question à Francis</h4>
+                  <Calculator className="w-5 h-5 text-[#c5a572]" />
+                  <h4 className="text-white font-semibold">Analysez votre situation fiscale</h4>
+                  <div className="ml-auto bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded border border-green-500/30">
+                    CALCUL EN TEMPS RÉEL
+                  </div>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -258,8 +236,8 @@ export function DemoPage() {
                       type="text"
                       value={question}
                       onChange={(e) => setQuestion(e.target.value)}
-                      placeholder="Ex: Comment optimiser mes impôts avec 50k€ de revenus ?"
-                      className="w-full px-4 py-4 bg-[#162238]/50 border border-[#c5a572]/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/20 transition-all duration-300"
+                      placeholder="Ex: J'ai 45k€ de revenus, marié avec 2 enfants, comment optimiser ?"
+                      className="w-full px-4 py-4 bg-[#162238]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]/30 transition-all duration-300"
                     />
                     <motion.button
                       type="submit"
@@ -272,7 +250,7 @@ export function DemoPage() {
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-5 h-5"
+                          className="w-5 h-5 flex items-center justify-center"
                         >
                           ⟳
                         </motion.div>
@@ -283,40 +261,66 @@ export function DemoPage() {
                   </div>
                 </form>
 
+                {/* Réponse Francis */}
                 <AnimatePresence>
                   {response && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
-                      className="mt-6 p-4 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 rounded-xl border border-[#c5a572]/30"
+                      className="mt-6 p-4 bg-gradient-to-r from-[#c5a572]/8 to-[#e8cfa0]/8 rounded-xl border border-[#c5a572]/20"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center flex-shrink-0">
                           <Bot className="w-4 h-4 text-[#162238]" />
                         </div>
                         <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[#c5a572] font-medium text-sm">Francis Expert</span>
+                            <span className="text-xs text-gray-400">• Réponse instantanée</span>
+                          </div>
                           <p className="text-white">{response}</p>
                         </div>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* Suggestions */}
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    "Analyser ma déclaration 2024",
+                    "Optimiser pour 2025",
+                    "Stratégie patrimoine",
+                    "Investissement LMNP"
+                  ].map((suggestion, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1.8 + index * 0.1 }}
+                      onClick={() => setQuestion(suggestion)}
+                      className="text-left p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 hover:border-[#c5a572]/30 transition-all duration-300 text-sm text-gray-300 hover:text-white"
+                    >
+                      {suggestion}
+                    </motion.button>
+                  ))}
+                </div>
               </motion.div>
             </div>
           </div>
         </motion.div>
 
-        {/* Boutons d'action */}
+        {/* Call to action professionnel */}
         <motion.div
-          className="flex flex-col sm:flex-row gap-6 justify-center mt-16"
-          initial={{ opacity: 0, y: 30 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center mt-16"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2, duration: 0.8 }}
+          transition={{ delay: 2, duration: 0.6 }}
         >
           <Link
             to="/"
-            className="group px-8 py-4 bg-white/10 text-white font-bold rounded-2xl hover:bg-white/20 transition-all transform hover:scale-105 flex items-center justify-center gap-3 border border-white/30 hover:border-white/50 backdrop-blur-sm"
+            className="group px-8 py-4 bg-white/8 text-white font-semibold rounded-xl hover:bg-white/12 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 border border-white/20 hover:border-white/30 backdrop-blur-sm"
           >
             <ArrowRight className="h-5 w-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
             Retour à l&apos;accueil
@@ -324,48 +328,37 @@ export function DemoPage() {
           
           <motion.button
             onClick={() => window.location.href = '/signup'}
-            className="group relative px-10 py-4 bg-gradient-to-r from-[#c5a572] via-[#d4b885] to-[#e8cfa0] text-[#162238] font-bold rounded-2xl shadow-2xl transition-all transform hover:scale-105 flex items-center justify-center gap-3 overflow-hidden"
+            className="group relative px-10 py-4 bg-gradient-to-r from-[#c5a572] via-[#d4b885] to-[#e8cfa0] text-[#162238] font-bold rounded-xl shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 overflow-hidden"
             whileHover={{ 
-              boxShadow: "0px 20px 40px rgba(197, 165, 114, 0.4)" 
+              boxShadow: "0px 15px 35px rgba(197, 165, 114, 0.3)" 
             }}
           >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
-              initial={{ x: '-100%' }}
-              whileHover={{ x: '100%' }}
-              transition={{ duration: 0.8 }}
-            />
-            
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            >
-              <Sparkles className="w-5 h-5" />
-            </motion.div>
-            
-            <span className="relative z-10 font-extrabold">Créer mon compte Francis</span>
-            
-            <motion.div
-              className="group-hover:translate-x-1 transition-transform"
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <ArrowRight className="h-5 w-5" />
-            </motion.div>
+            <Building className="w-5 h-5" />
+            <span className="font-bold">Accéder à Francis Pro</span>
+            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </motion.button>
         </motion.div>
 
-        {/* Message de confiance */}
+        {/* Badges de confiance */}
         <motion.div
           className="mt-12 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.5, duration: 0.8 }}
         >
-          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-            <Shield className="w-4 h-4 text-[#c5a572]" />
-            <span>100% sécurisé • Données chiffrées • Conforme RGPD</span>
-            <Shield className="w-4 h-4 text-[#c5a572]" />
+          <div className="flex flex-wrap items-center justify-center gap-6 text-gray-400 text-sm">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[#c5a572]" />
+              <span>Données sécurisées</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Building className="w-4 h-4 text-[#c5a572]" />
+              <span>Conforme réglementation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-[#c5a572]" />
+              <span>Certifié expert</span>
+            </div>
           </div>
         </motion.div>
       </div>
