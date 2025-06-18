@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Edit3, Trash2, Eye, ChevronLeft, ChevronRight, Briefcase, Users, MessageSquare as MessageSquareIcon } from 'lucide-react';
+import { PlusCircle, Search, Edit3, Trash2, Eye, ChevronLeft, ChevronRight, Briefcase, Users, MessageSquare as MessageSquareIcon, Euro } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -92,14 +92,17 @@ export function ProDashboardPage() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-2xl blur-md opacity-60 group-hover:opacity-80 transition-opacity" />
               <div className="relative bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-2 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                <Briefcase className="h-8 w-8 text-[#162238]" />
+                <div className="relative inline-flex items-center justify-center">
+                  <MessageSquareIcon className="h-8 w-8 text-[#162238]" />
+                  <Euro className="h-5 w-5 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
+                </div>
               </div>
             </div>
             <div>
               <span className="text-2xl font-bold bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">
-                Fiscal.ia Pro
+                Fiscal.ia
               </span>
-              <p className="text-xs text-gray-400 font-medium">Dashboard Clients</p>
+              <p className="text-xs text-gray-400 font-medium">Pro Dashboard</p>
             </div>
           </div>
           <div className="flex items-center gap-4">

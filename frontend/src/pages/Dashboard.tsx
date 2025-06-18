@@ -323,7 +323,10 @@ export function Dashboard() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl blur-md opacity-60"></div>
                 <div className="relative bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-2 rounded-xl">
-                  <Bot className="h-6 w-6 text-[#162238]" />
+                  <div className="relative inline-flex items-center justify-center">
+                    <MessageSquare className="h-6 w-6 text-[#162238]" />
+                    <Euro className="h-4 w-4 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
+                  </div>
                 </div>
               </div>
               <div>
