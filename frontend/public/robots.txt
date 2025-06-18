@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Fichiers et répertoires à exclure
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Pages importantes à crawler en priorité
+Allow: /
+Allow: /demo
+Allow: /pricing
+Allow: /contact
+Allow: /mentions-legales
+Allow: /politique-confidentialite
+Allow: /optimisation-fiscale-ia
+Allow: /simulateur-impot
+Allow: /blog/
+
+# Sitemap
+Sitemap: https://fiscal-ia.net/sitemap.xml
+
+# Délai entre les crawls (optionnel)
+Crawl-delay: 1 
