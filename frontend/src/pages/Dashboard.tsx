@@ -245,6 +245,13 @@ export function Dashboard() {
               </span>
             </div>
             <button
+              onClick={() => navigate('/profil')}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-[#c5a572] rounded-lg transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden md:block">Mon Profil</span>
+            </button>
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-red-400 rounded-lg transition-colors"
             >

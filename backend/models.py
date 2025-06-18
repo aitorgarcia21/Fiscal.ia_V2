@@ -105,6 +105,27 @@ class UserProfile(Base):
     patrimoine_situation = Column(String, nullable=True)
     has_completed_onboarding = Column(Boolean, default=False)
     
+    # Champs détaillés supplémentaires pour le profil complet
+    revenus_salaires = Column(Integer, nullable=True)
+    revenus_bnc = Column(Integer, nullable=True)
+    revenus_bic = Column(Integer, nullable=True)
+    revenus_fonciers = Column(Integer, nullable=True)
+    plus_values_mobilieres = Column(Integer, nullable=True)
+    dividendes_recus = Column(Integer, nullable=True)
+    pensions_retraite = Column(Integer, nullable=True)
+    patrimoine_immobilier_valeur = Column(Integer, nullable=True)
+    emprunts_immobiliers = Column(Integer, nullable=True)
+    epargne_disponible = Column(Integer, nullable=True)
+    assurance_vie_valeur = Column(Integer, nullable=True)
+    pea_valeur = Column(Integer, nullable=True)
+    actions_valeur = Column(Integer, nullable=True)
+    crypto_valeur = Column(Integer, nullable=True)
+    dons_realises = Column(Integer, nullable=True)
+    objectifs_fiscaux = Column(Text, nullable=True)  # JSON array as text
+    horizon_investissement = Column(String, nullable=True)
+    tolerance_risque = Column(String, nullable=True)
+    situations_specifiques = Column(Text, nullable=True)  # JSON array as text
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -19,6 +19,7 @@ import ProLandingPage from './pages/ProLandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { ProChatPage } from './pages/ProChatPage';
 import { ProAgendaPage } from './pages/ProAgendaPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -35,7 +36,7 @@ function App() {
           <Route element={<ParticulierProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<ChatPage />} />
-            <Route path="/profil" element={<UserProfilePage />} />
+            <Route path="/profil" element={<ProfilePage />} />
             <Route path="/discover" element={<DiscoverPage />} />
           </Route>
           <Route element={<ProProtectedRoute />}>
