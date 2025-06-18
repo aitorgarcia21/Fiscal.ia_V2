@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Bot, User, Calculator, TrendingUp, FileText, PieChart, BarChart3, Target, Zap, MessageSquare, Clock, CheckCircle, ArrowRight, DollarSign, Building, Users, Shield, Settings, Filter, Search, Plus, Eye, Edit, Download, Calendar, Mail, Phone } from 'lucide-react';
 
 interface Client {
@@ -165,7 +166,7 @@ export function ProDemoSection() {
             </div>
             
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Démonstration Fiscal.ia Pro
+              Démonstration Pro
             </h2>
             
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -204,8 +205,8 @@ export function ProDemoSection() {
                   <Building className="w-6 h-6 text-[#162238]" />
                 </div>
                                  <div>
-                   <h3 className="text-xl font-bold text-white">Cabinet Fiscal Pro</h3>
-                   <p className="text-[#c5a572] text-sm">Interface Fiscal.ia Pro • 47 clients actifs</p>
+                   <h3 className="text-xl font-bold text-white">Cabinet Pro</h3>
+                   <p className="text-[#c5a572] text-sm">47 clients actifs</p>
                  </div>
               </div>
               
@@ -539,18 +540,20 @@ export function ProDemoSection() {
         >
           <div className="bg-gradient-to-br from-[#c5a572]/10 to-[#e8cfa0]/10 rounded-2xl p-8 border border-[#c5a572]/30 max-w-4xl mx-auto">
                          <h3 className="text-2xl font-bold text-white mb-4">
-               Prêt à essayer Fiscal.ia Pro ?
+               Prêt à essayer la version Pro ?
              </h3>
              <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-               Rejoignez les professionnels qui utilisent Fiscal.ia Pro pour gérer leurs clients.
+               Rejoignez les professionnels qui utilisent notre interface Pro pour gérer leurs clients.
              </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                             <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center gap-2 group">
-                 <Building className="w-5 h-5" />
-                 Essayer Fiscal.ia Pro
-                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-               </button>
+                             <Link to="/pro/signup">
+                 <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-bold hover:shadow-xl transition-all flex items-center justify-center gap-2 group">
+                   <Building className="w-5 h-5" />
+                   Essayer la version Pro
+                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                 </button>
+               </Link>
               
               <button className="bg-white/10 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all flex items-center justify-center gap-2 border border-white/20">
                 <Calendar className="w-5 h-5" />

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, CreditCard, Shield, Sparkles } from 'lucide-react';
+import { ArrowRight, CreditCard, Shield, Sparkles, Building, Users, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStripe } from '../hooks/useStripe';
 import { PRICING, PricingPlan } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
 
-export function SignupPage() {
+export function ProSignupPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     email: '',
@@ -15,8 +15,10 @@ export function SignupPage() {
     lastName: '',
     company: '',
     role: '',
+    siret: '',
+    phone: '',
   });
-  const [plan, setPlan] = useState<PricingPlan>('MONTHLY');
+  const [plan, setPlan] = useState<PricingPlan>('PRO_MONTHLY');
   const { redirectToCheckout, isLoading, error } = useStripe();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -29,21 +31,14 @@ export function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Rediriger les professionnels vers la page pro signup
-    if (step === 2 && formData.role === 'professionnel') {
-      window.location.href = '/pro/signup';
-      return;
-    }
-    
     if (step < 3) {
       setStep(step + 1);
     } else {
       try {
         await redirectToCheckout({
           priceId: PRICING[plan].stripePriceId,
-          successUrl: `${window.location.origin}/success`,
-          cancelUrl: `${window.location.origin}/signup`
+          successUrl: `${window.location.origin}/success?type=pro`,
+          cancelUrl: `${window.location.origin}/pro/signup`
         });
       } catch (err) {
         console.error('Erreur lors du paiement:', err);
@@ -67,16 +62,19 @@ export function SignupPage() {
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
         {/* En-tête */}
         <div className="text-center mb-12">
-          <Link to="/" className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors mb-8">
+          <Link to="/pro" className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors mb-8">
             <ArrowRight className="h-5 w-5 rotate-180 mr-2" />
-            Retour à l'accueil
+            Retour à Pro
           </Link>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Créez votre compte <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-transparent bg-clip-text">Francis</span>
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Building className="h-12 w-12 text-[#c5a572]" />
+            <h1 className="text-4xl md:text-5xl font-bold text-white">
+              Compte <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-transparent bg-clip-text">Pro</span>
+            </h1>
+          </div>
           <p className="text-xl text-gray-200">
-            Rejoignez la communauté des utilisateurs qui optimisent leur fiscalité
+            Rejoignez les experts-comptables qui révolutionnent leur cabinet
           </p>
         </div>
 
@@ -107,7 +105,7 @@ export function SignupPage() {
                   {s}
                 </div>
                 <span className="text-sm">
-                  {s === 1 ? 'Compte' : s === 2 ? 'Profil' : 'Paiement'}
+                  {s === 1 ? 'Compte' : s === 2 ? 'Cabinet' : 'Abonnement'}
                 </span>
               </div>
             ))}
@@ -118,7 +116,7 @@ export function SignupPage() {
               <>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-                    Email
+                    Email professionnel
                   </label>
                   <input
                     type="email"
@@ -127,7 +125,7 @@ export function SignupPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                    placeholder="votre@email.com"
+                    placeholder="expert@cabinet.fr"
                     required
                   />
                 </div>
@@ -198,7 +196,7 @@ export function SignupPage() {
                 </div>
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-1">
-                    Entreprise
+                    Nom du cabinet
                   </label>
                   <input
                     type="text"
@@ -207,11 +205,13 @@ export function SignupPage() {
                     value={formData.company}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
+                    placeholder="Cabinet Dubois & Associés"
+                    required
                   />
                 </div>
                 <div>
                   <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-1">
-                    Rôle
+                    Fonction
                   </label>
                   <select
                     id="role"
@@ -221,12 +221,44 @@ export function SignupPage() {
                     className="w-full px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
                     required
                   >
-                    <option value="">Sélectionnez votre rôle</option>
-                    <option value="salarie">Salarié</option>
-                    <option value="independant">Indépendant</option>
-                    <option value="retraite">Retraité</option>
-                    <option value="professionnel">Professionnel (Expert-comptable, etc.)</option>
+                    <option value="">Sélectionnez votre fonction</option>
+                    <option value="expert-comptable">Expert-comptable</option>
+                    <option value="comptable">Comptable</option>
+                    <option value="conseiller-fiscal">Conseiller fiscal</option>
+                    <option value="directeur">Directeur de cabinet</option>
+                    <option value="associe">Associé</option>
                   </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="siret" className="block text-sm font-medium text-gray-300 mb-1">
+                      SIRET
+                    </label>
+                    <input
+                      type="text"
+                      id="siret"
+                      name="siret"
+                      value={formData.siret}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
+                      placeholder="12345678912345"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-1">
+                      Téléphone
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
+                      placeholder="01 23 45 67 89"
+                      required
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -234,24 +266,27 @@ export function SignupPage() {
             {step === 3 && (
               <div className="space-y-6">
                 <div className="bg-[#223c63]/50 rounded-xl p-6 border border-[#c5a572]/20">
-                  <h3 className="text-xl font-bold text-white mb-4">Abonnement Premium</h3>
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Building className="h-6 w-6 text-[#c5a572]" />
+                    Abonnement Professionnel
+                  </h3>
                   <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <button
                       type="button"
-                      onClick={() => setPlan('MONTHLY')}
-                      className={`flex-1 px-4 py-3 rounded-xl border font-bold transition-all ${plan === 'MONTHLY' ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] border-[#c5a572]' : 'bg-[#1a2942]/40 text-white border-[#c5a572]/30 hover:bg-[#1a2942]/60'}`}
+                      onClick={() => setPlan('PRO_MONTHLY')}
+                      className={`flex-1 px-4 py-3 rounded-xl border font-bold transition-all ${plan === 'PRO_MONTHLY' ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] border-[#c5a572]' : 'bg-[#1a2942]/40 text-white border-[#c5a572]/30 hover:bg-[#1a2942]/60'}`}
                       disabled={isLoading}
                     >
-                      {PRICING.MONTHLY.price}€ / mois
-                      <div className="text-xs font-normal text-gray-300">Sans engagement</div>
+                      {PRICING.PRO_MONTHLY.price}€ / mois
+                      <div className="text-xs font-normal text-gray-300">Facturation mensuelle</div>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPlan('ANNUAL')}
-                      className={`flex-1 px-4 py-3 rounded-xl border font-bold transition-all ${plan === 'ANNUAL' ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] border-[#c5a572]' : 'bg-[#1a2942]/40 text-white border-[#c5a572]/30 hover:bg-[#1a2942]/60'}`}
+                      onClick={() => setPlan('PRO_ANNUAL')}
+                      className={`flex-1 px-4 py-3 rounded-xl border font-bold transition-all ${plan === 'PRO_ANNUAL' ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] border-[#c5a572]' : 'bg-[#1a2942]/40 text-white border-[#c5a572]/30 hover:bg-[#1a2942]/60'}`}
                       disabled={isLoading}
                     >
-                      {PRICING.ANNUAL.price}€ / an
+                      {PRICING.PRO_ANNUAL.price}€ / an
                       <div className="text-xs font-normal text-[#c5a572]">Économisez 17%</div>
                     </button>
                   </div>
@@ -263,6 +298,25 @@ export function SignupPage() {
                       </li>
                     ))}
                   </ul>
+                </div>
+                
+                {/* Garanties */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div className="bg-[#1a2942]/50 rounded-lg p-4">
+                    <Shield className="h-8 w-8 text-[#c5a572] mx-auto mb-2" />
+                    <div className="text-white font-semibold text-sm">Sécurisé</div>
+                    <div className="text-gray-400 text-xs">Données chiffrées</div>
+                  </div>
+                  <div className="bg-[#1a2942]/50 rounded-lg p-4">
+                    <Users className="h-8 w-8 text-[#c5a572] mx-auto mb-2" />
+                    <div className="text-white font-semibold text-sm">Support dédié</div>
+                    <div className="text-gray-400 text-xs">Formation incluse</div>
+                  </div>
+                  <div className="bg-[#1a2942]/50 rounded-lg p-4">
+                    <Zap className="h-8 w-8 text-[#c5a572] mx-auto mb-2" />
+                    <div className="text-white font-semibold text-sm">Sans engagement</div>
+                    <div className="text-gray-400 text-xs">Annulation simple</div>
+                  </div>
                 </div>
               </div>
             )}
@@ -282,7 +336,7 @@ export function SignupPage() {
                 disabled={isLoading}
                 className="ml-auto px-8 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] rounded-xl font-bold hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Chargement...' : step === 3 ? "Finaliser l'inscription et payer" : 'Continuer'}
+                {isLoading ? 'Chargement...' : step === 3 ? "Finaliser l'abonnement Pro" : 'Continuer'}
                 <ArrowRight className="inline-block ml-2 h-5 w-5" />
               </button>
             </div>

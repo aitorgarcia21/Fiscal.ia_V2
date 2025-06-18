@@ -4,6 +4,7 @@ import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { TrueLayerCallback } from './pages/TrueLayerCallback';
 import { SignupPage } from './pages/SignupPage';
+import { ProSignupPage } from './pages/ProSignupPage';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { ChatPage } from './pages/ChatPage';
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/pro" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro" replace />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/pro/signup" element={<ProSignupPage />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/contact-pro" element={<ContactProPage />} />
           <Route path="/success" element={<SuccessPage />} />
