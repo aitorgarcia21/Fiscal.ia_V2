@@ -23,7 +23,7 @@ export function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Bonjour ! Je suis Francis, votre assistant fiscal IA. Posez-moi vos questions sur les impôts, la fiscalité ou l'optimisation de vos finances personnelles. Pour des conseils encore plus précis, n'hésitez pas à compléter votre profil !"
+      content: "Bonjour ! Je suis Francis, votre assistant financier IA. Posez-moi vos questions sur les impôts, la fiscalité ou l'optimisation de vos finances personnelles. Pour des conseils encore plus précis, n'hésitez pas à compléter votre profil !"
     }
   ]);
   const [input, setInput] = useState('');

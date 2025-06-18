@@ -268,10 +268,10 @@ export function Dashboard() {
                   <MessageSquare className="w-10 h-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
                   <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-[#0f1419] animate-pulse" />
+
               </div>
               <h2 className="text-2xl font-bold text-white mb-4">
-                Bonjour ! Je suis Francis, votre assistant fiscal.
+                Bonjour ! Je suis Francis, votre assistant financier.
               </h2>
               <p className="text-gray-300 mb-6">
                 {userProfile?.has_completed_onboarding 

@@ -59,7 +59,7 @@ export function DemoPage() {
           <div className="flex flex-col items-center mb-4">
             <span className="inline-block bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#1a2942] font-semibold px-4 py-1 rounded-full text-xs shadow-md border border-[#c5a572]/40 mb-4">Démo IA Francis</span>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Découvrez Francis en action</h1>
-            <p className="text-lg text-gray-300 max-w-xl">Testez gratuitement notre assistant fiscal intelligent et voyez comment il peut vous aider à optimiser votre fiscalité.</p>
+                          <p className="text-lg text-gray-300 max-w-xl">Testez gratuitement notre assistant financier intelligent et voyez comment il peut vous aider à optimiser votre fiscalité.</p>
           </div>
         </motion.div>
         {/* Bloc démo */}
