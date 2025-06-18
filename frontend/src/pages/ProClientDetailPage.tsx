@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon } from 'lucide-react';
+import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon, Euro } from 'lucide-react';
 
 // TODO: Déplacer vers un fichier de types partagés si utilisé ailleurs
 interface AnalysisResult {
@@ -419,7 +419,8 @@ export function ProClientDetailPage() {
                     <div className="flex items-start space-x-2">
                       {message.role === 'assistant' && (
                         <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
-                          <BotIcon className="w-4 h-4 text-[#1a2942]" />
+                          <MessageSquare className="w-4 h-4 text-[#1a2942]" />
+                          <Euro className="w-2.5 h-2.5 text-[#1a2942] absolute -bottom-0.5 -right-0.5 bg-[#c5a572] rounded-full p-0.5" />
                         </div>
                       )}
                       <div className="flex-grow">
@@ -448,7 +449,8 @@ export function ProClientDetailPage() {
                 <div className="flex justify-start p-3">
                     <div className="flex items-center space-x-2">
                         <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
-                            <BotIcon className="w-4 h-4 text-[#1a2942]" />
+                            <MessageSquare className="w-4 h-4 text-[#1a2942]" />
+                            <Euro className="w-2.5 h-2.5 text-[#1a2942] absolute -bottom-0.5 -right-0.5 bg-[#c5a572] rounded-full p-0.5" />
                         </div>
                         <div className="flex items-center space-x-1.5 bg-[#223c63]/90 p-3 rounded-lg rounded-bl-none shadow-md">
                             <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

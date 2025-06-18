@@ -35,7 +35,8 @@ export function DemoModal({ onClose, onStart }: DemoModalProps) {
                   className="absolute inset-0 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-2xl blur-md opacity-60"
                 />
                 <div className="relative bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] p-3 rounded-2xl">
-                  <Bot className="h-8 w-8 sm:h-10 sm:w-10 text-[#162238]" />
+                  <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-[#162238]" />
+                  <Euro className="h-4 w-4 sm:h-5 sm:w-5 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
                 </div>
               </div>
               <div>
@@ -72,8 +73,9 @@ export function DemoModal({ onClose, onStart }: DemoModalProps) {
                 className="flex gap-4 items-start"
               >
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg">
-                    <Bot className="w-6 h-6 text-[#162238]" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg relative">
+                    <MessageSquare className="w-6 h-6 text-[#162238]" />
+                    <Euro className="w-3 h-3 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-[#0A192F] animate-pulse" />
                 </div>
@@ -141,8 +143,9 @@ export function DemoModal({ onClose, onStart }: DemoModalProps) {
                 className="flex gap-4 items-start"
               >
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg">
-                    <Bot className="w-6 h-6 text-[#162238]" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg relative">
+                    <MessageSquare className="w-6 h-6 text-[#162238]" />
+                    <Euro className="w-3 h-3 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
                   </div>
                   <motion.div 
                     animate={{ scale: [1, 1.2, 1] }}
