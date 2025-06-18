@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { ProDemoSection } from '../components/demo/ProDemoSection';
 
 const features = [
   {
@@ -47,6 +48,7 @@ const ProLandingPage = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <a href="#demo" className="text-gray-300 hover:text-[#c5a572] transition-colors">Démo</a>
             <a href="#features" className="text-gray-300 hover:text-[#c5a572] transition-colors">Fonctionnalités</a>
             <a href="#pricing" className="text-gray-300 hover:text-[#c5a572] transition-colors">Tarifs</a>
             <a href="#contact" className="text-gray-300 hover:text-[#c5a572] transition-colors">Contact</a>
@@ -102,10 +104,10 @@ const ProLandingPage = () => {
             Accéder au Dashboard
           </button>
           <button
-            onClick={() => navigate('/contact-pro')}
+            onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
             className="border-2 border-[#c5a572] text-[#c5a572] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#c5a572] hover:text-[#162238] transition-all duration-300 shadow-lg hover:shadow-xl"
           >
-            Demander une Démo
+            Voir Francis en Action
           </button>
         </div>
 
@@ -119,9 +121,16 @@ const ProLandingPage = () => {
             </div>
           </div>
         </div>
+      </main>
 
-        {/* Features Section */}
-        <div id="features" className="pt-16">
+      {/* Démo Interactive Section */}
+      <section id="demo">
+        <ProDemoSection />
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Votre Avantage Concurrentiel
           </h2>
@@ -141,109 +150,124 @@ const ProLandingPage = () => {
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Section Tarifs Pro */}
-        <div id="pricing" className="pt-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
-            Tarifs <span className="text-[#c5a572]">Pro</span>
-          </h2>
-          <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto text-center">
-            Des tarifs adaptés aux professionnels. <strong className="text-[#c5a572]">Accès anticipé exclusif.</strong>
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Pro 20 */}
-            <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300 hover:transform hover:scale-105">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-white mb-2">Pro 20</h3>
-                <p className="text-gray-300 mb-6">Pour débuter avec Francis</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-[#c5a572]">49€</span>
-                  <span className="text-gray-300">/mois</span>
-                </div>
-                <ul className="space-y-3 mb-8 text-left">
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Jusqu'à 20 clients
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Analyses fiscales illimitées
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Tableaux de bord client
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Support email
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Accès anticipé Beta
-                  </li>
-                </ul>
-                <button className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300">
-                  Commencer
-                </button>
+      {/* Section Tarifs Pro */}
+      <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
+          Tarifs <span className="text-[#c5a572]">Pro</span>
+        </h2>
+        <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto text-center">
+          Des tarifs adaptés aux professionnels. <strong className="text-[#c5a572]">Accès anticipé exclusif.</strong>
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Pro 20 */}
+          <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300 hover:transform hover:scale-105">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-white mb-2">Pro 20</h3>
+              <p className="text-gray-300 mb-6">Pour débuter avec Francis</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-[#c5a572]">49€</span>
+                <span className="text-gray-300">/mois</span>
               </div>
+              <ul className="space-y-3 mb-8 text-left">
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Jusqu'à 20 clients
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Analyses fiscales illimitées
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Tableaux de bord client
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Support email
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Accès anticipé Beta
+                </li>
+              </ul>
+              <button className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300">
+                Commencer
+              </button>
             </div>
+          </div>
 
-            {/* Pro 50 - Populaire */}
-            <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border-2 border-[#c5a572] hover:border-[#c5a572]/80 transition-all duration-300 hover:transform hover:scale-105 relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-2 rounded-full text-sm font-bold">
-                LE PLUS POPULAIRE
+          {/* Pro 50 - Populaire */}
+          <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border-2 border-[#c5a572] hover:border-[#c5a572]/80 transition-all duration-300 hover:transform hover:scale-105 relative">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-2 rounded-full text-sm font-bold">
+              LE PLUS POPULAIRE
+            </div>
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-white mb-2">Pro 50</h3>
+              <p className="text-gray-300 mb-6">Pour développer votre cabinet</p>
+              <div className="mb-6">
+                <span className="text-4xl font-bold text-[#c5a572]">99€</span>
+                <span className="text-gray-300">/mois</span>
               </div>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-white mb-2">Pro 50</h3>
-                <p className="text-gray-300 mb-6">Pour développer votre cabinet</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-[#c5a572]">99€</span>
-                  <span className="text-gray-300">/mois</span>
-                </div>
-                <ul className="space-y-3 mb-8 text-left">
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Jusqu'à 50 clients
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Tout de Pro 20 +
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Rapports personnalisés
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    API accès complet
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Support prioritaire
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Formation incluse
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
-                    Accès anticipé Beta
-                  </li>
-                </ul>
-                <button className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300 shadow-lg">
-                  Commencer
-                </button>
-              </div>
+              <ul className="space-y-3 mb-8 text-left">
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Jusqu'à 50 clients
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Tout du plan Pro 20
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  API intégration cabinet
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Support prioritaire
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <Check className="w-5 h-5 text-[#c5a572] mr-3 flex-shrink-0" />
+                  Formation Francis incluse
+                </li>
+              </ul>
+              <button className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300">
+                Commencer
+              </button>
             </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Prêt à transformer votre cabinet ?
+          </h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Contactez-nous pour découvrir comment Francis Pro peut révolutionner votre pratique fiscale.
+          </p>
+          <button
+            onClick={() => navigate('/contact-pro')}
+            className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-semibold hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            Planifier une Démo Personnalisée
+          </button>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-[#162238] mt-20 border-t border-[#2A3F6C]/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">&copy; {new Date().getFullYear()} Fiscal.ia Pro. Tous droits réservés.</p>
+      <footer className="bg-[#162238]/95 border-t border-[#2A3F6C]/50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-gray-300">
+            <p>&copy; 2024 Fiscal.ia Pro. Tous droits réservés.</p>
+            <p className="text-sm mt-2">
+              Francis est conforme à la réglementation fiscale française et respecte les standards de sécurité bancaire.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
