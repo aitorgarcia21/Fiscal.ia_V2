@@ -750,6 +750,69 @@ async def stripe_webhook(request: dict):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@api_router.post("/create-checkout-session")
+async def create_checkout_session(request: dict):
+    try:
+        if not stripe.api_key:
+            raise HTTPException(status_code=500, detail="Service de paiement non disponible")
+        
+        price_id = request.get("priceId")
+        success_url = request.get("successUrl", "https://fiscal-ia.net/success")
+        cancel_url = request.get("cancelUrl", "https://fiscal-ia.net/pricing")
+        
+        if not price_id:
+            raise HTTPException(status_code=400, detail="Price ID manquant")
+        
+        # Créer la session de checkout Stripe
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': price_id,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            automatic_tax={'enabled': True},
+            customer_email=None,  # Optionnel : récupérer de l'utilisateur connecté
+            metadata={
+                'environment': 'production' if 'fiscal-ia.net' in success_url else 'development'
+            }
+        )
+        
+        return {"url": checkout_session.url}
+    except Exception as e:
+        print(f"Erreur création checkout session: {e}")
+        raise HTTPException(status_code=400, detail=f"Erreur lors de la création de la session: {str(e)}")
+
+@api_router.post("/create-portal-session")
+async def create_portal_session(request: dict, user_id: str = Depends(verify_token)):
+    try:
+        if not stripe.api_key:
+            raise HTTPException(status_code=500, detail="Service de paiement non disponible")
+        
+        return_url = request.get("returnUrl", "https://fiscal-ia.net/account")
+        
+        # TODO: Récupérer le customer_id Stripe de la base de données
+        # Pour l'instant, on redirige vers la page de gestion manuelle
+        # Dans une vraie implémentation, il faudrait :
+        # 1. Récupérer le customer_id Stripe lié à user_id
+        # 2. Créer une portal session avec ce customer_id
+        
+        # customer_id = get_stripe_customer_id(user_id)
+        # portal_session = stripe.billing_portal.Session.create(
+        #     customer=customer_id,
+        #     return_url=return_url,
+        # )
+        # return {"url": portal_session.url}
+        
+        # Fallback temporaire
+        raise HTTPException(status_code=501, detail="Portal de gestion non encore implémenté - Contactez le support")
+        
+    except Exception as e:
+        print(f"Erreur création portal session: {e}")
+        raise HTTPException(status_code=400, detail=f"Erreur lors de la création du portal: {str(e)}")
+
 @api_router.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
 async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depends(verify_token)):
     if not (TRUELAYER_CLIENT_ID and TRUELAYER_CLIENT_SECRET):
