@@ -226,7 +226,7 @@ export function Dashboard() {
               <h1 className="text-xl font-bold bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">
                 Fiscal.ia
               </h1>
-              <p className="text-xs text-gray-400">Assistant Personnel</p>
+              <p className="text-xs text-gray-400">Assistant Financier Personnel</p>
             </div>
           </div>
           
@@ -264,9 +264,9 @@ export function Dashboard() {
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="text-center max-w-2xl">
               <div className="relative mb-6">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto relative">
-                  <MessageSquare className="w-8 h-8 text-[#c5a572]" />
-                  <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1 -right-1" />
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto relative group">
+                  <MessageSquare className="w-10 h-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                  <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-[#0f1419] animate-pulse" />
               </div>
