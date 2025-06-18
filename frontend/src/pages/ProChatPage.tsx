@@ -129,16 +129,17 @@ export function ProChatPage() {
         {/* Header adapté pour l'espace Pro */}
         <div className="p-4 border-b border-[#2A3F6C]/30 flex justify-between items-center bg-[#0E2444]/60">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/pro/dashboard')}>
-            <div className="relative">
-              <Briefcase className="w-10 h-10 text-[#88C0D0]" /> {/* Icône Pro */}
+            <div className="relative inline-flex items-center justify-center group">
+              <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <span className="text-xl font-semibold text-[#88C0D0]">Francis Pro</span>
+            <span className="text-xl font-semibold text-[#c5a572]">Fiscal.ia</span>
           </div>
           <div className="flex items-center space-x-4">
             {/* Potentiellement un lien vers le dashboard pro */}
             <button 
               onClick={() => navigate('/pro/dashboard')}
-              className="text-sm text-[#88C0D0] hover:text-white transition-colors flex items-center"
+              className="text-sm text-[#c5a572] hover:text-white transition-colors flex items-center"
             >
               Tableau de Bord <ArrowRight className="ml-1 w-4 h-4" />
             </button>
@@ -154,7 +155,7 @@ export function ProChatPage() {
               value={selectedClientId || ''}
               onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
               disabled={isLoadingClients || isLoading}
-              className="px-3 py-1.5 bg-[#0A192F]/70 border border-[#2A3F6C]/50 rounded-md text-sm text-gray-200 focus:outline-none focus:border-[#88C0D0] focus:ring-1 focus:ring-[#88C0D0] min-w-[200px]"
+              className="px-3 py-1.5 bg-[#162238] border border-[#c5a572]/30 rounded-md text-sm text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] min-w-[200px]"
             >
               <option value="">Général (sans client spécifique)</option>
               {clients.map(client => (
@@ -177,14 +178,15 @@ export function ProChatPage() {
               <div 
                 className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
                   message.role === 'user'
-                    ? 'bg-[#88C0D0] text-[#0A192F] rounded-br-none' // Style Pro User
-                    : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#152844] text-white rounded-bl-none' // Style Pro Assistant
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
+                    : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
                 }`}
               >
                 <div className="flex items-start space-x-2">
                   {message.role === 'assistant' && (
-                    <div className="flex-shrink-0 w-7 h-7 bg-[#88C0D0] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
-                      <Briefcase className="w-4 h-4 text-[#0A192F]" /> {/* Icône Pro Assistant */}
+                    <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#162238]">
+                      <MessageSquare className="w-4 h-4 text-[#162238]" />
+                      <Euro className="w-3 h-3 text-[#162238] absolute -bottom-1.5 -right-1.5 bg-[#c5a572] rounded-full p-0.5 border border-[#162238]" />
                     </div>
                   )}
                   <div className='flex-grow'>
@@ -201,8 +203,8 @@ export function ProChatPage() {
                     )}
                   </div>
                   {message.role === 'user' && (
-                    <div className="flex-shrink-0 w-7 h-7 bg-[#0A192F] rounded-full flex items-center justify-center border-2 border-[#88C0D0]">
-                      <UserIcon className="w-4 h-4 text-[#88C0D0]" />
+                    <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                      <UserIcon className="w-4 h-4 text-[#c5a572]" />
                     </div>
                   )}
                 </div>
@@ -212,10 +214,11 @@ export function ProChatPage() {
           {isLoading && (
             <div className="flex justify-start p-3">
                 <div className="flex items-center space-x-2">
-                    <div className="flex-shrink-0 w-7 h-7 bg-[#88C0D0] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
-                        <Briefcase className="w-4 h-4 text-[#0A192F]" />
+                    <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#162238]">
+                        <MessageSquare className="w-4 h-4 text-[#162238]" />
+                        <Euro className="w-3 h-3 text-[#162238] absolute -bottom-1.5 -right-1.5 bg-[#c5a572] rounded-full p-0.5 border border-[#162238]" />
                     </div>
-                    <div className="flex items-center space-x-1.5 bg-[#152844] p-3 rounded-lg rounded-bl-none shadow-md">
+                    <div className="flex items-center space-x-1.5 bg-[#1a2332]/80 border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
                         <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                         <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                         <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
@@ -233,7 +236,7 @@ export function ProChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
-              className="flex-1 px-4 py-3 bg-[#0A192F]/70 border border-[#2A3F6C]/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#88C0D0] focus:ring-1 focus:ring-[#88C0D0] transition-colors resize-none"
+              className="flex-1 px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
               rows={2} // Hauteur initiale pour 2 lignes
               disabled={isLoading}
               onKeyDown={(e) => {
@@ -246,7 +249,7 @@ export function ProChatPage() {
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="bg-[#88C0D0] text-[#0A192F] p-3 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
+              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
               aria-label="Envoyer le message" 
             >
               <Send className="w-5 h-5" />
