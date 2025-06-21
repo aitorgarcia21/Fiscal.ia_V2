@@ -42,7 +42,6 @@ const ProLandingPage = () => {
               <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
               <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <span className="text-2xl font-bold text-[#c5a572] ml-2">Fiscal.ia</span>
             <span className="text-lg font-semibold text-gray-300 ml-2">Pro</span>
           </div>
 
