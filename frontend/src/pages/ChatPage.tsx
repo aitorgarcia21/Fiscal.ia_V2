@@ -108,30 +108,34 @@ export function ChatPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] p-4 flex flex-col">
       <div className="max-w-4xl w-full mx-auto bg-[#1a2942]/80 backdrop-blur-sm rounded-xl border border-[#c5a572]/20 overflow-hidden flex flex-col shadow-2xl flex-grow">
         {/* Header */}
-        <div className="p-4 border-b border-[#c5a572]/20 flex justify-between items-center">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="relative inline-flex items-center justify-center group">
-              <MessageSquare className="w-10 h-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1a2942] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+        <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-[#162238]" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Chat</h1>
+                <p className="text-sm text-gray-400">Posez vos questions à Francis</p>
+              </div>
             </div>
-            <span className="text-xl font-semibold text-[#c5a572] ml-2">Fiscal.ia</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            {isAuthenticated && (
-              <Link 
-                to="/profil"
+            <div className="flex items-center space-x-4">
+              {isAuthenticated && (
+                <Link 
+                  to="/profil"
+                  className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors flex items-center"
+                >
+                  <UserCog className="mr-1.5 w-4 h-4" /> Mon Profil
+                </Link>
+              )}
+              <button 
+                onClick={() => navigate('/discover')}
                 className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors flex items-center"
+                aria-label="Découvrir d'autres utilisateurs"
               >
-                <UserCog className="mr-1.5 w-4 h-4" /> Mon Profil
-              </Link>
-            )}
-            <button 
-              onClick={() => navigate('/discover')}
-              className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors flex items-center"
-              aria-label="Découvrir d'autres utilisateurs"
-            >
-              Découvrir <ArrowRight className="ml-1 w-4 h-4" />
-            </button>
+                Découvrir <ArrowRight className="ml-1 w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 

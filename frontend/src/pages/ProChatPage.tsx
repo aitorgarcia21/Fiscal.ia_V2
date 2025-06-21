@@ -126,23 +126,18 @@ export function ProChatPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] p-4 flex flex-col">
       <div className="max-w-4xl w-full mx-auto bg-[#0A192F]/90 backdrop-blur-md rounded-xl border border-[#2A3F6C]/40 overflow-hidden flex flex-col shadow-2xl flex-grow">
-        {/* Header adapté pour l'espace Pro */}
-        <div className="p-4 border-b border-[#2A3F6C]/30 flex justify-between items-center bg-[#0E2444]/60">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/pro/dashboard')}>
-            <div className="relative inline-flex items-center justify-center group">
-              <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+        {/* Header */}
+        <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-[#162238]" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Chat Pro</h1>
+                <p className="text-sm text-gray-400">Assistant pour vos clients</p>
+              </div>
             </div>
-            <span className="text-xl font-semibold text-[#c5a572]">Fiscal.ia</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            {/* Potentiellement un lien vers le dashboard pro */}
-            <button 
-              onClick={() => navigate('/pro/dashboard')}
-              className="text-sm text-[#c5a572] hover:text-white transition-colors flex items-center"
-            >
-              Tableau de Bord <ArrowRight className="ml-1 w-4 h-4" />
-            </button>
           </div>
         </div>
 

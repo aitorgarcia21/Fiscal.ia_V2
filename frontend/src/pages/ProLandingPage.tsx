@@ -259,13 +259,10 @@ const ProLandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#162238]/95 border-t border-[#2A3F6C]/50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-gray-300">
-            <p>&copy; 2024 Fiscal.ia Pro. Tous droits réservés.</p>
-            <p className="text-sm mt-2">
-              Francis est conforme à la réglementation fiscale française et respecte les standards de sécurité bancaire.
-            </p>
+      <footer className="bg-[#0A192F] border-t border-[#2A3F6C]/30 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center">
+            <p className="text-gray-400">&copy; 2024 Pro. Tous droits réservés.</p>
           </div>
         </div>
       </footer>

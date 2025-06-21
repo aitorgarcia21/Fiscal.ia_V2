@@ -71,19 +71,16 @@ export function ProDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#1E3253] text-gray-100">
-      {/* Header simplifié */}
-      <header className="bg-[#162238]/95 backdrop-blur-lg border-b border-[#c5a572]/20 p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      {/* Header */}
+      <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative inline-flex items-center justify-center group">
-              <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+            <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-[#162238]" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">
-                Fiscal.ia
-              </h1>
-              <p className="text-xs text-gray-400">Gestion Clients</p>
+              <h1 className="text-xl font-bold text-white">Dashboard Pro</h1>
+              <p className="text-sm text-gray-400">Gestion de vos clients</p>
             </div>
           </div>
           
@@ -98,7 +95,7 @@ export function ProDashboardPage() {
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Contenu principal simplifié */}
       <div className="max-w-6xl mx-auto p-6">

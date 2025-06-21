@@ -362,53 +362,10 @@ export function OptimisationFiscaleIA() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#0A1628] border-t border-[#c5a572]/20 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-[#162238]" />
-                </div>
-                <span className="text-white text-lg font-bold">Francis</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                Votre assistant fiscal intelligent pour optimiser vos impôts avec l'IA.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Produit</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/demo" className="text-gray-400 hover:text-white transition-colors">Démo Francis</Link></li>
-                <li><Link to="/simulateur-impot" className="text-gray-400 hover:text-white transition-colors">Simulateur d'impôt</Link></li>
-                <li><Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">Tarifs</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Ressources</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/blog" className="text-gray-400 hover:text-white transition-colors">Blog fiscal</Link></li>
-                <li><Link to="/guides" className="text-gray-400 hover:text-white transition-colors">Guides pratiques</Link></li>
-                <li><Link to="/contact" className="text-gray-400 hover:text-white transition-colors">Support</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Légal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/mentions-legales" className="text-gray-400 hover:text-white transition-colors">Mentions légales</Link></li>
-                <li><Link to="/politique-confidentialite" className="text-gray-400 hover:text-white transition-colors">Confidentialité</Link></li>
-                <li><Link to="/cgu" className="text-gray-400 hover:text-white transition-colors">CGU</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-[#c5a572]/20 mt-8 pt-8 text-center">
-            <p className="text-gray-400 text-sm">
-              © 2024 Fiscal.ia. Tous droits réservés. Francis est conforme à la réglementation fiscale française.
-            </p>
+      <footer className="bg-[#0A192F] border-t border-[#2A3F6C]/30 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center">
+            <p className="text-gray-400">&copy; 2024. Tous droits réservés. Francis est conforme à la réglementation fiscale française.</p>
           </div>
         </div>
       </footer>
