@@ -86,8 +86,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess, 
         if (onSuccess) {
             onSuccess(responseData); // Exécuter le callback de succès si fourni
         }
-        // Ne pas forcer la redirection - laisser l'utilisateur sur la page actuelle
-        // Les ProtectedRoute se chargeront de la logique d'accès appropriée
+        
+        // Redirection automatique selon le type d'utilisateur
+        if (actualUserRole === 'professionnel') {
+            navigate('/pro/dashboard');
+        } else {
+            navigate('/dashboard');
+        }
 
       } else {
         // Au cas où la réponse du backend n'est pas conforme à ce qui est attendu

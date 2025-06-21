@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check, Briefcase, FileText, Zap } from 'lucide-react';
+import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check, Briefcase, FileText, Zap, Eye, Target, TrendingUp, Lightbulb } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants, Transition } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
@@ -108,7 +108,7 @@ export function LandingPage() {
               transition={heroTextTransition}
               className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light"
             >
-              L'intelligence artificielle qui vous fait économiser des milliers d'euros sur vos impôts, en toute légalité.
+              On est là pour aider les gens à reprendre le contrôle, à ne plus être dépendants et prendre conscience.
             </motion.p>
           </motion.div>
 
@@ -143,6 +143,105 @@ export function LandingPage() {
           </motion.div>
            {/* Afficher l'erreur Stripe si elle existe (pour le test) */}
            {error && <p className="text-red-400 mt-4">Erreur Stripe: {error}</p>} 
+        </div>
+      </section>
+
+      {/* Section Découverte - Nouvelle section */}
+      <section className="py-16 sm:py-24 px-4 bg-gradient-to-br from-[#1E3253]/40 to-[#234876]/40">
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} className="text-center mb-14 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 sm:mb-6 leading-tight shadow-text">
+              Découvrez votre <span className="text-[#c5a572]">potentiel caché</span>
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Francis révèle les opportunités que vous ignorez et vous guide vers une fiscalité optimale.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 items-stretch">
+            {[
+              {
+                icon: Eye,
+                title: "Vision claire",
+                description: "Comprenez enfin votre situation fiscale et identifiez les leviers d'optimisation cachés.",
+                color: "from-blue-500 to-cyan-500"
+              },
+              {
+                icon: Target,
+                title: "Stratégies ciblées",
+                description: "Des recommandations personnalisées basées sur votre profil unique et vos objectifs.",
+                color: "from-purple-500 to-pink-500"
+              },
+              {
+                icon: TrendingUp,
+                title: "Résultats mesurables",
+                description: "Suivez vos économies en temps réel et mesurez l'impact de chaque optimisation.",
+                color: "from-green-500 to-emerald-500"
+              },
+              {
+                icon: Lightbulb,
+                title: "Conseils intelligents",
+                description: "Une IA qui apprend de vos interactions pour des recommandations toujours plus pertinentes.",
+                color: "from-yellow-500 to-orange-500"
+              },
+              {
+                icon: Shield,
+                title: "Sécurité garantie",
+                description: "Vos données sont protégées par les standards bancaires les plus élevés.",
+                color: "from-red-500 to-pink-500"
+              },
+              {
+                icon: Zap,
+                title: "Action immédiate",
+                description: "Passez de la théorie à la pratique en quelques clics avec nos guides étape par étape.",
+                color: "from-indigo-500 to-purple-500"
+              }
+            ].map((feature, index) => (
+              <motion.div 
+                key={index} 
+                custom={index} 
+                variants={stepItemVariants} 
+                initial="hidden" 
+                whileInView="visible" 
+                viewport={{ once: true, amount: 0.2 }} 
+                className="bg-gradient-to-br from-[#1A2942]/80 to-[#223C63]/80 rounded-2xl border border-[#2A3F6C]/60 p-8 flex flex-col items-center shadow-xl hover:shadow-2xl hover:border-[#c5a572]/50 transition-all duration-300 transform hover:-translate-y-2 group"
+              >
+                <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 sm:mb-8 shadow-lg border-4 border-[#162238]/50 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 text-center group-hover:text-[#c5a572] transition-colors duration-300">{feature.title}</h3>
+                <p className="text-gray-300 text-base sm:text-lg text-center leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Call-to-action dans la section découverte */}
+          <motion.div 
+            variants={cardVariants} 
+            initial="hidden" 
+            whileInView="visible" 
+            viewport={{ once: true, amount: 0.3 }} 
+            className="text-center mt-16 sm:mt-20"
+          >
+            <div className="bg-gradient-to-br from-[#1A2942]/60 to-[#223C63]/60 shadow-xl rounded-2xl px-8 py-10 sm:px-12 sm:py-14 mx-auto max-w-4xl border border-[#2A3F6C]/60">
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                Prêt à découvrir votre potentiel ?
+              </h3>
+              <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+                Rejoignez des milliers de Français qui ont déjà repris le contrôle de leur fiscalité avec Francis.
+              </p>
+              <motion.button
+                onClick={() => navigate('/signup')}
+                whileHover={{ scale: 1.05, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
+                whileTap={{ scale: 0.98 }}
+                className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50 mx-auto"
+              >
+                <Sparkles className="w-6 h-6" />
+                Découvrir maintenant
+                <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
       </section>
 
