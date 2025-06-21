@@ -1050,69 +1050,238 @@ async def simulate_optimization(request: OptimizationSimulationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la simulation: {str(e)}")
 
-@api_router.post("/tools/consciousness-test", response_model=ConsciousnessTestResponse)
-async def consciousness_test(request: ConsciousnessTestRequest):
-    """Test de conscience fiscale disruptif - Évalue le niveau d'émancipation"""
-    try:
-        # Questions du test (simplifié)
-        questions = {
-            "connaissance_tmi": "Connaissez-vous votre Taux Marginal d'Imposition ?",
-            "optimisation_active": "Avez-vous déjà mis en place des optimisations fiscales ?",
-            "comprehension_mecanismes": "Comprenez-vous les mécanismes fiscaux qui s'appliquent à vous ?",
-            "planification_fiscale": "Planifiez-vous votre fiscalité à l'avance ?",
-            "independance_conseil": "Êtes-vous capable de prendre des décisions fiscales sans dépendre d'un conseiller ?"
+@api_router.post("/api/consciousness-test")
+async def consciousness_test(request: dict):
+    """Test complet de conscience fiscale et financière"""
+    
+    # Questions du test avec pondération
+    questions = {
+        "connaissance_tmi": {
+            "question": "Connaissez-vous votre Taux Marginal d'Imposition (TMI) ?",
+            "reponses": {
+                "1": {"texte": "Je ne sais pas ce que c'est", "score": 0},
+                "2": {"texte": "J'ai entendu parler mais je ne comprends pas", "score": 25},
+                "3": {"texte": "Je connais approximativement", "score": 50},
+                "4": {"texte": "Je connais précisément", "score": 75},
+                "5": {"texte": "Je comprends tous les mécanismes", "score": 100}
+            },
+            "poids": 15
+        },
+        "comprehension_barème": {
+            "question": "Comprenez-vous le fonctionnement du barème progressif de l'IR ?",
+            "reponses": {
+                "1": {"texte": "Pas du tout", "score": 0},
+                "2": {"texte": "Vaguement", "score": 25},
+                "3": {"texte": "Assez bien", "score": 50},
+                "4": {"texte": "Bien", "score": 75},
+                "5": {"texte": "Parfaitement", "score": 100}
+            },
+            "poids": 12
+        },
+        "optimisation_active": {
+            "question": "Mettez-vous en place des optimisations fiscales ?",
+            "reponses": {
+                "1": {"texte": "Aucune", "score": 0},
+                "2": {"texte": "Quelques-unes basiques", "score": 30},
+                "3": {"texte": "Plusieurs optimisations", "score": 60},
+                "4": {"texte": "Stratégie complète", "score": 85},
+                "5": {"texte": "Optimisation maximale", "score": 100}
+            },
+            "poids": 18
+        },
+        "planification_fiscale": {
+            "question": "Planifiez-vous votre fiscalité à l'avance ?",
+            "reponses": {
+                "1": {"texte": "Jamais", "score": 0},
+                "2": {"texte": "Rarement", "score": 25},
+                "3": {"texte": "Parfois", "score": 50},
+                "4": {"texte": "Souvent", "score": 75},
+                "5": {"texte": "Toujours", "score": 100}
+            },
+            "poids": 15
+        },
+        "comprehension_per": {
+            "question": "Comprenez-vous le Plan d'Épargne Retraite (PER) ?",
+            "reponses": {
+                "1": {"texte": "Je ne sais pas ce que c'est", "score": 0},
+                "2": {"texte": "J'ai entendu parler", "score": 20},
+                "3": {"texte": "Je comprends les bases", "score": 40},
+                "4": {"texte": "Je comprends bien", "score": 70},
+                "5": {"texte": "Je maîtrise parfaitement", "score": 100}
+            },
+            "poids": 10
+        },
+        "comprehension_immobilier": {
+            "question": "Connaissez-vous les avantages fiscaux de l'immobilier ?",
+            "reponses": {
+                "1": {"texte": "Aucune idée", "score": 0},
+                "2": {"texte": "Vaguement", "score": 25},
+                "3": {"texte": "Assez bien", "score": 50},
+                "4": {"texte": "Bien", "score": 75},
+                "5": {"texte": "Parfaitement", "score": 100}
+            },
+            "poids": 10
+        },
+        "comprehension_investissement": {
+            "question": "Comprenez-vous la fiscalité des investissements (PEA, assurance-vie, etc.) ?",
+            "reponses": {
+                "1": {"texte": "Pas du tout", "score": 0},
+                "2": {"texte": "Très peu", "score": 20},
+                "3": {"texte": "Assez", "score": 40},
+                "4": {"texte": "Bien", "score": 70},
+                "5": {"texte": "Parfaitement", "score": 100}
+            },
+            "poids": 10
+        },
+        "independance_conseil": {
+            "question": "Êtes-vous capable de prendre des décisions fiscales sans conseil externe ?",
+            "reponses": {
+                "1": {"texte": "Jamais", "score": 0},
+                "2": {"texte": "Rarement", "score": 25},
+                "3": {"texte": "Parfois", "score": 50},
+                "4": {"texte": "Souvent", "score": 75},
+                "5": {"texte": "Toujours", "score": 100}
+            },
+            "poids": 10
         }
+    }
+    
+    # Calcul du score total
+    score_total = 0
+    score_maximum = 0
+    reponses_detaillees = {}
+    
+    for question_id, question_data in questions.items():
+        reponse = request.get(question_id, "1")  # Par défaut niveau 1
+        score_question = question_data["reponses"][reponse]["score"]
+        poids = question_data["poids"]
         
-        score_total = sum(request.reponses.values())
-        score_maximum = len(questions) * 5
-        pourcentage = (score_total / score_maximum) * 100
+        score_total += (score_question * poids) / 100
+        score_maximum += poids
         
-        # Détermination du niveau de conscience
-        if pourcentage >= 80:
-            niveau = "Expert"
-            recommandations = [
-                "Vous êtes autonome fiscalement - partagez votre savoir !",
-                "Mentorez d'autres personnes pour les aider à s'émanciper",
-                "Explorez des stratégies avancées de transmission"
-            ]
-        elif pourcentage >= 60:
-            niveau = "Avancé"
-            recommandations = [
-                "Vous maîtrisez les bases - passez aux optimisations avancées",
-                "Diversifiez vos stratégies d'optimisation",
-                "Planifiez votre transmission patrimoniale"
-            ]
-        elif pourcentage >= 40:
-            niveau = "Intermédiaire"
-            recommandations = [
-                "Vous comprenez les bases - approfondissez vos connaissances",
-                "Mettez en place vos premières optimisations",
-                "Consultez Francis pour des conseils personnalisés"
-            ]
-        else:
-            niveau = "Débutant"
-            recommandations = [
-                "Commencez par comprendre votre situation fiscale",
-                "Utilisez le calculateur TMI pour vous familiariser",
-                "Posez vos questions à Francis sans hésiter"
-            ]
-        
-        prochaines_etapes = [
-            "Complétez votre profil fiscal",
-            "Utilisez les outils de simulation",
-            "Planifiez vos actions d'optimisation"
-        ]
-        
-        return ConsciousnessTestResponse(
-            niveau_conscience=niveau,
-            score_total=score_total,
-            score_maximum=score_maximum,
-            pourcentage=pourcentage,
-            recommandations=recommandations,
-            prochaines_etapes=prochaines_etapes
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors du test: {str(e)}")
+        reponses_detaillees[question_id] = {
+            "question": question_data["question"],
+            "reponse": question_data["reponses"][reponse]["texte"],
+            "score": score_question,
+            "poids": poids
+        }
+    
+    pourcentage = (score_total / score_maximum) * 100 if score_maximum > 0 else 0
+    
+    # Détermination du niveau de conscience
+    if pourcentage < 20:
+        niveau_conscience = "Débutant"
+        description = "Vous commencez votre parcours de conscience fiscale"
+        couleur = "text-blue-400"
+        icon = "Baby"
+    elif pourcentage < 40:
+        niveau_conscience = "Intermédiaire"
+        description = "Vous avez les bases mais il reste du chemin"
+        couleur = "text-green-400"
+        icon = "User"
+    elif pourcentage < 60:
+        niveau_conscience = "Avancé"
+        description = "Vous maîtrisez bien les concepts fiscaux"
+        couleur = "text-purple-400"
+        icon = "UserCheck"
+    elif pourcentage < 80:
+        niveau_conscience = "Expert"
+        description = "Vous êtes très compétent en fiscalité"
+        couleur = "text-yellow-400"
+        icon = "Crown"
+    else:
+        niveau_conscience = "Maître"
+        description = "Vous êtes un maître de la fiscalité"
+        couleur = "text-red-400"
+        icon = "Star"
+    
+    # Recommandations personnalisées basées sur les réponses
+    recommandations = []
+    
+    if reponses_detaillees["connaissance_tmi"]["score"] < 50:
+        recommandations.append("Apprenez à calculer votre TMI et comprenez son impact")
+    
+    if reponses_detaillees["comprehension_barème"]["score"] < 50:
+        recommandations.append("Étudiez le fonctionnement du barème progressif de l'IR")
+    
+    if reponses_detaillees["optimisation_active"]["score"] < 50:
+        recommandations.append("Mettez en place des optimisations fiscales de base")
+    
+    if reponses_detaillees["planification_fiscale"]["score"] < 50:
+        recommandations.append("Développez une stratégie de planification fiscale")
+    
+    if reponses_detaillees["comprehension_per"]["score"] < 50:
+        recommandations.append("Découvrez les avantages du Plan d'Épargne Retraite")
+    
+    if reponses_detaillees["comprehension_immobilier"]["score"] < 50:
+        recommandations.append("Explorez les avantages fiscaux de l'immobilier")
+    
+    if reponses_detaillees["comprehension_investissement"]["score"] < 50:
+        recommandations.append("Apprenez la fiscalité des différents supports d'investissement")
+    
+    if reponses_detaillees["independance_conseil"]["score"] < 50:
+        recommandations.append("Développez votre autonomie dans les décisions fiscales")
+    
+    # Recommandations générales selon le niveau
+    if pourcentage < 30:
+        recommandations.extend([
+            "Commencez par les bases : TMI, barème IR, déductions",
+            "Utilisez les outils de simulation disponibles",
+            "Posez des questions à Francis sur les concepts de base"
+        ])
+    elif pourcentage < 60:
+        recommandations.extend([
+            "Approfondissez les optimisations fiscales",
+            "Étudiez les dispositifs de défiscalisation",
+            "Développez une stratégie patrimoniale"
+        ])
+    else:
+        recommandations.extend([
+            "Optimisez votre stratégie fiscale globale",
+            "Transmettez vos connaissances aux autres",
+            "Restez à jour des évolutions fiscales"
+        ])
+    
+    # Points forts identifiés
+    points_forts = []
+    for question_id, detail in reponses_detaillees.items():
+        if detail["score"] >= 75:
+            if question_id == "connaissance_tmi":
+                points_forts.append("Excellente maîtrise du TMI")
+            elif question_id == "optimisation_active":
+                points_forts.append("Optimisation fiscale active")
+            elif question_id == "planification_fiscale":
+                points_forts.append("Planification fiscale avancée")
+            elif question_id == "independance_conseil":
+                points_forts.append("Autonomie décisionnelle")
+    
+    # Axes d'amélioration prioritaires
+    axes_amelioration = []
+    for question_id, detail in reponses_detaillees.items():
+        if detail["score"] <= 25:
+            if question_id == "connaissance_tmi":
+                axes_amelioration.append("Compréhension du TMI")
+            elif question_id == "comprehension_barème":
+                axes_amelioration.append("Fonctionnement du barème IR")
+            elif question_id == "optimisation_active":
+                axes_amelioration.append("Mise en place d'optimisations")
+            elif question_id == "planification_fiscale":
+                axes_amelioration.append("Planification fiscale")
+    
+    return {
+        "score_total": round(score_total, 1),
+        "score_maximum": score_maximum,
+        "pourcentage": round(pourcentage, 1),
+        "niveau_conscience": niveau_conscience,
+        "description_niveau": description,
+        "couleur_niveau": couleur,
+        "icon_niveau": icon,
+        "recommandations": recommandations[:5],  # Top 5 recommandations
+        "points_forts": points_forts,
+        "axes_amelioration": axes_amelioration[:3],  # Top 3 axes
+        "reponses_detaillees": reponses_detaillees,
+        "questions": questions  # Pour affichage dans le frontend
+    }
 
 @api_router.post("/tools/fiscal-insights", response_model=FiscalInsightsResponse)
 async def get_fiscal_insights(request: FiscalInsightsRequest):

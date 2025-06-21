@@ -143,6 +143,14 @@ export function Dashboard() {
     alertes_souhaitees: ['seuils_tmi', 'optimisations', 'changements_loi']
   });
 
+  // États pour le test complet
+  const [testQuestions, setTestQuestions] = useState<any>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [testReponses, setTestReponses] = useState<{[key: string]: string}>({});
+  const [testResult, setTestResult] = useState<any>(null);
+  const [isTestComplete, setIsTestComplete] = useState(false);
+  const [showTestResults, setShowTestResults] = useState(false);
+
   // Données factices pour les outils
   const fiscalInsightsDefault = {
     tmi: userProfile?.tmi || 30,
@@ -435,29 +443,93 @@ export function Dashboard() {
     }
   };
 
-  const handleConsciousnessTest = async () => {
+  // Fonction pour charger les questions du test
+  const loadTestQuestions = async () => {
+    try {
+      const response = await fetch('/api/consciousness-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setTestQuestions(result.questions);
+        setCurrentQuestionIndex(0);
+        setTestReponses({});
+        setIsTestComplete(false);
+        setTestResult(null);
+        setShowTestResults(false);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des questions:', error);
+    }
+  };
+
+  // Fonction pour répondre à une question
+  const handleQuestionResponse = (questionId: string, reponse: string) => {
+    setTestReponses(prev => ({
+      ...prev,
+      [questionId]: reponse
+    }));
+  };
+
+  // Fonction pour passer à la question suivante
+  const nextQuestion = () => {
+    if (currentQuestionIndex < Object.keys(testQuestions || {}).length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      // Test terminé, calculer les résultats
+      calculateTestResults();
+    }
+  };
+
+  // Fonction pour revenir à la question précédente
+  const previousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
+
+  // Fonction pour calculer les résultats
+  const calculateTestResults = async () => {
     setIsLoadingTool(true);
     try {
       const response = await fetch('/api/consciousness-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(consciousnessForm)
+        body: JSON.stringify(testReponses)
       });
       
       if (response.ok) {
         const result = await response.json();
-        setConsciousnessResult(result);
+        setTestResult(result);
+        setIsTestComplete(true);
+        setShowTestResults(true);
         setShowConsciousnessModal(false);
-        // Afficher le résultat dans une alerte stylée
-        alert(`Niveau de conscience : ${result.niveau_conscience}\nScore : ${result.score}/100\nRecommandations : ${result.recommandations.join(', ')}`);
       } else {
-        alert('Erreur lors du test');
+        alert('Erreur lors du calcul des résultats');
       }
     } catch (error) {
       alert('Erreur de connexion');
     } finally {
       setIsLoadingTool(false);
     }
+  };
+
+  // Fonction pour recommencer le test
+  const restartTest = () => {
+    setCurrentQuestionIndex(0);
+    setTestReponses({});
+    setIsTestComplete(false);
+    setTestResult(null);
+    setShowTestResults(false);
+  };
+
+  // Fonction pour ouvrir le test complet
+  const handleConsciousnessTest = () => {
+    loadTestQuestions();
+    setShowConsciousnessModal(true);
   };
 
   const handleFiscalAlerts = async () => {
@@ -1137,11 +1209,11 @@ export function Dashboard() {
       {/* Modale Test de Conscience */}
       {showConsciousnessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-white flex items-center gap-2">
                 <Brain className="w-5 h-5 text-[#c5a572]" />
-                Test de Conscience Fiscale
+                Test de Conscience Fiscale et Financière
               </h3>
               <button
                 onClick={() => setShowConsciousnessModal(false)}
@@ -1152,60 +1224,232 @@ export function Dashboard() {
               </button>
             </div>
             
-            <p className="text-gray-300 mb-4 text-sm">
-              Ce test rapide vous aide à évaluer votre niveau de compréhension fiscale et vous donne des recommandations personnalisées.
-            </p>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Votre niveau de connaissance actuel
-                </label>
-                <select
-                  value={consciousnessForm.niveau_connaissance}
-                  onChange={(e) => setConsciousnessForm({...consciousnessForm, niveau_connaissance: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                  aria-label="Sélectionner votre niveau de connaissance"
-                >
-                  <option value="debutant">Débutant - Je découvre</option>
-                  <option value="intermediaire">Intermédiaire - J'ai les bases</option>
-                  <option value="avance">Avancé - Je maîtrise bien</option>
-                  <option value="expert">Expert - Je suis autonome</option>
-                </select>
+            {!testQuestions ? (
+              <div className="text-center py-8">
+                <div className="w-8 h-8 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-400">Chargement des questions...</p>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Votre objectif principal
-                </label>
-                <select
-                  value={consciousnessForm.objectifs}
-                  onChange={(e) => setConsciousnessForm({...consciousnessForm, objectifs: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                  aria-label="Sélectionner votre objectif principal"
-                >
-                  <option value="comprendre">Comprendre les mécanismes</option>
-                  <option value="optimiser">Optimiser ma situation</option>
-                  <option value="autonomie">Devenir autonome</option>
-                  <option value="conseiller">Conseiller les autres</option>
-                </select>
-              </div>
+            ) : (
+              <>
+                {/* Barre de progression */}
+                <div className="mb-6">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Question {currentQuestionIndex + 1} sur {Object.keys(testQuestions).length}</span>
+                    <span>{Math.round(((currentQuestionIndex + 1) / Object.keys(testQuestions).length) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${((currentQuestionIndex + 1) / Object.keys(testQuestions).length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Question actuelle */}
+                {(() => {
+                  const questionIds = Object.keys(testQuestions);
+                  const currentQuestionId = questionIds[currentQuestionIndex];
+                  const currentQuestion = testQuestions[currentQuestionId];
+                  
+                  return (
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4">
+                          {currentQuestion.question}
+                        </h4>
+                        
+                        <div className="space-y-3">
+                          {Object.entries(currentQuestion.reponses).map(([key, reponse]: [string, any]) => (
+                            <label
+                              key={key}
+                              className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-[#1a2332]/60 ${
+                                testReponses[currentQuestionId] === key
+                                  ? 'border-[#c5a572] bg-[#1a2332]/80'
+                                  : 'border-[#c5a572]/20 bg-[#1a2332]/40'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name={currentQuestionId}
+                                value={key}
+                                checked={testReponses[currentQuestionId] === key}
+                                onChange={() => handleQuestionResponse(currentQuestionId, key)}
+                                className="mt-1 text-[#c5a572] bg-[#1a2332] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                              />
+                              <div className="flex-1">
+                                <p className="text-white font-medium">{reponse.texte}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <div className="flex-1 bg-gray-700 rounded-full h-1">
+                                    <div 
+                                      className="bg-[#c5a572] h-1 rounded-full transition-all duration-300"
+                                      style={{ width: `${reponse.score}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs text-gray-400">{reponse.score}%</span>
+                                </div>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Boutons de navigation */}
+                      <div className="flex justify-between pt-4">
+                        <button
+                          onClick={previousQuestion}
+                          disabled={currentQuestionIndex === 0}
+                          className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Précédent
+                        </button>
+                        
+                        <button
+                          onClick={nextQuestion}
+                          disabled={!testReponses[currentQuestionId]}
+                          className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {currentQuestionIndex === Object.keys(testQuestions).length - 1 ? 'Terminer' : 'Suivant'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modale Résultats du Test */}
+      {showTestResults && testResult && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                <Brain className="w-5 h-5 text-[#c5a572]" />
+                Résultats de votre Test de Conscience Fiscale
+              </h3>
+              <button
+                onClick={() => setShowTestResults(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+                aria-label="Fermer la modale"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowConsciousnessModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleConsciousnessTest}
-                disabled={isLoadingTool}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium disabled:opacity-50"
-              >
-                {isLoadingTool ? 'Test...' : 'Passer le Test'}
-              </button>
+
+            <div className="space-y-6">
+              {/* Score global */}
+              <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/20 rounded-xl p-6">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-[#c5a572] mb-2">
+                    {testResult.pourcentage}%
+                  </div>
+                  <h4 className="text-xl font-semibold text-white mb-2">
+                    {testResult.niveau_conscience}
+                  </h4>
+                  <p className="text-gray-300">{testResult.description_niveau}</p>
+                </div>
+              </div>
+
+              {/* Points forts */}
+              {testResult.points_forts && testResult.points_forts.length > 0 && (
+                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    Vos Points Forts
+                  </h4>
+                  <div className="space-y-2">
+                    {testResult.points_forts.map((point: string, index: number) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-white">{point}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Axes d'amélioration */}
+              {testResult.axes_amelioration && testResult.axes_amelioration.length > 0 && (
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-orange-400" />
+                    Axes d'Amélioration Prioritaires
+                  </h4>
+                  <div className="space-y-2">
+                    {testResult.axes_amelioration.map((axe: string, index: number) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                        <span className="text-white">{axe}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommandations */}
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
+                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-blue-400" />
+                  Recommandations Personnalisées
+                </h4>
+                <div className="space-y-3">
+                  {testResult.recommandations.map((recommandation: string, index: number) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-white">{recommandation}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Détail des réponses */}
+              <div className="bg-[#1a2332]/60 border border-[#c5a572]/20 rounded-xl p-6">
+                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-[#c5a572]" />
+                  Détail de vos Réponses
+                </h4>
+                <div className="space-y-4">
+                  {Object.entries(testResult.reponses_detaillees).map(([questionId, detail]: [string, any]) => (
+                    <div key={questionId} className="p-4 bg-[#0f1419]/50 rounded-lg">
+                      <p className="text-white font-medium mb-2">{detail.question}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300 text-sm">{detail.reponse}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-gray-700 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full transition-all duration-500 ${
+                                detail.score >= 75 ? 'bg-green-400' :
+                                detail.score >= 50 ? 'bg-yellow-400' :
+                                detail.score >= 25 ? 'bg-orange-400' : 'bg-red-400'
+                              }`}
+                              style={{ width: `${detail.score}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-400">{detail.score}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={restartTest}
+                  className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Recommencer le Test
+                </button>
+                <button
+                  onClick={() => setShowTestResults(false)}
+                  className="flex-1 px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium"
+                >
+                  Fermer
+                </button>
+              </div>
             </div>
           </div>
         </div>
