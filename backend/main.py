@@ -294,6 +294,56 @@ class UserProfileCreate(BaseModel):
     patrimoine_situation: Optional[str] = None
     has_completed_onboarding: Optional[bool] = None
 
+# Nouveaux modèles pour les outils disruptifs
+class TMICalculationRequest(BaseModel):
+    revenus_annuels: float
+    situation_familiale: str = "célibataire"
+    nombre_enfants: int = 0
+    charges_deductibles: float = 0
+
+class TMICalculationResponse(BaseModel):
+    revenu_imposable: float
+    tmi: float
+    taux_moyen: float
+    impot_estime: float
+    tranches_applicables: List[Dict[str, Any]]
+    conseils_optimisation: List[str]
+
+class OptimizationSimulationRequest(BaseModel):
+    revenus_annuels: float
+    tmi_actuelle: float
+    situation_familiale: str
+    objectifs: List[str]  # ["retraite", "immobilier", "transmission", etc.]
+
+class OptimizationSimulationResponse(BaseModel):
+    economie_potentielle: float
+    strategies_recommandees: List[Dict[str, Any]]
+    impact_conscience: str
+    actions_prioritaires: List[str]
+
+class ConsciousnessTestRequest(BaseModel):
+    reponses: Dict[str, int]  # Question ID -> Score (1-5)
+
+class ConsciousnessTestResponse(BaseModel):
+    niveau_conscience: str
+    score_total: int
+    score_maximum: int
+    pourcentage: float
+    recommandations: List[str]
+    prochaines_etapes: List[str]
+
+class FiscalInsightsRequest(BaseModel):
+    user_id: str
+
+class FiscalInsightsResponse(BaseModel):
+    economie_potentielle: float
+    tmi_actuelle: float
+    score_optimisation: float
+    optimisations_disponibles: int
+    niveau_conscience: str
+    actions_recommandees: List[str]
+    alertes_fiscales: List[str]
+
 # Utils
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -861,6 +911,299 @@ async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depen
         scope=token_data.get("scope", ""),
         accounts=accounts_data
     )
+
+@api_router.post("/tools/calculate-tmi", response_model=TMICalculationResponse)
+async def calculate_tmi(request: TMICalculationRequest):
+    """Calculateur TMI disruptif - Aide l'utilisateur à comprendre sa situation fiscale"""
+    try:
+        # Calcul du revenu imposable
+        revenu_imposable = max(0, request.revenus_annuels - request.charges_deductibles)
+        
+        # Calcul du nombre de parts (simplifié)
+        parts = 1.0
+        if request.situation_familiale == "marié":
+            parts = 2.0
+        parts += request.nombre_enfants * 0.5
+        
+        quotient_familial = revenu_imposable / parts if parts > 0 else revenu_imposable
+        
+        # Barème IR 2024 (simplifié)
+        bareme_2024 = [
+            {"limite": 0, "taux": 0.0},
+            {"limite": 11294, "taux": 0.11},
+            {"limite": 28797, "taux": 0.30},
+            {"limite": 82341, "taux": 0.41},
+            {"limite": 177106, "taux": 0.45},
+            {"limite": float('inf'), "taux": 0.49}
+        ]
+        
+        # Calcul de l'impôt et TMI
+        impot_total = 0
+        tmi = 0
+        tranches_applicables = []
+        
+        for i, tranche in enumerate(bareme_2024):
+            if quotient_familial > tranche["limite"]:
+                limite_suivante = bareme_2024[i + 1]["limite"] if i + 1 < len(bareme_2024) else float('inf')
+                base_imposable_tranche = min(quotient_familial, limite_suivante) - tranche["limite"]
+                impot_tranche = base_imposable_tranche * tranche["taux"]
+                impot_total += impot_tranche
+                
+                if base_imposable_tranche > 0:
+                    tranches_applicables.append({
+                        "tranche": f"{tranche['limite']:,.0f}€ - {limite_suivante:,.0f}€",
+                        "taux": f"{tranche['taux']*100:.0f}%",
+                        "base_imposable": f"{base_imposable_tranche:,.0f}€",
+                        "impot_tranche": f"{impot_tranche:,.0f}€"
+                    })
+                
+                tmi = max(tmi, tranche["taux"] * 100)
+        
+        impot_total *= parts
+        taux_moyen = (impot_total / revenu_imposable * 100) if revenu_imposable > 0 else 0
+        
+        # Conseils d'optimisation disruptifs
+        conseils = []
+        if tmi >= 41:
+            conseils.append("🚀 Votre TMI élevée vous donne un fort potentiel d'optimisation - reprenez le contrôle !")
+            conseils.append("💡 Le PER peut réduire votre TMI de 41% à 30% sur une partie de vos revenus")
+        elif tmi >= 30:
+            conseils.append("📈 Vous êtes dans la tranche moyenne - optimisez pour éviter la hausse !")
+            conseils.append("🏠 L'investissement locatif peut vous faire basculer vers la tranche inférieure")
+        else:
+            conseils.append("✅ Votre TMI est optimale - concentrez-vous sur la transmission et le patrimoine")
+        
+        return TMICalculationResponse(
+            revenu_imposable=revenu_imposable,
+            tmi=tmi,
+            taux_moyen=taux_moyen,
+            impot_estime=impot_total,
+            tranches_applicables=tranches_applicables,
+            conseils_optimisation=conseils
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors du calcul TMI: {str(e)}")
+
+@api_router.post("/tools/simulate-optimization", response_model=OptimizationSimulationResponse)
+async def simulate_optimization(request: OptimizationSimulationRequest):
+    """Simulateur d'optimisation disruptif - Montre le potentiel d'émancipation fiscale"""
+    try:
+        economie_potentielle = 0
+        strategies = []
+        
+        # Stratégies basées sur les objectifs
+        if "retraite" in request.objectifs:
+            per_economie = min(request.revenus_annuels * 0.1, 5000) * (request.tmi_actuelle / 100)
+            strategies.append({
+                "nom": "Plan d'Épargne Retraite (PER)",
+                "economie": per_economie,
+                "description": "Déduisez jusqu'à 10% de vos revenus professionnels",
+                "impact_conscience": "Vous reprenez le contrôle de votre épargne retraite",
+                "difficulte": "Facile",
+                "delai": "Immédiat"
+            })
+            economie_potentielle += per_economie
+        
+        if "immobilier" in request.objectifs:
+            lmnp_economie = min(request.revenus_annuels * 0.15, 8000) * (request.tmi_actuelle / 100)
+            strategies.append({
+                "nom": "Location Meublée Non Professionnelle (LMNP)",
+                "economie": lmnp_economie,
+                "description": "Défiscalisez jusqu'à 15% de vos revenus via l'immobilier",
+                "impact_conscience": "Vous devenez propriétaire de votre patrimoine",
+                "difficulte": "Moyenne",
+                "delai": "3-6 mois"
+            })
+            economie_potentielle += lmnp_economie
+        
+        if "transmission" in request.objectifs:
+            donation_economie = min(request.revenus_annuels * 0.05, 3000) * (request.tmi_actuelle / 100)
+            strategies.append({
+                "nom": "Donation Progressive",
+                "economie": donation_economie,
+                "description": "Transmettez votre patrimoine en optimisant les droits",
+                "impact_conscience": "Vous sécurisez l'avenir de vos proches",
+                "difficulte": "Élevée",
+                "delai": "6-12 mois"
+            })
+            economie_potentielle += donation_economie
+        
+        # Impact sur la conscience fiscale
+        impact_conscience = "Vous reprenez le contrôle de votre fiscalité"
+        if economie_potentielle > 5000:
+            impact_conscience = "Vous devenez maître de votre destinée fiscale"
+        elif economie_potentielle > 2000:
+            impact_conscience = "Vous vous émancipez de la dépendance fiscale"
+        
+        actions_prioritaires = [
+            "Complétez votre profil fiscal pour des recommandations personnalisées",
+            "Consultez un professionnel pour valider les stratégies",
+            "Planifiez vos actions sur 12 mois pour maximiser l'impact"
+        ]
+        
+        return OptimizationSimulationResponse(
+            economie_potentielle=economie_potentielle,
+            strategies_recommandees=strategies,
+            impact_conscience=impact_conscience,
+            actions_prioritaires=actions_prioritaires
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la simulation: {str(e)}")
+
+@api_router.post("/tools/consciousness-test", response_model=ConsciousnessTestResponse)
+async def consciousness_test(request: ConsciousnessTestRequest):
+    """Test de conscience fiscale disruptif - Évalue le niveau d'émancipation"""
+    try:
+        # Questions du test (simplifié)
+        questions = {
+            "connaissance_tmi": "Connaissez-vous votre Taux Marginal d'Imposition ?",
+            "optimisation_active": "Avez-vous déjà mis en place des optimisations fiscales ?",
+            "comprehension_mecanismes": "Comprenez-vous les mécanismes fiscaux qui s'appliquent à vous ?",
+            "planification_fiscale": "Planifiez-vous votre fiscalité à l'avance ?",
+            "independance_conseil": "Êtes-vous capable de prendre des décisions fiscales sans dépendre d'un conseiller ?"
+        }
+        
+        score_total = sum(request.reponses.values())
+        score_maximum = len(questions) * 5
+        pourcentage = (score_total / score_maximum) * 100
+        
+        # Détermination du niveau de conscience
+        if pourcentage >= 80:
+            niveau = "Expert"
+            recommandations = [
+                "Vous êtes autonome fiscalement - partagez votre savoir !",
+                "Mentorez d'autres personnes pour les aider à s'émanciper",
+                "Explorez des stratégies avancées de transmission"
+            ]
+        elif pourcentage >= 60:
+            niveau = "Avancé"
+            recommandations = [
+                "Vous maîtrisez les bases - passez aux optimisations avancées",
+                "Diversifiez vos stratégies d'optimisation",
+                "Planifiez votre transmission patrimoniale"
+            ]
+        elif pourcentage >= 40:
+            niveau = "Intermédiaire"
+            recommandations = [
+                "Vous comprenez les bases - approfondissez vos connaissances",
+                "Mettez en place vos premières optimisations",
+                "Consultez Francis pour des conseils personnalisés"
+            ]
+        else:
+            niveau = "Débutant"
+            recommandations = [
+                "Commencez par comprendre votre situation fiscale",
+                "Utilisez le calculateur TMI pour vous familiariser",
+                "Posez vos questions à Francis sans hésiter"
+            ]
+        
+        prochaines_etapes = [
+            "Complétez votre profil fiscal",
+            "Utilisez les outils de simulation",
+            "Planifiez vos actions d'optimisation"
+        ]
+        
+        return ConsciousnessTestResponse(
+            niveau_conscience=niveau,
+            score_total=score_total,
+            score_maximum=score_maximum,
+            pourcentage=pourcentage,
+            recommandations=recommandations,
+            prochaines_etapes=prochaines_etapes
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors du test: {str(e)}")
+
+@api_router.post("/tools/fiscal-insights", response_model=FiscalInsightsResponse)
+async def get_fiscal_insights(request: FiscalInsightsRequest):
+    """Insights fiscaux personnalisés - Donne une vision claire de la situation"""
+    try:
+        # Récupération du profil utilisateur
+        db = SessionLocal()
+        try:
+            profile = db.query(UserProfile).filter(UserProfile.auth_user_id == request.user_id).first()
+        finally:
+            db.close()
+        
+        if not profile:
+            # Données par défaut si pas de profil
+            return FiscalInsightsResponse(
+                economie_potentielle=2400,
+                tmi_actuelle=30,
+                score_optimisation=65,
+                optimisations_disponibles=8,
+                niveau_conscience="Intermédiaire",
+                actions_recommandees=[
+                    "Complétez votre profil pour des insights personnalisés",
+                    "Passez le test de conscience fiscale",
+                    "Utilisez le simulateur d'optimisation"
+                ],
+                alertes_fiscales=[
+                    "Nouveau barème IR 2024 applicable",
+                    "Échéance déclaration 2024 : 30 mai 2024"
+                ]
+            )
+        
+        # Calculs basés sur le profil réel
+        tmi_actuelle = profile.tmi or 30
+        revenus = profile.revenus_annuels or 50000
+        
+        # Estimation des économies potentielles
+        economie_potentielle = min(revenus * 0.1 * (tmi_actuelle / 100), 5000)
+        
+        # Score d'optimisation basé sur le profil
+        score_optimisation = 50  # Base
+        if profile.has_completed_onboarding:
+            score_optimisation += 20
+        if profile.activite_principale:
+            score_optimisation += 15
+        if profile.patrimoine_immobilier:
+            score_optimisation += 15
+        
+        # Niveau de conscience
+        if score_optimisation >= 80:
+            niveau_conscience = "Expert"
+        elif score_optimisation >= 60:
+            niveau_conscience = "Avancé"
+        elif score_optimisation >= 40:
+            niveau_conscience = "Intermédiaire"
+        else:
+            niveau_conscience = "Débutant"
+        
+        # Optimisations disponibles
+        optimisations_disponibles = 0
+        if profile.activite_principale:
+            optimisations_disponibles += 3  # PER, LMNP, etc.
+        if profile.patrimoine_immobilier:
+            optimisations_disponibles += 2  # IFI, transmission
+        if profile.situation_familiale == "marié":
+            optimisations_disponibles += 2  # Optimisations familiales
+        if profile.nombre_enfants and profile.nombre_enfants > 0:
+            optimisations_disponibles += 1  # Quotient familial
+        
+        actions_recommandees = [
+            "Optimisez votre TMI avec le PER",
+            "Explorez l'investissement locatif défiscalisé",
+            "Planifiez la transmission de votre patrimoine"
+        ]
+        
+        alertes_fiscales = [
+            "Nouveau barème IR 2024 applicable",
+            "Échéance déclaration 2024 : 30 mai 2024",
+            "Vérifiez vos droits à la décote"
+        ]
+        
+        return FiscalInsightsResponse(
+            economie_potentielle=economie_potentielle,
+            tmi_actuelle=tmi_actuelle,
+            score_optimisation=score_optimisation,
+            optimisations_disponibles=optimisations_disponibles,
+            niveau_conscience=niveau_conscience,
+            actions_recommandees=actions_recommandees,
+            alertes_fiscales=alertes_fiscales
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des insights: {str(e)}")
 
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)

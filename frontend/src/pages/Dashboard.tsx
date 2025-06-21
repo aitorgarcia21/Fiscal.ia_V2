@@ -93,11 +93,14 @@ export function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'insights'>('chat');
+  const [fiscalInsights, setFiscalInsights] = useState<any>(null);
+  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
+  const [consciousnessTestResult, setConsciousnessTestResult] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Données factices pour les outils
-  const fiscalInsights = {
+  const fiscalInsightsDefault = {
     tmi: userProfile?.tmi || 30,
     economiePotentielle: 2400,
     prochaineEcheance: '15 Mai 2024',
@@ -113,7 +116,7 @@ export function Dashboard() {
       description: 'Calculez votre taux marginal d\'imposition',
       icon: Calculator,
       color: 'from-blue-500 to-blue-600',
-      action: () => setActiveTab('tools')
+      action: () => handleTMICalculation()
     },
     {
       id: 'optimization-simulator',
@@ -121,7 +124,7 @@ export function Dashboard() {
       description: 'Découvrez vos économies potentielles',
       icon: TrendingUp,
       color: 'from-green-500 to-green-600',
-      action: () => setActiveTab('tools')
+      action: () => handleOptimizationSimulation()
     },
     {
       id: 'fiscal-alerts',
@@ -129,7 +132,7 @@ export function Dashboard() {
       description: 'Restez informé des changements',
       icon: Bell,
       color: 'from-orange-500 to-orange-600',
-      action: () => setActiveTab('tools')
+      action: () => handleFiscalAlerts()
     },
     {
       id: 'consciousness-test',
@@ -137,7 +140,7 @@ export function Dashboard() {
       description: 'Évaluez votre niveau de conscience fiscale',
       icon: Brain,
       color: 'from-purple-500 to-purple-600',
-      action: () => setActiveTab('tools')
+      action: () => handleConsciousnessTest()
     }
   ];
 
@@ -151,6 +154,12 @@ export function Dashboard() {
   useEffect(() => {
     checkUserProfile();
   }, [user]);
+
+  useEffect(() => {
+    if (activeTab === 'insights' && !fiscalInsights) {
+      loadFiscalInsights();
+    }
+  }, [activeTab, fiscalInsights]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -275,6 +284,133 @@ export function Dashboard() {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const loadFiscalInsights = async () => {
+    if (!user?.id) return;
+    
+    setIsLoadingInsights(true);
+    try {
+      const response = await fetch('/api/tools/fiscal-insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({ user_id: user.id })
+      });
+      
+      if (response.ok) {
+        const insights = await response.json();
+        setFiscalInsights(insights);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des insights:', error);
+    } finally {
+      setIsLoadingInsights(false);
+    }
+  };
+
+  const handleTMICalculation = async () => {
+    if (!userProfile) {
+      alert('Veuillez d\'abord compléter votre profil fiscal');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/tools/calculate-tmi', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          revenus_annuels: userProfile.revenus_annuels || 50000,
+          situation_familiale: userProfile.situation_familiale || 'célibataire',
+          nombre_enfants: userProfile.nombre_enfants || 0,
+          charges_deductibles: userProfile.charges_deductibles || 0
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Votre TMI : ${result.tmi}%\nImpôt estimé : ${result.impot_estime.toFixed(0)}€\n\nConseils :\n${result.conseils_optimisation.join('\n')}`);
+      }
+    } catch (error) {
+      console.error('Erreur lors du calcul TMI:', error);
+      alert('Erreur lors du calcul. Veuillez réessayer.');
+    }
+  };
+
+  const handleOptimizationSimulation = async () => {
+    if (!userProfile) {
+      alert('Veuillez d\'abord compléter votre profil fiscal');
+      return;
+    }
+
+    try {
+      const objectifs = [];
+      if (userProfile.activite_principale) objectifs.push('retraite');
+      if (userProfile.patrimoine_situation && userProfile.patrimoine_situation !== 'faible') objectifs.push('immobilier');
+      if (userProfile.patrimoine_situation === 'élevé') objectifs.push('transmission');
+
+      const response = await fetch('/api/tools/simulate-optimization', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          revenus_annuels: userProfile.revenus_annuels || 50000,
+          tmi_actuelle: userProfile.tmi || 30,
+          situation_familiale: userProfile.situation_familiale || 'célibataire',
+          objectifs: objectifs.length > 0 ? objectifs : ['retraite']
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Économie potentielle : ${result.economie_potentielle.toFixed(0)}€\n\nImpact : ${result.impact_conscience}\n\nStratégies recommandées :\n${result.strategies_recommandees.map(s => `• ${s.nom} : ${s.economie.toFixed(0)}€`).join('\n')}`);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la simulation:', error);
+      alert('Erreur lors de la simulation. Veuillez réessayer.');
+    }
+  };
+
+  const handleFiscalAlerts = () => {
+    alert('🚨 Alertes Fiscales Actuelles :\n\n• Nouveau barème IR 2024 applicable\n• Échéance déclaration 2024 : 30 mai 2024\n• Vérifiez vos droits à la décote\n• Nouvelles règles PER 2024\n\nRestez informé pour reprendre le contrôle !');
+  };
+
+  const handleConsciousnessTest = async () => {
+    // Simulation de réponses au test
+    const reponses = {
+      connaissance_tmi: 3,
+      optimisation_active: 2,
+      comprehension_mecanismes: 4,
+      planification_fiscale: 2,
+      independance_conseil: 3
+    };
+
+    try {
+      const response = await fetch('/api/tools/consciousness-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({ reponses })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setConsciousnessTestResult(result);
+        alert(`Niveau de conscience : ${result.niveau_conscience}\nScore : ${result.score_total}/${result.score_maximum} (${result.pourcentage.toFixed(0)}%)\n\nRecommandations :\n${result.recommandations.join('\n')}`);
+      }
+    } catch (error) {
+      console.error('Erreur lors du test:', error);
+      alert('Erreur lors du test. Veuillez réessayer.');
+    }
   };
 
   if (showOnboarding) {
@@ -597,7 +733,7 @@ export function Dashboard() {
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">Économies Potentielles</p>
-                      <p className="text-2xl font-bold text-white">{fiscalInsights.economiePotentielle}€</p>
+                      <p className="text-2xl font-bold text-white">{fiscalInsights?.economie_potentielle || fiscalInsightsDefault.economiePotentielle}€</p>
                     </div>
                   </div>
                 </div>
@@ -609,7 +745,7 @@ export function Dashboard() {
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">TMI Actuel</p>
-                      <p className="text-2xl font-bold text-white">{fiscalInsights.tmi}%</p>
+                      <p className="text-2xl font-bold text-white">{fiscalInsights?.tmi_actuelle || fiscalInsightsDefault.tmi}%</p>
                     </div>
                   </div>
                 </div>
@@ -621,7 +757,7 @@ export function Dashboard() {
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">Score Conscience</p>
-                      <p className="text-2xl font-bold text-white">{fiscalInsights.scoreOptimisation}%</p>
+                      <p className="text-2xl font-bold text-white">{fiscalInsights?.score_optimisation || fiscalInsightsDefault.scoreOptimisation}%</p>
                     </div>
                   </div>
                 </div>
@@ -633,7 +769,7 @@ export function Dashboard() {
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">Optimisations</p>
-                      <p className="text-2xl font-bold text-white">{fiscalInsights.optimisationsDisponibles}</p>
+                      <p className="text-2xl font-bold text-white">{fiscalInsights?.optimisations_disponibles || fiscalInsightsDefault.optimisationsDisponibles}</p>
                     </div>
                   </div>
                 </div>
@@ -643,12 +779,12 @@ export function Dashboard() {
               <div className="bg-[#1a2332]/60 border border-[#c5a572]/20 rounded-xl p-6 mb-6">
                 <h3 className="text-xl font-semibold text-white mb-4">Votre Niveau de Conscience</h3>
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="text-3xl font-bold text-[#c5a572]">{fiscalInsights.niveauConscience}</div>
+                  <div className="text-3xl font-bold text-[#c5a572]">{fiscalInsights?.niveau_conscience || fiscalInsightsDefault.niveauConscience}</div>
                   <div className="flex-1">
                     <div className="w-full bg-gray-700 rounded-full h-2">
                       <div 
                         className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${fiscalInsights.scoreOptimisation}%` }}
+                        style={{ width: `${fiscalInsights?.score_optimisation || fiscalInsightsDefault.scoreOptimisation}%` }}
                       ></div>
                     </div>
                   </div>
@@ -665,18 +801,29 @@ export function Dashboard() {
                   Actions Recommandées
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span className="text-white">Compléter votre profil fiscal</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span className="text-white">Analyser vos revenus complémentaires</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span className="text-white">Explorer les optimisations disponibles</span>
-                  </div>
+                  {fiscalInsights?.actions_recommandees ? (
+                    fiscalInsights.actions_recommandees.map((action: string, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <span className="text-white">{action}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <span className="text-white">Complétez votre profil fiscal</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <span className="text-white">Analyser vos revenus complémentaires</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                        <span className="text-white">Explorer les optimisations disponibles</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -692,6 +839,7 @@ export function Dashboard() {
         onChange={handleFileSelect}
         className="hidden"
         accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+        aria-label="Sélectionner des fichiers"
       />
     </div>
   );
