@@ -87,6 +87,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess, 
             onSuccess(responseData); // Exécuter le callback de succès si fourni
         }
         
+        // Debug: afficher le type d'utilisateur
+        console.log('Type utilisateur:', actualUserRole);
+        console.log('Redirection vers:', actualUserRole === 'professionnel' ? '/pro/dashboard' : '/dashboard');
+        
         // Redirection automatique selon le type d'utilisateur
         if (actualUserRole === 'professionnel') {
             navigate('/pro/dashboard');
