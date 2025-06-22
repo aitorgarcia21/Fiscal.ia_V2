@@ -31,6 +31,7 @@ from routers import pro_clients as pro_clients_router
 from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
 import sys
+import tempfile
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -1621,6 +1622,122 @@ async def gocardless_connect_bank(request: GoCardlessBankAccountRequest, user_id
     except Exception as e:
         print(f"Erreur GoCardless: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la connexion bancaire: {str(e)}")
+
+# Import du service Whisper
+from whisper_service import get_whisper_service
+
+# Modèles Pydantic pour Whisper
+class TranscriptionRequest(BaseModel):
+    audio_base64: str
+    audio_format: str = "wav"
+    language: Optional[str] = "fr"
+
+class TranscriptionResponse(BaseModel):
+    text: str
+    segments: List[Dict[str, Any]]
+    language: str
+    language_probability: float
+    duration: float
+    error: Optional[str] = None
+
+class WhisperModelInfoResponse(BaseModel):
+    model_size: str
+    status: str
+    device: str
+    compute_type: str
+
+# Endpoints Whisper
+@api_router.post("/whisper/transcribe", response_model=TranscriptionResponse)
+async def transcribe_audio(request: TranscriptionRequest):
+    """
+    Transcrit un audio encodé en base64.
+    """
+    try:
+        whisper_service = get_whisper_service()
+        result = whisper_service.transcribe_base64_audio(
+            request.audio_base64, 
+            request.audio_format
+        )
+        return TranscriptionResponse(**result)
+    except Exception as e:
+        return TranscriptionResponse(
+            text="",
+            segments=[],
+            language="fr",
+            language_probability=0.0,
+            duration=0.0,
+            error=str(e)
+        )
+
+@api_router.post("/whisper/transcribe-file")
+async def transcribe_audio_file(
+    file: UploadFile = File(...),
+    language: Optional[str] = "fr"
+):
+    """
+    Transcrit un fichier audio uploadé.
+    """
+    try:
+        # Sauvegarder le fichier temporairement
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file.filename.split('.')[-1]}") as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_file_path = temp_file.name
+        
+        try:
+            whisper_service = get_whisper_service()
+            result = whisper_service.transcribe_audio_file(temp_file_path)
+            return TranscriptionResponse(**result)
+        finally:
+            # Nettoyer le fichier temporaire
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+                
+    except Exception as e:
+        return TranscriptionResponse(
+            text="",
+            segments=[],
+            language="fr",
+            language_probability=0.0,
+            duration=0.0,
+            error=str(e)
+        )
+
+@api_router.get("/whisper/model-info", response_model=WhisperModelInfoResponse)
+async def get_whisper_model_info():
+    """
+    Retourne les informations sur le modèle Whisper.
+    """
+    try:
+        whisper_service = get_whisper_service()
+        info = whisper_service.get_model_info()
+        return WhisperModelInfoResponse(**info)
+    except Exception as e:
+        return WhisperModelInfoResponse(
+            model_size="unknown",
+            status="error",
+            device="unknown",
+            compute_type="unknown"
+        )
+
+@api_router.post("/whisper/health")
+async def whisper_health():
+    """
+    Vérifie la santé du service Whisper.
+    """
+    try:
+        whisper_service = get_whisper_service()
+        info = whisper_service.get_model_info()
+        return {
+            "status": "healthy" if info["status"] == "loaded" else "loading",
+            "model_size": info["model_size"],
+            "device": info["device"]
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog } from 'lucide-react';
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog, Mic, MicOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
+import { VoiceRecorder } from '../components/VoiceRecorder';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -28,6 +29,8 @@ export function ChatPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -98,6 +101,17 @@ export function ChatPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleVoiceTranscription = (transcribedText: string) => {
+    setInput(transcribedText);
+    setShowVoiceRecorder(false);
+    setVoiceError(null);
+  };
+
+  const handleVoiceError = (error: string) => {
+    setVoiceError(error);
+    setTimeout(() => setVoiceError(null), 5000);
   };
 
   useEffect(() => {
@@ -190,6 +204,13 @@ export function ChatPage() {
 
         {/* Input */}
         <form onSubmit={handleSend} className="p-4 border-t border-[#c5a572]/20 flex-shrink-0">
+          {/* Message d'erreur vocal */}
+          {voiceError && (
+            <div className="mb-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
+              {voiceError}
+            </div>
+          )}
+          
           <div className="flex space-x-2">
             <input
               type="text"
@@ -199,6 +220,18 @@ export function ChatPage() {
               className="flex-1 px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
               disabled={isLoading}
             />
+            
+            {/* Bouton d'enregistrement vocal */}
+            <button
+              type="button"
+              onClick={() => setShowVoiceRecorder(!showVoiceRecorder)}
+              disabled={isLoading}
+              className="bg-[#1a2942] text-[#c5a572] p-3 rounded-lg hover:bg-[#223c63] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md border border-[#c5a572]/30"
+              aria-label="Enregistrer un message vocal"
+            >
+              {showVoiceRecorder ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
+            
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
@@ -208,6 +241,28 @@ export function ChatPage() {
               <Send className="w-5 h-5" />
             </button>
           </div>
+          
+          {/* Enregistreur vocal */}
+          {showVoiceRecorder && (
+            <div className="mt-4 p-4 bg-[#1a2942]/30 border border-[#c5a572]/20 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-[#c5a572]">Enregistrement vocal</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowVoiceRecorder(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <VoiceRecorder
+                onTranscriptionComplete={handleVoiceTranscription}
+                onError={handleVoiceError}
+                disabled={isLoading}
+                className="flex justify-center"
+              />
+            </div>
+          )}
         </form>
       </div>
     </div>
