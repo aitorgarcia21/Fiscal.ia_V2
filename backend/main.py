@@ -32,6 +32,7 @@ from dependencies import supabase, verify_token, create_access_token, hash_passw
 import re
 import sys
 import tempfile
+from whisper_service import get_whisper_service
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -1622,9 +1623,6 @@ async def gocardless_connect_bank(request: GoCardlessBankAccountRequest, user_id
     except Exception as e:
         print(f"Erreur GoCardless: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la connexion bancaire: {str(e)}")
-
-# Import du service Whisper
-from whisper_service import get_whisper_service
 
 # Modèles Pydantic pour Whisper
 class TranscriptionRequest(BaseModel):
