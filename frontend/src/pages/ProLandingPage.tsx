@@ -45,14 +45,6 @@ const ProLandingPage = () => {
             <span className="text-lg font-semibold text-gray-300 ml-2">Pro</span>
           </div>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#demo" className="text-gray-300 hover:text-[#c5a572] transition-colors">Démo</a>
-            <a href="#features" className="text-gray-300 hover:text-[#c5a572] transition-colors">Fonctionnalités</a>
-            <a href="#pricing" className="text-gray-300 hover:text-[#c5a572] transition-colors">Tarifs</a>
-            <a href="#contact" className="text-gray-300 hover:text-[#c5a572] transition-colors">Contact</a>
-          </nav>
-
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
             {!isLoadingAuth && (
