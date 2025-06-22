@@ -53,6 +53,12 @@ TRUELAYER_ENV = os.getenv("TRUELAYER_ENV", "sandbox")
 TRUELAYER_BASE_AUTH_URL = "https://auth.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://auth.truelayer.com"
 TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://api.truelayer.com"
 
+# GoCardless Configuration
+GOCARDLESS_ACCESS_TOKEN = os.getenv("GOCARDLESS_ACCESS_TOKEN")
+GOCARDLESS_ENV = os.getenv("GOCARDLESS_ENV", "sandbox")
+GOCARDLESS_WEBHOOK_SECRET = os.getenv("GOCARDLESS_WEBHOOK_SECRET")
+GOCARDLESS_BASE_URL = "https://api-sandbox.gocardless.com" if GOCARDLESS_ENV == "sandbox" else "https://api.gocardless.com"
+
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 if not MISTRAL_API_KEY:
@@ -343,6 +349,21 @@ class FiscalInsightsResponse(BaseModel):
     niveau_conscience: str
     actions_recommandees: List[str]
     alertes_fiscales: List[str]
+
+class GoCardlessBankAccountRequest(BaseModel):
+    account_number: str
+    branch_code: str
+    country_code: str = "FR"
+    account_holder_name: str
+
+class GoCardlessBankAccountResponse(BaseModel):
+    id: str
+    account_holder_name: str
+    account_number_ending: str
+    bank_name: str
+    country_code: str
+    currency: str
+    status: str
 
 # Utils
 def create_access_token(data: dict):
@@ -1509,6 +1530,97 @@ def delete_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)
     
     response = UserProfileResponse(**response_data_before_delete)
     return clean_user_profile_response(response)
+
+@api_router.post("/gocardless/connect-bank", response_model=GoCardlessBankAccountResponse)
+async def gocardless_connect_bank(request: GoCardlessBankAccountRequest, user_id: str = Depends(verify_token)):
+    if not GOCARDLESS_ACCESS_TOKEN:
+        raise HTTPException(status_code=500, detail="GoCardless n'est pas configuré côté serveur")
+    
+    try:
+        # Headers pour l'API GoCardless
+        headers = {
+            "Authorization": f"Bearer {GOCARDLESS_ACCESS_TOKEN}",
+            "GoCardless-Version": "2015-07-06",
+            "Content-Type": "application/json"
+        }
+        
+        # Créer un customer GoCardless
+        customer_data = {
+            "customers": {
+                "email": f"user_{user_id}@fiscal-ia.net",
+                "given_name": request.account_holder_name.split()[0] if request.account_holder_name else "Utilisateur",
+                "family_name": " ".join(request.account_holder_name.split()[1:]) if len(request.account_holder_name.split()) > 1 else "Fiscal.ia"
+            }
+        }
+        
+        async with httpx.AsyncClient() as client:
+            customer_response = await client.post(
+                f"{GOCARDLESS_BASE_URL}/customers",
+                json=customer_data,
+                headers=headers
+            )
+            
+            if customer_response.status_code != 201:
+                raise HTTPException(status_code=400, detail="Échec de la création du customer GoCardless")
+            
+            customer = customer_response.json()["customers"]
+            
+            # Créer un bank account
+            bank_account_data = {
+                "bank_accounts": {
+                    "account_number": request.account_number,
+                    "branch_code": request.branch_code,
+                    "country_code": request.country_code,
+                    "account_holder_name": request.account_holder_name,
+                    "links": {
+                        "customer": customer["id"]
+                    }
+                }
+            }
+            
+            bank_response = await client.post(
+                f"{GOCARDLESS_BASE_URL}/bank_accounts",
+                json=bank_account_data,
+                headers=headers
+            )
+            
+            if bank_response.status_code != 201:
+                raise HTTPException(status_code=400, detail="Échec de la création du compte bancaire")
+            
+            bank_account = bank_response.json()["bank_accounts"]
+            
+            # Sauvegarder dans Supabase
+            if supabase:
+                try:
+                    supabase.table("bank_connections").insert({
+                        "user_id": user_id,
+                        "provider": "gocardless",
+                        "customer_id": customer["id"],
+                        "bank_account_id": bank_account["id"],
+                        "account_holder_name": bank_account["account_holder_name"],
+                        "bank_name": bank_account.get("bank_name", "Banque française"),
+                        "country_code": bank_account["country_code"],
+                        "currency": bank_account["currency"],
+                        "status": bank_account["status"],
+                        "created_at": datetime.utcnow().isoformat()
+                    }).execute()
+                except Exception as e:
+                    print(f"[GoCardless] Erreur sauvegarde Supabase pour user {user_id}: {e}", file=sys.stderr)
+                    pass
+            
+            return GoCardlessBankAccountResponse(
+                id=bank_account["id"],
+                account_holder_name=bank_account["account_holder_name"],
+                account_number_ending=bank_account.get("account_number_ending", "****"),
+                bank_name=bank_account.get("bank_name", "Banque française"),
+                country_code=bank_account["country_code"],
+                currency=bank_account["currency"],
+                status=bank_account["status"]
+            )
+            
+    except Exception as e:
+        print(f"Erreur GoCardless: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la connexion bancaire: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

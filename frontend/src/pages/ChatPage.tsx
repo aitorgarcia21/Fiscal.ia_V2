@@ -105,10 +105,10 @@ export function ChatPage() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] p-4 flex flex-col">
-      <div className="max-w-4xl w-full mx-auto bg-[#1a2942]/80 backdrop-blur-sm rounded-xl border border-[#c5a572]/20 overflow-hidden flex flex-col shadow-2xl flex-grow">
+    <div className="h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] flex flex-col">
+      <div className="h-full w-full bg-[#1a2942]/80 backdrop-blur-sm overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+        <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
@@ -140,7 +140,7 @@ export function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-grow overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, index) => (
             <div 
               key={index} 
@@ -189,7 +189,7 @@ export function ChatPage() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSend} className="p-4 border-t border-[#c5a572]/20">
+        <form onSubmit={handleSend} className="p-4 border-t border-[#c5a572]/20 flex-shrink-0">
           <div className="flex space-x-2">
             <input
               type="text"
