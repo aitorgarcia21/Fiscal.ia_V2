@@ -193,6 +193,27 @@ export function Dashboard() {
       icon: Bell,
       color: 'from-orange-500 to-orange-600',
       action: () => setShowAlertsModal(true)
+    },
+    {
+      id: 'bank',
+      title: 'Connexion Bancaire',
+      description: 'Connectez votre compte bancaire pour une analyse précise',
+      icon: CreditCard,
+      color: 'from-emerald-500 to-emerald-600',
+      action: () => {
+        const clientId = import.meta.env.VITE_TRUELAYER_CLIENT_ID;
+        const env = import.meta.env.VITE_TRUELAYER_ENV || 'sandbox';
+        const authUrl = env === 'sandbox' 
+          ? 'https://auth.truelayer-sandbox.com'
+          : 'https://auth.truelayer.com';
+        
+        const redirectUri = `${window.location.origin}/truelayer-callback`;
+        const scope = 'accounts balance transactions';
+        
+        const url = `${authUrl}/?response_type=code&client_id=${clientId}&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}&providers=uk-ob-all uk-oauth-all`;
+        
+        window.location.href = url;
+      }
     }
   ];
 
@@ -572,8 +593,9 @@ export function Dashboard() {
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
-              <Euro className="w-5 h-5 text-[#162238]" />
+            <div className="relative inline-flex items-center justify-center group">
+              <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
             <h1 className="text-lg font-semibold text-white">Francis</h1>
           </div>
@@ -759,6 +781,34 @@ export function Dashboard() {
                   <div>
                     <h3 className="font-semibold text-white">Alertes fiscales</h3>
                     <p className="text-sm text-gray-400">Restez informé</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  const clientId = import.meta.env.VITE_TRUELAYER_CLIENT_ID;
+                  const env = import.meta.env.VITE_TRUELAYER_ENV || 'sandbox';
+                  const authUrl = env === 'sandbox' 
+                    ? 'https://auth.truelayer-sandbox.com'
+                    : 'https://auth.truelayer.com';
+                  
+                  const redirectUri = `${window.location.origin}/truelayer-callback`;
+                  const scope = 'accounts balance transactions';
+                  
+                  const url = `${authUrl}/?response_type=code&client_id=${clientId}&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}&providers=uk-ob-all uk-oauth-all`;
+                  
+                  window.location.href = url;
+                }}
+                className="p-4 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-500/20 rounded-lg">
+                    <CreditCard className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Connexion bancaire</h3>
+                    <p className="text-sm text-gray-400">Connectez votre compte</p>
                   </div>
                 </div>
               </button>
