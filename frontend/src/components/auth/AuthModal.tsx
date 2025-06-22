@@ -91,12 +91,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess, 
         console.log('Type utilisateur:', actualUserRole);
         console.log('Redirection vers:', actualUserRole === 'professionnel' ? '/pro/dashboard' : '/dashboard');
         
-        // Redirection automatique selon le type d'utilisateur
-        if (actualUserRole === 'professionnel') {
-            navigate('/pro/dashboard');
-        } else {
-            navigate('/dashboard');
-        }
+        // Petit délai pour s'assurer que l'état d'authentification est mis à jour
+        setTimeout(() => {
+          // Redirection automatique selon le type d'utilisateur
+          if (actualUserRole === 'professionnel') {
+              navigate('/pro/dashboard');
+          } else {
+              navigate('/dashboard');
+          }
+        }, 500);
 
       } else {
         // Au cas où la réponse du backend n'est pas conforme à ce qui est attendu
