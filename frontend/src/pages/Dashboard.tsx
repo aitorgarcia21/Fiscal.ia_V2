@@ -95,7 +95,7 @@ export function Dashboard() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'insights'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'insights' | 'discovery'>('chat');
   const [fiscalInsights, setFiscalInsights] = useState<any>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [consciousnessTestResult, setConsciousnessTestResult] = useState<any>(null);
@@ -150,6 +150,46 @@ export function Dashboard() {
   const [testResult, setTestResult] = useState<any>(null);
   const [isTestComplete, setIsTestComplete] = useState(false);
   const [showTestResults, setShowTestResults] = useState(false);
+
+  // États pour la section découverte
+  const [discoveryStep, setDiscoveryStep] = useState(0);
+  const [discoveryData, setDiscoveryData] = useState({
+    // Informations personnelles
+    age: '',
+    situation_familiale: 'celibataire',
+    nombre_enfants: 0,
+    residence_fiscale: 'france',
+    
+    // Revenus et activité
+    revenus_principaux: '',
+    activite_principale: 'salarie',
+    revenus_complementaires: [] as string[],
+    charges_deductibles: '',
+    
+    // Patrimoine
+    residence_principale: false,
+    residence_secondaire: false,
+    epargne_totale: '',
+    investissements: [] as string[],
+    
+    // Objectifs et projets
+    objectifs_court_terme: [] as string[],
+    objectifs_moyen_terme: [] as string[],
+    objectifs_long_terme: [] as string[],
+    
+    // Niveau de connaissance
+    niveau_connaissance_fiscale: 'debutant',
+    experience_investissement: 'aucune',
+    tolerance_risque: 'conservateur',
+    
+    // Besoins spécifiques
+    besoins_specifiques: [] as string[],
+    questions_prioritaires: '',
+    
+    // Optimisations souhaitées
+    optimisations_souhaitees: [] as string[]
+  });
+  const [discoveryProgress, setDiscoveryProgress] = useState(0);
 
   // Données factices pour les outils
   const fiscalInsightsDefault = {
@@ -583,6 +623,65 @@ export function Dashboard() {
     }
   };
 
+  // Fonctions pour la section découverte
+  const nextDiscoveryStep = () => {
+    if (discoveryStep < 7) {
+      setDiscoveryStep(discoveryStep + 1);
+      setDiscoveryProgress(((discoveryStep + 1) / 7) * 100);
+    }
+  };
+
+  const prevDiscoveryStep = () => {
+    if (discoveryStep > 0) {
+      setDiscoveryStep(discoveryStep - 1);
+      setDiscoveryProgress((discoveryStep / 7) * 100);
+    }
+  };
+
+  const updateDiscoveryData = (field: string, value: any) => {
+    setDiscoveryData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleDiscoveryComplete = async () => {
+    try {
+      // Sauvegarder les données de découverte
+      const response = await fetch('/api/user-discovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user?.id,
+          discovery_data: discoveryData
+        })
+      });
+
+      if (response.ok) {
+        // Générer un rapport personnalisé
+        const reportResponse = await fetch('/api/generate-personalized-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user?.id,
+            discovery_data: discoveryData
+          })
+        });
+
+        if (reportResponse.ok) {
+          const report = await reportResponse.json();
+          // Afficher le rapport personnalisé
+          alert('Votre profil de découverte a été sauvegardé ! Francis peut maintenant vous donner des conseils ultra-personnalisés.');
+          setActiveTab('chat');
+          setInputMessage("Peux-tu me donner des conseils personnalisés basés sur mon profil ?");
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      alert('Erreur lors de la sauvegarde, mais vous pouvez continuer à utiliser Francis.');
+    }
+  };
+
   if (showOnboarding) {
     return <InitialProfileQuestions onComplete={handleOnboardingComplete} />;
   }
@@ -619,6 +718,16 @@ export function Dashboard() {
               }`}
             >
               Outils
+            </button>
+            <button
+              onClick={() => setActiveTab('discovery')}
+              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                activeTab === 'discovery' 
+                  ? 'bg-[#c5a572] text-[#162238]' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Découverte
             </button>
             <button
               onClick={handleLogout}
@@ -815,505 +924,587 @@ export function Dashboard() {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Modales pour les outils */}
-      
-      {/* Modale Calculateur TMI */}
-      {showTmiModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-[#c5a572]" />
-                Calculateur TMI
-              </h3>
-              <button
-                onClick={() => setShowTmiModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer la modale"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Revenu annuel (€)
-                </label>
-                <input
-                  type="number"
-                  value={tmiForm.revenu_annuel}
-                  onChange={(e) => setTmiForm({...tmiForm, revenu_annuel: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:border-[#c5a572] focus:outline-none"
-                  placeholder="Ex: 45000"
-                />
-              </div>
+        {/* Onglet Découverte */}
+        {activeTab === 'discovery' && (
+          <div className="space-y-6">
+            {/* Header avec progression */}
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-white mb-2">Découvrez votre potentiel fiscal</h2>
+              <p className="text-gray-400 mb-4">Répondez à quelques questions pour des conseils ultra-personnalisés</p>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Situation familiale
-                </label>
-                <select
-                  value={tmiForm.situation_familiale}
-                  onChange={(e) => setTmiForm({...tmiForm, situation_familiale: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                  aria-label="Sélectionner votre situation familiale"
-                >
-                  <option value="celibataire">Célibataire</option>
-                  <option value="marie">Marié(e)</option>
-                  <option value="pacs">PACS</option>
-                </select>
+              {/* Barre de progression */}
+              <div className="w-full bg-[#1a2332] rounded-full h-2 mb-4">
+                <div 
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${discoveryProgress}%` }}
+                ></div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Nombre d'enfants
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={tmiForm.nombre_enfants}
-                  onChange={(e) => setTmiForm({...tmiForm, nombre_enfants: parseInt(e.target.value)})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                  aria-label="Nombre d'enfants"
-                  placeholder="0"
-                />
-              </div>
+              <p className="text-sm text-gray-400">Étape {discoveryStep + 1} sur 7</p>
             </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowTmiModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleTmiCalculation}
-                disabled={isLoadingTool}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium disabled:opacity-50"
-              >
-                {isLoadingTool ? 'Calcul...' : 'Calculer'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Modale Simulateur d'Optimisation */}
-      {showOptimizationModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#c5a572]" />
-                Simulateur d'Optimisation
-              </h3>
-              <button
-                onClick={() => setShowOptimizationModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer la modale"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Revenu annuel (€)
-                </label>
-                <input
-                  type="number"
-                  value={optimizationForm.revenu_annuel}
-                  onChange={(e) => setOptimizationForm({...optimizationForm, revenu_annuel: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:border-[#c5a572] focus:outline-none"
-                  placeholder="Ex: 45000"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Type d'optimisation
-                </label>
-                <select
-                  value={optimizationForm.type_optimisation}
-                  onChange={(e) => setOptimizationForm({...optimizationForm, type_optimisation: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                  aria-label="Sélectionner le type d'optimisation"
-                >
-                  <option value="toutes">Toutes les optimisations</option>
-                  <option value="retraite">Retraite (PER, etc.)</option>
-                  <option value="immobilier">Immobilier</option>
-                  <option value="investissement">Investissement</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowOptimizationModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleOptimizationSimulation}
-                disabled={isLoadingTool}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium disabled:opacity-50"
-              >
-                {isLoadingTool ? 'Simulation...' : 'Simuler'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modale Test de Conscience */}
-      {showConsciousnessModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Brain className="w-5 h-5 text-[#c5a572]" />
-                Test de Conscience Fiscale et Financière
-              </h3>
-              <button
-                onClick={() => setShowConsciousnessModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer la modale"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            {!testQuestions ? (
-              <div className="text-center py-8">
-                <div className="w-8 h-8 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-400">Chargement des questions...</p>
-              </div>
-            ) : (
-              <>
-                {/* Barre de progression */}
-                <div className="mb-6">
-                  <div className="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>Question {currentQuestionIndex + 1} sur {Object.keys(testQuestions).length}</span>
-                    <span>{Math.round(((currentQuestionIndex + 1) / Object.keys(testQuestions).length) * 100)}%</span>
+            {/* Contenu des étapes */}
+            <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6">
+              {discoveryStep === 0 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <User className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Informations personnelles</h3>
+                    <p className="text-gray-400">Commençons par vos informations de base</p>
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${((currentQuestionIndex + 1) / Object.keys(testQuestions).length) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Question actuelle */}
-                {(() => {
-                  const questionIds = Object.keys(testQuestions);
-                  const currentQuestionId = questionIds[currentQuestionIndex];
-                  const currentQuestion = testQuestions[currentQuestionId];
                   
-                  return (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="text-lg font-semibold text-white mb-4">
-                          {currentQuestion.question}
-                        </h4>
-                        
-                        <div className="space-y-3">
-                          {Object.entries(currentQuestion.reponses).map(([key, reponse]: [string, any]) => (
-                            <label
-                              key={key}
-                              className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-[#1a2332]/60 ${
-                                testReponses[currentQuestionId] === key
-                                  ? 'border-[#c5a572] bg-[#1a2332]/80'
-                                  : 'border-[#c5a572]/20 bg-[#1a2332]/40'
-                              }`}
-                            >
-                              <input
-                                type="radio"
-                                name={currentQuestionId}
-                                value={key}
-                                checked={testReponses[currentQuestionId] === key}
-                                onChange={() => handleQuestionResponse(currentQuestionId, key)}
-                                className="mt-1 text-[#c5a572] bg-[#1a2332] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                              />
-                              <div className="flex-1">
-                                <p className="text-white font-medium">{reponse.texte}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <div className="flex-1 bg-gray-700 rounded-full h-1">
-                                    <div 
-                                      className="bg-[#c5a572] h-1 rounded-full transition-all duration-300"
-                                      style={{ width: `${reponse.score}%` }}
-                                    ></div>
-                                  </div>
-                                  <span className="text-xs text-gray-400">{reponse.score}%</span>
-                                </div>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Boutons de navigation */}
-                      <div className="flex justify-between pt-4">
-                        <button
-                          onClick={previousQuestion}
-                          disabled={currentQuestionIndex === 0}
-                          className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Précédent
-                        </button>
-                        
-                        <button
-                          onClick={nextQuestion}
-                          disabled={!testReponses[currentQuestionId]}
-                          className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {currentQuestionIndex === Object.keys(testQuestions).length - 1 ? 'Terminer' : 'Suivant'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Modale Résultats du Test */}
-      {showTestResults && testResult && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Brain className="w-5 h-5 text-[#c5a572]" />
-                Résultats de votre Test de Conscience Fiscale
-              </h3>
-              <button
-                onClick={() => setShowTestResults(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer la modale"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {/* Score global */}
-              <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/20 rounded-xl p-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-[#c5a572] mb-2">
-                    {testResult.pourcentage}%
-                  </div>
-                  <h4 className="text-xl font-semibold text-white mb-2">
-                    {testResult.niveau_conscience}
-                  </h4>
-                  <p className="text-gray-300">{testResult.description_niveau}</p>
-                </div>
-              </div>
-
-              {/* Points forts */}
-              {testResult.points_forts && testResult.points_forts.length > 0 && (
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    Vos Points Forts
-                  </h4>
-                  <div className="space-y-2">
-                    {testResult.points_forts.map((point: string, index: number) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-white">{point}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Axes d'amélioration */}
-              {testResult.axes_amelioration && testResult.axes_amelioration.length > 0 && (
-                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-orange-400" />
-                    Axes d'Amélioration Prioritaires
-                  </h4>
-                  <div className="space-y-2">
-                    {testResult.axes_amelioration.map((axe: string, index: number) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                        <span className="text-white">{axe}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recommandations */}
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
-                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-blue-400" />
-                  Recommandations Personnalisées
-                </h4>
-                <div className="space-y-3">
-                  {testResult.recommandations.map((recommandation: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-[#1a2332]/40 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-white">{recommandation}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Détail des réponses */}
-              <div className="bg-[#1a2332]/60 border border-[#c5a572]/20 rounded-xl p-6">
-                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-[#c5a572]" />
-                  Détail de vos Réponses
-                </h4>
-                <div className="space-y-4">
-                  {Object.entries(testResult.reponses_detaillees).map(([questionId, detail]: [string, any]) => (
-                    <div key={questionId} className="p-4 bg-[#0f1419]/50 rounded-lg">
-                      <p className="text-white font-medium mb-2">{detail.question}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-300 text-sm">{detail.reponse}</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 bg-gray-700 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full transition-all duration-500 ${
-                                detail.score >= 75 ? 'bg-green-400' :
-                                detail.score >= 50 ? 'bg-yellow-400' :
-                                detail.score >= 25 ? 'bg-orange-400' : 'bg-red-400'
-                              }`}
-                              style={{ width: `${detail.score}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs text-gray-400">{detail.score}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={restartTest}
-                  className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  Recommencer le Test
-                </button>
-                <button
-                  onClick={() => setShowTestResults(false)}
-                  className="flex-1 px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium"
-                >
-                  Fermer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modale Alertes Fiscales */}
-      {showAlertsModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Bell className="w-5 h-5 text-[#c5a572]" />
-                Alertes Fiscales
-              </h3>
-              <button
-                onClick={() => setShowAlertsModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Fermer la modale"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <p className="text-gray-300 mb-4 text-sm">
-              Configurez vos alertes personnalisées pour rester informé des opportunités fiscales qui vous concernent.
-            </p>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Revenu annuel (€)
-                </label>
-                <input
-                  type="number"
-                  value={alertsForm.revenu_annuel}
-                  onChange={(e) => setAlertsForm({...alertsForm, revenu_annuel: e.target.value})}
-                  className="w-full p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:border-[#c5a572] focus:outline-none"
-                  placeholder="Ex: 45000"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Types d'alertes souhaitées
-                </label>
-                <div className="space-y-2">
-                  {[
-                    { value: 'seuils_tmi', label: 'Seuils TMI', description: 'Quand vous changez de tranche' },
-                    { value: 'optimisations', label: 'Optimisations', description: 'Nouvelles opportunités' },
-                    { value: 'changements_loi', label: 'Changements de loi', description: 'Nouvelles règles fiscales' }
-                  ].map((alerte) => (
-                    <label key={alerte.value} className="flex items-start gap-3 p-3 bg-[#1a2332]/40 rounded-lg hover:bg-[#1a2332]/60 transition-all cursor-pointer">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Âge</label>
                       <input
-                        type="checkbox"
-                        checked={alertsForm.alertes_souhaitees.includes(alerte.value)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setAlertsForm({
-                              ...alertsForm,
-                              alertes_souhaitees: [...alertsForm.alertes_souhaitees, alerte.value]
-                            });
-                          } else {
-                            setAlertsForm({
-                              ...alertsForm,
-                              alertes_souhaitees: alertsForm.alertes_souhaitees.filter(a => a !== alerte.value)
-                            });
-                          }
-                        }}
-                        className="mt-1 text-[#c5a572] bg-[#1a2332] border-[#c5a572]/20 rounded focus:ring-[#c5a572]"
+                        type="number"
+                        value={discoveryData.age}
+                        onChange={(e) => updateDiscoveryData('age', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        placeholder="Ex: 35"
                       />
-                      <div>
-                        <p className="text-white font-medium">{alerte.label}</p>
-                        <p className="text-sm text-gray-400">{alerte.description}</p>
-                      </div>
-                    </label>
-                  ))}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
+                      <select
+                        value={discoveryData.situation_familiale}
+                        onChange={(e) => updateDiscoveryData('situation_familiale', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        aria-label="Sélectionner votre situation familiale"
+                      >
+                        <option value="celibataire">Célibataire</option>
+                        <option value="marie">Marié(e)</option>
+                        <option value="pacs">PACS</option>
+                        <option value="divorce">Divorcé(e)</option>
+                        <option value="veuf">Veuf/Veuve</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={discoveryData.nombre_enfants}
+                        onChange={(e) => updateDiscoveryData('nombre_enfants', parseInt(e.target.value))}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        placeholder="0"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Résidence fiscale</label>
+                      <select
+                        value={discoveryData.residence_fiscale}
+                        onChange={(e) => updateDiscoveryData('residence_fiscale', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                      >
+                        <option value="france">France</option>
+                        <option value="etranger">Étranger</option>
+                        <option value="expatrie">Expatrié</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {discoveryStep === 1 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <DollarSign className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Revenus et activité</h3>
+                    <p className="text-gray-400">Parlez-nous de vos sources de revenus</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Revenus principaux annuels (€)</label>
+                      <input
+                        type="number"
+                        value={discoveryData.revenus_principaux}
+                        onChange={(e) => updateDiscoveryData('revenus_principaux', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        placeholder="Ex: 45000"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Activité principale</label>
+                      <select
+                        value={discoveryData.activite_principale}
+                        onChange={(e) => updateDiscoveryData('activite_principale', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                      >
+                        <option value="salarie">Salarié</option>
+                        <option value="independant">Indépendant</option>
+                        <option value="chef_entreprise">Chef d'entreprise</option>
+                        <option value="retraite">Retraité</option>
+                        <option value="etudiant">Étudiant</option>
+                        <option value="chomeur">Chômeur</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Revenus complémentaires</label>
+                      <div className="space-y-2">
+                        {['Location', 'Dividendes', 'Intérêts', 'Plus-values', 'Pensions', 'Aucun'].map((revenu) => (
+                          <label key={revenu} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={discoveryData.revenus_complementaires.includes(revenu.toLowerCase())}
+                              onChange={(e) => {
+                                const newRevenus = e.target.checked
+                                  ? [...discoveryData.revenus_complementaires, revenu.toLowerCase()]
+                                  : discoveryData.revenus_complementaires.filter(r => r !== revenu.toLowerCase());
+                                updateDiscoveryData('revenus_complementaires', newRevenus);
+                              }}
+                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <span className="text-gray-300">{revenu}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles annuelles (€)</label>
+                      <input
+                        type="number"
+                        value={discoveryData.charges_deductibles}
+                        onChange={(e) => updateDiscoveryData('charges_deductibles', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        placeholder="Ex: 5000"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {discoveryStep === 2 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <Building2 className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Patrimoine immobilier</h3>
+                    <p className="text-gray-400">Décrivez votre situation immobilière</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-[#162238] rounded-lg">
+                      <div>
+                        <h4 className="font-medium text-white">Résidence principale</h4>
+                        <p className="text-sm text-gray-400">Êtes-vous propriétaire de votre résidence principale ?</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={discoveryData.residence_principale}
+                          onChange={(e) => updateDiscoveryData('residence_principale', e.target.checked)}
+                          className="sr-only peer"
+                          aria-label="Propriétaire de sa résidence principale"
+                        />
+                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#c5a572]"></div>
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-[#162238] rounded-lg">
+                      <div>
+                        <h4 className="font-medium text-white">Résidence secondaire</h4>
+                        <p className="text-sm text-gray-400">Possédez-vous une résidence secondaire ?</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={discoveryData.residence_secondaire}
+                          onChange={(e) => updateDiscoveryData('residence_secondaire', e.target.checked)}
+                          className="sr-only peer"
+                          aria-label="Propriétaire d'une résidence secondaire"
+                        />
+                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#c5a572]"></div>
+                      </label>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Épargne totale (€)</label>
+                      <input
+                        type="number"
+                        value={discoveryData.epargne_totale}
+                        onChange={(e) => updateDiscoveryData('epargne_totale', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        placeholder="Ex: 50000"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Types d'investissements</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Actions', 'Obligations', 'SCPI', 'PEA', 'Assurance-vie', 'Crypto', 'Or', 'Aucun'].map((invest) => (
+                          <label key={invest} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={discoveryData.investissements.includes(invest.toLowerCase())}
+                              onChange={(e) => {
+                                const newInvest = e.target.checked
+                                  ? [...discoveryData.investissements, invest.toLowerCase()]
+                                  : discoveryData.investissements.filter(i => i !== invest.toLowerCase());
+                                updateDiscoveryData('investissements', newInvest);
+                              }}
+                              className="mr-2 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <span className="text-sm text-gray-300">{invest}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {discoveryStep === 3 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <Target className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Objectifs et projets</h3>
+                    <p className="text-gray-400">Quels sont vos projets à court, moyen et long terme ?</p>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-medium text-white mb-3">Objectifs à court terme (1-3 ans)</h4>
+                      <div className="space-y-2">
+                        {['Acheter un bien immobilier', 'Constituer une épargne de sécurité', 'Financer un projet personnel', 'Optimiser mes impôts', 'Aucun objectif spécifique'].map((objectif) => (
+                          <label key={objectif} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={discoveryData.objectifs_court_terme.includes(objectif.toLowerCase())}
+                              onChange={(e) => {
+                                const newObjectifs = e.target.checked
+                                  ? [...discoveryData.objectifs_court_terme, objectif.toLowerCase()]
+                                  : discoveryData.objectifs_court_terme.filter(o => o !== objectif.toLowerCase());
+                                updateDiscoveryData('objectifs_court_terme', newObjectifs);
+                              }}
+                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <span className="text-gray-300">{objectif}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium text-white mb-3">Objectifs à moyen terme (3-10 ans)</h4>
+                      <div className="space-y-2">
+                        {['Développer mon patrimoine', 'Préparer ma retraite', 'Financer les études des enfants', 'Diversifier mes investissements', 'Aucun objectif spécifique'].map((objectif) => (
+                          <label key={objectif} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={discoveryData.objectifs_moyen_terme.includes(objectif.toLowerCase())}
+                              onChange={(e) => {
+                                const newObjectifs = e.target.checked
+                                  ? [...discoveryData.objectifs_moyen_terme, objectif.toLowerCase()]
+                                  : discoveryData.objectifs_moyen_terme.filter(o => o !== objectif.toLowerCase());
+                                updateDiscoveryData('objectifs_moyen_terme', newObjectifs);
+                              }}
+                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <span className="text-gray-300">{objectif}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium text-white mb-3">Objectifs à long terme (10+ ans)</h4>
+                      <div className="space-y-2">
+                        {['Transmettre mon patrimoine', 'Assurer mon indépendance financière', 'Préparer la succession', 'Aucun objectif spécifique'].map((objectif) => (
+                          <label key={objectif} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={discoveryData.objectifs_long_terme.includes(objectif.toLowerCase())}
+                              onChange={(e) => {
+                                const newObjectifs = e.target.checked
+                                  ? [...discoveryData.objectifs_long_terme, objectif.toLowerCase()]
+                                  : discoveryData.objectifs_long_terme.filter(o => o !== objectif.toLowerCase());
+                                updateDiscoveryData('objectifs_long_terme', newObjectifs);
+                              }}
+                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <span className="text-gray-300">{objectif}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {discoveryStep === 4 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <Brain className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Niveau de connaissance</h3>
+                    <p className="text-gray-400">Évaluez votre niveau de connaissance fiscale et financière</p>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-3">Niveau de connaissance fiscale</label>
+                      <div className="space-y-2">
+                        {[
+                          { value: 'debutant', label: 'Débutant', desc: 'Je découvre la fiscalité' },
+                          { value: 'intermediaire', label: 'Intermédiaire', desc: 'J\'ai quelques notions' },
+                          { value: 'avance', label: 'Avancé', desc: 'Je maîtrise bien le sujet' },
+                          { value: 'expert', label: 'Expert', desc: 'Je suis très compétent' }
+                        ].map((niveau) => (
+                          <label key={niveau.value} className="flex items-center p-3 bg-[#162238] rounded-lg cursor-pointer hover:bg-[#162238]/80">
+                            <input
+                              type="radio"
+                              name="niveau_connaissance"
+                              value={niveau.value}
+                              checked={discoveryData.niveau_connaissance_fiscale === niveau.value}
+                              onChange={(e) => updateDiscoveryData('niveau_connaissance_fiscale', e.target.value)}
+                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <div>
+                              <div className="font-medium text-white">{niveau.label}</div>
+                              <div className="text-sm text-gray-400">{niveau.desc}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-3">Expérience en investissement</label>
+                      <select
+                        value={discoveryData.experience_investissement}
+                        onChange={(e) => updateDiscoveryData('experience_investissement', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                      >
+                        <option value="aucune">Aucune expérience</option>
+                        <option value="debutant">Débutant (quelques mois)</option>
+                        <option value="intermediaire">Intermédiaire (1-3 ans)</option>
+                        <option value="confirme">Confirmé (3-10 ans)</option>
+                        <option value="expert">Expert (10+ ans)</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-3">Tolérance au risque</label>
+                      <div className="space-y-2">
+                        {[
+                          { value: 'conservateur', label: 'Conservateur', desc: 'Je privilégie la sécurité' },
+                          { value: 'modere', label: 'Modéré', desc: 'J\'accepte un risque limité' },
+                          { value: 'dynamique', label: 'Dynamique', desc: 'Je recherche la performance' },
+                          { value: 'agressif', label: 'Agressif', desc: 'Je maximise le rendement' }
+                        ].map((risque) => (
+                          <label key={risque.value} className="flex items-center p-3 bg-[#162238] rounded-lg cursor-pointer hover:bg-[#162238]/80">
+                            <input
+                              type="radio"
+                              name="tolerance_risque"
+                              value={risque.value}
+                              checked={discoveryData.tolerance_risque === risque.value}
+                              onChange={(e) => updateDiscoveryData('tolerance_risque', e.target.value)}
+                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <div>
+                              <div className="font-medium text-white">{risque.label}</div>
+                              <div className="text-sm text-gray-400">{risque.desc}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {discoveryStep === 5 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <Lightbulb className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Besoins spécifiques</h3>
+                    <p className="text-gray-400">Quels sont vos besoins et questions prioritaires ?</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-3">Besoins spécifiques</label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {[
+                          'Optimisation fiscale', 'Planification retraite', 'Transmission patrimoine',
+                          'Investissement immobilier', 'Gestion de l\'épargne', 'Réduction d\'impôts',
+                          'Conseils juridiques', 'Aucun besoin spécifique'
+                        ].map((besoin) => (
+                          <label key={besoin} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={discoveryData.besoins_specifiques.includes(besoin.toLowerCase())}
+                              onChange={(e) => {
+                                const newBesoins = e.target.checked
+                                  ? [...discoveryData.besoins_specifiques, besoin.toLowerCase()]
+                                  : discoveryData.besoins_specifiques.filter(b => b !== besoin.toLowerCase());
+                                updateDiscoveryData('besoins_specifiques', newBesoins);
+                              }}
+                              className="mr-2 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                            />
+                            <span className="text-sm text-gray-300">{besoin}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Questions prioritaires</label>
+                      <textarea
+                        value={discoveryData.questions_prioritaires}
+                        onChange={(e) => updateDiscoveryData('questions_prioritaires', e.target.value)}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                        rows={4}
+                        placeholder="Ex: Comment optimiser mes impôts ? Quels investissements pour ma retraite ?..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {discoveryStep === 6 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <TrendingUp className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Optimisations souhaitées</h3>
+                    <p className="text-gray-400">Quels types d'optimisations vous intéressent le plus ?</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        { id: 'reduction_impots', label: 'Réduction d\'impôts', icon: '💰' },
+                        { id: 'epargne_retraite', label: 'Épargne retraite', icon: '🏦' },
+                        { id: 'investissement_immobilier', label: 'Investissement immobilier', icon: '🏠' },
+                        { id: 'transmission', label: 'Transmission patrimoine', icon: '👨‍👩‍👧‍👦' },
+                        { id: 'optimisation_sociale', label: 'Optimisation sociale', icon: '📊' },
+                        { id: 'investissement_financier', label: 'Investissement financier', icon: '📈' },
+                        { id: 'defiscalisation', label: 'Défiscalisation', icon: '🎯' },
+                        { id: 'conseils_personnalises', label: 'Conseils personnalisés', icon: '🎓' }
+                      ].map((opti) => (
+                        <label key={opti.id} className="flex items-center p-4 bg-[#162238] rounded-lg cursor-pointer hover:bg-[#162238]/80 border border-[#c5a572]/20">
+                          <input
+                            type="checkbox"
+                            checked={discoveryData.optimisations_souhaitees.includes(opti.id)}
+                            onChange={(e) => {
+                              const newOptis = e.target.checked
+                                ? [...discoveryData.optimisations_souhaitees, opti.id]
+                                : discoveryData.optimisations_souhaitees.filter(o => o !== opti.id);
+                              updateDiscoveryData('optimisations_souhaitees', newOptis);
+                            }}
+                            className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
+                          />
+                          <span className="text-2xl mr-3">{opti.icon}</span>
+                          <span className="text-gray-300">{opti.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {discoveryStep === 7 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
+                      <CheckCircle className="w-8 h-8 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2">Récapitulatif</h3>
+                    <p className="text-gray-400">Vérifiez vos informations avant de finaliser</p>
+                  </div>
+                  
+                  <div className="bg-[#162238] rounded-lg p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-medium text-white mb-2">Informations personnelles</h4>
+                        <p className="text-sm text-gray-400">Âge: {discoveryData.age || 'Non renseigné'}</p>
+                        <p className="text-sm text-gray-400">Situation: {discoveryData.situation_familiale}</p>
+                        <p className="text-sm text-gray-400">Enfants: {discoveryData.nombre_enfants}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-white mb-2">Revenus</h4>
+                        <p className="text-sm text-gray-400">Principaux: {discoveryData.revenus_principaux || 'Non renseigné'}€</p>
+                        <p className="text-sm text-gray-400">Activité: {discoveryData.activite_principale}</p>
+                        <p className="text-sm text-gray-400">Complémentaires: {discoveryData.revenus_complementaires.length}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-[#c5a572]/20">
+                      <h4 className="font-medium text-white mb-2">Objectifs principaux</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {discoveryData.objectifs_court_terme.slice(0, 2).map((obj, index) => (
+                          <span key={index} className="px-2 py-1 bg-[#c5a572]/20 text-[#c5a572] text-xs rounded">
+                            {obj}
+                          </span>
+                        ))}
+                        {discoveryData.objectifs_moyen_terme.slice(0, 2).map((obj, index) => (
+                          <span key={index} className="px-2 py-1 bg-[#c5a572]/20 text-[#c5a572] text-xs rounded">
+                            {obj}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-gray-400 mb-4">
+                      En finalisant, Francis pourra vous donner des conseils ultra-personnalisés basés sur votre profil complet !
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
-            
-            <div className="flex gap-3 mt-6">
+
+            {/* Navigation */}
+            <div className="flex justify-between">
               <button
-                onClick={() => setShowAlertsModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                onClick={prevDiscoveryStep}
+                disabled={discoveryStep === 0}
+                className="px-6 py-2 border border-[#c5a572]/20 text-[#c5a572] rounded-lg hover:bg-[#c5a572]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Annuler
+                Précédent
               </button>
-              <button
-                onClick={handleFiscalAlerts}
-                disabled={isLoadingTool}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium disabled:opacity-50"
-              >
-                {isLoadingTool ? 'Génération...' : 'Générer les Alertes'}
-              </button>
+              
+              {discoveryStep < 7 ? (
+                <button
+                  onClick={nextDiscoveryStep}
+                  className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium"
+                >
+                  Suivant
+                </button>
+              ) : (
+                <button
+                  onClick={handleDiscoveryComplete}
+                  className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all font-medium"
+                >
+                  Finaliser ma découverte
+                </button>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 } 
