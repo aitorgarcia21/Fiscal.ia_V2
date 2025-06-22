@@ -45,10 +45,6 @@ export function ProDashboardPage() {
   const handleAddNewClient = () => {
     navigate('/pro/clients/new');
   };
-
-  const handleAddClientWithAI = () => {
-    navigate('/pro/clients/new?mode=ai');
-  };
   
   const handleViewClient = (clientId: number | string) => {
     navigate(`/pro/clients/${clientId}`);
@@ -120,15 +116,6 @@ export function ProDashboardPage() {
             >
               <MessageSquareIcon className="w-5 h-5" />
               <span className="font-semibold">Francis Pro</span>
-            </button>
-            
-            {/* Bouton d'ajout avec IA */}
-            <button
-              onClick={handleAddClientWithAI}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
-            >
-              <Mic className="w-5 h-5" />
-              <span className="font-semibold">Ajout IA</span>
             </button>
             
             <button
@@ -237,13 +224,6 @@ export function ProDashboardPage() {
                 <h3 className="text-2xl text-white mb-3">Aucun client</h3>
                 <p className="text-gray-400 mb-8 text-lg">Commencez par ajouter votre premier client avec l'aide de l'IA</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button 
-                    onClick={handleAddClientWithAI}
-                    className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3"
-                  >
-                    <Mic className="w-5 h-5" />
-                    Ajout avec IA
-                  </button>
                   <button 
                     onClick={handleAddNewClient}
                     className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all"

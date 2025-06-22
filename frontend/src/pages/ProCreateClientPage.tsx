@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic } from 'lucide-react';
-import { AIClientCreation } from '../components/pro/AIClientCreation';
+import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ProCreateClientFormState {
   nom_client: string;
@@ -173,13 +172,132 @@ export function ProCreateClientPage() {
   const [formData, setFormData] = useState<ProCreateClientFormState>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAIMode, setIsAIMode] = useState(false);
+  
+  // États pour la reconnaissance vocale
+  const [isListening, setIsListening] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [isMuted, setIsMuted] = useState(false);
+  
+  const recognitionRef = useRef<any>(null);
 
-  // Vérifier si on est en mode IA
+  // Initialiser la reconnaissance vocale
   useEffect(() => {
-    const mode = searchParams.get('mode');
-    setIsAIMode(mode === 'ai');
-  }, [searchParams]);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'fr-FR';
+
+      recognitionRef.current.onresult = (event: any) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        setTranscript(prev => prev + finalTranscript);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Erreur de reconnaissance vocale:', event.error);
+        setError('Erreur de reconnaissance vocale. Veuillez réessayer.');
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        if (isListening) {
+          recognitionRef.current.start();
+        }
+      };
+    } else {
+      setError('La reconnaissance vocale n\'est pas supportée par votre navigateur.');
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [isListening]);
+
+  const startListening = () => {
+    setError(null);
+    setTranscript('');
+    setIsListening(true);
+    
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Erreur lors du démarrage de la reconnaissance vocale:', error);
+        setError('Impossible de démarrer la reconnaissance vocale.');
+      }
+    }
+  };
+
+  const stopListening = () => {
+    setIsListening(false);
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    processTranscript();
+  };
+
+  const processTranscript = async () => {
+    if (!transcript.trim()) {
+      setError('Aucun texte détecté. Veuillez parler plus clairement.');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const response = await apiClient('/api/pro/extract-client-data', {
+        method: 'POST',
+        body: JSON.stringify({
+          transcript: transcript,
+          instructions: `
+            Extrais les informations client suivantes du transcript :
+            - Nom et prénom
+            - Email et téléphone
+            - Profession et revenus
+            - Situation familiale
+            - Adresse
+            - Objectifs fiscaux et patrimoniaux
+            - Notes et projets
+            
+            Retourne les données au format JSON.
+          `
+        })
+      });
+
+      const extractedData = response.extracted_data || {};
+      
+      // Mettre à jour le formulaire avec les données extraites
+      setFormData(prev => ({
+        ...prev,
+        ...extractedData
+      }));
+
+    } catch (err: any) {
+      console.error('Erreur lors du traitement:', err);
+      setError('Erreur lors du traitement des données. Veuillez réessayer.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -203,19 +321,6 @@ export function ProCreateClientPage() {
     const num = parseFloat(stringValue);
     return isNaN(num) ? null : num;
   };
-
-  const handleClientCreated = (client: ClientProfile) => {
-    navigate('/pro/dashboard');
-  };
-
-  const handleCancel = () => {
-    navigate('/pro/dashboard');
-  };
-
-  // Si on est en mode IA, afficher le composant IA
-  if (isAIMode) {
-    return <AIClientCreation onClientCreated={handleClientCreated} onCancel={handleCancel} />;
-  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -343,6 +448,94 @@ export function ProCreateClientPage() {
 
       <main className="p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
+          {/* Interface vocale */}
+          <div className="mb-8 bg-[#162238]/60 rounded-2xl border border-[#c5a572]/20 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Assistant Vocal IA</h2>
+                  <p className="text-[#c5a572] text-sm">Dictez les informations client, l'IA remplit automatiquement</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={toggleMute}
+                  className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
+                    isMuted 
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                      : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  }`}
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  {isMuted ? 'Désactivé' : 'Activé'}
+                </button>
+                
+                {!isListening ? (
+                  <button
+                    onClick={startListening}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3"
+                  >
+                    <Mic className="w-5 h-5" />
+                    Commencer la dictée
+                  </button>
+                ) : (
+                  <button
+                    onClick={stopListening}
+                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3"
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                    Terminer la dictée
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Indicateur d'écoute */}
+            {isListening && (
+              <div className="mb-4 p-4 bg-purple-500/20 border border-purple-500/30 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-purple-400 rounded-full animate-pulse"></div>
+                  <span className="text-purple-300 font-medium">Écoute en cours... Parlez clairement</span>
+                </div>
+              </div>
+            )}
+
+            {/* Traitement en cours */}
+            {isProcessing && (
+              <div className="mb-4 p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                  <span className="text-blue-300 font-medium">Traitement en cours...</span>
+                </div>
+              </div>
+            )}
+
+            {/* Transcript en temps réel */}
+            {transcript && (
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-300 mb-2">Transcription :</h3>
+                <div className="bg-[#0A192F]/60 rounded-xl p-4 border border-[#c5a572]/20 max-h-32 overflow-y-auto">
+                  <p className="text-gray-300 leading-relaxed text-sm">{transcript}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Instructions */}
+            <div className="text-sm text-gray-400">
+              <p className="mb-2"><strong>Instructions :</strong> Dites clairement les informations du client :</p>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>"Le client s'appelle Jean Dupont, il habite au 123 rue de la Paix à Paris"</li>
+                <li>"Il est ingénieur, gagne 60 000 euros par an"</li>
+                <li>"Il est marié avec 2 enfants, veut optimiser ses impôts"</li>
+                <li>"Il a une résidence principale de 400 000 euros"</li>
+              </ul>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-8">
             <section className={firstSectionStyles}>
               <div className="flex items-center"><UserIconLucide className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Identité</h2></div>
