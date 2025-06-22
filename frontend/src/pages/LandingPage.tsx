@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check, Briefcase, FileText, Zap, Eye, Target, TrendingUp, Lightbulb } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, Variants, Transition } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
 import { DemoModal } from '../components/demo/DemoModal';
@@ -346,7 +346,22 @@ export function LandingPage() {
 
       {/* Footer - Minimaliste */}
       <footer className="py-8 text-center">
-        <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Francis. Tous droits réservés.</p>
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Francis. Tous droits réservés.</p>
+          <div className="flex items-center gap-6 text-xs text-gray-600">
+            <Link to="/blog" className="hover:text-[#c5a572] transition-colors">
+              Conseils fiscaux
+            </Link>
+            <span>•</span>
+            <Link to="/mentions-legales" className="hover:text-[#c5a572] transition-colors">
+              Mentions légales
+            </Link>
+            <span>•</span>
+            <Link to="/politique-confidentialite" className="hover:text-[#c5a572] transition-colors">
+              Confidentialité
+            </Link>
+          </div>
+        </div>
       </footer>
 
     </div>

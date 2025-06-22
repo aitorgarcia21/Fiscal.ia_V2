@@ -25,6 +25,9 @@ import { SuccessPage } from './pages/SuccessPage';
 import { AccountPage } from './pages/AccountPage';
 import { OptimisationFiscaleIA } from './pages/OptimisationFiscaleIA';
 import { SimulateurImpot } from './pages/SimulateurImpot';
+import BlogPage from './pages/BlogPage';
+import MentionsLegales from './pages/MentionsLegales';
+import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -43,6 +46,9 @@ function App() {
           {/* Pages SEO */}
           <Route path="/optimisation-fiscale-ia" element={<OptimisationFiscaleIA />} />
           <Route path="/simulateur-impot" element={<SimulateurImpot />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/mentions-legales" element={<MentionsLegales />} />
+          <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
           
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
           <Route element={<ParticulierProtectedRoute />}>
