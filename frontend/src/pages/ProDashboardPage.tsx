@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -45,6 +45,10 @@ export function ProDashboardPage() {
   const handleAddNewClient = () => {
     navigate('/pro/clients/new');
   };
+
+  const handleAddClientWithAI = () => {
+    navigate('/pro/clients/new?mode=ai');
+  };
   
   const handleViewClient = (clientId: number | string) => {
     navigate(`/pro/clients/${clientId}`);
@@ -71,16 +75,19 @@ export function ProDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#1E3253] text-gray-100">
-      {/* Header */}
+      {/* Header amélioré avec logo */}
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-[#162238]" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">Dashboard Pro</h1>
-              <p className="text-sm text-gray-400">Gestion de vos clients</p>
+          <div className="flex items-center gap-4">
+            {/* Logo Fiscal.ia */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center shadow-lg">
+                <Brain className="w-7 h-7 text-[#162238]" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Fiscal.ia</h1>
+                <p className="text-sm text-[#c5a572] font-medium">Dashboard Pro</p>
+              </div>
             </div>
           </div>
           
@@ -97,88 +104,164 @@ export function ProDashboardPage() {
         </div>
       </div>
 
-      {/* Contenu principal simplifié */}
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Header avec actions */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      {/* Contenu principal amélioré */}
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header avec actions améliorées */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-white">Mes Clients ({clients.length})</h2>
-            <p className="text-gray-400">Gérez votre portefeuille client</p>
+            <h2 className="text-3xl font-bold text-white mb-2">Mes Clients ({clients.length})</h2>
+            <p className="text-gray-400 text-lg">Gérez votre portefeuille client avec l'IA</p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/pro/chat')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
             >
-              <MessageSquareIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Francis Pro</span>
+              <MessageSquareIcon className="w-5 h-5" />
+              <span className="font-semibold">Francis Pro</span>
             </button>
+            
+            {/* Bouton d'ajout avec IA */}
+            <button
+              onClick={handleAddClientWithAI}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
+            >
+              <Mic className="w-5 h-5" />
+              <span className="font-semibold">Ajout IA</span>
+            </button>
+            
             <button
               onClick={handleAddNewClient}
-              className="px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+              className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-5 h-5" />
               Nouveau Client
             </button>
           </div>
         </div>
 
-        {/* Recherche */}
-        <div className="mb-6">
+        {/* Statistiques rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Total Clients</p>
+                <p className="text-2xl font-bold text-white">{clients.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <Euro className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Clients Actifs</p>
+                <p className="text-2xl font-bold text-white">
+                  {clients.filter(c => c.statut_dossier_pro === 'Actif').length}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Prospects</p>
+                <p className="text-2xl font-bold text-white">
+                  {clients.filter(c => c.statut_dossier_pro === 'Prospect').length}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <Brain className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">IA Active</p>
+                <p className="text-2xl font-bold text-white">24/7</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recherche améliorée */}
+        <div className="mb-8">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Rechercher un client..."
+              placeholder="Rechercher un client par nom ou email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-[#162238]/80 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#162238]/80 border border-[#c5a572]/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/20 transition-all text-lg"
             />
           </div>
         </div>
 
         {/* Messages d'état */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
             <p className="text-red-300">{error}</p>
           </div>
         )}
 
         {isLoading && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center gap-3 text-[#c5a572]">
-              <div className="w-5 h-5 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin" />
-              <span>Chargement...</span>
+          <div className="text-center py-16">
+            <div className="inline-flex items-center gap-4 text-[#c5a572]">
+              <div className="w-8 h-8 border-3 border-[#c5a572] border-t-transparent rounded-full animate-spin" />
+              <span className="text-lg">Chargement de vos clients...</span>
             </div>
           </div>
         )}
 
-        {/* Liste simple des clients */}
+        {/* Liste des clients améliorée */}
         {!isLoading && !error && (
           <>
             {filteredClients.length === 0 ? (
-              <div className="text-center py-16 bg-[#162238]/60 rounded-xl border border-[#c5a572]/20">
-                <Users className="w-16 h-16 text-[#c5a572] mx-auto mb-4" />
-                <h3 className="text-xl text-white mb-2">Aucun client</h3>
-                <p className="text-gray-400 mb-6">Commencez par ajouter votre premier client</p>
-                <button 
-                  onClick={handleAddNewClient}
-                  className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all"
-                >
-                  Nouveau Client
-                </button>
+              <div className="text-center py-20 bg-[#162238]/60 rounded-2xl border border-[#c5a572]/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Users className="w-12 h-12 text-[#162238]" />
+                </div>
+                <h3 className="text-2xl text-white mb-3">Aucun client</h3>
+                <p className="text-gray-400 mb-8 text-lg">Commencez par ajouter votre premier client avec l'aide de l'IA</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button 
+                    onClick={handleAddClientWithAI}
+                    className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3"
+                  >
+                    <Mic className="w-5 h-5" />
+                    Ajout avec IA
+                  </button>
+                  <button 
+                    onClick={handleAddNewClient}
+                    className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all"
+                  >
+                    Ajout Manuel
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {currentClients.map((client) => (
-                  <div key={client.id} className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6 hover:bg-[#162238]/80 transition-all">
+                  <div key={client.id} className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6 hover:bg-[#162238]/80 hover:border-[#c5a572]/40 transition-all duration-300 hover:shadow-lg">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-bold">
+                      <div className="w-14 h-14 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
                         {client.prenom_client?.charAt(0) || ''}{client.nom_client?.charAt(0) || ''}
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white mb-1">
                           {client.prenom_client} {client.nom_client}
                         </h3>
                         <p className="text-sm text-gray-400">{client.email_client || 'Pas d\'email'}</p>
@@ -187,10 +270,10 @@ export function ProDashboardPage() {
                     
                     {client.statut_dossier_pro && (
                       <div className="mb-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          client.statut_dossier_pro === 'Actif' ? 'bg-green-500/20 text-green-300' : 
-                          client.statut_dossier_pro === 'Prospect' ? 'bg-blue-500/20 text-blue-300' : 
-                          'bg-gray-500/20 text-gray-300'
+                        <span className={`px-3 py-1 text-xs rounded-full font-medium ${
+                          client.statut_dossier_pro === 'Actif' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 
+                          client.statut_dossier_pro === 'Prospect' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 
+                          'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                         }`}>
                           {client.statut_dossier_pro}
                         </span>
@@ -201,7 +284,7 @@ export function ProDashboardPage() {
                       <button
                         onClick={() => handleViewClient(client.id)}
                         className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
-                        title="Voir"
+                        title="Voir le profil"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -225,23 +308,35 @@ export function ProDashboardPage() {
               </div>
             )}
 
-            {/* Pagination simple */}
+            {/* Pagination améliorée */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-8">
+              <div className="flex justify-center items-center gap-4 mt-12">
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 text-sm bg-[#162238]/80 border border-[#c5a572]/30 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#c5a572]/20 transition-colors"
+                  className="px-6 py-3 text-sm bg-[#162238]/80 border border-[#c5a572]/30 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#c5a572]/20 transition-all font-medium"
                 >
                   Précédent
                 </button>
-                <span className="px-4 py-2 text-sm text-gray-300">
-                  Page {currentPage} sur {totalPages}
-                </span>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
+                        currentPage === page
+                          ? 'bg-[#c5a572] text-[#162238]'
+                          : 'bg-[#162238]/60 text-gray-300 hover:bg-[#162238]/80'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-2 text-sm bg-[#162238]/80 border border-[#c5a572]/30 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#c5a572]/20 transition-colors"
+                  className="px-6 py-3 text-sm bg-[#162238]/80 border border-[#c5a572]/30 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#c5a572]/20 transition-all font-medium"
                 >
                   Suivant
                 </button>

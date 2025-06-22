@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon } from 'lucide-react';
+import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic } from 'lucide-react';
+import { AIClientCreation } from '../components/pro/AIClientCreation';
 
 interface ProCreateClientFormState {
   nom_client: string;
@@ -168,9 +169,17 @@ const buttonPrimaryStyles = "px-6 py-3 bg-gradient-to-r from-[#88C0D0] to-[#81A1
 
 export function ProCreateClientPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState<ProCreateClientFormState>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAIMode, setIsAIMode] = useState(false);
+
+  // Vérifier si on est en mode IA
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    setIsAIMode(mode === 'ai');
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -194,6 +203,19 @@ export function ProCreateClientPage() {
     const num = parseFloat(stringValue);
     return isNaN(num) ? null : num;
   };
+
+  const handleClientCreated = (client: ClientProfile) => {
+    navigate('/pro/dashboard');
+  };
+
+  const handleCancel = () => {
+    navigate('/pro/dashboard');
+  };
+
+  // Si on est en mode IA, afficher le composant IA
+  if (isAIMode) {
+    return <AIClientCreation onClientCreated={handleClientCreated} onCancel={handleCancel} />;
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

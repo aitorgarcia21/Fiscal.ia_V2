@@ -719,3 +719,149 @@ async def delete_rendez_vous(
     db.delete(db_rdv)
     db.commit()
     return # FastAPI gère la réponse 204 No Content 
+
+class ExtractClientDataRequest(BaseModel):
+    transcript: str
+    instructions: Optional[str] = None
+
+class ExtractClientDataResponse(BaseModel):
+    extracted_data: Dict[str, Any]
+    confidence: float
+    processing_time: float
+
+@router.post("/extract-client-data", response_model=ExtractClientDataResponse)
+async def extract_client_data_from_transcript(
+    request: ExtractClientDataRequest,
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    """
+    Extrait les informations client à partir d'un transcript vocal en utilisant l'IA.
+    """
+    import time
+    start_time = time.time()
+    
+    try:
+        # Construire le prompt pour l'IA
+        system_prompt = """Tu es un assistant fiscal spécialisé dans l'extraction d'informations client à partir de conversations.
+        
+        Ta tâche est d'extraire les informations suivantes du transcript fourni :
+        
+        INFORMATIONS PERSONNELLES :
+        - nom_client : Nom de famille
+        - prenom_client : Prénom
+        - email_client : Adresse email
+        - telephone_principal_client : Numéro de téléphone principal
+        
+        INFORMATIONS PROFESSIONNELLES :
+        - profession_client1 : Profession ou métier
+        - revenu_net_annuel_client1 : Revenu net annuel (en euros, nombre uniquement)
+        
+        SITUATION FAMILIALE :
+        - situation_maritale_client : Célibataire, Marié(e), Pacsé(e), Divorcé(e), Veuf/Veuve
+        - nombre_enfants_a_charge_client : Nombre d'enfants à charge (nombre uniquement)
+        
+        ADRESSE :
+        - adresse_postale_client : Adresse complète
+        - code_postal_client : Code postal
+        - ville_client : Ville
+        
+        OBJECTIFS :
+        - objectifs_fiscaux_client : Objectifs fiscaux mentionnés
+        - objectifs_patrimoniaux_client : Objectifs patrimoniaux mentionnés
+        - notes_objectifs_projets_client : Notes et projets spécifiques
+        
+        RÈGLES IMPORTANTES :
+        1. Retourne UNIQUEMENT un objet JSON valide
+        2. Pour les champs non trouvés, utilise une chaîne vide ""
+        3. Pour les nombres, retourne des chaînes (ex: "50000" pour 50000€)
+        4. Sois précis mais ne devine pas si l'information n'est pas claire
+        5. Normalise les formats (téléphone, email, etc.)
+        
+        Format de réponse attendu :
+        {
+          "nom_client": "",
+          "prenom_client": "",
+          "email_client": "",
+          "telephone_principal_client": "",
+          "profession_client1": "",
+          "revenu_net_annuel_client1": "",
+          "situation_maritale_client": "",
+          "nombre_enfants_a_charge_client": "",
+          "adresse_postale_client": "",
+          "code_postal_client": "",
+          "ville_client": "",
+          "objectifs_fiscaux_client": "",
+          "objectifs_patrimoniaux_client": "",
+          "notes_objectifs_projets_client": ""
+        }
+        """
+        
+        user_prompt = f"""Transcript de la conversation client :
+        
+        {request.transcript}
+        
+        {request.instructions or ''}
+        
+        Extrais les informations client et retourne le JSON."""
+        
+        # Appeler l'IA pour extraire les données
+        response = await get_fiscal_response(
+            system_prompt=system_prompt,
+            user_message=user_prompt,
+            conversation_history=[]
+        )
+        
+        # Parser la réponse JSON
+        try:
+            # Essayer d'extraire le JSON de la réponse
+            response_text = response.get('response', '')
+            
+            # Chercher le JSON dans la réponse
+            import re
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group()
+                extracted_data = json.loads(json_str)
+            else:
+                # Si pas de JSON trouvé, essayer de parser toute la réponse
+                extracted_data = json.loads(response_text)
+                
+        except json.JSONDecodeError as e:
+            # En cas d'erreur de parsing, retourner des données vides
+            extracted_data = {
+                "nom_client": "",
+                "prenom_client": "",
+                "email_client": "",
+                "telephone_principal_client": "",
+                "profession_client1": "",
+                "revenu_net_annuel_client1": "",
+                "situation_maritale_client": "",
+                "nombre_enfants_a_charge_client": "",
+                "adresse_postale_client": "",
+                "code_postal_client": "",
+                "ville_client": "",
+                "objectifs_fiscaux_client": "",
+                "objectifs_patrimoniaux_client": "",
+                "notes_objectifs_projets_client": ""
+            }
+        
+        processing_time = time.time() - start_time
+        
+        # Calculer un score de confiance basé sur la qualité des données extraites
+        confidence = 0.0
+        if extracted_data:
+            filled_fields = sum(1 for value in extracted_data.values() if value and str(value).strip())
+            total_fields = len(extracted_data)
+            confidence = min(1.0, filled_fields / total_fields * 1.5)  # Bonus pour les données bien extraites
+        
+        return ExtractClientDataResponse(
+            extracted_data=extracted_data,
+            confidence=confidence,
+            processing_time=processing_time
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'extraction des données : {str(e)}"
+        ) 
