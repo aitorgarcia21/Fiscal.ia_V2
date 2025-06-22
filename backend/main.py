@@ -32,7 +32,21 @@ from dependencies import supabase, verify_token, create_access_token, hash_passw
 import re
 import sys
 import tempfile
-from whisper_service import get_whisper_service
+
+# Import lazy de whisper_service pour éviter les erreurs au démarrage
+_whisper_service = None
+
+def get_whisper_service():
+    """Import lazy de whisper_service"""
+    global _whisper_service
+    if _whisper_service is None:
+        try:
+            from whisper_service import get_whisper_service as _get_whisper_service
+            _whisper_service = _get_whisper_service()
+        except Exception as e:
+            print(f"Erreur lors du chargement de Whisper: {e}")
+            _whisper_service = None
+    return _whisper_service
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
@@ -1652,6 +1666,16 @@ async def transcribe_audio(request: TranscriptionRequest):
     """
     try:
         whisper_service = get_whisper_service()
+        if whisper_service is None:
+            return TranscriptionResponse(
+                text="",
+                segments=[],
+                language="fr",
+                language_probability=0.0,
+                duration=0.0,
+                error="Service Whisper non disponible"
+            )
+        
         result = whisper_service.transcribe_base64_audio(
             request.audio_base64, 
             request.audio_format
@@ -1676,6 +1700,17 @@ async def transcribe_audio_file(
     Transcrit un fichier audio uploadé.
     """
     try:
+        whisper_service = get_whisper_service()
+        if whisper_service is None:
+            return TranscriptionResponse(
+                text="",
+                segments=[],
+                language="fr",
+                language_probability=0.0,
+                duration=0.0,
+                error="Service Whisper non disponible"
+            )
+        
         # Sauvegarder le fichier temporairement
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file.filename.split('.')[-1]}") as temp_file:
             content = await file.read()
@@ -1683,7 +1718,6 @@ async def transcribe_audio_file(
             temp_file_path = temp_file.name
         
         try:
-            whisper_service = get_whisper_service()
             result = whisper_service.transcribe_audio_file(temp_file_path)
             return TranscriptionResponse(**result)
         finally:
@@ -1708,6 +1742,14 @@ async def get_whisper_model_info():
     """
     try:
         whisper_service = get_whisper_service()
+        if whisper_service is None:
+            return WhisperModelInfoResponse(
+                model_size="unknown",
+                status="error",
+                device="unknown",
+                compute_type="unknown"
+            )
+        
         info = whisper_service.get_model_info()
         return WhisperModelInfoResponse(**info)
     except Exception as e:
@@ -1725,6 +1767,12 @@ async def whisper_health():
     """
     try:
         whisper_service = get_whisper_service()
+        if whisper_service is None:
+            return {
+                "status": "error",
+                "error": "Service Whisper non disponible"
+            }
+        
         info = whisper_service.get_model_info()
         return {
             "status": "healthy" if info["status"] == "loaded" else "loading",
