@@ -77,9 +77,9 @@ export function ProDashboardPage() {
           <div className="flex items-center gap-4">
             {/* Logo Fiscal.ia */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg relative border-2 border-[#162238]">
-                <MessageSquareIcon className="w-7 h-7 text-[#162238]" />
-                <Euro className="w-4 h-4 text-[#162238] absolute -bottom-1.5 -right-1.5 bg-[#c5a572] rounded-full p-0.5 border border-[#162238]" />
+              <div className="relative inline-flex items-center justify-center group">
+                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Fiscal.ia</h1>
@@ -174,9 +174,9 @@ export function ProDashboardPage() {
           <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center relative">
-                <div className="w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#162238]">
-                  <MessageSquareIcon className="w-4 h-4 text-[#162238]" />
-                  <Euro className="w-3 h-3 text-[#162238] absolute -bottom-1.5 -right-1.5 bg-[#c5a572] rounded-full p-0.5 border border-[#162238]" />
+                <div className="relative inline-flex items-center justify-center">
+                  <MessageSquareIcon className="h-8 w-8 text-[#c5a572]" />
+                  <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
                 </div>
               </div>
               <div>
