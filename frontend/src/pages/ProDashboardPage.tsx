@@ -82,8 +82,8 @@ export function ProDashboardPage() {
                 <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Fiscal.ia</h1>
-                <p className="text-sm text-[#c5a572] font-medium">Dashboard Pro</p>
+                <h1 className="text-2xl font-bold text-white">Dashboard Pro</h1>
+                <p className="text-sm text-[#c5a572] font-medium">Assistant fiscal intelligent</p>
               </div>
             </div>
           </div>
