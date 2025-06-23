@@ -789,42 +789,201 @@ export function Dashboard() {
       </div>
 
       {/* Contenu principal */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto p-4">
+      <div className="flex-1 flex flex-col max-w-6xl mx-auto p-4">
+        {/* Header moderne avec insights */}
+        <div className="mb-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              Bienvenue sur votre Dashboard Fiscal
+            </h1>
+            <p className="text-xl text-gray-400">
+              Optimisez votre fiscalité avec l'IA la plus avancée
+            </p>
+          </div>
+
+          {/* Cartes d'insights rapides */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <Calculator className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">TMI Estimé</p>
+                  <p className="text-2xl font-bold text-white">{fiscalInsights?.tmi || 30}%</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Économies potentielles</p>
+                  <p className="text-2xl font-bold text-white">{fiscalInsights?.economiePotentielle || 2400}€</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Niveau de conscience</p>
+                  <p className="text-2xl font-bold text-white">{fiscalInsights?.niveauConscience || 'Intermédiaire'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                  <Bell className="w-6 h-6 text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Prochaine échéance</p>
+                  <p className="text-lg font-bold text-white">{fiscalInsights?.prochaineEcheance || '15 Mai'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation des onglets améliorée */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-2 flex gap-2">
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'chat' 
+                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Chat Francis
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('tools')}
+              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'tools' 
+                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Calculator className="w-4 h-4" />
+                Outils
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('insights')}
+              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'insights' 
+                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Insights
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('discovery')}
+              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'discovery' 
+                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
+                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Découverte
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* Onglet Chat */}
         {activeTab === 'chat' && (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+            <div className="flex-1 overflow-y-auto mb-6 space-y-4 px-4">
               {messages.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                    <MessageSquare className="w-8 h-8 text-[#c5a572]" />
+                <div className="text-center py-16">
+                  <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30">
+                    <MessageSquare className="w-12 h-12 text-[#c5a572]" />
                   </div>
-                  <h2 className="text-xl font-semibold text-white mb-2">
+                  <h2 className="text-2xl font-bold text-white mb-3">
                     Bonjour ! Je suis Francis
                   </h2>
-                  <p className="text-gray-400 mb-6">
-                    Posez-moi vos questions fiscales, je suis là pour vous aider !
+                  <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
+                    Votre assistant fiscal intelligent. Posez-moi vos questions, je suis là pour vous aider à optimiser votre fiscalité !
                   </p>
                   
-                  {/* Questions rapides */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-md mx-auto">
+                  {/* Questions rapides améliorées */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                     <button
                       onClick={() => setInputMessage("Comment calculer mon TMI ?")}
-                      className="p-3 bg-[#1a2332]/60 border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                      className="group p-4 bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
                     >
-                      <div className="flex items-center gap-2">
-                        <Calculator className="w-4 h-4 text-[#c5a572]" />
-                        <span className="text-sm text-gray-300">Calculer mon TMI</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Calculator className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Calculer mon TMI</p>
+                          <p className="text-gray-400 text-sm">Taux marginal d'imposition</p>
+                        </div>
                       </div>
                     </button>
                     <button
                       onClick={() => setInputMessage("Quelles optimisations pour moi ?")}
-                      className="p-3 bg-[#1a2332]/60 border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                      className="group p-4 bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
                     >
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-[#c5a572]" />
-                        <span className="text-sm text-gray-300">Mes optimisations</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <TrendingUp className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Mes optimisations</p>
+                          <p className="text-gray-400 text-sm">Stratégies personnalisées</p>
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setInputMessage("Comment déclarer mes revenus ?")}
+                      className="group p-4 bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <FileText className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Déclaration 2024</p>
+                          <p className="text-gray-400 text-sm">Guide étape par étape</p>
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setInputMessage("Quels placements fiscaux ?")}
+                      className="group p-4 bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <PiggyBank className="w-5 h-5 text-emerald-400" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Placements fiscaux</p>
+                          <p className="text-gray-400 text-sm">Investissements optimisés</p>
+                        </div>
                       </div>
                     </button>
                   </div>
@@ -833,16 +992,16 @@ export function Dashboard() {
                 messages.map((message, index) => (
                   <div
                     key={index}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}
                   >
                     <div
-                      className={`max-w-[80%] p-3 rounded-lg ${
+                      className={`max-w-[80%] p-4 rounded-2xl ${
                         message.role === 'user'
-                          ? 'bg-[#c5a572] text-[#162238]'
-                          : 'bg-[#1a2332] text-white border border-[#c5a572]/20'
+                          ? 'bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] shadow-lg'
+                          : 'bg-gradient-to-br from-[#1a2332] to-[#162238] text-white border border-[#c5a572]/20 shadow-lg'
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     </div>
                   </div>
                 ))
@@ -850,95 +1009,104 @@ export function Dashboard() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Zone de saisie */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Posez votre question..."
-                className="flex-1 p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white placeholder-gray-400 focus:border-[#c5a572] focus:outline-none"
-                disabled={isLoading}
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                className="px-4 py-3 bg-[#c5a572] text-[#162238] rounded-lg hover:bg-[#e8cfa0] transition-colors disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </button>
+            {/* Zone de saisie améliorée */}
+            <div className="bg-gradient-to-br from-[#1a2332]/80 to-[#162238]/80 backdrop-blur-sm border border-[#c5a572]/20 rounded-2xl p-4">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Posez votre question à Francis..."
+                  className="flex-1 p-3 bg-[#162238]/50 border border-[#c5a572]/20 rounded-xl text-white placeholder-gray-400 focus:border-[#c5a572] focus:outline-none focus:ring-2 focus:ring-[#c5a572]/20 transition-all"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputMessage.trim() || isLoading}
+                  className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {/* Onglet Outils */}
         {activeTab === 'tools' && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white mb-4">Outils utiles</h2>
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-2">Outils Fiscaux Intelligents</h2>
+              <p className="text-xl text-gray-400">Optimisez votre fiscalité en quelques clics</p>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <button
                 onClick={() => setShowTmiModal(true)}
-                className="p-4 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <Calculator className="w-6 h-6 text-blue-400" />
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Calculator className="w-7 h-7 text-blue-400" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Calculateur TMI</h3>
-                    <p className="text-sm text-gray-400">Calculez votre taux d'imposition</p>
-                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Calculateur TMI</h3>
+                <p className="text-gray-400 mb-4">Calculez votre taux marginal d'imposition en 30 secondes</p>
+                <div className="flex items-center text-blue-400 text-sm font-medium">
+                  Commencer <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
 
               <button
                 onClick={() => setShowOptimizationModal(true)}
-                className="p-4 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/20 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-green-400" />
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <TrendingUp className="w-7 h-7 text-green-400" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Simulateur d'optimisation</h3>
-                    <p className="text-sm text-gray-400">Découvrez vos économies</p>
-                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Simulateur d'Optimisation</h3>
+                <p className="text-gray-400 mb-4">Découvrez vos économies fiscales potentielles</p>
+                <div className="flex items-center text-green-400 text-sm font-medium">
+                  Découvrir <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
 
               <button
                 onClick={() => setShowConsciousnessModal(true)}
-                className="p-4 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-500/20 rounded-lg">
-                    <Brain className="w-6 h-6 text-purple-400" />
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Brain className="w-7 h-7 text-purple-400" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Test de conscience</h3>
-                    <p className="text-sm text-gray-400">Évaluez votre niveau</p>
-                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Test de Conscience</h3>
+                <p className="text-gray-400 mb-4">Évaluez votre niveau de compréhension fiscale</p>
+                <div className="flex items-center text-purple-400 text-sm font-medium">
+                  Tester <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
 
               <button
                 onClick={() => setShowAlertsModal(true)}
-                className="p-4 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-500/20 rounded-lg">
-                    <Bell className="w-6 h-6 text-orange-400" />
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Bell className="w-7 h-7 text-orange-400" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Alertes fiscales</h3>
-                    <p className="text-sm text-gray-400">Restez informé</p>
-                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Alertes Fiscales</h3>
+                <p className="text-gray-400 mb-4">Recevez des alertes personnalisées sur votre situation</p>
+                <div className="flex items-center text-orange-400 text-sm font-medium">
+                  Configurer <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
 
@@ -957,18 +1125,167 @@ export function Dashboard() {
                   
                   window.location.href = url;
                 }}
-                className="p-4 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg hover:bg-[#1a2332]/80 transition-all text-left"
+                className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-500/20 rounded-lg">
-                    <CreditCard className="w-6 h-6 text-emerald-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Connexion bancaire</h3>
-                    <p className="text-sm text-gray-400">Connectez votre compte</p>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <CreditCard className="w-7 h-7 text-emerald-400" />
                   </div>
                 </div>
+                <h3 className="text-xl font-bold text-white mb-2">Connexion Bancaire</h3>
+                <p className="text-gray-400 mb-4">Connectez votre compte pour une analyse précise</p>
+                <div className="flex items-center text-emerald-400 text-sm font-medium">
+                  Connecter <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
               </button>
+
+              <div className="bg-gradient-to-br from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/30 rounded-xl p-6 text-center">
+                <div className="w-14 h-14 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-7 h-7 text-[#c5a572]" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Plus d'outils</h3>
+                <p className="text-gray-400">De nouveaux outils arrivent bientôt...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Onglet Insights */}
+        {activeTab === 'insights' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-2">Analyses & Recommandations</h2>
+              <p className="text-xl text-gray-400">Vos insights fiscaux personnalisés</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Analyse principale */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Analyse de votre situation</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-[#162238]/50 rounded-lg">
+                      <span className="text-gray-400">TMI actuel</span>
+                      <span className="text-white font-semibold">{fiscalInsights?.tmi || 30}%</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#162238]/50 rounded-lg">
+                      <span className="text-gray-400">Revenus annuels</span>
+                      <span className="text-white font-semibold">{fiscalInsights?.revenusAnnuels || 45000}€</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-[#162238]/50 rounded-lg">
+                      <span className="text-gray-400">Économies potentielles</span>
+                      <span className="text-green-400 font-semibold">{fiscalInsights?.economiePotentielle || 2400}€</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center">
+                      <Lightbulb className="w-5 h-5 text-green-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Recommandations prioritaires</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="text-white font-medium">Optimisez votre épargne retraite</p>
+                        <p className="text-gray-400 text-sm">Ouvrez un PER pour réduire votre assiette imposable</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="text-white font-medium">Déclarez vos frais réels</p>
+                        <p className="text-gray-400 text-sm">Vous pourriez économiser jusqu'à 500€ par an</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <p className="text-white font-medium">Considérez l'investissement locatif</p>
+                        <p className="text-gray-400 text-sm">Avec votre profil, c'est une option intéressante</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg flex items-center justify-center">
+                      <Brain className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white">Niveau de conscience</h3>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-2xl font-bold text-purple-400">7/10</span>
+                    </div>
+                    <p className="text-white font-medium mb-1">Intermédiaire</p>
+                    <p className="text-gray-400 text-sm">Vous avez de bonnes bases fiscales</p>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg flex items-center justify-center">
+                      <Bell className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white">Prochaines échéances</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">Déclaration 2024</span>
+                      <span className="text-white text-sm font-medium">15 Mai 2024</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">ISF 2024</span>
+                      <span className="text-white text-sm font-medium">15 Juin 2024</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">Taxe foncière</span>
+                      <span className="text-white text-sm font-medium">15 Oct 2024</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-lg flex items-center justify-center">
+                      <Target className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white">Objectifs 2024</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <span className="text-white text-sm">Réduire le TMI de 2 points</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <span className="text-white text-sm">Économiser 3000€ d'impôts</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <span className="text-white text-sm">Optimiser l'épargne</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
