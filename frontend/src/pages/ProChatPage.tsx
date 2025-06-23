@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users } from 'lucide-react'; // Ajout de Briefcase, Users pour sélection client future
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -138,6 +138,13 @@ export function ProChatPage() {
                 <p className="text-sm text-gray-400">Assistant pour vos clients</p>
               </div>
             </div>
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-lg bg-[#0E2444]/50 border border-[#c5a572]/30 hover:bg-[#0E2444]/70 hover:border-[#c5a572]/50 transition-all duration-200"
+              title="Retour"
+            >
+              <ArrowLeft className="w-5 h-5 text-[#c5a572]" />
+            </button>
           </div>
         </div>
 
