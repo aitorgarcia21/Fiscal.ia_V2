@@ -865,3 +865,270 @@ async def extract_client_data_from_transcript(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de l'extraction des données : {str(e)}"
         ) 
+
+class DiscoveryExtractionRequest(BaseModel):
+    transcript: str
+    client_id: Optional[int] = None
+
+class DiscoveryExtractionResponse(BaseModel):
+    extracted_data: Dict[str, Any]
+    confidence: float
+    processing_time: float
+    validation_notes: List[str] = []
+    field_confidence: Dict[str, float] = {}
+
+@router.post("/extract-discovery-data", response_model=DiscoveryExtractionResponse)
+async def extract_discovery_data_from_transcript(
+    request: DiscoveryExtractionRequest,
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    """
+    Extrait automatiquement les informations de découverte à partir d'une transcription
+    de conversation entre un CGP et son client.
+    """
+    start_time = time.time()
+    
+    try:
+        # Préparer le prompt pour l'extraction de découverte
+        system_prompt = """
+        Tu es un expert en extraction d'informations fiscales et patrimoniales.
+        
+        Tu dois extraire les informations suivantes d'une conversation entre un CGP et son client :
+        
+        INFORMATIONS PERSONNELLES :
+        - age: âge du client (nombre)
+        - situation_familiale: 'celibataire', 'marie', 'pacs', 'divorce', 'veuf'
+        - nombre_enfants: nombre d'enfants à charge
+        - residence_fiscale: pays de résidence fiscale
+        
+        REVENUS ET ACTIVITÉ :
+        - revenus_principaux: revenus annuels principaux (nombre)
+        - activite_principale: 'salarie', 'independant', 'retraite', 'chomeur', 'etudiant'
+        - revenus_complementaires: liste des revenus complémentaires
+        - charges_deductibles: charges déductibles annuelles (nombre)
+        
+        PATRIMOINE :
+        - residence_principale: true/false si propriétaire résidence principale
+        - residence_secondaire: true/false si propriétaire résidence secondaire
+        - epargne_totale: montant total de l'épargne (nombre)
+        - investissements: liste des types d'investissements
+        
+        OBJECTIFS ET PROJETS :
+        - objectifs_court_terme: objectifs à moins de 2 ans
+        - objectifs_moyen_terme: objectifs 2-5 ans
+        - objectifs_long_terme: objectifs plus de 5 ans
+        
+        NIVEAU DE CONNAISSANCE :
+        - niveau_connaissance_fiscale: 'debutant', 'intermediaire', 'avance', 'expert'
+        - experience_investissement: 'aucune', 'faible', 'moyenne', 'elevee'
+        - tolerance_risque: 'conservateur', 'equilibre', 'dynamique'
+        
+        BESOINS SPÉCIFIQUES :
+        - besoins_specifiques: besoins particuliers mentionnés
+        - questions_prioritaires: questions principales du client
+        
+        OPTIMISATIONS SOUHAITÉES :
+        - optimisations_souhaitees: types d'optimisations recherchées
+        
+        RÈGLES :
+        - Si une information n'est pas mentionnée, utilise des valeurs par défaut appropriées
+        - Pour les montants, extrais uniquement les nombres
+        - Pour les listes, sépare par des virgules
+        - Sois précis et conservateur dans tes estimations
+        """
+        
+        # Appeler Francis pour l'extraction
+        answer, sources, confidence = await get_fiscal_response(
+            query=f"""
+            Extrais toutes les informations de découverte client de cette transcription de conversation CGP-client :
+            
+            TRANSCRIPTION :
+            {request.transcript}
+            
+            Retourne uniquement un JSON valide avec toutes les informations extraites.
+            """,
+            conversation_history=None
+        )
+        
+        # Parser la réponse JSON
+        try:
+            # Essayer d'extraire le JSON de la réponse
+            json_start = answer.find('{')
+            json_end = answer.rfind('}') + 1
+            if json_start != -1 and json_end != 0:
+                json_str = answer[json_start:json_end]
+                extracted_data = json.loads(json_str)
+            else:
+                # Fallback : parsing manuel des informations clés
+                extracted_data = parse_discovery_data_manually(request.transcript)
+        except json.JSONDecodeError:
+            logger.warning("Erreur parsing JSON, utilisation du fallback manuel")
+            extracted_data = parse_discovery_data_manually(request.transcript)
+        
+        # Valider et compléter les données extraites
+        validated_data = validate_and_complete_discovery_data(extracted_data)
+        
+        # Calculer la confiance par champ
+        field_confidence = calculate_field_confidence(extracted_data, request.transcript)
+        
+        # Notes de validation
+        validation_notes = generate_validation_notes(extracted_data, validated_data)
+        
+        processing_time = time.time() - start_time
+        
+        return DiscoveryExtractionResponse(
+            extracted_data=validated_data,
+            confidence=confidence,
+            processing_time=processing_time,
+            validation_notes=validation_notes,
+            field_confidence=field_confidence
+        )
+        
+    except Exception as e:
+        logger.error(f"Erreur dans l'extraction de découverte: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'extraction des données de découverte: {str(e)}"
+        )
+
+def parse_discovery_data_manually(transcript: str) -> Dict[str, Any]:
+    """Parse manuel des données de découverte en cas d'échec du JSON."""
+    data = {
+        "age": "",
+        "situation_familiale": "celibataire",
+        "nombre_enfants": 0,
+        "residence_fiscale": "france",
+        "revenus_principaux": "",
+        "activite_principale": "salarie",
+        "revenus_complementaires": [],
+        "charges_deductibles": "",
+        "residence_principale": False,
+        "residence_secondaire": False,
+        "epargne_totale": "",
+        "investissements": [],
+        "objectifs_court_terme": [],
+        "objectifs_moyen_terme": [],
+        "objectifs_long_terme": [],
+        "niveau_connaissance_fiscale": "debutant",
+        "experience_investissement": "aucune",
+        "tolerance_risque": "conservateur",
+        "besoins_specifiques": [],
+        "questions_prioritaires": "",
+        "optimisations_souhaitees": []
+    }
+    
+    # Extraction manuelle basique
+    transcript_lower = transcript.lower()
+    
+    # Âge
+    import re
+    age_match = re.search(r'(\d+)\s*(?:ans?|âge)', transcript_lower)
+    if age_match:
+        data["age"] = age_match.group(1)
+    
+    # Situation familiale
+    if any(word in transcript_lower for word in ['marié', 'mariée', 'couple']):
+        data["situation_familiale"] = "marie"
+    elif any(word in transcript_lower for word in ['pacs', 'pacsé']):
+        data["situation_familiale"] = "pacs"
+    elif any(word in transcript_lower for word in ['divorcé', 'divorcée']):
+        data["situation_familiale"] = "divorce"
+    elif any(word in transcript_lower for word in ['veuf', 'veuve']):
+        data["situation_familiale"] = "veuf"
+    
+    # Enfants
+    enfants_match = re.search(r'(\d+)\s*enfant', transcript_lower)
+    if enfants_match:
+        data["nombre_enfants"] = int(enfants_match.group(1))
+    
+    # Revenus
+    revenus_match = re.search(r'(\d+(?:\s*\d+)*)\s*(?:€|euros?|k|mille)', transcript_lower)
+    if revenus_match:
+        data["revenus_principaux"] = revenus_match.group(1).replace(' ', '')
+    
+    # Activité
+    if any(word in transcript_lower for word in ['indépendant', 'auto-entrepreneur', 'freelance']):
+        data["activite_principale"] = "independant"
+    elif any(word in transcript_lower for word in ['retraité', 'retraite']):
+        data["activite_principale"] = "retraite"
+    elif any(word in transcript_lower for word in ['chômeur', 'chômage']):
+        data["activite_principale"] = "chomeur"
+    elif any(word in transcript_lower for word in ['étudiant', 'étudiante']):
+        data["activite_principale"] = "etudiant"
+    
+    return data
+
+def validate_and_complete_discovery_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Valide et complète les données de découverte avec des valeurs par défaut."""
+    defaults = {
+        "age": "",
+        "situation_familiale": "celibataire",
+        "nombre_enfants": 0,
+        "residence_fiscale": "france",
+        "revenus_principaux": "",
+        "activite_principale": "salarie",
+        "revenus_complementaires": [],
+        "charges_deductibles": "",
+        "residence_principale": False,
+        "residence_secondaire": False,
+        "epargne_totale": "",
+        "investissements": [],
+        "objectifs_court_terme": [],
+        "objectifs_moyen_terme": [],
+        "objectifs_long_terme": [],
+        "niveau_connaissance_fiscale": "debutant",
+        "experience_investissement": "aucune",
+        "tolerance_risque": "conservateur",
+        "besoins_specifiques": [],
+        "questions_prioritaires": "",
+        "optimisations_souhaitees": []
+    }
+    
+    # Fusionner avec les valeurs par défaut
+    for key, default_value in defaults.items():
+        if key not in data or data[key] is None:
+            data[key] = default_value
+    
+    return data
+
+def calculate_field_confidence(extracted_data: Dict[str, Any], transcript: str) -> Dict[str, float]:
+    """Calcule la confiance pour chaque champ extrait."""
+    field_confidence = {}
+    transcript_lower = transcript.lower()
+    
+    # Logique de calcul de confiance basée sur la présence d'informations
+    for field, value in extracted_data.items():
+        confidence = 0.3  # Confiance de base
+        
+        if field == "age" and value:
+            confidence = 0.8
+        elif field == "situation_familiale" and value != "celibataire":
+            confidence = 0.9
+        elif field == "nombre_enfants" and value > 0:
+            confidence = 0.8
+        elif field == "revenus_principaux" and value:
+            confidence = 0.7
+        elif field == "activite_principale" and value != "salarie":
+            confidence = 0.8
+        
+        field_confidence[field] = min(confidence, 1.0)
+    
+    return field_confidence
+
+def generate_validation_notes(extracted_data: Dict[str, Any], validated_data: Dict[str, Any]) -> List[str]:
+    """Génère des notes de validation pour les données extraites."""
+    notes = []
+    
+    if not extracted_data.get("age"):
+        notes.append("Âge non détecté - à vérifier manuellement")
+    
+    if not extracted_data.get("revenus_principaux"):
+        notes.append("Revenus principaux non détectés - à préciser")
+    
+    if extracted_data.get("situation_familiale") == "celibataire":
+        notes.append("Situation familiale par défaut - à confirmer")
+    
+    if not extracted_data.get("objectifs_court_terme"):
+        notes.append("Objectifs à court terme non identifiés")
+    
+    return notes 

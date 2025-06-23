@@ -56,7 +56,8 @@ import {
   Smile,
   Baby,
   User,
-  UserCheck
+  UserCheck,
+  Mic
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
@@ -190,6 +191,12 @@ export function Dashboard() {
     optimisations_souhaitees: [] as string[]
   });
   const [discoveryProgress, setDiscoveryProgress] = useState(0);
+  
+  // États pour l'extraction automatique
+  const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
+  const [discoveryTranscript, setDiscoveryTranscript] = useState('');
+  const [isExtractingDiscovery, setIsExtractingDiscovery] = useState(false);
+  const [extractionResult, setExtractionResult] = useState<any>(null);
 
   // Données factices pour les outils
   const fiscalInsightsDefault = {
@@ -647,38 +654,79 @@ export function Dashboard() {
 
   const handleDiscoveryComplete = async () => {
     try {
-      // Sauvegarder les données de découverte
-      const response = await fetch('/api/user-discovery', {
+      const response = await fetch('/api/user-profile', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          user_id: user?.id,
-          discovery_data: discoveryData
+          ...discoveryData,
+          has_completed_discovery: true
         })
       });
 
       if (response.ok) {
-        // Générer un rapport personnalisé
-        const reportResponse = await fetch('/api/generate-personalized-report', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: user?.id,
-            discovery_data: discoveryData
-          })
-        });
-
-        if (reportResponse.ok) {
-          const report = await reportResponse.json();
-          // Afficher le rapport personnalisé
-          alert('Votre profil de découverte a été sauvegardé ! Francis peut maintenant vous donner des conseils ultra-personnalisés.');
-          setActiveTab('chat');
-          setInputMessage("Peux-tu me donner des conseils personnalisés basés sur mon profil ?");
-        }
+        setActiveTab('insights');
+        setDiscoveryStep(0);
+        setDiscoveryProgress(0);
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-      alert('Erreur lors de la sauvegarde, mais vous pouvez continuer à utiliser Francis.');
+      console.error('Erreur lors de la sauvegarde de la découverte:', error);
+    }
+  };
+
+  // Fonctions pour l'extraction automatique
+  const handleDiscoveryExtraction = async () => {
+    if (!discoveryTranscript.trim()) return;
+    
+    setIsExtractingDiscovery(true);
+    setExtractionResult(null);
+    
+    try {
+      const response = await fetch('/api/pro/extract-discovery-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          transcript: discoveryTranscript
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setExtractionResult(result);
+        
+        // Appliquer automatiquement les données extraites
+        if (result.extracted_data) {
+          setDiscoveryData(prev => ({
+            ...prev,
+            ...result.extracted_data
+          }));
+        }
+      } else {
+        throw new Error('Erreur lors de l\'extraction');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'extraction de découverte:', error);
+      setExtractionResult({
+        error: 'Erreur lors de l\'extraction des données'
+      });
+    } finally {
+      setIsExtractingDiscovery(false);
+    }
+  };
+
+  const applyExtractionResult = () => {
+    if (extractionResult?.extracted_data) {
+      setDiscoveryData(prev => ({
+        ...prev,
+        ...extractionResult.extracted_data
+      }));
+      setShowDiscoveryExtraction(false);
+      setDiscoveryTranscript('');
+      setExtractionResult(null);
     }
   };
 
@@ -933,6 +981,18 @@ export function Dashboard() {
               <h2 className="text-2xl font-bold text-white mb-2">Découvrez votre potentiel fiscal</h2>
               <p className="text-gray-400 mb-4">Répondez à quelques questions pour des conseils ultra-personnalisés</p>
               
+              {/* Bouton d'extraction automatique */}
+              <div className="mb-6">
+                <button
+                  onClick={() => setShowDiscoveryExtraction(true)}
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 mx-auto"
+                >
+                  <Mic className="w-5 h-5" />
+                  Remplir automatiquement par dictée
+                </button>
+                <p className="text-xs text-gray-500 mt-2">Collez la transcription de votre conversation CGP-client</p>
+              </div>
+              
               {/* Barre de progression */}
               <div className="w-full bg-[#1a2332] rounded-full h-2 mb-4">
                 <div 
@@ -942,6 +1002,106 @@ export function Dashboard() {
               </div>
               <p className="text-sm text-gray-400">Étape {discoveryStep + 1} sur 7</p>
             </div>
+
+            {/* Modal d'extraction automatique */}
+            {showDiscoveryExtraction && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-semibold text-white">Extraction automatique par dictée</h3>
+                    <button
+                      onClick={() => {
+                        setShowDiscoveryExtraction(false);
+                        setDiscoveryTranscript('');
+                        setExtractionResult(null);
+                      }}
+                      className="text-gray-400 hover:text-white"
+                      aria-label="Fermer la modal d'extraction"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Transcription de la conversation CGP-client
+                      </label>
+                      <textarea
+                        value={discoveryTranscript}
+                        onChange={(e) => setDiscoveryTranscript(e.target.value)}
+                        placeholder="Collez ici la transcription complète de votre conversation avec votre CGP..."
+                        className="w-full h-32 p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none resize-none"
+                      />
+                    </div>
+                    
+                    <button
+                      onClick={handleDiscoveryExtraction}
+                      disabled={!discoveryTranscript.trim() || isExtractingDiscovery}
+                      className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                    >
+                      {isExtractingDiscovery ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin" />
+                          Extraction en cours...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-5 h-5" />
+                          Extraire les informations
+                        </>
+                      )}
+                    </button>
+                    
+                    {/* Résultats de l'extraction */}
+                    {extractionResult && (
+                      <div className="mt-4 p-4 bg-[#162238] rounded-lg border border-[#c5a572]/20">
+                        {extractionResult.error ? (
+                          <div className="text-red-400 text-sm">
+                            {extractionResult.error}
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium text-white">Extraction réussie !</h4>
+                              <span className="text-sm text-gray-400">
+                                Confiance: {Math.round(extractionResult.confiance * 100)}%
+                              </span>
+                            </div>
+                            
+                            {extractionResult.validation_notes && extractionResult.validation_notes.length > 0 && (
+                              <div className="text-sm text-yellow-400">
+                                <p className="font-medium mb-1">Notes de validation :</p>
+                                <ul className="list-disc list-inside space-y-1">
+                                  {extractionResult.validation_notes.map((note: string, index: number) => (
+                                    <li key={index}>{note}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            <div className="flex gap-3">
+                              <button
+                                onClick={applyExtractionResult}
+                                className="flex-1 bg-[#c5a572] text-[#162238] px-4 py-2 rounded-lg font-medium hover:bg-[#e8cfa0] transition-colors"
+                              >
+                                Appliquer les données
+                              </button>
+                              <button
+                                onClick={() => setExtractionResult(null)}
+                                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                              >
+                                Recommencer
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Contenu des étapes */}
             <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6">
