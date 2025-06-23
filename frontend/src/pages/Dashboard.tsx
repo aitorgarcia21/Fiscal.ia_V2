@@ -790,7 +790,7 @@ export function Dashboard() {
 
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col max-w-6xl mx-auto p-4">
-        {/* Header moderne avec insights */}
+        {/* Header moderne */}
         <div className="mb-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -800,114 +800,65 @@ export function Dashboard() {
               Optimisez votre fiscalité avec l'IA la plus avancée
             </p>
           </div>
-
-          {/* Cartes d'insights rapides */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <Calculator className="w-6 h-6 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">TMI Estimé</p>
-                  <p className="text-2xl font-bold text-white">{fiscalInsights?.tmi || 30}%</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Économies potentielles</p>
-                  <p className="text-2xl font-bold text-white">{fiscalInsights?.economiePotentielle || 2400}€</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Niveau de conscience</p>
-                  <p className="text-2xl font-bold text-white">{fiscalInsights?.niveauConscience || 'Intermédiaire'}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                  <Bell className="w-6 h-6 text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Prochaine échéance</p>
-                  <p className="text-lg font-bold text-white">{fiscalInsights?.prochaineEcheance || '15 Mai'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Navigation des onglets améliorée */}
         <div className="flex items-center justify-center mb-8">
-          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-2 flex gap-2">
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'chat' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Chat Francis
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('tools')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'tools' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Calculator className="w-4 h-4" />
-                Outils
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('insights')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'insights' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Insights
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('discovery')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'discovery' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Découverte
-              </div>
-            </button>
+          <div className="bg-gradient-to-br from-[#1a2332]/80 to-[#162238]/80 backdrop-blur-sm border border-[#c5a572]/20 rounded-2xl p-1.5 shadow-lg">
+            <div className="flex gap-1">
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`px-8 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                  activeTab === 'chat' 
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] shadow-lg shadow-[#c5a572]/20' 
+                    : 'text-gray-400 hover:text-white hover:bg-[#162238]/60'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Chat Francis
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('tools')}
+                className={`px-8 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                  activeTab === 'tools' 
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] shadow-lg shadow-[#c5a572]/20' 
+                    : 'text-gray-400 hover:text-white hover:bg-[#162238]/60'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4" />
+                  Outils
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('insights')}
+                className={`px-8 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                  activeTab === 'insights' 
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] shadow-lg shadow-[#c5a572]/20' 
+                    : 'text-gray-400 hover:text-white hover:bg-[#162238]/60'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Insights
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('discovery')}
+                className={`px-8 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                  activeTab === 'discovery' 
+                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] shadow-lg shadow-[#c5a572]/20' 
+                    : 'text-gray-400 hover:text-white hover:bg-[#162238]/60'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Découverte
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
