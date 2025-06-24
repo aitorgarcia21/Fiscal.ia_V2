@@ -205,6 +205,11 @@ export function Dashboard() {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
+  // États pour la synthèse vocale de Francis
+  const [isFrancisSpeaking, setIsFrancisSpeaking] = useState(false);
+  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
+  const [voiceMode, setVoiceMode] = useState(false);
+
   // Données factices pour les outils
   const fiscalInsightsDefault = {
     tmi: userProfile?.tmi || 30,
@@ -642,6 +647,25 @@ export function Dashboard() {
     if (discoveryStep < 7) {
       setDiscoveryStep(discoveryStep + 1);
       setDiscoveryProgress(((discoveryStep + 1) / 7) * 100);
+      
+      // Poser la question vocale si le mode vocal est activé
+      if (voiceMode) {
+        const questions = [
+          "Parfait ! Maintenant, parlons de vos revenus et de votre activité. Quel est votre revenu principal annuel ?",
+          "Excellent ! Maintenant, décrivons votre patrimoine immobilier. Êtes-vous propriétaire de votre résidence principale ?",
+          "Très bien ! Parlons maintenant de vos objectifs et projets. Quels sont vos objectifs à court terme ?",
+          "Parfait ! Évaluons maintenant votre niveau de connaissance fiscale et financière. Comment évaluez-vous votre niveau ?",
+          "Excellent ! Maintenant, parlons de vos besoins spécifiques. Quelles sont vos questions prioritaires ?",
+          "Très bien ! Enfin, quelles optimisations souhaitez-vous explorer ?",
+          "Parfait ! Votre profil de découverte est maintenant complet. Francis peut vous donner des conseils ultra-personnalisés !"
+        ];
+        
+        if (discoveryStep + 1 < questions.length) {
+          setTimeout(() => {
+            speakQuestion(questions[discoveryStep + 1]);
+          }, 1000);
+        }
+      }
     }
   };
 
@@ -797,6 +821,76 @@ export function Dashboard() {
       console.error('Erreur lors de la transcription:', error);
       setIsTranscribing(false);
       alert('Erreur lors de la transcription audio. Veuillez réessayer.');
+    }
+  };
+
+  // Fonctions pour la synthèse vocale de Francis
+  const initializeSpeechSynthesis = () => {
+    if ('speechSynthesis' in window) {
+      const synthesis = window.speechSynthesis;
+      setSpeechSynthesis(synthesis);
+      return synthesis;
+    }
+    return null;
+  };
+
+  const speakQuestion = (question: string) => {
+    if (!speechSynthesis) {
+      const synthesis = initializeSpeechSynthesis();
+      if (!synthesis) {
+        console.error('Synthèse vocale non supportée');
+        return;
+      }
+    }
+
+    // Arrêter toute parole en cours
+    speechSynthesis?.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(question);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.9; // Vitesse légèrement plus lente
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    // Choisir une voix française si disponible
+    const voices = speechSynthesis?.getVoices() || [];
+    const frenchVoice = voices.find(voice => voice.lang.startsWith('fr'));
+    if (frenchVoice) {
+      utterance.voice = frenchVoice;
+    }
+
+    utterance.onstart = () => {
+      setIsFrancisSpeaking(true);
+    };
+
+    utterance.onend = () => {
+      setIsFrancisSpeaking(false);
+      // Démarrer automatiquement l'enregistrement après que Francis ait fini de parler
+      if (voiceMode) {
+        setTimeout(() => {
+          startRecording();
+        }, 500);
+      }
+    };
+
+    utterance.onerror = (event) => {
+      console.error('Erreur de synthèse vocale:', event);
+      setIsFrancisSpeaking(false);
+    };
+
+    speechSynthesis?.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    speechSynthesis?.cancel();
+    setIsFrancisSpeaking(false);
+  };
+
+  const toggleVoiceMode = () => {
+    setVoiceMode(!voiceMode);
+    if (voiceMode) {
+      stopSpeaking();
+      stopRecording();
     }
   };
 
@@ -1319,6 +1413,33 @@ export function Dashboard() {
                     <span className="text-sm">Transcription en cours...</span>
                   </div>
                 )}
+                
+                {/* Mode vocal Francis */}
+                <div className="mt-4 pt-4 border-t border-[#c5a572]/20">
+                  <button
+                    onClick={toggleVoiceMode}
+                    className={`px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center mx-auto ${
+                      voiceMode 
+                        ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white' 
+                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
+                    }`}
+                  >
+                    {isFrancisSpeaking ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Francis parle...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare className="w-5 h-5" />
+                        {voiceMode ? 'Désactiver' : 'Activer'} le mode vocal Francis
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    Francis pose les questions à haute voix et écoute vos réponses
+                  </p>
+                </div>
               </div>
               
               {/* Barre de progression */}
