@@ -135,7 +135,7 @@ const ProLandingPage = () => {
             Soyez <span className="text-[#c5a572]">100%</span> avec votre client
           </h2>
           <p className="text-xl text-gray-300 mb-6 max-w-3xl mx-auto">
-            Francis s'occupe du reste ! Concentrez-vous sur ce qui compte vraiment : <strong className="text-[#c5a572]">votre relation client</strong>.
+            L'IA ne vous remplace pas, <strong className="text-[#c5a572]">elle vous booste</strong> ! Concentrez-vous sur le relationnel, Francis s'occupe du reste.
           </p>
         </div>
 
@@ -180,7 +180,7 @@ const ProLandingPage = () => {
         <div className="text-center mt-12">
           <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/20 rounded-xl p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-white mb-4">
-              Le cœur de votre métier : <span className="text-[#c5a572]">la relation client</span>
+              L'IA vous <span className="text-[#c5a572]">booste</span>, pas vous remplace
             </h3>
             <p className="text-gray-300 mb-6">
               Pendant que Francis gère la technique, vous vous concentrez sur l'humain. C'est ça, l'excellence professionnelle.
