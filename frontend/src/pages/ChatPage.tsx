@@ -41,10 +41,17 @@ export function ChatPage() {
     if (!input.trim()) return;
 
     const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
     const currentInput = input;
+    
+    // Réponse instantanée - afficher immédiatement le message utilisateur
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+
+    // Scroll immédiat vers le bas
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
 
     let userProfileContext: UserProfileData | null = null;
     if (isAuthenticated && user && user.id) {
@@ -95,12 +102,17 @@ export function ChatPage() {
       }
     } catch (error: any) {
       console.error('Erreur lors de l\'envoi du message:', error);
-      setMessages(prev => [...prev, { 
+      const errorMessage: Message = {
         role: 'assistant', 
-        content: error.message || "Désolé, une erreur s'est produite. Veuillez réessayer." 
-      }]);
+        content: "Désolé, je rencontre un petit problème technique. Pouvez-vous reformuler votre question ? Je suis là pour vous aider !"
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      // Scroll final après la réponse
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 200);
     }
   };
 
@@ -116,8 +128,31 @@ export function ChatPage() {
   };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    // Scroll fluide vers le bas quand de nouveaux messages arrivent
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }
+    };
+    
+    // Petit délai pour laisser le temps au DOM de se mettre à jour
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [messages, isLoading]);
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend(e as any);
+    }
+  };
+
+  // Optimisation : éviter les re-renders inutiles
+  const memoizedMessages = React.useMemo(() => messages, [messages]);
 
   return (
     <div className="h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] flex flex-col">
@@ -154,7 +189,7 @@ export function ChatPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((message, index) => (
+          {memoizedMessages.map((message, index) => (
             <div 
               key={index} 
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -188,10 +223,13 @@ export function ChatPage() {
                     <div className="flex-shrink-0">
                         <Logo size="sm" />
                     </div>
-                    <div className="flex items-center space-x-1.5 bg-[#223c63]/80 p-3 rounded-lg rounded-bl-none shadow-md">
-                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="flex items-center space-x-3 bg-[#223c63]/80 p-4 rounded-lg rounded-bl-none shadow-md">
+                        <span className="text-gray-300 text-sm">Francis réfléchit...</span>
+                        <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -216,6 +254,7 @@ export function ChatPage() {
               placeholder="Posez votre question à Francis..."
               className="flex-1 px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
               disabled={isLoading}
+              onKeyDown={handleKeyPress}
             />
             
             {/* Bouton d'enregistrement vocal */}
