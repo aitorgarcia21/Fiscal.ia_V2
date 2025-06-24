@@ -96,64 +96,27 @@ export function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'insights' | 'discovery'>('chat');
-  const [fiscalInsights, setFiscalInsights] = useState<any>(null);
-  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
-  const [consciousnessTestResult, setConsciousnessTestResult] = useState<any>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  // Modales pour les outils
+  const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'discovery'>('chat');
+  const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
+  const [discoveryTranscript, setDiscoveryTranscript] = useState('');
+  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [isExtractingDiscovery, setIsExtractingDiscovery] = useState(false);
   const [showTmiModal, setShowTmiModal] = useState(false);
   const [showOptimizationModal, setShowOptimizationModal] = useState(false);
   const [showConsciousnessModal, setShowConsciousnessModal] = useState(false);
   const [showAlertsModal, setShowAlertsModal] = useState(false);
-  const [showInsightsModal, setShowInsightsModal] = useState(false);
-
-  // États pour les résultats
+  const [isLoadingTool, setIsLoadingTool] = useState(false);
   const [tmiResult, setTmiResult] = useState<any>(null);
   const [optimizationResult, setOptimizationResult] = useState<any>(null);
-  const [consciousnessResult, setConsciousnessResult] = useState<any>(null);
   const [alertsResult, setAlertsResult] = useState<any>(null);
-  const [isLoadingTool, setIsLoadingTool] = useState(false);
-
-  // États pour les formulaires
-  const [tmiForm, setTmiForm] = useState({
-    revenu_annuel: '',
-    situation_familiale: 'celibataire',
-    nombre_enfants: 0
-  });
-
-  const [optimizationForm, setOptimizationForm] = useState({
-    revenu_annuel: '',
-    situation_familiale: 'celibataire',
-    nombre_enfants: 0,
-    type_optimisation: 'toutes'
-  });
-
-  const [consciousnessForm, setConsciousnessForm] = useState({
-    niveau_connaissance: 'debutant',
-    experience_fiscale: 'aucune',
-    objectifs: 'comprendre'
-  });
-
-  const [alertsForm, setAlertsForm] = useState({
-    revenu_annuel: '',
-    situation_familiale: 'celibataire',
-    nombre_enfants: 0,
-    alertes_souhaitees: ['seuils_tmi', 'optimisations', 'changements_loi']
-  });
-
-  // États pour le test complet
   const [testQuestions, setTestQuestions] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [testReponses, setTestReponses] = useState<{[key: string]: string}>({});
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testReponses, setTestReponses] = useState<Record<string, string>>({});
   const [isTestComplete, setIsTestComplete] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
   const [showTestResults, setShowTestResults] = useState(false);
-
-  // États pour la section découverte
   const [discoveryStep, setDiscoveryStep] = useState(0);
   const [discoveryData, setDiscoveryData] = useState({
     // Informations personnelles
@@ -192,12 +155,35 @@ export function Dashboard() {
     optimisations_souhaitees: [] as string[]
   });
   const [discoveryProgress, setDiscoveryProgress] = useState(0);
-  
-  // États pour l'extraction automatique
-  const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
-  const [discoveryTranscript, setDiscoveryTranscript] = useState('');
-  const [isExtractingDiscovery, setIsExtractingDiscovery] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // États pour les formulaires
+  const [tmiForm, setTmiForm] = useState({
+    revenu_annuel: '',
+    situation_familiale: 'celibataire',
+    nombre_enfants: 0
+  });
+
+  const [optimizationForm, setOptimizationForm] = useState({
+    revenu_annuel: '',
+    situation_familiale: 'celibataire',
+    nombre_enfants: 0,
+    type_optimisation: 'toutes'
+  });
+
+  const [consciousnessForm, setConsciousnessForm] = useState({
+    niveau_connaissance: 'debutant',
+    experience_fiscale: 'aucune',
+    objectifs: 'comprendre'
+  });
+
+  const [alertsForm, setAlertsForm] = useState({
+    revenu_annuel: '',
+    situation_familiale: 'celibataire',
+    nombre_enfants: 0,
+    alertes_souhaitees: ['seuils_tmi', 'optimisations', 'changements_loi']
+  });
 
   // États pour l'enregistrement vocal
   const [isRecording, setIsRecording] = useState(false);
@@ -211,101 +197,80 @@ export function Dashboard() {
   const [voiceMode, setVoiceMode] = useState(false);
 
   // Données factices pour les outils
-  const fiscalInsightsDefault = {
-    tmi: userProfile?.tmi || 30,
-    economiePotentielle: 2400,
-    prochaineEcheance: '15 Mai 2024',
-    optimisationsDisponibles: 8,
-    niveauConscience: 'Intermédiaire',
-    scoreOptimisation: 65
-  };
-
-  const quickTools = [
+  const tools = [
     {
       id: 'tmi',
       title: 'Calculateur TMI',
-      description: 'Calculez votre Taux Marginal d\'Imposition en 30 secondes',
+      description: 'Calculez votre Taux Marginal d\'Imposition',
       icon: Calculator,
       color: 'from-blue-500 to-blue-600',
       action: () => setShowTmiModal(true)
     },
     {
+      id: 'consciousness',
+      title: 'Test de Conscience',
+      description: 'Évaluez votre niveau de conscience fiscale',
+      icon: Brain,
+      color: 'from-purple-500 to-purple-600',
+      action: () => handleConsciousnessTest()
+    },
+    {
       id: 'optimization',
       title: 'Simulateur d\'Optimisation',
-      description: 'Découvrez vos économies fiscales potentielles',
+      description: 'Découvrez vos économies potentielles',
       icon: TrendingUp,
       color: 'from-green-500 to-green-600',
       action: () => setShowOptimizationModal(true)
     },
     {
-      id: 'consciousness',
-      title: 'Test de Conscience',
-      description: 'Évaluez votre niveau de compréhension fiscale',
-      icon: Brain,
-      color: 'from-purple-500 to-purple-600',
-      action: () => setShowConsciousnessModal(true)
-    },
-    {
       id: 'alerts',
       title: 'Alertes Fiscales',
-      description: 'Recevez des alertes personnalisées sur votre situation',
+      description: 'Restez informé des opportunités',
       icon: Bell,
       color: 'from-orange-500 to-orange-600',
       action: () => setShowAlertsModal(true)
-    },
-    {
-      id: 'bank',
-      title: 'Connexion Bancaire',
-      description: 'Connectez votre compte bancaire pour une analyse précise',
-      icon: CreditCard,
-      color: 'from-emerald-500 to-emerald-600',
-      action: () => {
-        const clientId = import.meta.env.VITE_TRUELAYER_CLIENT_ID;
-        const env = import.meta.env.VITE_TRUELAYER_ENV || 'sandbox';
-        const authUrl = env === 'sandbox' 
-          ? 'https://auth.truelayer-sandbox.com'
-          : 'https://auth.truelayer.com';
-        
-        const redirectUri = `${window.location.origin}/truelayer-callback`;
-        const scope = 'accounts balance transactions';
-        
-        const url = `${authUrl}/?response_type=code&client_id=${clientId}&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}&providers=uk-ob-all uk-oauth-all`;
-        
-        window.location.href = url;
-      }
     }
   ];
 
-  const consciousnessLevels = [
-    {
-      level: 'Débutant',
-      description: 'Vous commencez votre parcours',
-      icon: Baby,
-      color: 'text-blue-400'
-    },
-    {
-      level: 'Intermédiaire',
-      description: 'Vous avez les bases',
-      icon: User,
-      color: 'text-green-400'
-    },
-    {
-      level: 'Avancé',
-      description: 'Vous maîtrisez bien',
-      icon: UserCheck,
-      color: 'text-purple-400'
-    },
-    {
-      level: 'Expert',
-      description: 'Vous êtes autonome',
-      icon: Crown,
-      color: 'text-yellow-400'
-    }
-  ];
-
+  // Charger le profil utilisateur au montage
   useEffect(() => {
+    const checkUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          const profileResponse = await fetch(`/user-profile/${userData.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            setUserProfile(profileData);
+            if (!profileData.has_completed_onboarding) {
+              setShowOnboarding(true);
+            }
+          }
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du profil:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
     checkUserProfile();
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'insights' && !fiscalInsights) {
@@ -319,45 +284,21 @@ export function Dashboard() {
     }
   }, [messages]);
 
-  const checkUserProfile = async () => {
-    if (!user?.id) return;
-    
+  const handleOnboardingComplete = async (profileData: any) => {
     try {
-      const response = await fetch('/api/user-profile', {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/user-profile/', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData)
       });
-      
+
       if (response.ok) {
         const profile = await response.json();
         setUserProfile(profile);
-        
-        if (!profile.has_completed_onboarding) {
-          setShowOnboarding(true);
-        }
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération du profil:', error);
-    }
-  };
-
-  const handleOnboardingComplete = async (profileData: any) => {
-    try {
-      const response = await fetch('/api/user-profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...profileData,
-          has_completed_onboarding: true
-        })
-      });
-
-      if (response.ok) {
-        const updatedProfile = await response.json();
-        setUserProfile(updatedProfile);
         setShowOnboarding(false);
       }
     } catch (error) {
@@ -381,49 +322,22 @@ export function Dashboard() {
       role: 'user',
       content: inputMessage,
       timestamp: new Date(),
-      attachments: selectedFiles.length > 0 ? selectedFiles : undefined
+      attachments: selectedFiles
     };
 
     setMessages(prev => [...prev, newMessage]);
     setInputMessage('');
     setSelectedFiles([]);
-    setIsLoading(true);
 
-    try {
-      const response = await fetch('/api/test-francis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          question: inputMessage,
-          conversation_history: messages.slice(-5),
-          user_profile: userProfile
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const assistantMessage: ChatMessage = {
-          role: 'assistant',
-          content: data.answer || 'Je suis désolé, je n\'ai pas pu traiter votre demande.',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, assistantMessage]);
-      } else {
-        throw new Error('Erreur lors de la communication avec Francis');
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      const errorMessage: ChatMessage = {
+    // Simuler une réponse de Francis
+    setTimeout(() => {
+      const francisResponse: ChatMessage = {
         role: 'assistant',
-        content: 'Désolé, je rencontre un problème technique. Pouvez-vous réessayer ?',
+        content: "Merci pour votre message ! Je suis Francis, votre assistant fiscal. Comment puis-je vous aider aujourd'hui ?",
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+      setMessages(prev => [...prev, francisResponse]);
+    }, 1000);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -434,33 +348,8 @@ export function Dashboard() {
   };
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const loadFiscalInsights = async () => {
-    if (!user?.id) return;
-    
-    setIsLoadingInsights(true);
-    try {
-      const response = await fetch('/api/tools/fiscal-insights', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify({ user_id: user.id })
-      });
-      
-      if (response.ok) {
-        const insights = await response.json();
-        setFiscalInsights(insights);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des insights:', error);
-    } finally {
-      setIsLoadingInsights(false);
-    }
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   const handleTmiCalculation = async () => {
@@ -474,7 +363,12 @@ export function Dashboard() {
       const response = await fetch('/api/tools/calculate-tmi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tmiForm)
+        body: JSON.stringify({
+          revenus_annuels: parseFloat(tmiForm.revenu_annuel),
+          situation_familiale: tmiForm.situation_familiale,
+          nombre_enfants: tmiForm.nombre_enfants,
+          charges_deductibles: 0
+        })
       });
       
       if (response.ok) {
@@ -952,19 +846,6 @@ export function Dashboard() {
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('insights')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'insights' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Insights
-              </div>
-            </button>
-            <button
               onClick={() => setActiveTab('discovery')}
               className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'discovery' 
@@ -1214,146 +1095,6 @@ export function Dashboard() {
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Plus d'outils</h3>
                 <p className="text-gray-400">De nouveaux outils arrivent bientôt...</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Onglet Insights */}
-        {activeTab === 'insights' && (
-          <div className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-2">Analyses & Recommandations</h2>
-              <p className="text-xl text-gray-400">Vos insights fiscaux personnalisés</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Analyse principale */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">Analyse de votre situation</h3>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-[#162238]/50 rounded-lg">
-                      <span className="text-gray-400">TMI actuel</span>
-                      <span className="text-white font-semibold">{fiscalInsights?.tmi || 30}%</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#162238]/50 rounded-lg">
-                      <span className="text-gray-400">Revenus annuels</span>
-                      <span className="text-white font-semibold">{fiscalInsights?.revenusAnnuels || 45000}€</span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-[#162238]/50 rounded-lg">
-                      <span className="text-gray-400">Économies potentielles</span>
-                      <span className="text-green-400 font-semibold">{fiscalInsights?.economiePotentielle || 2400}€</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg flex items-center justify-center">
-                      <Lightbulb className="w-5 h-5 text-green-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">Recommandations prioritaires</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                      <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-white font-medium">Optimisez votre épargne retraite</p>
-                        <p className="text-gray-400 text-sm">Ouvrez un PER pour réduire votre assiette imposable</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-white font-medium">Déclarez vos frais réels</p>
-                        <p className="text-gray-400 text-sm">Vous pourriez économiser jusqu'à 500€ par an</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-white font-medium">Considérez l'investissement locatif</p>
-                        <p className="text-gray-400 text-sm">Avec votre profil, c'est une option intéressante</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-6">
-                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg flex items-center justify-center">
-                      <Brain className="w-5 h-5 text-purple-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white">Niveau de conscience</h3>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl font-bold text-purple-400">7/10</span>
-                    </div>
-                    <p className="text-white font-medium mb-1">Intermédiaire</p>
-                    <p className="text-gray-400 text-sm">Vous avez de bonnes bases fiscales</p>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-orange-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white">Prochaines échéances</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Déclaration 2024</span>
-                      <span className="text-white text-sm font-medium">15 Mai 2024</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">ISF 2024</span>
-                      <span className="text-white text-sm font-medium">15 Juin 2024</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Taxe foncière</span>
-                      <span className="text-white text-sm font-medium">15 Oct 2024</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-lg flex items-center justify-center">
-                      <Target className="w-5 h-5 text-emerald-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white">Objectifs 2024</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                      <span className="text-white text-sm">Réduire le TMI de 2 points</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                      <span className="text-white text-sm">Économiser 3000€ d'impôts</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                      <span className="text-white text-sm">Optimiser l'épargne</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
