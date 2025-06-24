@@ -273,12 +273,6 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'insights' && !fiscalInsights) {
-      loadFiscalInsights();
-    }
-  }, [activeTab, fiscalInsights]);
-
-  useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -591,7 +585,6 @@ export function Dashboard() {
       });
 
       if (response.ok) {
-        setActiveTab('insights');
         setDiscoveryStep(0);
         setDiscoveryProgress(0);
       }
