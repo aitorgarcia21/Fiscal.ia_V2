@@ -129,64 +129,6 @@ export function ProDashboardPage() {
           </div>
         </div>
 
-        {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Total Clients</p>
-                <p className="text-2xl font-bold text-white">{clients.length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <Euro className="w-6 h-6 text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Clients Actifs</p>
-                <p className="text-2xl font-bold text-white">
-                  {clients.filter(c => c.statut_dossier_pro === 'Actif').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">Prospects</p>
-                <p className="text-2xl font-bold text-white">
-                  {clients.filter(c => c.statut_dossier_pro === 'Prospect').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center relative">
-                <div className="relative inline-flex items-center justify-center">
-                  <MessageSquareIcon className="h-8 w-8 text-[#c5a572]" />
-                  <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">IA Active</p>
-                <p className="text-2xl font-bold text-white">24/7</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Recherche améliorée */}
         <div className="mb-8">
           <div className="relative max-w-md">

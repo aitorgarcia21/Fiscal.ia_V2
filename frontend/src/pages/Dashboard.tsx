@@ -744,7 +744,6 @@ export function Dashboard() {
               <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
               <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <h1 className="text-lg font-semibold text-white">Francis</h1>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -790,18 +789,6 @@ export function Dashboard() {
 
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col max-w-6xl mx-auto p-4">
-        {/* Header moderne */}
-        <div className="mb-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Bienvenue sur votre Dashboard Fiscal
-            </h1>
-            <p className="text-xl text-gray-400">
-              Optimisez votre fiscalité avec l'IA la plus avancée
-            </p>
-          </div>
-        </div>
-
         {/* Navigation des onglets améliorée */}
         <div className="flex items-center justify-center mb-8">
           <div className="bg-gradient-to-br from-[#1a2332]/80 to-[#162238]/80 backdrop-blur-sm border border-[#c5a572]/20 rounded-2xl p-1.5 shadow-lg">
