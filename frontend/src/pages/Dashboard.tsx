@@ -57,7 +57,8 @@ import {
   Baby,
   User,
   UserCheck,
-  Mic
+  Mic,
+  MicOff
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
@@ -198,6 +199,12 @@ export function Dashboard() {
   const [discoveryTranscript, setDiscoveryTranscript] = useState('');
   const [isExtractingDiscovery, setIsExtractingDiscovery] = useState(false);
   const [extractionResult, setExtractionResult] = useState<any>(null);
+
+  // États pour l'enregistrement vocal
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   // Données factices pour les outils
   const fiscalInsightsDefault = {
@@ -731,6 +738,69 @@ export function Dashboard() {
     }
   };
 
+  // Fonctions pour l'enregistrement vocal
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        setAudioChunks(chunks);
+        setIsTranscribing(true);
+        
+        // Envoyer l'audio au backend pour transcription
+        await transcribeAudio(audioBlob);
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
+      alert('Impossible d\'accéder au microphone. Vérifiez les permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.wav');
+
+      const response = await fetch('/api/transcribe-audio', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setDiscoveryTranscript(result.transcription);
+        setIsTranscribing(false);
+      } else {
+        throw new Error('Erreur lors de la transcription');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la transcription:', error);
+      setIsTranscribing(false);
+      alert('Erreur lors de la transcription audio. Veuillez réessayer.');
+    }
+  };
+
   if (showOnboarding) {
     return <InitialProfileQuestions onComplete={handleOnboardingComplete} />;
   }
@@ -1206,659 +1276,47 @@ export function Dashboard() {
               
               {/* Bouton d'extraction automatique */}
               <div className="mb-6">
-                <button
-                  onClick={() => setShowDiscoveryExtraction(true)}
-                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 mx-auto"
-                >
-                  <Mic className="w-5 h-5" />
-                  Remplir automatiquement par dictée
-                </button>
-                <p className="text-xs text-gray-500 mt-2">Collez la transcription de votre conversation CGP-client</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => setShowDiscoveryExtraction(true)}
+                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center"
+                  >
+                    <Mic className="w-5 h-5" />
+                    Coller transcription
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (isRecording) {
+                        stopRecording();
+                      } else {
+                        startRecording();
+                      }
+                    }}
+                    className={`px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center ${
+                      isRecording 
+                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white' 
+                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
+                    }`}
+                  >
+                    {isRecording ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Arrêter l'enregistrement
+                      </>
+                    ) : (
+                      <>
+                        <MicOff className="w-5 h-5" />
+                        Enregistrer ma voix
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Collez une transcription ou enregistrez directement votre conversation
+                </p>
               </div>
               
               {/* Barre de progression */}
-              <div className="w-full bg-[#1a2332] rounded-full h-2 mb-4">
-                <div 
-                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${discoveryProgress}%` }}
-                ></div>
-              </div>
-              <p className="text-sm text-gray-400">Étape {discoveryStep + 1} sur 7</p>
-            </div>
-
-            {/* Modal d'extraction automatique */}
-            {showDiscoveryExtraction && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-white">Extraction automatique par dictée</h3>
-                    <button
-                      onClick={() => {
-                        setShowDiscoveryExtraction(false);
-                        setDiscoveryTranscript('');
-                        setExtractionResult(null);
-                      }}
-                      className="text-gray-400 hover:text-white"
-                      aria-label="Fermer la modal d'extraction"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Transcription de la conversation CGP-client
-                      </label>
-                      <textarea
-                        value={discoveryTranscript}
-                        onChange={(e) => setDiscoveryTranscript(e.target.value)}
-                        placeholder="Collez ici la transcription complète de votre conversation avec votre CGP..."
-                        className="w-full h-32 p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none resize-none"
-                      />
-                    </div>
-                    
-                    <button
-                      onClick={handleDiscoveryExtraction}
-                      disabled={!discoveryTranscript.trim() || isExtractingDiscovery}
-                      className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                    >
-                      {isExtractingDiscovery ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin" />
-                          Extraction en cours...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-5 h-5" />
-                          Extraire les informations
-                        </>
-                      )}
-                    </button>
-                    
-                    {/* Résultats de l'extraction */}
-                    {extractionResult && (
-                      <div className="mt-4 p-4 bg-[#162238] rounded-lg border border-[#c5a572]/20">
-                        {extractionResult.error ? (
-                          <div className="text-red-400 text-sm">
-                            {extractionResult.error}
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-medium text-white">Extraction réussie !</h4>
-                              <span className="text-sm text-gray-400">
-                                Confiance: {Math.round(extractionResult.confiance * 100)}%
-                              </span>
-                            </div>
-                            
-                            {extractionResult.validation_notes && extractionResult.validation_notes.length > 0 && (
-                              <div className="text-sm text-yellow-400">
-                                <p className="font-medium mb-1">Notes de validation :</p>
-                                <ul className="list-disc list-inside space-y-1">
-                                  {extractionResult.validation_notes.map((note: string, index: number) => (
-                                    <li key={index}>{note}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            
-                            <div className="flex gap-3">
-                              <button
-                                onClick={applyExtractionResult}
-                                className="flex-1 bg-[#c5a572] text-[#162238] px-4 py-2 rounded-lg font-medium hover:bg-[#e8cfa0] transition-colors"
-                              >
-                                Appliquer les données
-                              </button>
-                              <button
-                                onClick={() => setExtractionResult(null)}
-                                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors"
-                              >
-                                Recommencer
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Contenu des étapes */}
-            <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6">
-              {discoveryStep === 0 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <User className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Informations personnelles</h3>
-                    <p className="text-gray-400">Commençons par vos informations de base</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Âge</label>
-                      <input
-                        type="number"
-                        value={discoveryData.age}
-                        onChange={(e) => updateDiscoveryData('age', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        placeholder="Ex: 35"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
-                      <select
-                        value={discoveryData.situation_familiale}
-                        onChange={(e) => updateDiscoveryData('situation_familiale', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        aria-label="Sélectionner votre situation familiale"
-                      >
-                        <option value="celibataire">Célibataire</option>
-                        <option value="marie">Marié(e)</option>
-                        <option value="pacs">PACS</option>
-                        <option value="divorce">Divorcé(e)</option>
-                        <option value="veuf">Veuf/Veuve</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="10"
-                        value={discoveryData.nombre_enfants}
-                        onChange={(e) => updateDiscoveryData('nombre_enfants', parseInt(e.target.value))}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        placeholder="0"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Résidence fiscale</label>
-                      <select
-                        value={discoveryData.residence_fiscale}
-                        onChange={(e) => updateDiscoveryData('residence_fiscale', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                      >
-                        <option value="france">France</option>
-                        <option value="etranger">Étranger</option>
-                        <option value="expatrie">Expatrié</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 1 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <DollarSign className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Revenus et activité</h3>
-                    <p className="text-gray-400">Parlez-nous de vos sources de revenus</p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Revenus principaux annuels (€)</label>
-                      <input
-                        type="number"
-                        value={discoveryData.revenus_principaux}
-                        onChange={(e) => updateDiscoveryData('revenus_principaux', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        placeholder="Ex: 45000"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Activité principale</label>
-                      <select
-                        value={discoveryData.activite_principale}
-                        onChange={(e) => updateDiscoveryData('activite_principale', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                      >
-                        <option value="salarie">Salarié</option>
-                        <option value="independant">Indépendant</option>
-                        <option value="chef_entreprise">Chef d'entreprise</option>
-                        <option value="retraite">Retraité</option>
-                        <option value="etudiant">Étudiant</option>
-                        <option value="chomeur">Chômeur</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Revenus complémentaires</label>
-                      <div className="space-y-2">
-                        {['Location', 'Dividendes', 'Intérêts', 'Plus-values', 'Pensions', 'Aucun'].map((revenu) => (
-                          <label key={revenu} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={discoveryData.revenus_complementaires.includes(revenu.toLowerCase())}
-                              onChange={(e) => {
-                                const newRevenus = e.target.checked
-                                  ? [...discoveryData.revenus_complementaires, revenu.toLowerCase()]
-                                  : discoveryData.revenus_complementaires.filter(r => r !== revenu.toLowerCase());
-                                updateDiscoveryData('revenus_complementaires', newRevenus);
-                              }}
-                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <span className="text-gray-300">{revenu}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles annuelles (€)</label>
-                      <input
-                        type="number"
-                        value={discoveryData.charges_deductibles}
-                        onChange={(e) => updateDiscoveryData('charges_deductibles', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        placeholder="Ex: 5000"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 2 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <Building2 className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Patrimoine immobilier</h3>
-                    <p className="text-gray-400">Décrivez votre situation immobilière</p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-[#162238] rounded-lg">
-                      <div>
-                        <h4 className="font-medium text-white">Résidence principale</h4>
-                        <p className="text-sm text-gray-400">Êtes-vous propriétaire de votre résidence principale ?</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={discoveryData.residence_principale}
-                          onChange={(e) => updateDiscoveryData('residence_principale', e.target.checked)}
-                          className="sr-only peer"
-                          aria-label="Propriétaire de sa résidence principale"
-                        />
-                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#c5a572]"></div>
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 bg-[#162238] rounded-lg">
-                      <div>
-                        <h4 className="font-medium text-white">Résidence secondaire</h4>
-                        <p className="text-sm text-gray-400">Possédez-vous une résidence secondaire ?</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={discoveryData.residence_secondaire}
-                          onChange={(e) => updateDiscoveryData('residence_secondaire', e.target.checked)}
-                          className="sr-only peer"
-                          aria-label="Propriétaire d'une résidence secondaire"
-                        />
-                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#c5a572]"></div>
-                      </label>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Épargne totale (€)</label>
-                      <input
-                        type="number"
-                        value={discoveryData.epargne_totale}
-                        onChange={(e) => updateDiscoveryData('epargne_totale', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        placeholder="Ex: 50000"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Types d'investissements</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['Actions', 'Obligations', 'SCPI', 'PEA', 'Assurance-vie', 'Crypto', 'Or', 'Aucun'].map((invest) => (
-                          <label key={invest} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={discoveryData.investissements.includes(invest.toLowerCase())}
-                              onChange={(e) => {
-                                const newInvest = e.target.checked
-                                  ? [...discoveryData.investissements, invest.toLowerCase()]
-                                  : discoveryData.investissements.filter(i => i !== invest.toLowerCase());
-                                updateDiscoveryData('investissements', newInvest);
-                              }}
-                              className="mr-2 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <span className="text-sm text-gray-300">{invest}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 3 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <Target className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Objectifs et projets</h3>
-                    <p className="text-gray-400">Quels sont vos projets à court, moyen et long terme ?</p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="font-medium text-white mb-3">Objectifs à court terme (1-3 ans)</h4>
-                      <div className="space-y-2">
-                        {['Acheter un bien immobilier', 'Constituer une épargne de sécurité', 'Financer un projet personnel', 'Optimiser mes impôts', 'Aucun objectif spécifique'].map((objectif) => (
-                          <label key={objectif} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={discoveryData.objectifs_court_terme.includes(objectif.toLowerCase())}
-                              onChange={(e) => {
-                                const newObjectifs = e.target.checked
-                                  ? [...discoveryData.objectifs_court_terme, objectif.toLowerCase()]
-                                  : discoveryData.objectifs_court_terme.filter(o => o !== objectif.toLowerCase());
-                                updateDiscoveryData('objectifs_court_terme', newObjectifs);
-                              }}
-                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <span className="text-gray-300">{objectif}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-white mb-3">Objectifs à moyen terme (3-10 ans)</h4>
-                      <div className="space-y-2">
-                        {['Développer mon patrimoine', 'Préparer ma retraite', 'Financer les études des enfants', 'Diversifier mes investissements', 'Aucun objectif spécifique'].map((objectif) => (
-                          <label key={objectif} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={discoveryData.objectifs_moyen_terme.includes(objectif.toLowerCase())}
-                              onChange={(e) => {
-                                const newObjectifs = e.target.checked
-                                  ? [...discoveryData.objectifs_moyen_terme, objectif.toLowerCase()]
-                                  : discoveryData.objectifs_moyen_terme.filter(o => o !== objectif.toLowerCase());
-                                updateDiscoveryData('objectifs_moyen_terme', newObjectifs);
-                              }}
-                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <span className="text-gray-300">{objectif}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-white mb-3">Objectifs à long terme (10+ ans)</h4>
-                      <div className="space-y-2">
-                        {['Transmettre mon patrimoine', 'Assurer mon indépendance financière', 'Préparer la succession', 'Aucun objectif spécifique'].map((objectif) => (
-                          <label key={objectif} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={discoveryData.objectifs_long_terme.includes(objectif.toLowerCase())}
-                              onChange={(e) => {
-                                const newObjectifs = e.target.checked
-                                  ? [...discoveryData.objectifs_long_terme, objectif.toLowerCase()]
-                                  : discoveryData.objectifs_long_terme.filter(o => o !== objectif.toLowerCase());
-                                updateDiscoveryData('objectifs_long_terme', newObjectifs);
-                              }}
-                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <span className="text-gray-300">{objectif}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 4 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <Brain className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Niveau de connaissance</h3>
-                    <p className="text-gray-400">Évaluez votre niveau de connaissance fiscale et financière</p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-3">Niveau de connaissance fiscale</label>
-                      <div className="space-y-2">
-                        {[
-                          { value: 'debutant', label: 'Débutant', desc: 'Je découvre la fiscalité' },
-                          { value: 'intermediaire', label: 'Intermédiaire', desc: 'J\'ai quelques notions' },
-                          { value: 'avance', label: 'Avancé', desc: 'Je maîtrise bien le sujet' },
-                          { value: 'expert', label: 'Expert', desc: 'Je suis très compétent' }
-                        ].map((niveau) => (
-                          <label key={niveau.value} className="flex items-center p-3 bg-[#162238] rounded-lg cursor-pointer hover:bg-[#162238]/80">
-                            <input
-                              type="radio"
-                              name="niveau_connaissance"
-                              value={niveau.value}
-                              checked={discoveryData.niveau_connaissance_fiscale === niveau.value}
-                              onChange={(e) => updateDiscoveryData('niveau_connaissance_fiscale', e.target.value)}
-                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <div>
-                              <div className="font-medium text-white">{niveau.label}</div>
-                              <div className="text-sm text-gray-400">{niveau.desc}</div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-3">Expérience en investissement</label>
-                      <select
-                        value={discoveryData.experience_investissement}
-                        onChange={(e) => updateDiscoveryData('experience_investissement', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                      >
-                        <option value="aucune">Aucune expérience</option>
-                        <option value="debutant">Débutant (quelques mois)</option>
-                        <option value="intermediaire">Intermédiaire (1-3 ans)</option>
-                        <option value="confirme">Confirmé (3-10 ans)</option>
-                        <option value="expert">Expert (10+ ans)</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-3">Tolérance au risque</label>
-                      <div className="space-y-2">
-                        {[
-                          { value: 'conservateur', label: 'Conservateur', desc: 'Je privilégie la sécurité' },
-                          { value: 'modere', label: 'Modéré', desc: 'J\'accepte un risque limité' },
-                          { value: 'dynamique', label: 'Dynamique', desc: 'Je recherche la performance' },
-                          { value: 'agressif', label: 'Agressif', desc: 'Je maximise le rendement' }
-                        ].map((risque) => (
-                          <label key={risque.value} className="flex items-center p-3 bg-[#162238] rounded-lg cursor-pointer hover:bg-[#162238]/80">
-                            <input
-                              type="radio"
-                              name="tolerance_risque"
-                              value={risque.value}
-                              checked={discoveryData.tolerance_risque === risque.value}
-                              onChange={(e) => updateDiscoveryData('tolerance_risque', e.target.value)}
-                              className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <div>
-                              <div className="font-medium text-white">{risque.label}</div>
-                              <div className="text-sm text-gray-400">{risque.desc}</div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 5 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <Lightbulb className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Besoins spécifiques</h3>
-                    <p className="text-gray-400">Quels sont vos besoins et questions prioritaires ?</p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-3">Besoins spécifiques</label>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {[
-                          'Optimisation fiscale', 'Planification retraite', 'Transmission patrimoine',
-                          'Investissement immobilier', 'Gestion de l\'épargne', 'Réduction d\'impôts',
-                          'Conseils juridiques', 'Aucun besoin spécifique'
-                        ].map((besoin) => (
-                          <label key={besoin} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={discoveryData.besoins_specifiques.includes(besoin.toLowerCase())}
-                              onChange={(e) => {
-                                const newBesoins = e.target.checked
-                                  ? [...discoveryData.besoins_specifiques, besoin.toLowerCase()]
-                                  : discoveryData.besoins_specifiques.filter(b => b !== besoin.toLowerCase());
-                                updateDiscoveryData('besoins_specifiques', newBesoins);
-                              }}
-                              className="mr-2 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                            />
-                            <span className="text-sm text-gray-300">{besoin}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Questions prioritaires</label>
-                      <textarea
-                        value={discoveryData.questions_prioritaires}
-                        onChange={(e) => updateDiscoveryData('questions_prioritaires', e.target.value)}
-                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
-                        rows={4}
-                        placeholder="Ex: Comment optimiser mes impôts ? Quels investissements pour ma retraite ?..."
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 6 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <TrendingUp className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Optimisations souhaitées</h3>
-                    <p className="text-gray-400">Quels types d'optimisations vous intéressent le plus ?</p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {[
-                        { id: 'reduction_impots', label: 'Réduction d\'impôts', icon: '💰' },
-                        { id: 'epargne_retraite', label: 'Épargne retraite', icon: '🏦' },
-                        { id: 'investissement_immobilier', label: 'Investissement immobilier', icon: '🏠' },
-                        { id: 'transmission', label: 'Transmission patrimoine', icon: '👨‍👩‍👧‍👦' },
-                        { id: 'optimisation_sociale', label: 'Optimisation sociale', icon: '📊' },
-                        { id: 'investissement_financier', label: 'Investissement financier', icon: '📈' },
-                        { id: 'defiscalisation', label: 'Défiscalisation', icon: '🎯' },
-                        { id: 'conseils_personnalises', label: 'Conseils personnalisés', icon: '🎓' }
-                      ].map((opti) => (
-                        <label key={opti.id} className="flex items-center p-4 bg-[#162238] rounded-lg cursor-pointer hover:bg-[#162238]/80 border border-[#c5a572]/20">
-                          <input
-                            type="checkbox"
-                            checked={discoveryData.optimisations_souhaitees.includes(opti.id)}
-                            onChange={(e) => {
-                              const newOptis = e.target.checked
-                                ? [...discoveryData.optimisations_souhaitees, opti.id]
-                                : discoveryData.optimisations_souhaitees.filter(o => o !== opti.id);
-                              updateDiscoveryData('optimisations_souhaitees', newOptis);
-                            }}
-                            className="mr-3 text-[#c5a572] bg-[#162238] border-[#c5a572]/20 focus:ring-[#c5a572]"
-                          />
-                          <span className="text-2xl mr-3">{opti.icon}</span>
-                          <span className="text-gray-300">{opti.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {discoveryStep === 7 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#c5a572]/10">
-                      <CheckCircle className="w-8 h-8 text-[#c5a572]" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Récapitulatif</h3>
-                    <p className="text-gray-400">Vérifiez vos informations avant de finaliser</p>
-                  </div>
-                  
-                  <div className="bg-[#162238] rounded-lg p-4 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-medium text-white mb-2">Informations personnelles</h4>
-                        <p className="text-sm text-gray-400">Âge: {discoveryData.age || 'Non renseigné'}</p>
-                        <p className="text-sm text-gray-400">Situation: {discoveryData.situation_familiale}</p>
-                        <p className="text-sm text-gray-400">Enfants: {discoveryData.nombre_enfants}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-white mb-2">Revenus</h4>
-                        <p className="text-sm text-gray-400">Principaux: {discoveryData.revenus_principaux || 'Non renseigné'}€</p>
-                        <p className="text-sm text-gray-400">Activité: {discoveryData.activite_principale}</p>
-                        <p className="text-sm text-gray-400">Complémentaires: {discoveryData.revenus_complementaires.length}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-3 border-t border-[#c5a572]/20">
-                      <h4 className="font-medium text-white mb-2">Objectifs principaux</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {discoveryData.objectifs_court_terme.slice(0, 2).map((obj, index) => (
-                          <span key={index} className="px-2 py-1 bg-[#c5a572]/20 text-[#c5a572] text-xs rounded">
-                            {obj}
-                          </span>
-                        ))}
-                        {discoveryData.objectifs_moyen_terme.slice(0, 2).map((obj, index) => (
-                          <span key={index} className="px-2 py-1 bg-[#c5a572]/20 text-[#c5a572] text-xs rounded">
-                            {obj}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <p className="text-gray-400 mb-4">
-                      En finalisant, Francis pourra vous donner des conseils ultra-personnalisés basés sur votre profil complet !
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Navigation */}
             <div className="flex justify-between">
               <button
@@ -1888,6 +1346,154 @@ export function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Modal d'extraction automatique */}
+      {showDiscoveryExtraction && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-white">Extraction automatique par dictée</h3>
+              <button
+                onClick={() => {
+                  setShowDiscoveryExtraction(false);
+                  setDiscoveryTranscript('');
+                  setExtractionResult(null);
+                  if (isRecording) {
+                    stopRecording();
+                  }
+                }}
+                className="text-gray-400 hover:text-white"
+                aria-label="Fermer la modal d'extraction"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Section enregistrement vocal */}
+              <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
+                <h4 className="text-lg font-medium text-white mb-3">Enregistrement vocal</h4>
+                <div className="flex items-center gap-3 mb-3">
+                  <button
+                    onClick={() => {
+                      if (isRecording) {
+                        stopRecording();
+                      } else {
+                        startRecording();
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                      isRecording 
+                        ? 'bg-red-600 text-white hover:bg-red-700' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {isRecording ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Arrêter
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-4 h-4" />
+                        Enregistrer
+                      </>
+                    )}
+                  </button>
+                  {isTranscribing && (
+                    <div className="flex items-center gap-2 text-blue-400">
+                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-sm">Transcription en cours...</span>
+                    </div>
+                  )}
+                </div>
+                {isRecording && (
+                  <p className="text-sm text-yellow-400">
+                    🎤 Enregistrement en cours... Cliquez sur "Arrêter" quand vous avez fini de parler.
+                  </p>
+                )}
+              </div>
+
+              {/* Section transcription manuelle */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Transcription de la conversation CGP-client
+                </label>
+                <textarea
+                  value={discoveryTranscript}
+                  onChange={(e) => setDiscoveryTranscript(e.target.value)}
+                  placeholder="Collez ici la transcription complète de votre conversation avec votre CGP ou utilisez l'enregistrement vocal ci-dessus..."
+                  className="w-full h-32 p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none resize-none"
+                />
+              </div>
+              
+              <button
+                onClick={handleDiscoveryExtraction}
+                disabled={!discoveryTranscript.trim() || isExtractingDiscovery}
+                className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              >
+                {isExtractingDiscovery ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin" />
+                    Extraction en cours...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5" />
+                    Extraire les informations
+                  </>
+                )}
+              </button>
+              
+              {/* Résultats de l'extraction */}
+              {extractionResult && (
+                <div className="mt-4 p-4 bg-[#162238] rounded-lg border border-[#c5a572]/20">
+                  {extractionResult.error ? (
+                    <div className="text-red-400 text-sm">
+                      {extractionResult.error}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-white">Extraction réussie !</h4>
+                        <span className="text-sm text-gray-400">
+                          Confiance: {Math.round(extractionResult.confiance * 100)}%
+                        </span>
+                      </div>
+                      
+                      {extractionResult.validation_notes && extractionResult.validation_notes.length > 0 && (
+                        <div className="text-sm text-yellow-400">
+                          <p className="font-medium mb-1">Notes de validation :</p>
+                          <ul className="list-disc list-inside space-y-1">
+                            {extractionResult.validation_notes.map((note: string, index: number) => (
+                              <li key={index}>{note}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      <div className="flex gap-3">
+                        <button
+                          onClick={applyExtractionResult}
+                          className="flex-1 bg-[#c5a572] text-[#162238] px-4 py-2 rounded-lg font-medium hover:bg-[#e8cfa0] transition-colors"
+                        >
+                          Appliquer les données
+                        </button>
+                        <button
+                          onClick={() => setExtractionResult(null)}
+                          className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                        >
+                          Recommencer
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modale Calculateur TMI */}
       {showTmiModal && (

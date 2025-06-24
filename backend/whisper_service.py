@@ -168,4 +168,28 @@ def get_whisper_service() -> WhisperTranscriptionService:
     global _whisper_service
     if _whisper_service is None:
         _whisper_service = WhisperTranscriptionService()
-    return _whisper_service 
+    return _whisper_service
+
+def transcribe_audio_file(audio_path: str) -> str:
+    """
+    Fonction simple pour transcrire un fichier audio.
+    
+    Args:
+        audio_path: Chemin vers le fichier audio
+        
+    Returns:
+        Texte transcrit
+    """
+    try:
+        service = get_whisper_service()
+        result = service.transcribe_audio_file(audio_path)
+        
+        if result.get("error"):
+            logger.error(f"Erreur de transcription: {result['error']}")
+            return ""
+        
+        return result.get("text", "")
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de la transcription: {e}")
+        return "" 
