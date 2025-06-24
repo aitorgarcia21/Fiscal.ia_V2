@@ -47,33 +47,18 @@ const ProLandingPage = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
-            {!isLoadingAuth && (
-              <>
-                {!isAuthenticated || !isProfessional ? (
-                  <>
-                    <button
-                      onClick={() => navigate('/signup')}
-                      className="text-gray-300 hover:text-[#c5a572] transition-colors"
-                    >
-                      Connexion Pro
-                    </button>
-                    <button
-                      onClick={() => navigate('/signup')}
-                      className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-4 py-2 rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300 font-semibold"
-                    >
-                      Inscription Pro
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => navigate('/pro/dashboard')}
-                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-4 py-2 rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300 font-semibold"
-                  >
-                    Dashboard Pro
-                  </button>
-                )}
-              </>
-            )}
+            <button
+              onClick={() => navigate('/pro/login')}
+              className="text-gray-300 hover:text-[#c5a572] transition-colors"
+            >
+              Connexion
+            </button>
+            <button
+              onClick={() => navigate('/pro/signup')}
+              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-4 py-2 rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300 font-semibold"
+            >
+              Inscription
+            </button>
           </div>
         </div>
       </header>
