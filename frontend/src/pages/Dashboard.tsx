@@ -466,7 +466,7 @@ export function Dashboard() {
 
     setIsLoadingTool(true);
     try {
-      const response = await fetch('/api/calculate-tmi', {
+      const response = await fetch('/api/tools/calculate-tmi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tmiForm)
@@ -496,7 +496,7 @@ export function Dashboard() {
 
     setIsLoadingTool(true);
     try {
-      const response = await fetch('/api/simulate-optimization', {
+      const response = await fetch('/api/tools/simulate-optimization', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(optimizationForm)
@@ -521,7 +521,7 @@ export function Dashboard() {
   // Fonction pour charger les questions du test
   const loadTestQuestions = async () => {
     try {
-      const response = await fetch('/api/consciousness-test', {
+      const response = await fetch('/api/tools/consciousness-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
@@ -570,7 +570,7 @@ export function Dashboard() {
   const calculateTestResults = async () => {
     setIsLoadingTool(true);
     try {
-      const response = await fetch('/api/consciousness-test', {
+      const response = await fetch('/api/tools/consciousness-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(testReponses)
@@ -615,7 +615,7 @@ export function Dashboard() {
 
     setIsLoadingTool(true);
     try {
-      const response = await fetch('/api/fiscal-alerts', {
+      const response = await fetch('/api/tools/fiscal-alerts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(alertsForm)
