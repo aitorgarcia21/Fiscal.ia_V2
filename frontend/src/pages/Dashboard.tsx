@@ -355,8 +355,88 @@ export function Dashboard() {
         const result = await response.json();
         setTmiResult(result);
         setShowTmiModal(false);
-        // Afficher le résultat dans une alerte stylée
-        alert(`Votre TMI : ${result.tmi}%\nRevenu imposable : ${result.revenu_imposable}€\nImpôt estimé : ${result.impot_estime}€`);
+        
+        // Afficher le résultat dans une modal détaillée au lieu d'une alerte
+        const resultModal = document.createElement('div');
+        resultModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+        resultModal.innerHTML = `
+          <div class="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-white">Résultats TMI 2025</h3>
+              <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="space-y-6">
+              <!-- Résumé principal -->
+              <div class="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/20 rounded-lg p-4">
+                <div class="text-center">
+                  <div class="text-3xl font-bold text-[#c5a572] mb-2">${result.tmi}%</div>
+                  <div class="text-white font-medium">Taux Marginal d'Imposition</div>
+                  <div class="text-gray-400 text-sm">Barème 2025</div>
+                </div>
+              </div>
+              
+              <!-- Détails du calcul -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-[#162238] rounded-lg p-4">
+                  <h4 class="font-medium text-white mb-2">Revenu imposable</h4>
+                  <div class="text-2xl font-bold text-[#c5a572]">${result.revenu_imposable.toLocaleString('fr-FR')}€</div>
+                </div>
+                <div class="bg-[#162238] rounded-lg p-4">
+                  <h4 class="font-medium text-white mb-2">Impôt estimé</h4>
+                  <div class="text-2xl font-bold text-[#c5a572]">${result.impot_estime.toLocaleString('fr-FR')}€</div>
+                </div>
+                <div class="bg-[#162238] rounded-lg p-4">
+                  <h4 class="font-medium text-white mb-2">Taux moyen</h4>
+                  <div class="text-2xl font-bold text-[#c5a572]">${result.taux_moyen.toFixed(1)}%</div>
+                </div>
+                <div class="bg-[#162238] rounded-lg p-4">
+                  <h4 class="font-medium text-white mb-2">Année fiscale</h4>
+                  <div class="text-2xl font-bold text-[#c5a572]">2025</div>
+                </div>
+              </div>
+              
+              <!-- Tranches applicables -->
+              ${result.tranches_applicables.length > 0 ? `
+                <div>
+                  <h4 class="font-medium text-white mb-3">Détail des tranches</h4>
+                  <div class="space-y-2">
+                    ${result.tranches_applicables.map(tranche => `
+                      <div class="flex justify-between items-center bg-[#162238] rounded-lg p-3">
+                        <div>
+                          <div class="text-white font-medium">${tranche.tranche}</div>
+                          <div class="text-gray-400 text-sm">Base: ${tranche.base_imposable}</div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-[#c5a572] font-bold">${tranche.taux}</div>
+                          <div class="text-gray-400 text-sm">${tranche.impot_tranche}</div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+              
+              <!-- Conseils d'optimisation -->
+              <div>
+                <h4 class="font-medium text-white mb-3">Conseils d'optimisation 2025</h4>
+                <div class="space-y-2">
+                  ${result.conseils_optimisation.map(conseil => `
+                    <div class="flex items-start gap-3 bg-[#162238] rounded-lg p-3">
+                      <div class="text-[#c5a572] text-lg">${conseil.split(' ')[0]}</div>
+                      <div class="text-gray-300 text-sm">${conseil.substring(conseil.indexOf(' ') + 1)}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(resultModal);
       } else {
         alert('Erreur lors du calcul');
       }
@@ -1094,7 +1174,7 @@ export function Dashboard() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-md w-full">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Calculateur TMI</h3>
+                <h3 className="text-xl font-bold text-white">Calculateur TMI 2025</h3>
                 <button
                   onClick={() => setShowTmiModal(false)}
                   className="text-gray-400 hover:text-white"
