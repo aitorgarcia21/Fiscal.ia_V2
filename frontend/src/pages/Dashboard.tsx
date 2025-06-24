@@ -1367,79 +1367,18 @@ export function Dashboard() {
               <h2 className="text-2xl font-bold text-white mb-2">Découvrez votre potentiel fiscal</h2>
               <p className="text-gray-400 mb-4">Répondez à quelques questions pour des conseils ultra-personnalisés</p>
               
-              {/* Boutons de dictée */}
+              {/* Bouton pour compléter le profil avec Francis */}
               <div className="mb-6">
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button
-                    onClick={() => setShowDiscoveryExtraction(true)}
-                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center"
-                  >
-                    <Mic className="w-5 h-5" />
-                    Coller transcription
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (isRecording) {
-                        stopRecording();
-                      } else {
-                        startRecording();
-                      }
-                    }}
-                    className={`px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center ${
-                      isRecording 
-                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white' 
-                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
-                    }`}
-                  >
-                    {isRecording ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Arrêter l'enregistrement
-                      </>
-                    ) : (
-                      <>
-                        <MicOff className="w-5 h-5" />
-                        Enregistrer ma voix
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowDiscoveryExtraction(true)}
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center mx-auto text-lg"
+                >
+                  <MessageSquare className="w-6 h-6" />
+                  Compléter mon profil avec Francis
+                </button>
                 <p className="text-xs text-gray-500 mt-2 text-center">
-                  Collez une transcription ou enregistrez directement votre conversation
+                  Francis vous guide vocalement et remplit automatiquement votre profil
                 </p>
-                {isTranscribing && (
-                  <div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
-                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm">Transcription en cours...</span>
-                  </div>
-                )}
-                
-                {/* Mode vocal Francis */}
-                <div className="mt-4 pt-4 border-t border-[#c5a572]/20">
-                  <button
-                    onClick={toggleVoiceMode}
-                    className={`px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center mx-auto ${
-                      voiceMode 
-                        ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white' 
-                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
-                    }`}
-                  >
-                    {isFrancisSpeaking ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Francis parle...
-                      </>
-                    ) : (
-                      <>
-                        <MessageSquare className="w-5 h-5" />
-                        {voiceMode ? 'Désactiver' : 'Activer'} le mode vocal Francis
-                      </>
-                    )}
-                  </button>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
-                    Francis pose les questions à haute voix et écoute vos réponses
-                  </p>
-                </div>
               </div>
               
               {/* Barre de progression */}
@@ -1457,12 +1396,15 @@ export function Dashboard() {
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                 <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-white">Extraction automatique par dictée</h3>
+                    <h3 className="text-xl font-semibold text-white">Compléter votre profil avec Francis</h3>
                     <button
                       onClick={() => {
                         setShowDiscoveryExtraction(false);
                         setDiscoveryTranscript('');
                         setExtractionResult(null);
+                        setVoiceMode(false);
+                        stopSpeaking();
+                        stopRecording();
                       }}
                       className="text-gray-400 hover:text-white"
                       aria-label="Fermer la modal d'extraction"
@@ -1471,36 +1413,65 @@ export function Dashboard() {
                     </button>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Transcription de la conversation CGP-client
-                      </label>
+                  <div className="space-y-6">
+                    {/* Option 1: Mode vocal Francis */}
+                    <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
+                      <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-[#c5a572]" />
+                        Mode vocal Francis (Recommandé)
+                      </h4>
+                      <p className="text-gray-400 mb-4">
+                        Francis pose les questions à haute voix et écoute vos réponses. Le plus simple et naturel !
+                      </p>
+                      <button
+                        onClick={() => {
+                          setVoiceMode(true);
+                          setShowDiscoveryExtraction(false);
+                          // Démarrer la première question vocale
+                          setTimeout(() => {
+                            speakQuestion("Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?");
+                          }, 500);
+                        }}
+                        className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3"
+                      >
+                        <Mic className="w-5 h-5" />
+                        Commencer avec Francis
+                      </button>
+                    </div>
+
+                    {/* Option 2: Transcription manuelle */}
+                    <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
+                      <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-[#c5a572]" />
+                        Coller une transcription
+                      </h4>
+                      <p className="text-gray-400 mb-4">
+                        Collez la transcription d'une conversation existante avec votre CGP
+                      </p>
                       <textarea
                         value={discoveryTranscript}
                         onChange={(e) => setDiscoveryTranscript(e.target.value)}
                         placeholder="Collez ici la transcription complète de votre conversation avec votre CGP..."
-                        className="w-full h-32 p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none resize-none"
+                        className="w-full h-32 p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none resize-none mb-4"
                       />
+                      <button
+                        onClick={handleDiscoveryExtraction}
+                        disabled={!discoveryTranscript.trim() || isExtractingDiscovery}
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                      >
+                        {isExtractingDiscovery ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Extraction en cours...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-5 h-5" />
+                            Extraire les informations
+                          </>
+                        )}
+                      </button>
                     </div>
-                    
-                    <button
-                      onClick={handleDiscoveryExtraction}
-                      disabled={!discoveryTranscript.trim() || isExtractingDiscovery}
-                      className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                    >
-                      {isExtractingDiscovery ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin" />
-                          Extraction en cours...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-5 h-5" />
-                          Extraire les informations
-                        </>
-                      )}
-                    </button>
                     
                     {/* Résultats de l'extraction */}
                     {extractionResult && (
