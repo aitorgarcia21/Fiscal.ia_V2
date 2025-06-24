@@ -100,9 +100,7 @@ export function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'discovery'>('chat');
   const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
-  const [discoveryTranscript, setDiscoveryTranscript] = useState('');
   const [extractionResult, setExtractionResult] = useState<any>(null);
-  const [isExtractingDiscovery, setIsExtractingDiscovery] = useState(false);
   const [showTmiModal, setShowTmiModal] = useState(false);
   const [showOptimizationModal, setShowOptimizationModal] = useState(false);
   const [showConsciousnessModal, setShowConsciousnessModal] = useState(false);
@@ -581,61 +579,6 @@ export function Dashboard() {
     }
   };
 
-  // Fonctions pour l'extraction automatique
-  const handleDiscoveryExtraction = async () => {
-    if (!discoveryTranscript.trim()) return;
-    
-    setIsExtractingDiscovery(true);
-    setExtractionResult(null);
-    
-    try {
-      const response = await fetch('/api/pro/extract-discovery-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify({
-          transcript: discoveryTranscript
-        })
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setExtractionResult(result);
-        
-        // Appliquer automatiquement les données extraites
-        if (result.extracted_data) {
-          setDiscoveryData(prev => ({
-            ...prev,
-            ...result.extracted_data
-          }));
-        }
-      } else {
-        throw new Error('Erreur lors de l\'extraction');
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'extraction de découverte:', error);
-      setExtractionResult({
-        error: 'Erreur lors de l\'extraction des données'
-      });
-    } finally {
-      setIsExtractingDiscovery(false);
-    }
-  };
-
-  const applyExtractionResult = () => {
-    if (extractionResult?.extracted_data) {
-      setDiscoveryData(prev => ({
-        ...prev,
-        ...extractionResult.extracted_data
-      }));
-      setShowDiscoveryExtraction(false);
-      setDiscoveryTranscript('');
-      setExtractionResult(null);
-    }
-  };
-
   // Fonctions pour l'enregistrement vocal
   const startRecording = async () => {
     try {
@@ -687,7 +630,7 @@ export function Dashboard() {
 
       if (response.ok) {
         const result = await response.json();
-        setDiscoveryTranscript(result.transcription);
+        setExtractionResult(result);
         setIsTranscribing(false);
       } else {
         throw new Error('Erreur lors de la transcription');
@@ -1063,7 +1006,6 @@ export function Dashboard() {
                 <button
                   onClick={() => {
                     setShowDiscoveryExtraction(false);
-                    setDiscoveryTranscript('');
                     setExtractionResult(null);
                     setVoiceMode(false);
                     stopSpeaking();
@@ -1077,11 +1019,11 @@ export function Dashboard() {
               </div>
               
               <div className="space-y-6">
-                {/* Option 1: Mode vocal Francis */}
+                {/* Mode vocal Francis uniquement */}
                 <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
                   <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-[#c5a572]" />
-                    Mode vocal Francis (Recommandé)
+                    Discussion vocale avec Francis
                   </h4>
                   <p className="text-gray-400 mb-4">
                     Francis pose les questions à haute voix et écoute vos réponses. Le plus simple et naturel !
@@ -1099,40 +1041,6 @@ export function Dashboard() {
                   >
                     <Mic className="w-5 h-5" />
                     Commencer avec Francis
-                  </button>
-                </div>
-
-                {/* Option 2: Transcription manuelle */}
-                <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
-                  <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-[#c5a572]" />
-                    Coller une transcription
-                  </h4>
-                  <p className="text-gray-400 mb-4">
-                    Collez la transcription d'une conversation existante avec votre CGP
-                  </p>
-                  <textarea
-                    value={discoveryTranscript}
-                    onChange={(e) => setDiscoveryTranscript(e.target.value)}
-                    placeholder="Collez ici la transcription complète de votre conversation avec votre CGP..."
-                    className="w-full h-32 p-3 bg-[#1a2332] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none resize-none mb-4"
-                  />
-                  <button
-                    onClick={handleDiscoveryExtraction}
-                    disabled={!discoveryTranscript.trim() || isExtractingDiscovery}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                  >
-                    {isExtractingDiscovery ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Extraction en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-5 h-5" />
-                        Extraire les informations
-                      </>
-                    )}
                   </button>
                 </div>
                 
@@ -1164,12 +1072,6 @@ export function Dashboard() {
                         )}
                         
                         <div className="flex gap-3">
-                          <button
-                            onClick={applyExtractionResult}
-                            className="flex-1 bg-[#c5a572] text-[#162238] px-4 py-2 rounded-lg font-medium hover:bg-[#e8cfa0] transition-colors"
-                          >
-                            Appliquer les données
-                          </button>
                           <button
                             onClick={() => setExtractionResult(null)}
                             className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors"
