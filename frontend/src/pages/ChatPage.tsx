@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog, Mic, MicOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 
@@ -125,10 +126,7 @@ export function ChatPage() {
         <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center group">
-                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-              </div>
+              <Logo size="lg" />
               <div>
                 <h1 className="text-xl font-bold text-white">Chat</h1>
                 <p className="text-sm text-gray-400">Posez vos questions à Francis</p>
@@ -170,9 +168,8 @@ export function ChatPage() {
               >
                 <div className="flex items-start space-x-2">
                   {message.role === 'assistant' && (
-                    <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                      <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                      <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
+                    <div className="flex-shrink-0">
+                      <Logo size="sm" />
                     </div>
                   )}
                   <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
@@ -188,9 +185,8 @@ export function ChatPage() {
           {isLoading && (
             <div className="flex justify-start p-4">
                 <div className="flex items-center space-x-2">
-                    <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                        <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                        <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2942] rounded-full p-0.5" />
+                    <div className="flex-shrink-0">
+                        <Logo size="sm" />
                     </div>
                     <div className="flex items-center space-x-1.5 bg-[#223c63]/80 p-3 rounded-lg rounded-bl-none shadow-md">
                         <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

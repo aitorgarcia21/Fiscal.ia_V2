@@ -61,6 +61,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
+import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
 
 interface ChatMessage {
@@ -740,42 +741,9 @@ export function Dashboard() {
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative inline-flex items-center justify-center group">
-              <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-            </div>
+            <Logo size="md" />
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                activeTab === 'chat' 
-                  ? 'bg-[#c5a572] text-[#162238]' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Chat
-            </button>
-            <button
-              onClick={() => setActiveTab('tools')}
-              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                activeTab === 'tools' 
-                  ? 'bg-[#c5a572] text-[#162238]' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Outils
-            </button>
-            <button
-              onClick={() => setActiveTab('discovery')}
-              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                activeTab === 'discovery' 
-                  ? 'bg-[#c5a572] text-[#162238]' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Découverte
-            </button>
             <button
               onClick={handleLogout}
               className="text-gray-400 hover:text-white transition-colors"
@@ -1920,6 +1888,190 @@ export function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Modale Calculateur TMI */}
+      {showTmiModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center">
+                  <Calculator className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Calculateur TMI</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowTmiModal(false);
+                  setTmiResult(null);
+                  setTmiForm({
+                    revenu_annuel: '',
+                    situation_familiale: 'celibataire',
+                    nombre_enfants: 0
+                  });
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {!tmiResult ? (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <p className="text-gray-400 mb-4">
+                    Calculez votre taux marginal d'imposition en quelques secondes
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Revenu annuel net imposable
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={tmiForm.revenu_annuel}
+                        onChange={(e) => setTmiForm(prev => ({ ...prev, revenu_annuel: e.target.value }))}
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none pr-12"
+                        placeholder="Ex: 45000"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">€</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Situation familiale
+                    </label>
+                    <select
+                      value={tmiForm.situation_familiale}
+                      onChange={(e) => setTmiForm(prev => ({ ...prev, situation_familiale: e.target.value }))}
+                      className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                    >
+                      <option value="celibataire">Célibataire</option>
+                      <option value="marie">Marié(e)</option>
+                      <option value="pacs">PACS</option>
+                      <option value="divorce">Divorcé(e)</option>
+                      <option value="veuf">Veuf/Veuve</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Nombre d'enfants à charge
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={tmiForm.nombre_enfants}
+                      onChange={(e) => setTmiForm(prev => ({ ...prev, nombre_enfants: parseInt(e.target.value) || 0 }))}
+                      className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleTmiCalculation}
+                  disabled={!tmiForm.revenu_annuel || isLoadingTool}
+                  className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                >
+                  {isLoadingTool ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin" />
+                      Calcul en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Calculator className="w-5 h-5" />
+                      Calculer mon TMI
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calculator className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-2">Résultats du calcul</h4>
+                  <p className="text-gray-400">Votre taux marginal d'imposition</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-[#162238] to-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6">
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-blue-400 mb-2">
+                        {tmiResult.tmi}%
+                      </div>
+                      <p className="text-gray-400">Taux Marginal d'Imposition</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-[#162238] rounded-lg p-4">
+                      <p className="text-sm text-gray-400">Revenu imposable</p>
+                      <p className="text-lg font-semibold text-white">{tmiResult.revenu_imposable.toLocaleString()}€</p>
+                    </div>
+                    <div className="bg-[#162238] rounded-lg p-4">
+                      <p className="text-sm text-gray-400">Taux moyen</p>
+                      <p className="text-lg font-semibold text-white">{tmiResult.taux_moyen}%</p>
+                    </div>
+                    <div className="bg-[#162238] rounded-lg p-4">
+                      <p className="text-sm text-gray-400">Impôt estimé</p>
+                      <p className="text-lg font-semibold text-white">{tmiResult.impot_estime.toLocaleString()}€</p>
+                    </div>
+                    <div className="bg-[#162238] rounded-lg p-4">
+                      <p className="text-sm text-gray-400">Tranches applicables</p>
+                      <p className="text-sm font-semibold text-white">{tmiResult.tranches_applicables.length} tranche(s)</p>
+                    </div>
+                  </div>
+
+                  {tmiResult.conseils_optimisation && tmiResult.conseils_optimisation.length > 0 && (
+                    <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-xl p-4">
+                      <h5 className="font-semibold text-green-400 mb-3">Conseils d'optimisation</h5>
+                      <ul className="space-y-2">
+                        {tmiResult.conseils_optimisation.map((conseil: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <span className="text-sm text-gray-300">{conseil}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setTmiResult(null);
+                      setTmiForm({
+                        revenu_annuel: '',
+                        situation_familiale: 'celibataire',
+                        nombre_enfants: 0
+                      });
+                    }}
+                    className="flex-1 bg-gray-600 text-white px-4 py-3 rounded-xl font-medium hover:bg-gray-700 transition-colors"
+                  >
+                    Nouveau calcul
+                  </button>
+                  <button
+                    onClick={() => setShowTmiModal(false)}
+                    className="flex-1 bg-[#c5a572] text-[#162238] px-4 py-3 rounded-xl font-medium hover:bg-[#e8cfa0] transition-colors"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

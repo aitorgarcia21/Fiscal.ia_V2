@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain } from 'lucide-react';
+import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -77,10 +78,7 @@ export function ProDashboardPage() {
           <div className="flex items-center gap-4">
             {/* Logo Fiscal.ia */}
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center group">
-                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-              </div>
+              <Logo size="lg" />
               <div>
                 <h1 className="text-2xl font-bold text-white">Dashboard Pro</h1>
                 <p className="text-sm text-[#c5a572] font-medium">Assistant fiscal intelligent</p>
