@@ -145,7 +145,7 @@ export function Dashboard() {
     // Niveau de connaissance
     niveau_connaissance_fiscale: 'debutant',
     experience_investissement: 'aucune',
-    tolerance_risque: 'conservateur',
+    tolerance_risque: 'modere',
     
     // Besoins spécifiques
     besoins_specifiques: [] as string[],
@@ -236,31 +236,21 @@ export function Dashboard() {
   useEffect(() => {
     const checkUserProfile = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/login');
+        if (!user?.id) {
+          navigate('/');
           return;
         }
 
-        const response = await fetch('/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetch(`/user-profile/${user.id}`, {
+          headers: { 'Content-Type': 'application/json' }
         });
 
         if (response.ok) {
-          const userData = await response.json();
-          const profileResponse = await fetch(`/user-profile/${userData.id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            setUserProfile(profileData);
-            if (!profileData.has_completed_onboarding) {
-              setShowOnboarding(true);
-            }
+          const profileData = await response.json();
+          setUserProfile(profileData);
+          if (!profileData.has_completed_onboarding) {
+            setShowOnboarding(true);
           }
-        } else {
-          navigate('/login');
         }
       } catch (error) {
         console.error('Erreur lors de la récupération du profil:', error);
@@ -270,7 +260,7 @@ export function Dashboard() {
     };
 
     checkUserProfile();
-  }, []);
+  }, [user, navigate]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -280,12 +270,10 @@ export function Dashboard() {
 
   const handleOnboardingComplete = async (profileData: any) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/user-profile/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(profileData)
       });
@@ -342,8 +330,8 @@ export function Dashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    logout();
+    navigate('/');
   };
 
   const handleTmiCalculation = async () => {
@@ -1208,6 +1196,8 @@ export function Dashboard() {
                 <button
                   onClick={() => setShowTmiModal(false)}
                   className="text-gray-400 hover:text-white"
+                  title="Fermer la modal"
+                  aria-label="Fermer la modal"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1231,6 +1221,8 @@ export function Dashboard() {
                     value={tmiForm.situation_familiale}
                     onChange={(e) => setTmiForm({...tmiForm, situation_familiale: e.target.value})}
                     className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-white focus:border-[#c5a572] focus:outline-none"
+                    title="Sélectionner votre situation familiale"
+                    aria-label="Situation familiale"
                   >
                     <option value="celibataire">Célibataire</option>
                     <option value="marie">Marié(e)</option>
@@ -1282,6 +1274,8 @@ export function Dashboard() {
                 <button
                   onClick={() => setShowConsciousnessModal(false)}
                   className="text-gray-400 hover:text-white"
+                  title="Fermer la modal"
+                  aria-label="Fermer la modal"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1347,6 +1341,8 @@ export function Dashboard() {
                 <button
                   onClick={() => setShowTestResults(false)}
                   className="text-gray-400 hover:text-white"
+                  title="Fermer la modal"
+                  aria-label="Fermer la modal"
                 >
                   <X className="w-6 h-6" />
                 </button>
