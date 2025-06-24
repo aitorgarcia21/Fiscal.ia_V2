@@ -56,7 +56,9 @@ import {
   Smile,
   Baby,
   User,
-  UserCheck
+  UserCheck,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
@@ -283,6 +285,18 @@ export function Dashboard() {
       color: 'text-yellow-400'
     }
   ];
+
+  // États pour l'extraction automatique
+  const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
+  const [discoveryTranscript, setDiscoveryTranscript] = useState('');
+  const [isExtractingDiscovery, setIsExtractingDiscovery] = useState(false);
+  const [extractionResult, setExtractionResult] = useState<any>(null);
+
+  // États pour l'enregistrement vocal
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   useEffect(() => {
     checkUserProfile();
@@ -682,6 +696,69 @@ export function Dashboard() {
     }
   };
 
+  // Fonctions pour l'enregistrement vocal
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        setAudioChunks(chunks);
+        setIsTranscribing(true);
+        
+        // Envoyer l'audio au backend pour transcription
+        await transcribeAudio(audioBlob);
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
+      alert('Impossible d\'accéder au microphone. Vérifiez les permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.wav');
+
+      const response = await fetch('/api/transcribe-audio', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setDiscoveryTranscript(result.transcription);
+        setIsTranscribing(false);
+      } else {
+        throw new Error('Erreur lors de la transcription');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la transcription:', error);
+      setIsTranscribing(false);
+      alert('Erreur lors de la transcription audio. Veuillez réessayer.');
+    }
+  };
+
   if (showOnboarding) {
     return <InitialProfileQuestions onComplete={handleOnboardingComplete} />;
   }
@@ -932,6 +1009,54 @@ export function Dashboard() {
             <div className="text-center">
               <h2 className="text-2xl font-bold text-white mb-2">Découvrez votre potentiel fiscal</h2>
               <p className="text-gray-400 mb-4">Répondez à quelques questions pour des conseils ultra-personnalisés</p>
+              
+              {/* Boutons de dictée */}
+              <div className="mb-6">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => setShowDiscoveryExtraction(true)}
+                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center"
+                  >
+                    <Mic className="w-5 h-5" />
+                    Coller transcription
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (isRecording) {
+                        stopRecording();
+                      } else {
+                        startRecording();
+                      }
+                    }}
+                    className={`px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center ${
+                      isRecording 
+                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white' 
+                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
+                    }`}
+                  >
+                    {isRecording ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Arrêter l'enregistrement
+                      </>
+                    ) : (
+                      <>
+                        <MicOff className="w-5 h-5" />
+                        Enregistrer ma voix
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Collez une transcription ou enregistrez directement votre conversation
+                </p>
+                {isTranscribing && (
+                  <div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
+                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm">Transcription en cours...</span>
+                  </div>
+                )}
+              </div>
               
               {/* Barre de progression */}
               <div className="w-full bg-[#1a2332] rounded-full h-2 mb-4">
