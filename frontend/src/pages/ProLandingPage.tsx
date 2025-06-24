@@ -128,6 +128,73 @@ const ProLandingPage = () => {
         </div>
       </section>
 
+      {/* Section Focus Client */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-r from-[#1E3253]/40 to-[#234876]/40">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Soyez <span className="text-[#c5a572]">100%</span> avec votre client
+          </h2>
+          <p className="text-xl text-gray-300 mb-6 max-w-3xl mx-auto">
+            Francis s'occupe du reste ! Concentrez-vous sur ce qui compte vraiment : <strong className="text-[#c5a572]">votre relation client</strong>.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText className="w-8 h-8 text-[#c5a572]" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-4">Prise de notes automatique</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                Francis écoute vos conversations et prend des notes structurées. Plus besoin de perdre du temps à retranscrire.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-8 h-8 text-[#c5a572]" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-4">Profil client intelligent</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                Francis établit et met à jour automatiquement le profil fiscal de chaque client. Tout est analysé et structuré.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <TrendingUp className="w-8 h-8 text-[#c5a572]" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-4">Analyse fiscale avancée</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                Francis analyse chaque situation et identifie automatiquement les optimisations possibles.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center mt-12">
+          <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/20 rounded-xl p-8 max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Le cœur de votre métier : <span className="text-[#c5a572]">la relation client</span>
+            </h3>
+            <p className="text-gray-300 mb-6">
+              Pendant que Francis gère la technique, vous vous concentrez sur l'humain. C'est ça, l'excellence professionnelle.
+            </p>
+            <button
+              onClick={() => navigate('/pro/signup')}
+              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300"
+            >
+              Commencer avec Francis
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Section Tarifs Pro */}
       <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-center">
