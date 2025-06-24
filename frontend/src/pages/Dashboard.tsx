@@ -958,7 +958,7 @@ export function Dashboard() {
                   Compléter mon profil avec Francis
                 </button>
                 <p className="text-xs text-gray-500 mt-2 text-center">
-                  Francis vous guide vocalement et remplit automatiquement votre profil
+                  Francis vous guide vocalement pour une analyse ultra-précise et des conseils personnalisés
                 </p>
               </div>
             </div>
@@ -989,7 +989,7 @@ export function Dashboard() {
                     Découverte Personnalisée
                   </h2>
                   <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
-                    Cliquez sur "Compléter mon profil avec Francis" pour commencer votre découverte personnalisée !
+                    Cliquez sur "Compléter mon profil avec Francis" pour une analyse ultra-précise et des conseils fiscalement optimisés !
                   </p>
                 </div>
               </div>
@@ -1026,7 +1026,7 @@ export function Dashboard() {
                     Discussion vocale avec Francis
                   </h4>
                   <p className="text-gray-400 mb-4">
-                    Francis pose les questions à haute voix et écoute vos réponses. Le plus simple et naturel !
+                    Francis pose les questions à haute voix et écoute vos réponses. Cette approche naturelle permet une analyse plus précise de votre situation et des conseils ultra-personnalisés pour optimiser votre fiscalité.
                   </p>
                   <button
                     onClick={() => {
