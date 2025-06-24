@@ -32,6 +32,7 @@ from dependencies import supabase, verify_token, create_access_token, hash_passw
 import re
 import sys
 import tempfile
+import logging
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
 _whisper_service = None
@@ -1573,6 +1574,7 @@ class TranscriptionResponse(BaseModel):
     language: str
     language_probability: float
     duration: float
+    transcription_time: Optional[float] = None
     error: Optional[str] = None
 
 class WhisperModelInfoResponse(BaseModel):
@@ -1580,12 +1582,21 @@ class WhisperModelInfoResponse(BaseModel):
     status: str
     device: str
     compute_type: str
+    cache_size: Optional[int] = None
+    health_status: Optional[str] = None
 
-# Endpoints Whisper
+class WhisperHealthResponse(BaseModel):
+    status: str
+    model_loaded: bool
+    is_loading: bool
+    cache_size: int
+    error: Optional[str] = None
+
+# Endpoints Whisper optimisés
 @api_router.post("/whisper/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(request: TranscriptionRequest):
     """
-    Transcrit un audio encodé en base64.
+    Transcrit un audio encodé en base64 avec optimisations.
     """
     try:
         whisper_service = get_whisper_service()
@@ -1596,7 +1607,21 @@ async def transcribe_audio(request: TranscriptionRequest):
                 language="fr",
                 language_probability=0.0,
                 duration=0.0,
+                transcription_time=0.0,
                 error="Service Whisper non disponible"
+            )
+        
+        # Vérifier la santé du service
+        health = whisper_service.check_health()
+        if health["status"] == "error":
+            return TranscriptionResponse(
+                text="",
+                segments=[],
+                language="fr",
+                language_probability=0.0,
+                duration=0.0,
+                transcription_time=0.0,
+                error="Francis est temporairement indisponible. Réessayez dans quelques secondes."
             )
         
         result = whisper_service.transcribe_base64_audio(
@@ -1605,13 +1630,15 @@ async def transcribe_audio(request: TranscriptionRequest):
         )
         return TranscriptionResponse(**result)
     except Exception as e:
+        logger.error(f"Erreur lors de la transcription: {e}")
         return TranscriptionResponse(
             text="",
             segments=[],
             language="fr",
             language_probability=0.0,
             duration=0.0,
-            error=str(e)
+            transcription_time=0.0,
+            error="Erreur lors de la transcription. Réessayez dans quelques secondes."
         )
 
 @api_router.post("/whisper/transcribe-file")
@@ -1620,7 +1647,7 @@ async def transcribe_audio_file(
     language: Optional[str] = "fr"
 ):
     """
-    Transcrit un fichier audio uploadé.
+    Transcrit un fichier audio uploadé avec optimisations.
     """
     try:
         whisper_service = get_whisper_service()
@@ -1631,7 +1658,21 @@ async def transcribe_audio_file(
                 language="fr",
                 language_probability=0.0,
                 duration=0.0,
+                transcription_time=0.0,
                 error="Service Whisper non disponible"
+            )
+        
+        # Vérifier la santé du service
+        health = whisper_service.check_health()
+        if health["status"] == "error":
+            return TranscriptionResponse(
+                text="",
+                segments=[],
+                language="fr",
+                language_probability=0.0,
+                duration=0.0,
+                transcription_time=0.0,
+                error="Francis est temporairement indisponible. Réessayez dans quelques secondes."
             )
         
         # Sauvegarder le fichier temporairement
@@ -1649,19 +1690,21 @@ async def transcribe_audio_file(
                 os.unlink(temp_file_path)
                 
     except Exception as e:
+        logger.error(f"Erreur lors de la transcription de fichier: {e}")
         return TranscriptionResponse(
             text="",
             segments=[],
             language="fr",
             language_probability=0.0,
             duration=0.0,
-            error=str(e)
+            transcription_time=0.0,
+            error="Erreur lors de la transcription. Réessayez dans quelques secondes."
         )
 
 @api_router.get("/whisper/model-info", response_model=WhisperModelInfoResponse)
 async def get_whisper_model_info():
     """
-    Retourne les informations sur le modèle Whisper.
+    Retourne les informations détaillées sur le modèle Whisper.
     """
     try:
         whisper_service = get_whisper_service()
@@ -1670,43 +1713,51 @@ async def get_whisper_model_info():
                 model_size="unknown",
                 status="error",
                 device="unknown",
-                compute_type="unknown"
+                compute_type="unknown",
+                cache_size=0,
+                health_status="error"
             )
         
         info = whisper_service.get_model_info()
         return WhisperModelInfoResponse(**info)
     except Exception as e:
+        logger.error(f"Erreur lors de la récupération des infos modèle: {e}")
         return WhisperModelInfoResponse(
             model_size="unknown",
             status="error",
             device="unknown",
-            compute_type="unknown"
+            compute_type="unknown",
+            cache_size=0,
+            health_status="error"
         )
 
-@api_router.post("/whisper/health")
+@api_router.post("/whisper/health", response_model=WhisperHealthResponse)
 async def whisper_health():
     """
-    Vérifie la santé du service Whisper.
+    Vérifie la santé du service Whisper avec optimisations.
     """
     try:
         whisper_service = get_whisper_service()
         if whisper_service is None:
-            return {
-                "status": "error",
-                "error": "Service Whisper non disponible"
-            }
+            return WhisperHealthResponse(
+                status="error",
+                model_loaded=False,
+                is_loading=False,
+                cache_size=0,
+                error="Service Whisper non disponible"
+            )
         
-        info = whisper_service.get_model_info()
-        return {
-            "status": "healthy" if info["status"] == "loaded" else "loading",
-            "model_size": info["model_size"],
-            "device": info["device"]
-        }
+        health_info = whisper_service.check_health()
+        return WhisperHealthResponse(**health_info)
     except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e)
-        }
+        logger.error(f"Erreur lors de la vérification de santé: {e}")
+        return WhisperHealthResponse(
+            status="error",
+            model_loaded=False,
+            is_loading=False,
+            cache_size=0,
+            error=str(e)
+        )
 
 if __name__ == "__main__":
     import uvicorn

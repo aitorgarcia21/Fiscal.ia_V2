@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog, Mic, MicOff } from 'lucide-react';
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog, Mic, MicOff, Volume2, Sparkles, AlertCircle } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui/Logo';
@@ -32,6 +32,7 @@ export function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -47,6 +48,7 @@ export function ChatPage() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setVoiceError(null);
 
     // Scroll immédiat vers le bas
     setTimeout(() => {
@@ -120,11 +122,28 @@ export function ChatPage() {
     setInput(transcribedText);
     setShowVoiceRecorder(false);
     setVoiceError(null);
+    
+    if (isVoiceMode) {
+      setTimeout(() => {
+        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+        handleSend(fakeEvent);
+      }, 500);
+    }
   };
 
   const handleVoiceError = (error: string) => {
     setVoiceError(error);
     setTimeout(() => setVoiceError(null), 5000);
+  };
+
+  const toggleVoiceMode = () => {
+    setIsVoiceMode(!isVoiceMode);
+    setShowVoiceRecorder(false);
+    setVoiceError(null);
+    
+    if (!isVoiceMode) {
+      setShowVoiceRecorder(true);
+    }
   };
 
   useEffect(() => {
@@ -241,8 +260,17 @@ export function ChatPage() {
         <form onSubmit={handleSend} className="p-4 border-t border-[#c5a572]/20 flex-shrink-0">
           {/* Message d'erreur vocal */}
           {voiceError && (
-            <div className="mb-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
+            <div className="mb-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
               {voiceError}
+            </div>
+          )}
+          
+          {/* Mode vocal activé */}
+          {isVoiceMode && (
+            <div className="mb-3 p-3 bg-[#c5a572]/20 border border-[#c5a572]/30 rounded-lg text-[#c5a572] text-sm flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Mode vocal activé - Francis vous écoute automatiquement
             </div>
           )}
           
@@ -251,21 +279,25 @@ export function ChatPage() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Posez votre question à Francis..."
+              placeholder={isVoiceMode ? "Francis écoute votre voix..." : "Posez votre question à Francis..."}
               className="flex-1 px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
               disabled={isLoading}
               onKeyDown={handleKeyPress}
             />
             
-            {/* Bouton d'enregistrement vocal */}
+            {/* Bouton mode vocal */}
             <button
               type="button"
-              onClick={() => setShowVoiceRecorder(!showVoiceRecorder)}
+              onClick={toggleVoiceMode}
               disabled={isLoading}
-              className="bg-[#1a2942] text-[#c5a572] p-3 rounded-lg hover:bg-[#223c63] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md border border-[#c5a572]/30"
-              aria-label="Enregistrer un message vocal"
+              className={`p-3 rounded-lg transition-all duration-300 flex items-center justify-center shadow-md border ${
+                isVoiceMode 
+                  ? 'bg-[#c5a572] text-[#1a2942] border-[#c5a572]' 
+                  : 'bg-[#1a2942] text-[#c5a572] border-[#c5a572]/30 hover:bg-[#223c63]'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              aria-label={isVoiceMode ? "Désactiver le mode vocal" : "Activer le mode vocal"}
             >
-              {showVoiceRecorder ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              {isVoiceMode ? <Volume2 className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
             
             <button
@@ -278,14 +310,20 @@ export function ChatPage() {
             </button>
           </div>
           
-          {/* Enregistreur vocal */}
+          {/* Enregistreur vocal optimisé */}
           {showVoiceRecorder && (
             <div className="mt-4 p-4 bg-[#1a2942]/30 border border-[#c5a572]/20 rounded-lg">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-[#c5a572]">Enregistrement vocal</h3>
+                <h3 className="text-sm font-medium text-[#c5a572] flex items-center gap-2">
+                  <Mic className="w-4 h-4" />
+                  {isVoiceMode ? "Mode vocal Francis" : "Enregistrement vocal"}
+                </h3>
                 <button
                   type="button"
-                  onClick={() => setShowVoiceRecorder(false)}
+                  onClick={() => {
+                    setShowVoiceRecorder(false);
+                    setIsVoiceMode(false);
+                  }}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   ✕
@@ -296,6 +334,7 @@ export function ChatPage() {
                 onError={handleVoiceError}
                 disabled={isLoading}
                 className="flex justify-center"
+                autoTranscribe={isVoiceMode}
               />
             </div>
           )}
