@@ -696,6 +696,47 @@ export function Dashboard() {
     }
   };
 
+  const handleDiscoveryExtraction = async () => {
+    if (!discoveryTranscript.trim()) return;
+    
+    setIsExtractingDiscovery(true);
+    try {
+      const response = await fetch('/api/extract-discovery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          transcript: discoveryTranscript
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setExtractionResult(result);
+      } else {
+        setExtractionResult({ error: 'Erreur lors de l\'extraction des données' });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'extraction:', error);
+      setExtractionResult({ error: 'Erreur lors de l\'extraction des données' });
+    } finally {
+      setIsExtractingDiscovery(false);
+    }
+  };
+
+  const applyExtractionResult = () => {
+    if (extractionResult?.extracted_data) {
+      setDiscoveryData(prev => ({
+        ...prev,
+        ...extractionResult.extracted_data
+      }));
+      setShowDiscoveryExtraction(false);
+      setDiscoveryTranscript('');
+      setExtractionResult(null);
+    }
+  };
+
   // Fonctions pour l'enregistrement vocal
   const startRecording = async () => {
     try {
