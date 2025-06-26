@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class WhisperTranscriptionService:
-    def __init__(self, model_size: str = "base"):
+    def __init__(self, model_size: str = "tiny"):
         """
         Initialise le service de transcription Whisper avec optimisations.
         
@@ -48,7 +48,9 @@ class WhisperTranscriptionService:
                 device="cpu",  # Utilise CPU pour Railway
                 compute_type="int8",  # Optimisation pour la mémoire
                 download_root="/tmp/whisper_models",  # Cache local
-                local_files_only=False  # Permet le téléchargement si nécessaire
+                local_files_only=False,  # Permet le téléchargement si nécessaire
+                cpu_threads=4,  # Optimisation CPU
+                num_workers=1  # Réduit la charge mémoire
             )
             
             load_time = time.time() - self._load_start_time
@@ -100,21 +102,23 @@ class WhisperTranscriptionService:
             start_time = time.time()
             logger.info(f"Transcription du fichier: {audio_path}")
             
-            # Transcription avec Whisper optimisée
+            # Transcription avec Whisper optimisée pour la vitesse ET la précision
             segments, info = self.model.transcribe(
                 audio_path,
-                beam_size=5,  # Plus de précision
+                beam_size=1,  # Réduit pour la vitesse (était 5)
                 language="fr",  # Français par défaut
                 vad_filter=True,  # Filtre de détection de voix
                 vad_parameters=dict(
-                    min_silence_duration_ms=50,  # Très sensible - réduit de 300 à 50ms
-                    speech_pad_ms=500,  # Plus de padding - augmenté de 100 à 500ms
-                    threshold=0.1  # Seuil très bas pour détecter plus de parole
+                    min_silence_duration_ms=200,  # Plus sensible - augmenté de 50 à 200ms
+                    speech_pad_ms=300,  # Padding optimal - réduit de 500 à 300ms
+                    threshold=0.3  # Seuil optimal pour détecter la parole
                 ),
                 condition_on_previous_text=False,  # Plus rapide
-                temperature=0.3,  # Plus de flexibilité pour la détection
+                temperature=0.0,  # Plus déterministe pour la vitesse
                 compression_ratio_threshold=2.4,  # Ajusté pour éviter les hallucinations
-                no_speech_threshold=0.4  # Seuil plus bas pour détecter plus de parole
+                no_speech_threshold=0.6,  # Seuil optimal pour détecter la parole
+                word_timestamps=True,  # Activer les timestamps des mots
+                initial_prompt="Ceci est une conversation en français sur des sujets fiscaux."  # Améliore la précision
             )
             
             # Récupération du texte complet avec nettoyage
@@ -141,18 +145,20 @@ class WhisperTranscriptionService:
             
             text = " ".join(text_segments)
             
-            # Si aucun texte détecté, essayer sans VAD
+            # Si aucun texte détecté, essayer avec des paramètres plus agressifs
             if not text.strip():
-                logger.info("Aucun texte détecté avec VAD, tentative sans VAD...")
+                logger.info("Aucun texte détecté, tentative avec paramètres agressifs...")
                 segments, info = self.model.transcribe(
                     audio_path,
-                    beam_size=3,
+                    beam_size=1,
                     language="fr",
-                    vad_filter=False,  # Désactivé pour cette tentative
+                    vad_filter=False,  # Désactivé pour capturer tout
                     condition_on_previous_text=False,
-                    temperature=0.1,
+                    temperature=0.0,
                     compression_ratio_threshold=2.4,
-                    no_speech_threshold=0.4
+                    no_speech_threshold=0.3,  # Très bas pour capturer plus
+                    word_timestamps=True,
+                    initial_prompt="Ceci est une conversation en français."
                 )
                 
                 # Récupération du texte sans VAD
