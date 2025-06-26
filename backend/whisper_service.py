@@ -42,15 +42,16 @@ class WhisperTranscriptionService:
             self._load_start_time = time.time()
             logger.info(f"Chargement du modèle Whisper {self.model_size}...")
             
-            # Optimisations pour Railway
+            # Optimisations ultra-rapides pour Railway
             self.model = WhisperModel(
                 self.model_size,
                 device="cpu",  # Utilise CPU pour Railway
                 compute_type="int8",  # Optimisation pour la mémoire
                 download_root="/tmp/whisper_models",  # Cache local
                 local_files_only=False,  # Permet le téléchargement si nécessaire
-                cpu_threads=4,  # Optimisation CPU
-                num_workers=1  # Réduit la charge mémoire
+                cpu_threads=8,  # Plus de threads CPU
+                num_workers=1,  # Réduit la charge mémoire
+                download_root="/tmp/whisper_models"  # Cache local
             )
             
             load_time = time.time() - self._load_start_time
@@ -78,14 +79,14 @@ class WhisperTranscriptionService:
         import hashlib
         return hashlib.md5(audio_data).hexdigest()
     
-    @lru_cache(maxsize=100)
+    @lru_cache(maxsize=200)  # Cache plus grand
     def _cached_transcribe(self, cache_key: str, audio_path: str) -> Dict[str, Any]:
-        """Transcription avec cache pour éviter les doublons."""
+        """Transcription avec cache ultra-optimisé."""
         return self._transcribe_audio_file_internal(audio_path)
     
     def _transcribe_audio_file_internal(self, audio_path: str) -> Dict[str, Any]:
         """
-        Transcription interne optimisée.
+        Transcription interne ultra-optimisée pour la vitesse.
         
         Args:
             audio_path: Chemin vers le fichier audio
@@ -100,28 +101,27 @@ class WhisperTranscriptionService:
                 raise Exception("Modèle Whisper non disponible")
             
             start_time = time.time()
-            logger.info(f"Transcription du fichier: {audio_path}")
+            logger.info(f"Transcription ultra-rapide du fichier: {audio_path}")
             
-            # Transcription avec Whisper optimisée pour la vitesse ET la précision
+            # Transcription ultra-optimisée pour la vitesse MAXIMALE
             segments, info = self.model.transcribe(
                 audio_path,
-                beam_size=1,  # Réduit pour la vitesse (était 5)
+                beam_size=1,  # Minimum pour la vitesse
                 language="fr",  # Français par défaut
-                vad_filter=True,  # Filtre de détection de voix
-                vad_parameters=dict(
-                    min_silence_duration_ms=200,  # Plus sensible - augmenté de 50 à 200ms
-                    speech_pad_ms=300,  # Padding optimal - réduit de 500 à 300ms
-                    threshold=0.3  # Seuil optimal pour détecter la parole
-                ),
+                vad_filter=False,  # DÉSACTIVÉ pour capturer TOUT
                 condition_on_previous_text=False,  # Plus rapide
-                temperature=0.0,  # Plus déterministe pour la vitesse
-                compression_ratio_threshold=2.4,  # Ajusté pour éviter les hallucinations
-                no_speech_threshold=0.6,  # Seuil optimal pour détecter la parole
-                word_timestamps=True,  # Activer les timestamps des mots
-                initial_prompt="Ceci est une conversation en français sur des sujets fiscaux."  # Améliore la précision
+                temperature=0.0,  # Déterministe
+                compression_ratio_threshold=2.4,
+                no_speech_threshold=0.1,  # Très bas pour capturer tout
+                word_timestamps=False,  # Désactivé pour la vitesse
+                initial_prompt="Français conversation",  # Court et efficace
+                max_initial_timestamp=1.0,  # Limite le temps de traitement
+                condition_on_previous_text=False,
+                suppress_tokens=[-1],  # Supprime les tokens spéciaux
+                without_timestamps=True  # Plus rapide sans timestamps
             )
             
-            # Récupération du texte complet avec nettoyage
+            # Récupération du texte complet avec nettoyage minimal
             text_segments = []
             segments_data = []
             
@@ -133,61 +133,38 @@ class WhisperTranscriptionService:
                         "start": segment.start,
                         "end": segment.end,
                         "text": clean_text,
-                        "words": [
-                            {
-                                "start": word.start,
-                                "end": word.end,
-                                "word": word.word,
-                                "probability": word.probability
-                            } for word in segment.words
-                        ] if hasattr(segment, 'words') else []
+                        "words": []
                     })
             
             text = " ".join(text_segments)
             
-            # Si aucun texte détecté, essayer avec des paramètres plus agressifs
+            # Si aucun texte, essayer avec des paramètres encore plus agressifs
             if not text.strip():
-                logger.info("Aucun texte détecté, tentative avec paramètres agressifs...")
+                logger.info("Tentative ultra-agressive...")
                 segments, info = self.model.transcribe(
                     audio_path,
                     beam_size=1,
-                    language="fr",
-                    vad_filter=False,  # Désactivé pour capturer tout
+                    language=None,  # Auto-détection
+                    vad_filter=False,
                     condition_on_previous_text=False,
                     temperature=0.0,
-                    compression_ratio_threshold=2.4,
-                    no_speech_threshold=0.3,  # Très bas pour capturer plus
-                    word_timestamps=True,
-                    initial_prompt="Ceci est une conversation en français."
+                    compression_ratio_threshold=1.0,  # Très bas
+                    no_speech_threshold=0.05,  # Ultra-bas
+                    word_timestamps=False,
+                    without_timestamps=True
                 )
                 
-                # Récupération du texte sans VAD
                 text_segments = []
-                segments_data = []
-                
                 for segment in segments:
                     clean_text = segment.text.strip()
                     if clean_text:
                         text_segments.append(clean_text)
-                        segments_data.append({
-                            "start": segment.start,
-                            "end": segment.end,
-                            "text": clean_text,
-                            "words": [
-                                {
-                                    "start": word.start,
-                                    "end": word.end,
-                                    "word": word.word,
-                                    "probability": word.probability
-                                } for word in segment.words
-                            ] if hasattr(segment, 'words') else []
-                        })
                 
                 text = " ".join(text_segments)
             
             transcription_time = time.time() - start_time
             
-            logger.info(f"Transcription terminée en {transcription_time:.2f}s - {len(text)} caractères")
+            logger.info(f"Transcription ultra-rapide terminée en {transcription_time:.2f}s - {len(text)} caractères")
             
             return {
                 "text": text,
