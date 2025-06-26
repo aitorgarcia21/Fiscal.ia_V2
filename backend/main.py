@@ -1772,7 +1772,7 @@ async def test_whisper():
     except Exception as e:
         return {"error": str(e), "message": "Erreur import Whisper"}
 
-@app.post("/api/whisper/health")
+@api_router.post("/whisper/health")
 async def whisper_health_simple():
     return {
         "status": "healthy",
@@ -1782,9 +1782,8 @@ async def whisper_health_simple():
         "message": "Whisper service disponible"
     }
 
-@app.post("/api/whisper/transcribe")
+@api_router.post("/whisper/transcribe")
 async def whisper_transcribe_simple(request: dict):
-    # Endpoint simple qui retourne un texte de test
     return {
         "text": "Test de transcription - Whisper fonctionne !",
         "segments": [],
