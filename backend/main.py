@@ -34,6 +34,7 @@ import sys
 import tempfile
 import logging
 from whisper_service import get_whisper_service
+import base64
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
 _whisper_service = None
@@ -1793,6 +1794,51 @@ async def whisper_transcribe_real(request: dict):
     service = get_whisper_service()
     result = service.transcribe_base64_audio(audio_base64, audio_format)
     return result
+
+@api_router.post("/whisper/transcribe-streaming")
+async def transcribe_streaming(request: dict):
+    """
+    Endpoint de transcription en streaming pour du temps réel.
+    """
+    try:
+        audio_base64 = request.get("audio_base64", "")
+        if not audio_base64:
+            return {"error": "Audio manquant"}
+        
+        # Décodage base64
+        audio_data = base64.b64decode(audio_base64)
+        
+        # Service Whisper
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        # Transcription en streaming
+        def generate_stream():
+            try:
+                # Diviser l'audio en chunks pour simuler le streaming
+                chunk_size = len(audio_data) // 4  # 4 chunks
+                chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
+                
+                for result in whisper_service.transcribe_streaming(chunks):
+                    yield f"data: {json.dumps(result)}\n\n"
+                    
+            except Exception as e:
+                error_result = {"error": str(e), "is_final": True}
+                yield f"data: {json.dumps(error_result)}\n\n"
+        
+        return StreamingResponse(
+            generate_stream(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream"
+            }
+        )
+        
+    except Exception as e:
+        return {"error": f"Erreur streaming: {str(e)}"}
 
 if __name__ == "__main__":
     import uvicorn

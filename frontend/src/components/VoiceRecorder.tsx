@@ -189,6 +189,63 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       const uint8Array = new Uint8Array(arrayBuffer);
       const base64Audio = btoa(String.fromCharCode(...Array.from(uint8Array)));
       
+      // Essayer d'abord le streaming en temps réel
+      try {
+        const streamResponse = await fetch('/api/whisper/transcribe-streaming', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            audio_base64: base64Audio,
+            audio_format: 'webm',
+            language: 'fr'
+          }),
+        });
+        
+        if (streamResponse.ok) {
+          const reader = streamResponse.body?.getReader();
+          if (reader) {
+            let accumulatedText = '';
+            
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = new TextDecoder().decode(value);
+              const lines = chunk.split('\n');
+              
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  try {
+                    const data = JSON.parse(line.slice(6));
+                    if (data.text && !data.is_final) {
+                      accumulatedText += data.text + ' ';
+                      // Mettre à jour en temps réel
+                      onTranscriptionComplete(accumulatedText.trim());
+                    } else if (data.is_final) {
+                      // Transcription finale
+                      if (accumulatedText.trim()) {
+                        onTranscriptionComplete(accumulatedText.trim());
+                      } else {
+                        onError?.('Je n\'ai pas entendu de parole claire. Pouvez-vous parler plus fort ou plus longtemps ?');
+                      }
+                      return;
+                    }
+                  } catch (e) {
+                    console.error('Erreur parsing streaming:', e);
+                  }
+                }
+              }
+            }
+            return;
+          }
+        }
+      } catch (streamError) {
+        console.log('Streaming non disponible, fallback vers transcription normale');
+      }
+      
+      // Fallback vers la transcription normale
       const response = await fetch('/api/whisper/transcribe', {
         method: 'POST',
         headers: {

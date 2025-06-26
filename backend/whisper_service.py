@@ -3,7 +3,7 @@ import io
 import tempfile
 import os
 import time
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Generator
 from faster_whisper import WhisperModel
 import logging
 from functools import lru_cache
@@ -345,6 +345,81 @@ class WhisperTranscriptionService:
             "is_loading": self._is_loading,
             "cache_size": len(self._transcription_cache)
         }
+    
+    def transcribe_streaming(self, audio_chunks: List[bytes]) -> Generator[Dict[str, Any], None, None]:
+        """
+        Transcription en streaming pour du temps réel.
+        
+        Args:
+            audio_chunks: Liste de chunks audio en continu
+            
+        Yields:
+            Dict avec le texte transcrit en temps réel
+        """
+        try:
+            self._ensure_model_loaded()
+            
+            if not self.model:
+                raise Exception("Modèle Whisper non disponible")
+            
+            # Concaténer les chunks en un seul buffer
+            audio_buffer = b''.join(audio_chunks)
+            
+            # Créer un fichier temporaire pour le buffer
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+                temp_file.write(audio_buffer)
+                temp_file_path = temp_file.name
+            
+            try:
+                # Transcription ultra-rapide en streaming
+                segments, info = self.model.transcribe(
+                    temp_file_path,
+                    beam_size=1,
+                    language="fr",
+                    vad_filter=False,
+                    condition_on_previous_text=False,
+                    temperature=0.0,
+                    compression_ratio_threshold=1.0,
+                    no_speech_threshold=0.05,
+                    word_timestamps=False,
+                    without_timestamps=True
+                )
+                
+                # Streaming des résultats
+                for segment in segments:
+                    clean_text = segment.text.strip()
+                    if clean_text:
+                        yield {
+                            "text": clean_text,
+                            "start": segment.start,
+                            "end": segment.end,
+                            "is_final": False,
+                            "error": None
+                        }
+                
+                # Signal de fin
+                yield {
+                    "text": "",
+                    "start": 0,
+                    "end": 0,
+                    "is_final": True,
+                    "error": None
+                }
+                
+            finally:
+                # Nettoyage
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
+                    
+        except Exception as e:
+            logger.error(f"Erreur streaming: {e}")
+            yield {
+                "text": "",
+                "start": 0,
+                "end": 0,
+                "is_final": True,
+                "error": str(e)
+            }
 
 # Instance globale du service avec chargement lazy
 _whisper_service = None
