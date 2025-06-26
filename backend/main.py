@@ -33,6 +33,7 @@ import re
 import sys
 import tempfile
 import logging
+from whisper_service import get_whisper_service
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
 _whisper_service = None
@@ -1783,16 +1784,15 @@ async def whisper_health_simple():
     }
 
 @api_router.post("/whisper/transcribe")
-async def whisper_transcribe_simple(request: dict):
-    return {
-        "text": "Test de transcription - Whisper fonctionne !",
-        "segments": [],
-        "language": "fr",
-        "language_probability": 0.9,
-        "duration": 1.0,
-        "transcription_time": 0.1,
-        "error": None
-    }
+async def whisper_transcribe_real(request: dict):
+    audio_base64 = request.get("audio_base64")
+    audio_format = request.get("audio_format", "webm")
+    language = request.get("language", "fr")
+    if not audio_base64:
+        return {"error": "Aucun audio fourni"}
+    service = get_whisper_service()
+    result = service.transcribe_base64_audio(audio_base64, audio_format)
+    return result
 
 if __name__ == "__main__":
     import uvicorn
