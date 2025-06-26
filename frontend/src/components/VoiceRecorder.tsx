@@ -33,6 +33,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const [whisperStatus, setWhisperStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [audioLevel, setAudioLevel] = useState(0);
   const [retryCount, setRetryCount] = useState(0);
+  const [liveText, setLiveText] = useState('');
+  const [isLiveTranscribing, setIsLiveTranscribing] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -40,6 +42,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const liveTranscriptionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const accumulatedTextRef = useRef('');
 
   useEffect(() => {
     checkWhisperStatus();
@@ -126,6 +130,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       });
       
       audioChunksRef.current = [];
+      accumulatedTextRef.current = '';
+      setLiveText('');
       
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -138,17 +144,28 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         setAudioBlob(blob);
         stream.getTracks().forEach(track => track.stop());
         
+        // Arrêter la transcription live
+        if (liveTranscriptionIntervalRef.current) {
+          clearInterval(liveTranscriptionIntervalRef.current);
+          liveTranscriptionIntervalRef.current = null;
+        }
+        setIsLiveTranscribing(false);
+        
         if (autoTranscribe && blob.size > 0) {
           setTimeout(() => transcribeAudio(blob), 100);
         }
       };
       
-      mediaRecorderRef.current.start();
+      // Démarrer l'enregistrement avec des chunks plus petits pour le temps réel
+      mediaRecorderRef.current.start(1000); // Chunk toutes les secondes
       setIsRecording(true);
       setRecordingTime(0);
       setAudioLevel(0);
       
       analyzeAudioLevel(stream);
+      
+      // Démarrer la transcription live
+      startLiveTranscription();
       
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
@@ -304,6 +321,54 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const audioLevelPercent = Math.min((audioLevel / 128) * 100, 100);
   const pulseSize = 16 + (audioLevelPercent * 0.5);
 
+  const startLiveTranscription = useCallback(async () => {
+    setIsLiveTranscribing(true);
+    
+    // Transcription live toutes les 2 secondes
+    liveTranscriptionIntervalRef.current = setInterval(async () => {
+      if (audioChunksRef.current.length > 0) {
+        try {
+          // Prendre les derniers chunks pour la transcription live
+          const recentChunks = audioChunksRef.current.slice(-3); // 3 derniers chunks
+          const liveBlob = new Blob(recentChunks, { type: 'audio/webm' });
+          
+          if (liveBlob.size > 1000) { // Seulement si assez d'audio
+            const arrayBuffer = await liveBlob.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+            const base64Audio = btoa(String.fromCharCode(...Array.from(uint8Array)));
+            
+            const response = await fetch('/api/whisper/transcribe', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                audio_base64: base64Audio,
+                audio_format: 'webm',
+                language: 'fr'
+              }),
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              if (result.text && result.text.trim()) {
+                const newText = result.text.trim();
+                if (newText !== accumulatedTextRef.current) {
+                  accumulatedTextRef.current = newText;
+                  setLiveText(newText);
+                  // Mettre à jour en temps réel
+                  onTranscriptionComplete(newText);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Erreur transcription live:', error);
+        }
+      }
+    }, 2000); // Toutes les 2 secondes
+  }, [onTranscriptionComplete]);
+
   return (
     <div className={`voice-recorder ${className}`}>
       <div className="flex flex-col items-center gap-4">
@@ -340,6 +405,13 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             <div className="flex items-center justify-center gap-2 text-sm text-[#c5a572]">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               <span>Enregistrement en cours... {formatTime(recordingTime)}</span>
+            </div>
+          )}
+          
+          {isLiveTranscribing && liveText && (
+            <div className="bg-[#1a2942] p-3 rounded-lg border border-[#c5a572] max-w-md">
+              <div className="text-xs text-[#c5a572] mb-1">Transcription en temps réel :</div>
+              <div className="text-sm text-white">{liveText}</div>
             </div>
           )}
           
