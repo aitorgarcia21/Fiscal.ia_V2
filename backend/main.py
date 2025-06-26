@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
-from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
@@ -35,6 +35,10 @@ import tempfile
 import logging
 from whisper_service import get_whisper_service
 import base64
+import whisper
+import time
+from pydub import AudioSegment
+import io
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
 _whisper_service = None
@@ -1594,172 +1598,8 @@ class WhisperHealthResponse(BaseModel):
     cache_size: int
     error: Optional[str] = None
 
-# Endpoints Whisper optimisés
-@api_router.post("/whisper/transcribe", response_model=TranscriptionResponse)
-async def transcribe_audio(request: TranscriptionRequest):
-    """
-    Transcrit un audio encodé en base64 avec optimisations.
-    """
-    try:
-        whisper_service = get_whisper_service()
-        if whisper_service is None:
-            return TranscriptionResponse(
-                text="",
-                segments=[],
-                language="fr",
-                language_probability=0.0,
-                duration=0.0,
-                transcription_time=0.0,
-                error="Service Whisper non disponible"
-            )
-        
-        # Vérifier la santé du service
-        health = whisper_service.check_health()
-        if health["status"] == "error":
-            return TranscriptionResponse(
-                text="",
-                segments=[],
-                language="fr",
-                language_probability=0.0,
-                duration=0.0,
-                transcription_time=0.0,
-                error="Francis est temporairement indisponible. Réessayez dans quelques secondes."
-            )
-        
-        result = whisper_service.transcribe_base64_audio(
-            request.audio_base64, 
-            request.audio_format
-        )
-        return TranscriptionResponse(**result)
-    except Exception as e:
-        logger.error(f"Erreur lors de la transcription: {e}")
-        return TranscriptionResponse(
-            text="",
-            segments=[],
-            language="fr",
-            language_probability=0.0,
-            duration=0.0,
-            transcription_time=0.0,
-            error="Erreur lors de la transcription. Réessayez dans quelques secondes."
-        )
-
-@api_router.post("/whisper/transcribe-file")
-async def transcribe_audio_file(
-    file: UploadFile = File(...),
-    language: Optional[str] = "fr"
-):
-    """
-    Transcrit un fichier audio uploadé avec optimisations.
-    """
-    try:
-        whisper_service = get_whisper_service()
-        if whisper_service is None:
-            return TranscriptionResponse(
-                text="",
-                segments=[],
-                language="fr",
-                language_probability=0.0,
-                duration=0.0,
-                transcription_time=0.0,
-                error="Service Whisper non disponible"
-            )
-        
-        # Vérifier la santé du service
-        health = whisper_service.check_health()
-        if health["status"] == "error":
-            return TranscriptionResponse(
-                text="",
-                segments=[],
-                language="fr",
-                language_probability=0.0,
-                duration=0.0,
-                transcription_time=0.0,
-                error="Francis est temporairement indisponible. Réessayez dans quelques secondes."
-            )
-        
-        # Sauvegarder le fichier temporairement
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file.filename.split('.')[-1]}") as temp_file:
-            content = await file.read()
-            temp_file.write(content)
-            temp_file_path = temp_file.name
-        
-        try:
-            result = whisper_service.transcribe_audio_file(temp_file_path)
-            return TranscriptionResponse(**result)
-        finally:
-            # Nettoyer le fichier temporaire
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
-                
-    except Exception as e:
-        logger.error(f"Erreur lors de la transcription de fichier: {e}")
-        return TranscriptionResponse(
-            text="",
-            segments=[],
-            language="fr",
-            language_probability=0.0,
-            duration=0.0,
-            transcription_time=0.0,
-            error="Erreur lors de la transcription. Réessayez dans quelques secondes."
-        )
-
-@api_router.get("/whisper/model-info", response_model=WhisperModelInfoResponse)
-async def get_whisper_model_info():
-    """
-    Retourne les informations détaillées sur le modèle Whisper.
-    """
-    try:
-        whisper_service = get_whisper_service()
-        if whisper_service is None:
-            return WhisperModelInfoResponse(
-                model_size="unknown",
-                status="error",
-                device="unknown",
-                compute_type="unknown",
-                cache_size=0,
-                health_status="error"
-            )
-        
-        info = whisper_service.get_model_info()
-        return WhisperModelInfoResponse(**info)
-    except Exception as e:
-        logger.error(f"Erreur lors de la récupération des infos modèle: {e}")
-        return WhisperModelInfoResponse(
-            model_size="unknown",
-            status="error",
-            device="unknown",
-            compute_type="unknown",
-            cache_size=0,
-            health_status="error"
-        )
-
-@api_router.post("/whisper/health", response_model=WhisperHealthResponse)
-async def whisper_health():
-    """
-    Vérifie la santé du service Whisper avec optimisations.
-    """
-    try:
-        whisper_service = get_whisper_service()
-        if whisper_service is None:
-            return WhisperHealthResponse(
-                status="error",
-                model_loaded=False,
-                is_loading=False,
-                cache_size=0,
-                error="Service Whisper non disponible"
-            )
-        
-        health_info = whisper_service.check_health()
-        return WhisperHealthResponse(**health_info)
-    except Exception as e:
-        logger.error(f"Erreur lors de la vérification de santé: {e}")
-        return WhisperHealthResponse(
-            status="error",
-            model_loaded=False,
-            is_loading=False,
-            cache_size=0,
-            error=str(e)
-        )
+# Endpoints Whisper optimisés - SUPPRIMÉS pour éviter les conflits
+# Les endpoints Whisper sont maintenant définis directement sur app
 
 @app.get("/test")
 async def test_endpoint():
@@ -1843,74 +1683,65 @@ async def transcribe_streaming(request: dict):
 @app.websocket("/ws/whisper-stream")
 async def websocket_whisper_stream(websocket: WebSocket):
     """
-    WebSocket pour streaming audio en temps réel avec Whisper.
+    WebSocket pour streaming audio en temps réel avec Whisper, avec conversion audio.
     """
     await websocket.accept()
     
     try:
         whisper_service = get_whisper_service()
         if not whisper_service:
-            await websocket.send_text(json.dumps({"error": "Service Whisper non disponible"}))
+            await websocket.send_text(json.dumps({"type": "error", "error": "Service Whisper non disponible"}))
             return
         
         audio_buffer = b''
-        buffer_size = 0
         
         while True:
             try:
-                # Recevoir l'audio en chunks
                 data = await websocket.receive_text()
                 message = json.loads(data)
                 
                 if message.get("type") == "audio":
-                    # Décoder l'audio base64
-                    audio_chunk = base64.b64decode(message["audio"])
-                    audio_buffer += audio_chunk
-                    buffer_size += len(audio_chunk)
-                    
-                    # Transcrire quand on a assez d'audio (2 secondes)
-                    if buffer_size > 32000:  # ~2 secondes d'audio
+                    audio_chunk_b64 = message["audio"]
+                    audio_chunk_bytes = base64.b64decode(audio_chunk_b64)
+
+                    # Conversion WebM -> WAV avec pydub
+                    try:
+                        webm_audio = AudioSegment.from_file(io.BytesIO(audio_chunk_bytes), format="webm")
+                        wav_buffer = io.BytesIO()
+                        webm_audio.export(wav_buffer, format="wav")
+                        audio_buffer += wav_buffer.getvalue()
+                    except Exception as e:
+                        logger.warning(f"Pydub n'a pas pu traiter un chunk: {e}")
+                        continue
+
+                    # Transcrire quand on a assez d'audio (ex: > 1 seconde)
+                    # La taille dépend du format WAV (16-bit PCM, 16kHz mono = 32000 bytes/sec)
+                    if len(audio_buffer) > 32000:
                         try:
-                            # Créer un fichier temporaire
                             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
                                 temp_file.write(audio_buffer)
                                 temp_file_path = temp_file.name
                             
                             try:
-                                # Transcription ultra-rapide
                                 result = whisper_service._transcribe_audio_file_internal(temp_file_path)
-                                
-                                if result["text"].strip():
-                                    # Envoyer le résultat en temps réel
+                                if result and result.get("text", "").strip():
                                     await websocket.send_text(json.dumps({
                                         "type": "transcription",
                                         "text": result["text"],
                                         "is_final": False
                                     }))
-                                
-                            except Exception as e:
-                                await websocket.send_text(json.dumps({
-                                    "type": "error",
-                                    "error": str(e)
-                                }))
                             finally:
-                                # Nettoyage
                                 if os.path.exists(temp_file_path):
                                     os.unlink(temp_file_path)
                             
-                            # Réinitialiser le buffer
-                            audio_buffer = b''
-                            buffer_size = 0
+                            audio_buffer = b'' # Réinitialiser le buffer
                             
                         except Exception as e:
-                            await websocket.send_text(json.dumps({
-                                "type": "error",
-                                "error": str(e)
-                            }))
+                            await websocket.send_text(json.dumps({"type": "error", "error": str(e)}))
                 
                 elif message.get("type") == "end":
-                    # Transcription finale avec le buffer restant
                     if audio_buffer:
+                        # Transcription finale du buffer restant
                         try:
                             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
                                 temp_file.write(audio_buffer)
@@ -1918,89 +1749,108 @@ async def websocket_whisper_stream(websocket: WebSocket):
                             
                             try:
                                 result = whisper_service._transcribe_audio_file_internal(temp_file_path)
-                                
-                                if result["text"].strip():
+                                if result and result.get("text", "").strip():
                                     await websocket.send_text(json.dumps({
                                         "type": "transcription",
                                         "text": result["text"],
                                         "is_final": True
                                     }))
-                                
-                            except Exception as e:
-                                await websocket.send_text(json.dumps({
-                                    "type": "error",
-                                    "error": str(e)
-                                }))
                             finally:
                                 if os.path.exists(temp_file_path):
                                     os.unlink(temp_file_path)
                         except Exception as e:
-                            await websocket.send_text(json.dumps({
-                                "type": "error",
-                                "error": str(e)
-                            }))
+                            await websocket.send_text(json.dumps({"type": "error", "error": str(e)}))
                     
-                    break
-                    
+                    # Indiquer la fin finale de la transcription
+                    await websocket.send_text(json.dumps({"type": "transcription", "text": "", "is_final": True}))
+                    break # Terminer la boucle et fermer la connexion
+
             except WebSocketDisconnect:
+                logger.info("Client déconnecté.")
                 break
             except Exception as e:
-                await websocket.send_text(json.dumps({
-                    "type": "error",
-                    "error": str(e)
-                }))
+                logger.error(f"Erreur dans la boucle WebSocket: {e}")
+                await websocket.send_text(json.dumps({"type": "error", "error": "Erreur interne du serveur"}))
                 break
-                
+
     except Exception as e:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "error": str(e)
-        }))
+        logger.error(f"Erreur lors de l'initialisation du WebSocket: {e}")
     finally:
-        await websocket.close()
+        logger.info("Connexion WebSocket fermée.")
 
 @api_router.post("/ai/analyze-profile-text")
 async def analyze_profile_text(request: dict):
     """
-    IA qui analyse le texte dicté et extrait les informations du profil utilisateur.
+    IA qui analyse le texte dicté et extrait TOUTES les informations du profil client.
     """
     try:
         text = request.get("text", "")
+        extract_all = request.get("extract_all", False)
+        
         if not text:
             return {"error": "Texte manquant"}
         
-        # Prompt pour l'IA
+        # Prompt INTELLIGENT pour extraction du profil client complet
         prompt = f"""
-Tu es un expert fiscal français. Analyse ce texte dicté par un utilisateur et extrait les informations pour son profil fiscal.
+Tu es un expert fiscal français ultra-intelligent. Analyse ce texte dicté par un utilisateur et extrait TOUTES les informations possibles pour créer son profil client complet.
 
 Texte dicté: "{text}"
 
-Extrais et retourne UNIQUEMENT un JSON avec ces informations:
+Extrais et retourne UNIQUEMENT un JSON avec TOUTES les informations détectées pour le profil client:
 
 {{
-  "activite_principale": "valeur_ou_null",
-  "revenus_complementaires": ["liste_ou_null"],
-  "statuts_juridiques": ["liste_ou_null"],
-  "residence_fiscale": "valeur_ou_null", 
-  "patrimoine_situation": "valeur_ou_null",
-  "age": nombre_ou_null,
-  "pays_residence": "valeur_ou_null",
-  "patrimoine_immobilier": true/false/null,
-  "revenus_passifs": ["liste_ou_null"],
-  "situation_familiale": "valeur_ou_null",
-  "nombre_enfants": nombre_ou_null,
-  "revenus_annuels": nombre_ou_null,
-  "charges_deductibles": nombre_ou_null
+  // I. IDENTITÉ DU CLIENT
+  "civilite_client": "M." ou "Mme" ou "Mlle" ou null,
+  "nom_client": "nom_de_famille" ou null,
+  "prenom_client": "prénom" ou null,
+  "nom_usage_client": "nom_d_usage" ou null,
+  "date_naissance_client": "YYYY-MM-DD" ou null,
+  "lieu_naissance_client": "ville_naissance" ou null,
+  "nationalite_client": "nationalité" ou null,
+  "numero_fiscal_client": "numéro_fiscal" ou null,
+
+  // II. COORDONNÉES DU CLIENT
+  "adresse_postale_client": "adresse_complète" ou null,
+  "code_postal_client": "code_postal" ou null,
+  "ville_client": "ville" ou null,
+  "pays_residence_fiscale_client": "pays" ou null,
+  "email_client": "email@exemple.com" ou null,
+  "telephone_principal_client": "téléphone" ou null,
+  "telephone_secondaire_client": "téléphone_secondaire" ou null,
+
+  // III. SITUATION FAMILIALE & PERSONNELLE
+  "situation_maritale_client": "Célibataire" ou "Marié" ou "PACS" ou "Divorcé" ou "Veuf" ou null,
+  "date_mariage_pacs_client": "YYYY-MM-DD" ou null,
+  "regime_matrimonial_client": "régime_matrimonial" ou null,
+  "nombre_enfants_a_charge_client": nombre_ou_null,
+  "personnes_dependantes_client": "description" ou null,
+
+  // IV. SITUATION PROFESSIONNELLE & REVENUS
+  "profession_client1": "profession" ou null,
+  "statut_professionnel_client1": "CDI" ou "CDD" ou "Fonctionnaire" ou "Indépendant" ou "Retraité" ou null,
+  "nom_employeur_entreprise_client1": "employeur" ou null,
+  "type_contrat_client1": "type_contrat" ou null,
+  "revenu_net_annuel_client1": nombre_ou_null,
+  "profession_client2": "profession_conjoint" ou null,
+  "statut_professionnel_client2": "statut_conjoint" ou null,
+  "nom_employeur_entreprise_client2": "employeur_conjoint" ou null,
+  "type_contrat_client2": "type_contrat_conjoint" ou null,
+  "revenu_net_annuel_client2": nombre_ou_null,
+
+  // V. OBJECTIFS & PROJETS
+  "objectifs_fiscaux_client": "objectifs_fiscaux" ou null,
+  "objectifs_patrimoniaux_client": "objectifs_patrimoniaux" ou null,
+  "notes_objectifs_projets_client": "notes_et_projets" ou null
 }}
 
-Valeurs possibles:
-- activite_principale: "salarie_cdi", "fonctionnaire", "dirigeant_sasu", "dirigeant_sarl", "autoentrepreneur", "profession_liberale", "retraite", "sans_activite"
-- revenus_complementaires: ["immobilier_locatif", "dividendes", "plus_values", "crypto", "scpi", "lmnp", "aucun"]
-- statuts_juridiques: ["SASU", "SARL", "SCI", "holding", "EURL", "aucune"]
-- residence_fiscale: "france", "dom_tom", "portugal", "belgique", "suisse", "luxembourg", "autre_ue", "hors_ue"
-- patrimoine_situation: "primo_accedant", "proprietaire_rp", "multi_proprietaire", "patrimoine_important", "ifi_concerne", "locataire"
-- situation_familiale: "celibataire", "marie", "pacs", "divorce", "veuf"
-- pays_residence: nom du pays
+INSTRUCTIONS SPÉCIALES:
+1. Sois TRÈS INTELLIGENT et détecte les informations même si elles sont implicites
+2. Si quelqu'un dit "je m'appelle Jean Dupont", détecte "prenom_client: Jean" ET "nom_client: Dupont"
+3. Si quelqu'un dit "je suis à Paris", détecte "ville_client: Paris" ET "pays_residence_fiscale_client: France"
+4. Si quelqu'un dit "je suis marié avec 2 enfants", détecte "situation_maritale_client: Marié" ET "nombre_enfants_a_charge_client: 2"
+5. Si quelqu'un dit "je gagne 50000 euros par an", détecte "revenu_net_annuel_client1: 50000"
+6. Si quelqu'un dit "je suis ingénieur chez Google", détecte "profession_client1: Ingénieur" ET "nom_employeur_entreprise_client1: Google"
+7. Extrais TOUTES les informations possibles, même les coordonnées, l'âge, la situation familiale, etc.
 
 Si une information n'est pas mentionnée, mets null. Sois précis et intelligent dans l'analyse.
 """
@@ -2020,11 +1870,20 @@ Si une information n'est pas mentionnée, mets null. Sois précis et intelligent
             if json_match:
                 import json
                 extracted_data = json.loads(json_match.group())
+                
+                # Nettoyer les données (supprimer les valeurs vides)
+                cleaned_data = {}
+                for key, value in extracted_data.items():
+                    if value is not None and value != "" and value != []:
+                        cleaned_data[key] = value
+                
                 return {
                     "success": True,
-                    "data": extracted_data,
+                    "data": cleaned_data,
                     "confidence": confidence,
-                    "original_text": text
+                    "original_text": text,
+                    "fields_detected": len(cleaned_data),
+                    "ai_response": answer[:200] + "..." if len(answer) > 200 else answer
                 }
             else:
                 return {
@@ -2045,6 +1904,124 @@ Si une information n'est pas mentionnée, mets null. Sois précis et intelligent
             "success": False,
             "error": f"Erreur lors de l'analyse: {str(e)}"
         }
+
+@app.post("/api/whisper/transcribe", response_model=TranscriptionResponse)
+async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("fr")):
+    """
+    Endpoint pour transcrire l'audio avec Whisper
+    """
+    try:
+        print(f"🎤 Transcription Whisper demandée - Langue: {language}")
+        
+        # Vérifier le type de fichier
+        if not audio.content_type.startswith('audio/'):
+            raise HTTPException(status_code=400, detail="Fichier audio requis")
+        
+        # Lire le contenu audio
+        audio_content = await audio.read()
+        
+        # Créer un fichier temporaire
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_file:
+            temp_file.write(audio_content)
+            temp_file_path = temp_file.name
+        
+        try:
+            # Importer Whisper de manière lazy pour éviter les erreurs
+            try:
+                import whisper
+            except ImportError:
+                raise HTTPException(status_code=500, detail="Whisper non disponible")
+            
+            # Charger le modèle Whisper (petit modèle pour rapidité)
+            print("🤖 Chargement modèle Whisper...")
+            model = whisper.load_model("base")
+            
+            # Transcrire l'audio
+            print("🎤 Transcription en cours...")
+            result = model.transcribe(
+                temp_file_path,
+                language=language,
+                task="transcribe",
+                fp16=False,  # Éviter les erreurs de précision
+                verbose=False
+            )
+            
+            transcription = result["text"].strip()
+            
+            if transcription:
+                print(f"✅ Transcription réussie: {transcription[:100]}...")
+                return transcription
+            else:
+                print("⚠️ Aucun texte détecté")
+                raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
+                
+        finally:
+            # Nettoyer le fichier temporaire
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Erreur transcription Whisper: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur de transcription: {str(e)}")
+
+@app.post("/whisper/health", response_model=WhisperHealthResponse)
+async def whisper_health():
+    """
+    Vérifie la santé du service Whisper avec optimisations.
+    """
+    try:
+        whisper_service = get_whisper_service()
+        if whisper_service is None:
+            return WhisperHealthResponse(
+                status="error",
+                model_loaded=False,
+                is_loading=False,
+                cache_size=0,
+                error="Service Whisper non disponible"
+            )
+        
+        health_info = whisper_service.check_health()
+        return WhisperHealthResponse(**health_info)
+    except Exception as e:
+        logger.error(f"Erreur lors de la vérification de santé: {e}")
+        return WhisperHealthResponse(
+            status="error",
+            model_loaded=False,
+            is_loading=False,
+            cache_size=0,
+            error=str(e)
+        )
+
+@app.post("/whisper/transcribe", response_model=TranscriptionResponse)
+async def whisper_transcribe_audio(request: TranscriptionRequest):
+    """
+    Transcrire un fichier audio avec Whisper.
+    """
+    try:
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            raise HTTPException(status_code=503, detail="Service Whisper non disponible")
+        
+        start_time = time.time()
+        
+        # Transcrire l'audio
+        result = whisper_service.transcribe_base64_audio(
+            request.audio_base64, 
+            request.audio_format
+        )
+        
+        transcription_time = time.time() - start_time
+        
+        # Ajouter le temps de transcription au résultat
+        result["transcription_time"] = transcription_time
+        
+        return TranscriptionResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"Erreur lors de la transcription: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur de transcription: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

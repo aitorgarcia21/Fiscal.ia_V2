@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { VoiceRecorder } from '../components/VoiceRecorder';
 
 interface ProCreateClientFormState {
   nom_client: string;
@@ -172,6 +173,11 @@ export function ProCreateClientPage() {
   const [formData, setFormData] = useState<ProCreateClientFormState>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showVoiceInput, setShowVoiceInput] = useState(false);
+  const [voiceText, setVoiceText] = useState("");
+  const [finalTranscript, setFinalTranscript] = useState("");
+  const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string>('');
   
   // États pour la reconnaissance vocale
   const [isListening, setIsListening] = useState(false);
@@ -433,6 +439,135 @@ export function ProCreateClientPage() {
     }
   };
   
+  // Fonction d'analyse IA intelligente pour remplir le profil client
+  const analyzeWithAI = async (text: string) => {
+    try {
+      console.log('🤖 Analyse IA du profil client:', text);
+      setIsAIAnalyzing(true);
+      setAiAnalysisResult('Francis analyse votre profil client...');
+      
+      const response = await fetch('/api/ai/analyze-profile-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: text,
+          extract_all: true
+        }),
+      });
+
+      if (response.ok) {
+        const aiResult = await response.json();
+        console.log('🤖 Résultat IA profil client:', aiResult);
+        
+        if (aiResult.success && aiResult.data) {
+          const extractedData = aiResult.data;
+          
+          // Remplir TOUS les champs détectés du formulaire
+          const updatedFormData = { ...formData };
+          let fieldsUpdated = 0;
+          let detectedFields: string[] = [];
+          
+          // Mapper TOUTES les informations extraites vers le formulaire
+          Object.keys(extractedData).forEach(key => {
+            const value = extractedData[key];
+            if (value !== null && value !== undefined && value !== '') {
+              updatedFormData[key as keyof ProCreateClientFormState] = value;
+              fieldsUpdated++;
+              
+              // Traduire les noms de champs pour l'affichage
+              const fieldNames: { [key: string]: string } = {
+                'civilite_client': 'Civilité',
+                'nom_client': 'Nom',
+                'prenom_client': 'Prénom',
+                'nom_usage_client': 'Nom d\'usage',
+                'date_naissance_client': 'Date de naissance',
+                'lieu_naissance_client': 'Lieu de naissance',
+                'nationalite_client': 'Nationalité',
+                'numero_fiscal_client': 'Numéro fiscal',
+                'adresse_postale_client': 'Adresse postale',
+                'code_postal_client': 'Code postal',
+                'ville_client': 'Ville',
+                'pays_residence_fiscale_client': 'Pays de résidence',
+                'email_client': 'Email',
+                'telephone_principal_client': 'Téléphone principal',
+                'telephone_secondaire_client': 'Téléphone secondaire',
+                'situation_maritale_client': 'Situation maritale',
+                'date_mariage_pacs_client': 'Date mariage/PACS',
+                'regime_matrimonial_client': 'Régime matrimonial',
+                'nombre_enfants_a_charge_client': 'Nombre d\'enfants',
+                'personnes_dependantes_client': 'Personnes dépendantes',
+                'profession_client1': 'Profession',
+                'statut_professionnel_client1': 'Statut professionnel',
+                'nom_employeur_entreprise_client1': 'Employeur',
+                'type_contrat_client1': 'Type de contrat',
+                'revenu_net_annuel_client1': 'Revenu net annuel',
+                'profession_client2': 'Profession conjoint',
+                'statut_professionnel_client2': 'Statut professionnel conjoint',
+                'nom_employeur_entreprise_client2': 'Employeur conjoint',
+                'type_contrat_client2': 'Type de contrat conjoint',
+                'revenu_net_annuel_client2': 'Revenu net annuel conjoint',
+                'objectifs_fiscaux_client': 'Objectifs fiscaux',
+                'objectifs_patrimoniaux_client': 'Objectifs patrimoniaux',
+                'notes_objectifs_projets_client': 'Notes et projets'
+              };
+              
+              detectedFields.push(fieldNames[key] || key);
+              console.log(`✅ ${fieldNames[key] || key} détecté:`, value);
+            }
+          });
+          
+          // Mettre à jour le formulaire avec TOUTES les informations détectées
+          setFormData(updatedFormData);
+          
+          // Afficher un message de succès
+          if (fieldsUpdated > 0) {
+            const resultMessage = `🎯 Francis a détecté et rempli automatiquement : ${detectedFields.join(', ')}`;
+            setAiAnalysisResult(resultMessage);
+            console.log(`🎯 IA a détecté et rempli ${fieldsUpdated} champs du profil client`);
+            
+            // Effacer le message après 5 secondes
+            setTimeout(() => setAiAnalysisResult(''), 5000);
+          } else {
+            setAiAnalysisResult('📝 Francis n\'a pas détecté d\'informations structurées');
+            setTimeout(() => setAiAnalysisResult(''), 3000);
+          }
+          
+        } else {
+          console.log('❌ IA n\'a pas pu analyser le profil client');
+          setAiAnalysisResult('❌ Erreur d\'analyse du profil client');
+          setTimeout(() => setAiAnalysisResult(''), 3000);
+        }
+      } else {
+        console.log('❌ Erreur API IA');
+        setAiAnalysisResult('❌ Erreur de connexion à l\'IA');
+        setTimeout(() => setAiAnalysisResult(''), 3000);
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'analyse IA:', error);
+      setAiAnalysisResult('❌ Erreur technique');
+      setTimeout(() => setAiAnalysisResult(''), 3000);
+    } finally {
+      setIsAIAnalyzing(false);
+    }
+  };
+
+  const handleVoiceTranscription = async (text: string) => {
+    setVoiceText(text);
+  };
+
+  const handleFinalTranscription = async (text: string) => {
+    setFinalTranscript(text);
+    if (text.trim().length > 10) { // Lancer l'analyse uniquement si le texte est pertinent
+      analyzeWithAI(text);
+    }
+  };
+
+  const handleVoiceError = (error: string) => {
+    console.error('Erreur dictée profil client:', error);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-gray-100 font-sans antialiased">
       <header className="bg-[#0D1F3A]/90 backdrop-blur-md border-b border-[#2A3F6C]/30 shadow-lg sticky top-0 z-40">
@@ -448,93 +583,70 @@ export function ProCreateClientPage() {
 
       <main className="p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
-          {/* Interface vocale */}
-          <div className="mb-8 bg-[#162238]/60 rounded-2xl border border-[#c5a572]/20 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
-                  <Brain className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">Assistant Vocal IA</h2>
-                  <p className="text-[#c5a572] text-sm">Dictez les informations client, l'IA remplit automatiquement</p>
-                </div>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center">
+              <button
+                onClick={() => navigate('/pro/dashboard')}
+                className="flex items-center text-gray-400 hover:text-white transition-colors mr-4"
+              >
+                <ChevronLeft className="w-5 h-5 mr-1" />
+                Retour
+              </button>
+              <h1 className="text-2xl font-bold text-white">Nouveau Client</h1>
+            </div>
+            
+            {/* Bouton de dictée vocale */}
+            <button
+              onClick={() => setShowVoiceInput(!showVoiceInput)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
+            >
+              {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale IA'}</span>
+            </button>
+          </div>
+
+          {/* Interface de dictée vocale */}
+          {showVoiceInput && (
+            <div className="mb-8 p-6 bg-[#162238]/50 rounded-xl border border-[#c5a572]/30">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-white mb-2">🎤 Dictée vocale intelligente</h3>
+                <p className="text-gray-400 text-sm">
+                  Parlez de votre profil client et Francis remplira automatiquement le formulaire
+                </p>
               </div>
               
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={toggleMute}
-                  className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-                    isMuted 
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
-                      : 'bg-green-500/20 text-green-400 border border-green-500/30'
-                  }`}
-                >
-                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  {isMuted ? 'Désactivé' : 'Activé'}
-                </button>
-                
-                {!isListening ? (
-                  <button
-                    onClick={startListening}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3"
-                  >
-                    <Mic className="w-5 h-5" />
-                    Commencer la dictée
-                  </button>
-                ) : (
-                  <button
-                    onClick={stopListening}
-                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    Terminer la dictée
-                  </button>
-                )}
-              </div>
+              <VoiceRecorder
+                onTranscriptionUpdate={handleVoiceTranscription}
+                onTranscriptionComplete={handleFinalTranscription}
+                onError={handleVoiceError}
+                className="mb-4"
+              />
+              
+              {voiceText && (
+                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
+                  <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
+                  <div className="text-sm text-white">{voiceText}</div>
+                </div>
+              )}
+              
+              {/* Indicateur d'analyse IA */}
+              {isAIAnalyzing && (
+                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-blue-500/50">
+                  <div className="flex items-center gap-2 text-blue-400">
+                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">Francis analyse votre profil client...</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Résultat de l'analyse IA */}
+              {aiAnalysisResult && !isAIAnalyzing && (
+                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-green-500/50">
+                  <div className="text-sm text-green-400">{aiAnalysisResult}</div>
+                </div>
+              )}
             </div>
-
-            {/* Indicateur d'écoute */}
-            {isListening && (
-              <div className="mb-4 p-4 bg-purple-500/20 border border-purple-500/30 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-purple-400 rounded-full animate-pulse"></div>
-                  <span className="text-purple-300 font-medium">Écoute en cours... Parlez clairement</span>
-                </div>
-              </div>
-            )}
-
-            {/* Traitement en cours */}
-            {isProcessing && (
-              <div className="mb-4 p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
-                  <span className="text-blue-300 font-medium">Traitement en cours...</span>
-                </div>
-              </div>
-            )}
-
-            {/* Transcript en temps réel */}
-            {transcript && (
-              <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-300 mb-2">Transcription :</h3>
-                <div className="bg-[#0A192F]/60 rounded-xl p-4 border border-[#c5a572]/20 max-h-32 overflow-y-auto">
-                  <p className="text-gray-300 leading-relaxed text-sm">{transcript}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Instructions */}
-            <div className="text-sm text-gray-400">
-              <p className="mb-2"><strong>Instructions :</strong> Dites clairement les informations du client :</p>
-              <ul className="list-disc list-inside space-y-1 text-xs">
-                <li>"Le client s'appelle Jean Dupont, il habite au 123 rue de la Paix à Paris"</li>
-                <li>"Il est ingénieur, gagne 60 000 euros par an"</li>
-                <li>"Il est marié avec 2 enfants, veut optimiser ses impôts"</li>
-                <li>"Il a une résidence principale de 400 000 euros"</li>
-              </ul>
-            </div>
-          </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <section className={firstSectionStyles}>

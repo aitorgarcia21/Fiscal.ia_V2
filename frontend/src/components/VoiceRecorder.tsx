@@ -1,328 +1,109 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from './ui/Button';
-import { Mic, MicOff, Volume2, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { Mic, MicOff, CheckCircle } from 'lucide-react';
 
 interface VoiceRecorderProps {
+  onTranscriptionUpdate: (text: string) => void;
   onTranscriptionComplete: (text: string) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
   className?: string;
-  autoTranscribe?: boolean;
 }
 
-interface TranscriptionResponse {
-  text: string;
-  segments: any[];
-  language: string;
-  language_probability: number;
-  duration: number;
-  error?: string;
-}
+const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
+  onTranscriptionUpdate,
   onTranscriptionComplete,
   onError,
   disabled = false,
   className = '',
-  autoTranscribe = true
 }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [whisperStatus, setWhisperStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [retryCount, setRetryCount] = useState(0);
-  const [liveText, setLiveText] = useState('');
-  const [isLiveTranscribing, setIsLiveTranscribing] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
   
   const recognitionRef = useRef<any>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
   const accumulatedTextRef = useRef('');
+  
+  // Ref to hold the latest recording state to avoid stale closures in callbacks
+  const isRecordingRef = useRef(isRecording);
+  isRecordingRef.current = isRecording;
 
   useEffect(() => {
-    checkWhisperStatus();
-  }, []);
+    if (!SpeechRecognition) {
+      setIsAvailable(false);
+      onError?.("Reconnaissance vocale non supportée sur ce navigateur.");
+      return;
+    }
 
-  useEffect(() => {
+    recognitionRef.current = new SpeechRecognition();
+    const recognition = recognitionRef.current;
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'fr-FR';
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript.trim() + ' ';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      onTranscriptionUpdate(accumulatedTextRef.current + finalTranscript + interimTranscript);
+      
+      if (finalTranscript) {
+        accumulatedTextRef.current += finalTranscript;
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Erreur reconnaissance vocale:', event.error);
+      if (event.error !== 'no-speech') {
+        onError?.(`Erreur: ${event.error}`);
+      }
+      // The onend event will handle the stop logic
+    };
+    
+    recognition.onend = () => {
+      // Only call onTranscriptionComplete if the user explicitly stopped it.
+      // If it stops on its own, it will restart if still in recording mode.
+      if (isRecordingRef.current) {
+        console.log("Speech recognition service stopped, restarting...");
+        recognition.start();
+      }
+    };
+
+    // Cleanup function to stop recognition when the component unmounts
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
       }
     };
-  }, []);
+  }, [onTranscriptionUpdate, onError]); // This effect should run only once.
 
-  const checkWhisperStatus = useCallback(async () => {
-    try {
-      setWhisperStatus('loading');
-      const response = await fetch('/api/whisper/health', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setWhisperStatus(data.status === 'healthy' ? 'ready' : 'loading');
-      } else {
-        setWhisperStatus('error');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la vérification du statut Whisper:', error);
-      setWhisperStatus('error');
-      
-      if (retryCount < 3) {
-        setTimeout(() => {
-          setRetryCount(prev => prev + 1);
-          checkWhisperStatus();
-        }, Math.pow(2, retryCount) * 1000);
-      }
-    }
-  }, [retryCount]);
-
-  const analyzeAudioLevel = useCallback((stream: MediaStream) => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
-    }
-    
-    const source = audioContextRef.current.createMediaStreamSource(stream);
-    const analyser = audioContextRef.current.createAnalyser();
-    analyser.fftSize = 256;
-    source.connect(analyser);
-    analyserRef.current = analyser;
-    
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    
-    const updateLevel = () => {
-      if (analyserRef.current && isRecording) {
-        analyserRef.current.getByteFrequencyData(dataArray);
-        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-        setAudioLevel(average);
-        animationFrameRef.current = requestAnimationFrame(updateLevel);
-      }
-    };
-    
-    updateLevel();
-  }, [isRecording]);
-
-  const startRecording = useCallback(async () => {
-    try {
-      // Vérifier si Web Speech API est disponible
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        throw new Error('Web Speech API non supportée');
-      }
-      
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      
-      // Configuration ULTRA-RAPIDE
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'fr-FR';
-      recognitionRef.current.maxAlternatives = 1;
-      
-      // Réinitialiser
+  const startRecording = useCallback(() => {
+    if (recognitionRef.current) {
       accumulatedTextRef.current = '';
-      setLiveText('');
+      onTranscriptionUpdate('');
       setIsRecording(true);
-      setRecordingTime(0);
-      setAudioLevel(0);
-      setIsLiveTranscribing(true);
-      
-      // Événements de reconnaissance
-      recognitionRef.current.onstart = () => {
-        console.log('Reconnaissance vocale ULTRA-RAPIDE démarrée');
-      };
-      
-      recognitionRef.current.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-        
-        // Mise à jour ULTRA-RAPIDE
-        const currentText = finalTranscript + interimTranscript;
-        if (currentText !== accumulatedTextRef.current) {
-          accumulatedTextRef.current = currentText;
-          setLiveText(currentText);
-          
-          // Si c'est final, envoyer immédiatement
-          if (finalTranscript) {
-            onTranscriptionComplete(finalTranscript);
-          }
-        }
-      };
-      
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Erreur reconnaissance vocale:', event.error);
-        onError?.(`Erreur reconnaissance: ${event.error}`);
-        stopRecording();
-      };
-      
-      recognitionRef.current.onend = () => {
-        console.log('Reconnaissance vocale terminée');
-        setIsLiveTranscribing(false);
-        setIsRecording(false);
-      };
-      
-      // Démarrer la reconnaissance ULTRA-RAPIDE
       recognitionRef.current.start();
-      
-      // Timer pour l'affichage
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Erreur lors du démarrage de la reconnaissance:', error);
-      onError?.('Reconnaissance vocale non supportée. Utilisez Chrome ou Edge.');
     }
-  }, [onTranscriptionComplete, onError]);
+  }, [onTranscriptionUpdate]);
 
   const stopRecording = useCallback(() => {
-    if (recognitionRef.current && isRecording) {
-      recognitionRef.current.stop();
+    if (recognitionRef.current) {
       setIsRecording(false);
-      setAudioLevel(0);
-      setIsLiveTranscribing(false);
-      
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
+      recognitionRef.current.stop();
+      onTranscriptionComplete(accumulatedTextRef.current);
     }
-  }, [isRecording]);
-
-  const transcribeAudio = useCallback(async (blob?: Blob) => {
-    const audioToTranscribe = blob || audioBlob;
-    if (!audioToTranscribe) return;
-    
-    setIsProcessing(true);
-    
-    try {
-      const arrayBuffer = await audioToTranscribe.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const base64Audio = btoa(String.fromCharCode(...Array.from(uint8Array)));
-      
-      // Essayer d'abord le streaming en temps réel
-      try {
-        const streamResponse = await fetch('/api/whisper/transcribe-streaming', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            audio_base64: base64Audio,
-            audio_format: 'webm',
-            language: 'fr'
-          }),
-        });
-        
-        if (streamResponse.ok) {
-          const reader = streamResponse.body?.getReader();
-          if (reader) {
-            let accumulatedText = '';
-            
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              
-              const chunk = new TextDecoder().decode(value);
-              const lines = chunk.split('\n');
-              
-              for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                  try {
-                    const data = JSON.parse(line.slice(6));
-                    if (data.text && !data.is_final) {
-                      accumulatedText += data.text + ' ';
-                      // Mettre à jour en temps réel
-                      onTranscriptionComplete(accumulatedText.trim());
-                    } else if (data.is_final) {
-                      // Transcription finale
-                      if (accumulatedText.trim()) {
-                        onTranscriptionComplete(accumulatedText.trim());
-                      } else {
-                        onError?.('Je n\'ai pas entendu de parole claire. Pouvez-vous parler plus fort ou plus longtemps ?');
-                      }
-                      return;
-                    }
-                  } catch (e) {
-                    console.error('Erreur parsing streaming:', e);
-                  }
-                }
-              }
-            }
-            return;
-          }
-        }
-      } catch (streamError) {
-        console.log('Streaming non disponible, fallback vers transcription normale');
-      }
-      
-      // Fallback vers la transcription normale
-      const response = await fetch('/api/whisper/transcribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          audio_base64: base64Audio,
-          audio_format: 'webm',
-          language: 'fr'
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      
-      const result: TranscriptionResponse = await response.json();
-      
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      
-      if (result.text.trim()) {
-        onTranscriptionComplete(result.text);
-      } else {
-        onError?.('Je n\'ai pas entendu de parole claire. Pouvez-vous parler plus fort ou plus longtemps ?');
-      }
-      
-    } catch (error) {
-      console.error('Erreur lors de la transcription:', error);
-      onError?.(error instanceof Error ? error.message : 'Erreur lors de la transcription. Réessayez dans quelques secondes.');
-    } finally {
-      setIsProcessing(false);
-      setAudioBlob(null);
-      setRecordingTime(0);
-    }
-  }, [audioBlob, onTranscriptionComplete, onError]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  }, [onTranscriptionComplete]);
 
   const handleButtonClick = useCallback(() => {
     if (isRecording) {
@@ -332,96 +113,31 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   }, [isRecording, startRecording, stopRecording]);
 
-  const isWhisperReady = whisperStatus === 'ready';
-  const isButtonDisabled = disabled || isProcessing;
-
-  const audioLevelPercent = Math.min((audioLevel / 128) * 100, 100);
-  const pulseSize = 16 + (audioLevelPercent * 0.5);
+  if (!isAvailable) {
+    return (
+      <div className={`flex flex-col items-center text-red-400 ${className}`}>
+        <MicOff className="w-8 h-8" />
+        <span className="text-sm mt-2">Reconnaissance vocale non disponible</span>
+      </div>
+    );
+  }
 
   return (
-    <div className={`voice-recorder ${className}`}>
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative">
-          <Button
-            onClick={handleButtonClick}
-            disabled={isButtonDisabled}
-            className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
-              isRecording 
-                ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-[#c5a572] hover:bg-[#e8cfa0] text-[#1a2942]'
-            } ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {isRecording ? (
-              <MicOff className="w-6 h-6" />
-            ) : (
-              <Mic className="w-6 h-6" />
-            )}
-          </Button>
-          
-          {isRecording && (
-            <div 
-              className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping"
-              style={{
-                transform: `scale(${pulseSize / 16})`,
-                opacity: audioLevelPercent / 100
-              }}
-            />
-          )}
-        </div>
-
-        <div className="text-center space-y-2">
-          {isRecording && (
-            <div className="flex items-center justify-center gap-2 text-sm text-[#c5a572]">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              <span>Enregistrement en cours... {formatTime(recordingTime)}</span>
-            </div>
-          )}
-          
-          {isLiveTranscribing && liveText && (
-            <div className="bg-[#1a2942] p-3 rounded-lg border border-[#c5a572] max-w-md">
-              <div className="text-xs text-[#c5a572] mb-1">Transcription en temps réel :</div>
-              <div className="text-sm text-white">{liveText}</div>
-            </div>
-          )}
-          
-          {isProcessing && (
-            <div className="flex items-center justify-center gap-2 text-sm text-[#c5a572]">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Francis écoute et analyse...</span>
-            </div>
-          )}
-          
-          {whisperStatus === 'loading' && (
-            <div className="flex items-center justify-center gap-2 text-sm text-yellow-500">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Initialisation de Francis...</span>
-            </div>
-          )}
-          
-          {whisperStatus === 'error' && (
-            <div className="flex items-center justify-center gap-2 text-sm text-red-400">
-              <AlertCircle className="w-4 h-4" />
-              <span>Francis temporairement indisponible</span>
-            </div>
-          )}
-          
-          {whisperStatus === 'ready' && !isRecording && !isProcessing && (
-            <div className="flex items-center justify-center gap-2 text-sm text-green-400">
-              <CheckCircle className="w-4 h-4" />
-              <span>Francis prêt à vous écouter</span>
-            </div>
-          )}
-        </div>
-
-        {!autoTranscribe && audioBlob && !isRecording && !isProcessing && (
-          <Button
-            onClick={() => transcribeAudio()}
-            className="bg-[#c5a572] hover:bg-[#e8cfa0] text-[#1a2942] px-4 py-2 rounded-lg transition-colors"
-          >
-            <Volume2 className="w-4 h-4 mr-2" />
-            Transcrire
-          </Button>
-        )}
+    <div className={`flex flex-col items-center ${className}`}>
+      <Button
+        onClick={handleButtonClick}
+        disabled={disabled}
+        className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
+          isRecording 
+            ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+            : 'bg-green-500 hover:bg-green-600'
+        }`}
+      >
+        {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
+      </Button>
+      <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
+        <CheckCircle className="w-4 h-4 text-green-500" />
+        <span>Reconnaissance instantanée activée</span>
       </div>
     </div>
   );

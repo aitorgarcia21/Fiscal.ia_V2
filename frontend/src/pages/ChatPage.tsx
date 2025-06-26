@@ -31,6 +31,8 @@ export function ChatPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [voiceInput, setVoiceInput] = useState("");
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -118,17 +120,19 @@ export function ChatPage() {
     }
   };
 
-  const handleVoiceTranscription = (transcribedText: string) => {
-    setInput(transcribedText);
+  const handleVoiceUpdate = (text: string) => {
+    setVoiceInput(text);
+    setInput(text); // Met à jour le champ de texte en temps réel
+  };
+
+  const handleVoiceComplete = (text: string) => {
+    setVoiceInput(text);
+    setInput(text);
+    // Optionnel: Envoyer automatiquement le message à la fin de la dictée
+    // if (text.trim()) {
+    //   handleSubmit(new Event('submit') as any);
+    // }
     setShowVoiceRecorder(false);
-    setVoiceError(null);
-    
-    if (isVoiceMode) {
-      setTimeout(() => {
-        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-        handleSend(fakeEvent);
-      }, 500);
-    }
   };
 
   const handleVoiceError = (error: string) => {
@@ -330,12 +334,17 @@ export function ChatPage() {
                 </button>
               </div>
               <VoiceRecorder
-                onTranscriptionComplete={handleVoiceTranscription}
+                onTranscriptionUpdate={handleVoiceUpdate}
+                onTranscriptionComplete={handleVoiceComplete}
                 onError={handleVoiceError}
                 disabled={isLoading}
                 className="flex justify-center"
-                autoTranscribe={isVoiceMode}
               />
+              {voiceInput && (
+                <p className="mt-2 text-sm text-gray-300">
+                  <span className="font-semibold">Texte dicté:</span> {voiceInput}
+                </p>
+              )}
             </div>
           )}
         </form>

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingUp, Mic, MicOff } from 'lucide-react';
 import { VoiceRecorder } from './VoiceRecorder';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 interface InitialData {
   activite_principale?: string;
@@ -31,6 +33,11 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
   const [showVoiceInput, setShowVoiceInput] = useState(false);
   const [voiceText, setVoiceText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string>('');
+  const [dictatedText, setDictatedText] = useState('');
+  const [finalTranscript, setFinalTranscript] = useState('');
+  const [dictationError, setDictationError] = useState<string | null>(null);
 
   const questions = [
     {
@@ -159,132 +166,339 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
     return processed;
   };
 
-  const handleVoiceTranscription = (text: string) => {
+  const handleVoiceTranscription = async (text: string) => {
     setVoiceText(text);
-    // Mapper le texte dicté vers les réponses appropriées
-    const lowerText = text.toLowerCase();
+    console.log('🎤 Texte reçu:', text);
     
-    // Logique de mapping pour chaque question
+    // Logique de mapping INTELLIGENT pour chaque question
+    const lowerText = text.toLowerCase();
+    let matched = false;
+    
     switch (currentQ.id) {
       case 'activite_principale':
-        if (lowerText.includes('salarié') || lowerText.includes('cdi')) {
+        // Mapping direct par mots-clés
+        if (lowerText.includes('salarié') || lowerText.includes('salarie') || lowerText.includes('cdi') || lowerText.includes('employé')) {
           handleAnswer('salarie_cdi');
-        } else if (lowerText.includes('fonctionnaire')) {
+          matched = true;
+        } else if (lowerText.includes('fonctionnaire') || lowerText.includes('fonction publique') || lowerText.includes('état')) {
           handleAnswer('fonctionnaire');
-        } else if (lowerText.includes('dirigeant') || lowerText.includes('sasu')) {
+          matched = true;
+        } else if (lowerText.includes('dirigeant') && (lowerText.includes('sasu') || lowerText.includes('sas'))) {
           handleAnswer('dirigeant_sasu');
-        } else if (lowerText.includes('sarl')) {
+          matched = true;
+        } else if (lowerText.includes('dirigeant') && lowerText.includes('sarl')) {
           handleAnswer('dirigeant_sarl');
-        } else if (lowerText.includes('auto') || lowerText.includes('entrepreneur')) {
+          matched = true;
+        } else if (lowerText.includes('auto') || lowerText.includes('entrepreneur') || lowerText.includes('micro')) {
           handleAnswer('autoentrepreneur');
-        } else if (lowerText.includes('libéral') || lowerText.includes('profession')) {
+          matched = true;
+        } else if (lowerText.includes('libéral') || lowerText.includes('liberal') || lowerText.includes('profession')) {
           handleAnswer('profession_liberale');
-        } else if (lowerText.includes('retraité') || lowerText.includes('retraite')) {
+          matched = true;
+        } else if (lowerText.includes('retraité') || lowerText.includes('retraite') || lowerText.includes('pensionné')) {
           handleAnswer('retraite');
-        } else {
-          // Saisie libre
-          setAnswers(prev => ({ ...prev, activite_principale_libre: text }));
+          matched = true;
+        } else if (lowerText.includes('sans activité') || lowerText.includes('chômage') || lowerText.includes('inactive')) {
+          handleAnswer('sans_activite');
+          matched = true;
+        }
+        
+        // Si pas de correspondance directe, utiliser l'IA
+        if (!matched) {
+          await analyzeWithAI(text, currentQ.id);
         }
         break;
         
       case 'revenus_complementaires':
         const revenus = [];
-        if (lowerText.includes('immobilier') || lowerText.includes('locatif')) {
+        if (lowerText.includes('immobilier') || lowerText.includes('locatif') || lowerText.includes('loyer')) {
           revenus.push('immobilier_locatif');
         }
-        if (lowerText.includes('dividende')) {
+        if (lowerText.includes('dividende') || lowerText.includes('actions') || lowerText.includes('société')) {
           revenus.push('dividendes');
         }
-        if (lowerText.includes('plus-value') || lowerText.includes('mobilier')) {
+        if (lowerText.includes('plus-value') || lowerText.includes('mobilier') || lowerText.includes('bourse')) {
           revenus.push('plus_values');
         }
-        if (lowerText.includes('crypto')) {
+        if (lowerText.includes('crypto') || lowerText.includes('bitcoin') || lowerText.includes('ethereum')) {
           revenus.push('crypto');
         }
-        if (lowerText.includes('scpi')) {
+        if (lowerText.includes('scpi') || lowerText.includes('pierre papier')) {
           revenus.push('scpi');
         }
-        if (lowerText.includes('lmnp') || lowerText.includes('meublé')) {
+        if (lowerText.includes('lmnp') || lowerText.includes('meublé') || lowerText.includes('location meublée')) {
           revenus.push('lmnp');
         }
-        if (lowerText.includes('aucun') || lowerText.includes('pas de')) {
+        if (lowerText.includes('aucun') || lowerText.includes('pas de') || lowerText.includes('rien')) {
           revenus.push('aucun');
         }
+        
         if (revenus.length > 0) {
           handleAnswer(revenus);
+          matched = true;
         } else {
-          setAnswers(prev => ({ ...prev, revenus_complementaires_libre: text }));
+          await analyzeWithAI(text, currentQ.id);
         }
         break;
         
       case 'statuts_juridiques':
         const statuts = [];
-        if (lowerText.includes('sasu')) {
+        if (lowerText.includes('sasu') || lowerText.includes('sas')) {
           statuts.push('SASU');
         }
         if (lowerText.includes('sarl')) {
           statuts.push('SARL');
         }
-        if (lowerText.includes('sci')) {
+        if (lowerText.includes('sci') || lowerText.includes('société civile')) {
           statuts.push('SCI');
         }
-        if (lowerText.includes('holding')) {
+        if (lowerText.includes('holding') || lowerText.includes('société mère')) {
           statuts.push('holding');
         }
-        if (lowerText.includes('eurl')) {
+        if (lowerText.includes('eurl') || lowerText.includes('entreprise unipersonnelle')) {
           statuts.push('EURL');
         }
-        if (lowerText.includes('aucune') || lowerText.includes('pas de')) {
+        if (lowerText.includes('aucune') || lowerText.includes('pas de') || lowerText.includes('rien')) {
           statuts.push('aucune');
         }
+        
         if (statuts.length > 0) {
           handleAnswer(statuts);
+          matched = true;
         } else {
-          setAnswers(prev => ({ ...prev, statuts_juridiques_libre: text }));
+          await analyzeWithAI(text, currentQ.id);
         }
         break;
         
       case 'residence_fiscale':
-        if (lowerText.includes('france')) {
+        if (lowerText.includes('france') && !lowerText.includes('dom') && !lowerText.includes('tom')) {
           handleAnswer('france');
-        } else if (lowerText.includes('dom') || lowerText.includes('tom')) {
+          matched = true;
+        } else if (lowerText.includes('dom') || lowerText.includes('tom') || lowerText.includes('martinique') || lowerText.includes('guadeloupe') || lowerText.includes('réunion')) {
           handleAnswer('dom_tom');
+          matched = true;
         } else if (lowerText.includes('portugal')) {
           handleAnswer('portugal');
+          matched = true;
         } else if (lowerText.includes('belgique')) {
           handleAnswer('belgique');
+          matched = true;
         } else if (lowerText.includes('suisse')) {
           handleAnswer('suisse');
+          matched = true;
         } else if (lowerText.includes('luxembourg')) {
           handleAnswer('luxembourg');
+          matched = true;
+        } else if (lowerText.includes('europe') || lowerText.includes('union européenne')) {
+          handleAnswer('autre_ue');
+          matched = true;
         } else {
-          setAnswers(prev => ({ ...prev, residence_fiscale_libre: text }));
+          await analyzeWithAI(text, currentQ.id);
         }
         break;
         
       case 'patrimoine_situation':
-        if (lowerText.includes('primo') || lowerText.includes('première fois')) {
+        if (lowerText.includes('primo') || lowerText.includes('première fois') || lowerText.includes('premier achat')) {
           handleAnswer('primo_accedant');
-        } else if (lowerText.includes('propriétaire') && lowerText.includes('résidence')) {
+          matched = true;
+        } else if (lowerText.includes('propriétaire') && (lowerText.includes('résidence') || lowerText.includes('principale'))) {
           handleAnswer('proprietaire_rp');
-        } else if (lowerText.includes('multi') || lowerText.includes('plusieurs')) {
+          matched = true;
+        } else if (lowerText.includes('multi') || lowerText.includes('plusieurs') || lowerText.includes('investisseur')) {
           handleAnswer('multi_proprietaire');
-        } else if (lowerText.includes('million') || lowerText.includes('1m')) {
+          matched = true;
+        } else if (lowerText.includes('million') || lowerText.includes('1m') || lowerText.includes('patrimoine important')) {
           handleAnswer('patrimoine_important');
-        } else if (lowerText.includes('ifi')) {
+          matched = true;
+        } else if (lowerText.includes('ifi') || lowerText.includes('impôt fortune')) {
           handleAnswer('ifi_concerne');
-        } else if (lowerText.includes('locataire')) {
+          matched = true;
+        } else if (lowerText.includes('locataire') || lowerText.includes('loue')) {
           handleAnswer('locataire');
+          matched = true;
         } else {
-          setAnswers(prev => ({ ...prev, patrimoine_situation_libre: text }));
+          await analyzeWithAI(text, currentQ.id);
         }
         break;
+        
+      default:
+        await analyzeWithAI(text, currentQ.id);
+    }
+    
+    if (matched) {
+      console.log('✅ Correspondance trouvée par mapping direct');
+    }
+  };
+
+  // Fonction d'analyse IA intelligente pour extraction automatique
+  const analyzeWithAI = async (text: string, questionId: string) => {
+    try {
+      console.log('🤖 Analyse IA intelligente du texte:', text);
+      setIsAIAnalyzing(true);
+      setAiAnalysisResult('Francis analyse votre profil...');
+      
+      const response = await fetch('/api/ai/analyze-profile-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: text,
+          context: `Question: ${currentQ.title}`,
+          question_type: questionId,
+          extract_all: true  // Demander d'extraire TOUTES les informations possibles
+        }),
+      });
+
+      if (response.ok) {
+        const aiResult = await response.json();
+        console.log('🤖 Résultat IA complet:', aiResult);
+        
+        if (aiResult.success && aiResult.data) {
+          const extractedData = aiResult.data;
+          
+          // Remplir TOUS les champs détectés, pas seulement celui de la question actuelle
+          const updatedAnswers = { ...answers };
+          let fieldsUpdated = 0;
+          let detectedFields: string[] = [];
+          
+          // Mapper TOUTES les informations extraites
+          if (extractedData.activite_principale) {
+            updatedAnswers.activite_principale = extractedData.activite_principale;
+            fieldsUpdated++;
+            detectedFields.push('Activité principale');
+            console.log('✅ Activité détectée:', extractedData.activite_principale);
+          }
+          
+          if (extractedData.revenus_complementaires && extractedData.revenus_complementaires.length > 0) {
+            updatedAnswers.revenus_complementaires = extractedData.revenus_complementaires;
+            fieldsUpdated++;
+            detectedFields.push('Revenus complémentaires');
+            console.log('✅ Revenus complémentaires détectés:', extractedData.revenus_complementaires);
+          }
+          
+          if (extractedData.statuts_juridiques && extractedData.statuts_juridiques.length > 0) {
+            updatedAnswers.statuts_juridiques = extractedData.statuts_juridiques;
+            fieldsUpdated++;
+            detectedFields.push('Statuts juridiques');
+            console.log('✅ Statuts juridiques détectés:', extractedData.statuts_juridiques);
+          }
+          
+          if (extractedData.residence_fiscale) {
+            updatedAnswers.residence_fiscale = extractedData.residence_fiscale;
+            fieldsUpdated++;
+            detectedFields.push('Résidence fiscale');
+            console.log('✅ Résidence fiscale détectée:', extractedData.residence_fiscale);
+          }
+          
+          if (extractedData.patrimoine_situation) {
+            updatedAnswers.patrimoine_situation = extractedData.patrimoine_situation;
+            fieldsUpdated++;
+            detectedFields.push('Patrimoine');
+            console.log('✅ Patrimoine détecté:', extractedData.patrimoine_situation);
+          }
+          
+          // Informations supplémentaires détectées
+          if (extractedData.age) {
+            updatedAnswers.age = extractedData.age;
+            detectedFields.push('Âge');
+            console.log('✅ Âge détecté:', extractedData.age);
+          }
+          
+          if (extractedData.pays_residence) {
+            updatedAnswers.pays_residence = extractedData.pays_residence;
+            detectedFields.push('Pays de résidence');
+            console.log('✅ Pays de résidence détecté:', extractedData.pays_residence);
+          }
+          
+          if (extractedData.patrimoine_immobilier !== null) {
+            updatedAnswers.patrimoine_immobilier = extractedData.patrimoine_immobilier;
+            detectedFields.push('Patrimoine immobilier');
+            console.log('✅ Patrimoine immobilier détecté:', extractedData.patrimoine_immobilier);
+          }
+          
+          if (extractedData.revenus_passifs && extractedData.revenus_passifs.length > 0) {
+            updatedAnswers.revenus_passifs = extractedData.revenus_passifs;
+            detectedFields.push('Revenus passifs');
+            console.log('✅ Revenus passifs détectés:', extractedData.revenus_passifs);
+          }
+          
+          // Mettre à jour l'état avec TOUTES les informations détectées
+          setAnswers(updatedAnswers);
+          
+          // Afficher un message de succès
+          if (fieldsUpdated > 0) {
+            const resultMessage = `🎯 Francis a détecté et rempli automatiquement : ${detectedFields.join(', ')}`;
+            setAiAnalysisResult(resultMessage);
+            console.log(`🎯 IA a détecté et rempli ${fieldsUpdated} champs automatiquement`);
+            
+            // Si on a détecté l'information pour la question actuelle, passer à la suivante
+            const currentFieldDetected = extractedData[questionId as keyof typeof extractedData];
+            if (currentFieldDetected && 
+                (typeof currentFieldDetected === 'string' || 
+                 (Array.isArray(currentFieldDetected) && currentFieldDetected.length > 0))) {
+              
+              // Attendre un peu pour que l'utilisateur voie les changements
+              setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                  setCurrentQuestion(currentQuestion + 1);
+                  setAiAnalysisResult('');
+                }
+              }, 2000);
+            } else {
+              // Effacer le message après 3 secondes
+              setTimeout(() => setAiAnalysisResult(''), 3000);
+            }
+          } else {
+            // Aucune information détectée, sauvegarder en texte libre
+            setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
+            setAiAnalysisResult('📝 Francis n\'a pas détecté d\'informations structurées, sauvegarde en texte libre');
+            console.log('📝 Aucune information structurée détectée, sauvegarde en texte libre');
+            setTimeout(() => setAiAnalysisResult(''), 3000);
+          }
+          
+        } else {
+          console.log('❌ IA n\'a pas pu analyser, saisie libre');
+          setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
+          setAiAnalysisResult('❌ Erreur d\'analyse, sauvegarde en texte libre');
+          setTimeout(() => setAiAnalysisResult(''), 3000);
+        }
+      } else {
+        console.log('❌ Erreur API IA, saisie libre');
+        setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
+        setAiAnalysisResult('❌ Erreur de connexion, sauvegarde en texte libre');
+        setTimeout(() => setAiAnalysisResult(''), 3000);
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'analyse IA:', error);
+      setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
+      setAiAnalysisResult('❌ Erreur technique, sauvegarde en texte libre');
+      setTimeout(() => setAiAnalysisResult(''), 3000);
+    } finally {
+      setIsAIAnalyzing(false);
     }
   };
 
   const handleVoiceError = (error: string) => {
     console.error('Erreur dictée:', error);
     // Optionnel: afficher un message d'erreur à l'utilisateur
+  };
+
+  const handleTranscriptionUpdate = (text: string) => {
+    setDictatedText(text);
+  };
+
+  const handleTranscriptionComplete = async (text: string) => {
+    setFinalTranscript(text);
+    if (text) {
+      handleDictation(text);
+    }
+  };
+
+  const handleDictation = (text: string) => {
+    // Logique pour gérer la transcription en temps réel
+    console.log('🎤 Texte dicté:', text);
+    handleVoiceTranscription(text);
   };
 
   const IconComponent = currentQ.icon;
@@ -337,15 +551,35 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
           {/* Interface de dictée */}
           {showVoiceInput && (
             <div className="mt-4 p-4 bg-[#162238]/50 rounded-lg border border-[#c5a572]/30">
-              <VoiceRecorder
-                onTranscriptionComplete={handleVoiceTranscription}
-                onError={handleVoiceError}
-                className="mb-3"
-              />
-              {voiceText && (
-                <div className="mt-3 p-3 bg-[#1a2942] rounded border border-[#c5a572]/50">
-                  <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
-                  <div className="text-sm text-white">{voiceText}</div>
+              <div className="mt-6 flex justify-center">
+                <VoiceRecorder
+                  onTranscriptionUpdate={handleTranscriptionUpdate}
+                  onTranscriptionComplete={handleTranscriptionComplete}
+                  onError={(err) => setDictationError(err)}
+                />
+              </div>
+
+              {dictatedText && (
+                <div className="mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <p className="text-sm text-gray-400 mb-2">Texte dicté (en direct) :</p>
+                  <p className="text-white font-mono">{dictatedText}</p>
+                </div>
+              )}
+              
+              {/* Indicateur d'analyse IA */}
+              {isAIAnalyzing && (
+                <div className="mt-3 p-3 bg-[#1a2942] rounded border border-blue-500/50">
+                  <div className="flex items-center gap-2 text-blue-400">
+                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">Francis analyse votre profil...</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Résultat de l'analyse IA */}
+              {aiAnalysisResult && !isAIAnalyzing && (
+                <div className="mt-3 p-3 bg-[#1a2942] rounded border border-green-500/50">
+                  <div className="text-sm text-green-400">{aiAnalysisResult}</div>
                 </div>
               )}
             </div>
