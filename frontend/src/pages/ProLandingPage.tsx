@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check } from 'lucide-react';
+import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check, BrainCircuit, PiggyBank, Target, Clock, BarChart3 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
 import { AuthModal } from '../components/auth/AuthModal';
 
 const features = [
   {
-    icon: Briefcase,
-    title: "Performance Client x10",
-    description: "Intelligence prédictive qui identifie automatiquement 40+ optimisations par dossier. Résultats garantis en 72h."
+    icon: BrainCircuit,
+    title: "Analyse 360° Instantanée",
+    description: "Francis scanne des milliers de points de données pour révéler chaque opportunité, des plus simples aux plus complexes. Ne laissez plus rien au hasard."
   },
   {
-    icon: FileText,
-    title: "Génération d'Alpha",
-    description: "Stratégies exclusives que vos concurrents n'ont pas. Algorithmes propriétaires basés sur 50M de déclarations."
+    icon: PiggyBank,
+    title: "Maximisation des Économies",
+    description: "Identifiez en moyenne +30% d'économies fiscales supplémentaires par client. Devenez le partenaire indispensable de leur réussite financière."
   },
   {
-    icon: Zap,
-    title: "Vitesse d'Exécution",
-    description: "Ce qui vous prenait 3 semaines, Francis le fait en 3 minutes. Productivité décuplée, marges explosées."
+    icon: Clock,
+    title: "Gain de Temps Massif",
+    description: "Automatisez la saisie, l'analyse et le reporting. Divisez par 10 le temps passé sur les tâches répétitives et concentrez-vous sur le conseil."
   },
   {
-    icon: ShieldCheck,
-    title: "Domination de Marché",
-    description: "Devenez le référent fiscal de votre région. Vos clients vous recommandent, votre cabinet grandit."
+    icon: Target,
+    title: "Conseil Proactif",
+    description: "Grâce à la veille législative intégrée, Francis vous alerte des nouvelles opportunités pour vos clients avant même qu'ils ne posent la question."
   }
 ];
 
@@ -68,11 +68,11 @@ const ProLandingPage = () => {
         {/* Hero Section */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">Multipliez vos résultats.</span>
-            <span className="block text-[#c5a572] mt-2">Révolutionnez votre pratique.</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">L'IA qui transforme votre conseil fiscal</span>
+            <span className="block text-[#c5a572] mt-2">Passez de l'analyse à l'action.</span>
           </h1>
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            <strong className="text-white">10x plus efficace.</strong> Transformez votre cabinet en machine à performance avec l'IA fiscale la plus avancée du marché. <strong className="text-[#c5a572]">Vos clients économisent plus. Vous gagnez plus.</strong>
+            Arrêtez de courir après l'information. Avec Francis, votre copilote IA, centralisez vos données, automatisez vos analyses et livrez des stratégies fiscales que vos clients et vos concurrents vous envieront.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-20">
             <button
@@ -110,10 +110,10 @@ const ProLandingPage = () => {
         <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Votre Avantage Concurrentiel
+              Le seul outil dont vous avez besoin
             </h2>
             <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-              Pendant que vos concurrents travaillent, <strong className="text-[#c5a572]">vous dominez</strong>. L'arme secrète des cabinets qui cartonnent.
+              Francis n'est pas un simple assistant. C'est votre <strong className="text-[#c5a572]">avantage concurrentiel</strong>.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
@@ -134,10 +134,10 @@ const ProLandingPage = () => {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-r from-[#1E3253]/40 to-[#234876]/40">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Soyez <span className="text-[#c5a572]">100%</span> avec votre client
+              Plus de <span className="text-[#c5a572]">temps</span>, plus de <span className="text-[#c5a572]">valeur</span>
             </h2>
             <p className="text-xl text-gray-300 mb-6 max-w-3xl mx-auto">
-              L'IA ne vous remplace pas, <strong className="text-[#c5a572]">elle vous booste</strong> ! Concentrez-vous sur le relationnel, Francis s'occupe du reste.
+              Francis s'occupe de la complexité. Vous vous occupez de vos clients.
             </p>
           </div>
 
