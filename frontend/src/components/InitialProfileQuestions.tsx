@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingUp } from 'lucide-react';
+import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingUp, Mic, MicOff } from 'lucide-react';
+import { VoiceRecorder } from './VoiceRecorder';
 
 interface InitialData {
   activite_principale?: string;
@@ -12,6 +13,12 @@ interface InitialData {
   revenus_complementaires?: string[];
   residence_fiscale?: string;
   patrimoine_situation?: string;
+  // Champs pour saisie libre
+  activite_principale_libre?: string;
+  revenus_complementaires_libre?: string;
+  statuts_juridiques_libre?: string;
+  residence_fiscale_libre?: string;
+  patrimoine_situation_libre?: string;
 }
 
 interface InitialProfileQuestionsProps {
@@ -21,6 +28,9 @@ interface InitialProfileQuestionsProps {
 export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<InitialData>({});
+  const [showVoiceInput, setShowVoiceInput] = useState(false);
+  const [voiceText, setVoiceText] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
 
   const questions = [
     {
@@ -149,6 +159,134 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
     return processed;
   };
 
+  const handleVoiceTranscription = (text: string) => {
+    setVoiceText(text);
+    // Mapper le texte dicté vers les réponses appropriées
+    const lowerText = text.toLowerCase();
+    
+    // Logique de mapping pour chaque question
+    switch (currentQ.id) {
+      case 'activite_principale':
+        if (lowerText.includes('salarié') || lowerText.includes('cdi')) {
+          handleAnswer('salarie_cdi');
+        } else if (lowerText.includes('fonctionnaire')) {
+          handleAnswer('fonctionnaire');
+        } else if (lowerText.includes('dirigeant') || lowerText.includes('sasu')) {
+          handleAnswer('dirigeant_sasu');
+        } else if (lowerText.includes('sarl')) {
+          handleAnswer('dirigeant_sarl');
+        } else if (lowerText.includes('auto') || lowerText.includes('entrepreneur')) {
+          handleAnswer('autoentrepreneur');
+        } else if (lowerText.includes('libéral') || lowerText.includes('profession')) {
+          handleAnswer('profession_liberale');
+        } else if (lowerText.includes('retraité') || lowerText.includes('retraite')) {
+          handleAnswer('retraite');
+        } else {
+          // Saisie libre
+          setAnswers(prev => ({ ...prev, activite_principale_libre: text }));
+        }
+        break;
+        
+      case 'revenus_complementaires':
+        const revenus = [];
+        if (lowerText.includes('immobilier') || lowerText.includes('locatif')) {
+          revenus.push('immobilier_locatif');
+        }
+        if (lowerText.includes('dividende')) {
+          revenus.push('dividendes');
+        }
+        if (lowerText.includes('plus-value') || lowerText.includes('mobilier')) {
+          revenus.push('plus_values');
+        }
+        if (lowerText.includes('crypto')) {
+          revenus.push('crypto');
+        }
+        if (lowerText.includes('scpi')) {
+          revenus.push('scpi');
+        }
+        if (lowerText.includes('lmnp') || lowerText.includes('meublé')) {
+          revenus.push('lmnp');
+        }
+        if (lowerText.includes('aucun') || lowerText.includes('pas de')) {
+          revenus.push('aucun');
+        }
+        if (revenus.length > 0) {
+          handleAnswer(revenus);
+        } else {
+          setAnswers(prev => ({ ...prev, revenus_complementaires_libre: text }));
+        }
+        break;
+        
+      case 'statuts_juridiques':
+        const statuts = [];
+        if (lowerText.includes('sasu')) {
+          statuts.push('SASU');
+        }
+        if (lowerText.includes('sarl')) {
+          statuts.push('SARL');
+        }
+        if (lowerText.includes('sci')) {
+          statuts.push('SCI');
+        }
+        if (lowerText.includes('holding')) {
+          statuts.push('holding');
+        }
+        if (lowerText.includes('eurl')) {
+          statuts.push('EURL');
+        }
+        if (lowerText.includes('aucune') || lowerText.includes('pas de')) {
+          statuts.push('aucune');
+        }
+        if (statuts.length > 0) {
+          handleAnswer(statuts);
+        } else {
+          setAnswers(prev => ({ ...prev, statuts_juridiques_libre: text }));
+        }
+        break;
+        
+      case 'residence_fiscale':
+        if (lowerText.includes('france')) {
+          handleAnswer('france');
+        } else if (lowerText.includes('dom') || lowerText.includes('tom')) {
+          handleAnswer('dom_tom');
+        } else if (lowerText.includes('portugal')) {
+          handleAnswer('portugal');
+        } else if (lowerText.includes('belgique')) {
+          handleAnswer('belgique');
+        } else if (lowerText.includes('suisse')) {
+          handleAnswer('suisse');
+        } else if (lowerText.includes('luxembourg')) {
+          handleAnswer('luxembourg');
+        } else {
+          setAnswers(prev => ({ ...prev, residence_fiscale_libre: text }));
+        }
+        break;
+        
+      case 'patrimoine_situation':
+        if (lowerText.includes('primo') || lowerText.includes('première fois')) {
+          handleAnswer('primo_accedant');
+        } else if (lowerText.includes('propriétaire') && lowerText.includes('résidence')) {
+          handleAnswer('proprietaire_rp');
+        } else if (lowerText.includes('multi') || lowerText.includes('plusieurs')) {
+          handleAnswer('multi_proprietaire');
+        } else if (lowerText.includes('million') || lowerText.includes('1m')) {
+          handleAnswer('patrimoine_important');
+        } else if (lowerText.includes('ifi')) {
+          handleAnswer('ifi_concerne');
+        } else if (lowerText.includes('locataire')) {
+          handleAnswer('locataire');
+        } else {
+          setAnswers(prev => ({ ...prev, patrimoine_situation_libre: text }));
+        }
+        break;
+    }
+  };
+
+  const handleVoiceError = (error: string) => {
+    console.error('Erreur dictée:', error);
+    // Optionnel: afficher un message d'erreur à l'utilisateur
+  };
+
   const IconComponent = currentQ.icon;
 
   return (
@@ -184,6 +322,34 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
           </div>
           <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white mb-2 px-2">{currentQ.title}</h2>
           <p className="text-sm sm:text-base text-gray-400 px-2">Cette information nous aide à personnaliser vos conseils fiscaux</p>
+          
+          {/* Bouton de dictée */}
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={() => setShowVoiceInput(!showVoiceInput)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
+            >
+              {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale'}</span>
+            </button>
+          </div>
+          
+          {/* Interface de dictée */}
+          {showVoiceInput && (
+            <div className="mt-4 p-4 bg-[#162238]/50 rounded-lg border border-[#c5a572]/30">
+              <VoiceRecorder
+                onTranscriptionComplete={handleVoiceTranscription}
+                onError={handleVoiceError}
+                className="mb-3"
+              />
+              {voiceText && (
+                <div className="mt-3 p-3 bg-[#1a2942] rounded border border-[#c5a572]/50">
+                  <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
+                  <div className="text-sm text-white">{voiceText}</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2 sm:space-y-3">
