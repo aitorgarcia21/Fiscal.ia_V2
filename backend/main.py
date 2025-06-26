@@ -1934,6 +1934,11 @@ async def websocket_whisper_stream(websocket: WebSocket):
                             finally:
                                 if os.path.exists(temp_file_path):
                                     os.unlink(temp_file_path)
+                        except Exception as e:
+                            await websocket.send_text(json.dumps({
+                                "type": "error",
+                                "error": str(e)
+                            }))
                     
                     break
                     
@@ -1953,6 +1958,93 @@ async def websocket_whisper_stream(websocket: WebSocket):
         }))
     finally:
         await websocket.close()
+
+@api_router.post("/ai/analyze-profile-text")
+async def analyze_profile_text(request: dict):
+    """
+    IA qui analyse le texte dicté et extrait les informations du profil utilisateur.
+    """
+    try:
+        text = request.get("text", "")
+        if not text:
+            return {"error": "Texte manquant"}
+        
+        # Prompt pour l'IA
+        prompt = f"""
+Tu es un expert fiscal français. Analyse ce texte dicté par un utilisateur et extrait les informations pour son profil fiscal.
+
+Texte dicté: "{text}"
+
+Extrais et retourne UNIQUEMENT un JSON avec ces informations:
+
+{{
+  "activite_principale": "valeur_ou_null",
+  "revenus_complementaires": ["liste_ou_null"],
+  "statuts_juridiques": ["liste_ou_null"],
+  "residence_fiscale": "valeur_ou_null", 
+  "patrimoine_situation": "valeur_ou_null",
+  "age": nombre_ou_null,
+  "pays_residence": "valeur_ou_null",
+  "patrimoine_immobilier": true/false/null,
+  "revenus_passifs": ["liste_ou_null"],
+  "situation_familiale": "valeur_ou_null",
+  "nombre_enfants": nombre_ou_null,
+  "revenus_annuels": nombre_ou_null,
+  "charges_deductibles": nombre_ou_null
+}}
+
+Valeurs possibles:
+- activite_principale: "salarie_cdi", "fonctionnaire", "dirigeant_sasu", "dirigeant_sarl", "autoentrepreneur", "profession_liberale", "retraite", "sans_activite"
+- revenus_complementaires: ["immobilier_locatif", "dividendes", "plus_values", "crypto", "scpi", "lmnp", "aucun"]
+- statuts_juridiques: ["SASU", "SARL", "SCI", "holding", "EURL", "aucune"]
+- residence_fiscale: "france", "dom_tom", "portugal", "belgique", "suisse", "luxembourg", "autre_ue", "hors_ue"
+- patrimoine_situation: "primo_accedant", "proprietaire_rp", "multi_proprietaire", "patrimoine_important", "ifi_concerne", "locataire"
+- situation_familiale: "celibataire", "marie", "pacs", "divorce", "veuf"
+- pays_residence: nom du pays
+
+Si une information n'est pas mentionnée, mets null. Sois précis et intelligent dans l'analyse.
+"""
+        
+        # Appel à l'IA Mistral
+        try:
+            answer, sources, confidence = await run_with_timeout(
+                get_fiscal_response, 
+                prompt, 
+                None, 
+                timeout=30
+            )
+            
+            # Extraire le JSON de la réponse
+            import re
+            json_match = re.search(r'\{.*\}', answer, re.DOTALL)
+            if json_match:
+                import json
+                extracted_data = json.loads(json_match.group())
+                return {
+                    "success": True,
+                    "data": extracted_data,
+                    "confidence": confidence,
+                    "original_text": text
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Impossible d'extraire les données JSON",
+                    "ai_response": answer
+                }
+                
+        except asyncio.TimeoutError:
+            return {
+                "success": False,
+                "error": "Timeout de l'IA",
+                "fallback": "Utilisation de l'analyse basique"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Erreur lors de l'analyse: {str(e)}"
+        }
 
 if __name__ == "__main__":
     import uvicorn
