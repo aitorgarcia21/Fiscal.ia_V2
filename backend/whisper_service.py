@@ -50,8 +50,7 @@ class WhisperTranscriptionService:
                 download_root="/tmp/whisper_models",  # Cache local
                 local_files_only=False,  # Permet le téléchargement si nécessaire
                 cpu_threads=8,  # Plus de threads CPU
-                num_workers=1,  # Réduit la charge mémoire
-                download_root="/tmp/whisper_models"  # Cache local
+                num_workers=1  # Réduit la charge mémoire
             )
             
             load_time = time.time() - self._load_start_time
