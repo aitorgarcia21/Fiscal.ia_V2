@@ -38,10 +38,16 @@ const stepItemVariants: Variants = {
 };
 
 export function LandingPage() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const navigate = useNavigate();
-  const [showAuthModal, setShowAuthModal] = useState<false | 'login' | 'signup'>(false);
   const [showDemo, setShowDemo] = useState(false);
   const { redirectToCheckout, isLoading, error } = useStripe();
+
+  const openAuthModal = (mode: "login" | "signup") => {
+    setAuthMode(mode);
+    setIsAuthModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 font-sans antialiased">
@@ -61,7 +67,7 @@ export function LandingPage() {
               <span className="hidden sm:inline">Espace</span> Pro
             </button>
             <button
-              onClick={() => setShowAuthModal('login')}
+              onClick={() => openAuthModal("login")}
               className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
             >
               Se connecter
@@ -71,7 +77,7 @@ export function LandingPage() {
       </header>
 
       {/* Modale d'authentification */}
-      {showAuthModal && ( <AuthModal mode={showAuthModal} onClose={() => setShowAuthModal(false)} /> )}
+      {isAuthModalOpen && ( <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialTab={authMode} /> )}
 
       {/* Modale de démo */}
       {showDemo && ( <DemoModal onClose={() => setShowDemo(false)} onStart={() => { setShowDemo(false); navigate('/signup'); }} /> )}
@@ -114,7 +120,7 @@ export function LandingPage() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={heroButtonTransition} className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
             <motion.button
-              onClick={() => navigate('/signup')}
+              onClick={() => openAuthModal("signup")}
               whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
               whileTap={{ scale: 0.98 }}
               className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
@@ -231,7 +237,7 @@ export function LandingPage() {
                 Rejoignez des milliers de Français qui ont déjà repris le contrôle de leur fiscalité avec Francis.
               </p>
               <motion.button
-                onClick={() => navigate('/signup')}
+                onClick={() => openAuthModal("signup")}
                 whileHover={{ scale: 1.05, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
                 whileTap={{ scale: 0.98 }}
                 className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50 mx-auto"

@@ -13,9 +13,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isProfessional: boolean;
   isLoadingAuth: boolean;
-  login: (token: string, userData?: AuthUser) => Promise<void>; // userData optionnel au login, on le récupère avec checkAuthStatus
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   checkAuthStatus: () => Promise<void>;
+  signup: (email: string, password: string, fullName: string, accountType: 'particulier' | 'professionnel') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,17 +61,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkAuthStatus();
   }, [checkAuthStatus]);
 
-  const login = async (token: string, userData?: AuthUser) => {
-    localStorage.setItem('authToken', token);
-    // Si userData est fourni (par ex. par la réponse de /login), on peut l'utiliser directement
-    // Sinon, checkAuthStatus va le récupérer avec /me
-    if (userData) {
-      setUser(userData);
-      setIsAuthenticated(true);
-      setIsProfessional(userData.taper === 'professionnel');
-      setIsLoadingAuth(false); // Peut-être déjà false, mais pour être sûr
-    } else {
-      await checkAuthStatus(); // Récupère les infos utilisateur complètes
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await apiClient<{ access_token: string, user: AuthUser }>('/api/auth/login', {
+        method: 'POST',
+        data: { email, password },
+      });
+      if (response && response.access_token && response.user) {
+        localStorage.setItem('authToken', response.access_token);
+        setUser(response.user);
+        setIsAuthenticated(true);
+        setIsProfessional(response.user.taper === 'professionnel');
+      } else {
+        throw new Error("La réponse du serveur est invalide.");
+      }
+    } catch (error) {
+      console.error("Erreur de connexion:", error);
+      throw error; // Propage l'erreur pour que le composant de connexion puisse la gérer
     }
   };
 
@@ -83,8 +90,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // window.location.href = '/';
   };
 
+  const signup = async (email: string, password: string, fullName: string, accountType: 'particulier' | 'professionnel') => {
+    try {
+      const response = await apiClient<{ access_token: string, user: AuthUser }>('/api/auth/register', {
+        method: 'POST',
+        data: { email, password, full_name: fullName, account_type: accountType },
+      });
+      if (response && response.access_token && response.user) {
+        localStorage.setItem('authToken', response.access_token);
+        setUser(response.user);
+        setIsAuthenticated(true);
+        setIsProfessional(response.user.taper === 'professionnel');
+      } else {
+        throw new Error("La réponse du serveur est invalide.");
+      }
+    } catch (error) {
+      console.error("Erreur d'inscription:", error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isProfessional, isLoadingAuth, login, logout, checkAuthStatus }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isProfessional, isLoadingAuth, login, logout, checkAuthStatus, signup }}>
       {children}
     </AuthContext.Provider>
   );

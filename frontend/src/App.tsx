@@ -28,6 +28,7 @@ import { SimulateurImpot } from './pages/SimulateurImpot';
 import BlogPage from './pages/BlogPage';
 import MentionsLegales from './pages/MentionsLegales';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
+import ProLoginPage from './pages/ProLoginPage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -65,6 +66,7 @@ function App() {
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
             <Route path="/pro/chat" element={<ProChatPage />} />
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
+            <Route path="/pro/login" element={<ProLoginPage />} />
           </Route>
         </Routes>
       </Router>

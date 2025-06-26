@@ -1,246 +1,150 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-// import { supabase } from '../../lib/supabase'; // Supprimé, nous passons par notre API backend
+import React, { useState, Fragment } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { X, User, Lock, Mail } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../services/apiClient'; // Utilisé pour appeler le backend
-import { useAuth } from '../../contexts/AuthContext'; // Import du hook useAuth
 
 interface AuthModalProps {
+  isOpen: boolean;
   onClose: () => void;
-  mode?: 'login' | 'signup';
-  // Ajout d'un callback optionnel en cas de succès pour plus de flexibilité
-  onSuccess?: (data: any) => void;
-  expectedRole?: 'particulier' | 'professionnel'; // Nouvelle prop
+  initialTab?: 'login' | 'signup';
 }
 
-// L'interface AuthUser ici peut être simplifiée ou alignée avec celle de AuthContext si nécessaire
-interface BackendAuthResponseUser {
-    id: string;
-    email: string;
-    full_name?: string;
-    taper?: string; // Important pour déterminer si c'est un pro
-}
-
-interface BackendAuthResponse {
-    access_token: string;
-    token_type: string;
-    user: BackendAuthResponseUser;
-}
-
-export const AuthModal: React.FC<AuthModalProps> = ({ onClose, mode, onSuccess, expectedRole }) => {
-  const [isLogin, setIsLogin] = useState(mode !== 'signup');
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTab = 'login' }) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState(''); // Pour l'inscription
-  const [accountType, setAccountType] = useState('particulier'); // Ajout pour le type de compte
-  const [error, setError] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { login, signup } = useAuth();
   const navigate = useNavigate();
-  const auth = useAuth(); // Utilisation du contexte d'authentification
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(null);
     setIsLoading(true);
-
     try {
-      let responseData: BackendAuthResponse;
-      if (isLogin) {
-        responseData = await apiClient<BackendAuthResponse>('/api/auth/login', {
-          method: 'POST',
-          data: { email, password },
-        });
-      } else {
-        responseData = await apiClient<BackendAuthResponse>('/api/auth/register', {
-          method: 'POST',
-          data: { email, password, full_name: fullName, account_type: accountType }, // Envoyer full_name et account_type
-        });
-      }
-      
-      if (responseData && responseData.access_token && responseData.user) {
-        const actualUserRole = responseData.user.taper;
-
-        // Vérifier si le rôle réel correspond au rôle attendu, si un rôle attendu est fourni
-        if (expectedRole && actualUserRole !== expectedRole) {
-          if (expectedRole === 'professionnel') {
-            setError("Ce compte n'est pas un compte Professionnel. Veuillez vous connecter avec un compte Professionnel pour accéder à cet espace.");
-          } else if (expectedRole === 'particulier') {
-            setError("Ce compte n'est pas un compte Particulier. Veuillez vous connecter avec un compte Particulier.");
-          } else {
-            setError("Le type de votre compte ne correspond pas à l'accès demandé.");
-          }
-          setIsLoading(false);
-          return; // Ne pas continuer la connexion/redirection
-        }
-
-        // Si la vérification du rôle attendu passe (ou si aucun rôle n'est attendu)
-        const contextUser = {
-            id: responseData.user.id,
-            email: responseData.user.email,
-            user_metadata: { full_name: responseData.user.full_name }, // Exemple de mapping
-            taper: actualUserRole
-        };
-        await auth.login(responseData.access_token, contextUser);
-        
-        onClose(); // Fermer la modale
-        if (onSuccess) {
-            onSuccess(responseData); // Exécuter le callback de succès si fourni
-        }
-        
-        // Debug: afficher le type d'utilisateur
-        console.log('Type utilisateur:', actualUserRole);
-        console.log('Redirection vers:', actualUserRole === 'professionnel' ? '/pro/dashboard' : '/dashboard');
-        
-        // Petit délai pour s'assurer que l'état d'authentification est mis à jour
-        setTimeout(() => {
-          // Redirection automatique selon le type d'utilisateur
-          if (actualUserRole === 'professionnel') {
-              navigate('/pro/dashboard');
-          } else {
-              navigate('/dashboard');
-          }
-        }, 500);
-
-      } else {
-        // Au cas où la réponse du backend n'est pas conforme à ce qui est attendu
-        throw new Error("Réponse d'authentification invalide du serveur.");
-      }
+      await login(email, password);
+      onClose();
+      // La redirection sera gérée par le composant appelant ou un protected route
     } catch (err: any) {
-      console.error("AuthModal Error:", err);
-      setError(err.data?.detail || err.message || 'Une erreur est survenue lors de l\'authentification.');
+      setError(err.message || 'Erreur de connexion');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+    try {
+      // Le type de compte est géré ici
+      await signup(email, password, fullName, activeTab === 'login' ? 'particulier' : 'professionnel');
+      onClose();
+      // La redirection sera gérée par le composant appelant ou un protected route
+    } catch (err: any) {
+      setError(err.message || 'Erreur d\'inscription');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setError(null);
+    onClose();
+  };
+  
+  const inputStyles = "w-full bg-[#162238]/50 border border-[#2A3F6C] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#c5a572]";
+  const tabButtonStyles = (isActive: boolean) => 
+    `w-1/2 py-3 text-center font-semibold transition-colors ${
+      isActive ? 'text-[#c5a572] border-b-2 border-[#c5a572]' : 'text-gray-400 hover:text-white'
+    }`;
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-md" onClick={onClose}></div>
-      
-      <div className="relative bg-gradient-to-br from-[#1a2942] to-[#234876] rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl border border-[#c5a572]/30">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-          aria-label="Fermer la modale"
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={closeModal}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
         >
-          <X className="h-6 w-6" />
-        </button>
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
+        </Transition.Child>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">
-            {isLogin ? 'Connexion' : 'Inscription'}
-          </h2>
-          <p className="text-gray-300">
-            {isLogin ? 'Bienvenue ! Connectez-vous à votre espace.' : 'Créez votre compte pour accéder à nos services.'}
-          </p>
-        </div>
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[#1E3253] border border-[#2A3F6C] p-8 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-2xl font-bold text-center text-white mb-2">
+                  {activeTab === 'login' ? 'Connexion' : 'Inscription'}
+                </Dialog.Title>
+                <p className="text-center text-gray-400 mb-6">Accédez à votre espace.</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <>
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
-                  Nom complet
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1a2942]/60 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                  placeholder="Votre nom complet"
-                  required={!isLogin}
-                />
-              </div>
+                <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Fermer">
+                    <X />
+                </button>
 
-              {/* Sélecteur de type de compte */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Type de compte
-                </label>
-                <div className="flex items-center space-x-4">
-                  <label htmlFor="particulier" className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      id="particulier"
-                      name="accountType"
-                      value="particulier"
-                      checked={accountType === 'particulier'}
-                      onChange={() => setAccountType('particulier')}
-                      className="form-radio h-4 w-4 text-[#c5a572] bg-gray-700 border-gray-600 focus:ring-[#c5a572]"
-                    />
-                    <span className="ml-2 text-sm text-gray-200">Particulier</span>
-                  </label>
-                  <label htmlFor="professionnel" className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      id="professionnel"
-                      name="accountType"
-                      value="professionnel"
-                      checked={accountType === 'professionnel'}
-                      onChange={() => setAccountType('professionnel')}
-                      className="form-radio h-4 w-4 text-[#c5a572] bg-gray-700 border-gray-600 focus:ring-[#c5a572]"
-                    />
-                    <span className="ml-2 text-sm text-gray-200">Professionnel (Patrimonia)</span>
-                  </label>
+                <div className="border-b border-[#2A3F6C] mb-6">
+                    <nav className="-mb-px flex space-x-4" aria-label="Tabs">
+                        <button onClick={() => setActiveTab('login')} className={tabButtonStyles(activeTab === 'login')}>Connexion</button>
+                        <button onClick={() => setActiveTab('signup')} className={tabButtonStyles(activeTab === 'signup')}>Inscription</button>
+                    </nav>
                 </div>
-              </div>
-            </>
-          )}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 bg-[#1a2942]/60 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-              placeholder="votre@email.com"
-              required
-            />
+                
+                {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+                
+                {activeTab === 'login' ? (
+                  <form onSubmit={handleLogin} className="space-y-6">
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12`} />
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12`} />
+                    </div>
+                    <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all disabled:opacity-50">
+                      {isLoading ? 'Connexion...' : 'Se connecter'}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleSignup} className="space-y-6">
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <input type="text" placeholder="Nom complet" value={fullName} onChange={(e) => setFullName(e.target.value)} required className={`${inputStyles} pl-12`} />
+                    </div>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12`} />
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12`} />
+                    </div>
+                    <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all disabled:opacity-50">
+                      {isLoading ? 'Création...' : 'Créer un compte'}
+                    </button>
+                  </form>
+                )}
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-[#1a2942]/60 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-700/20 border border-red-600/30 rounded-lg px-4 py-3 text-red-300 text-sm">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold py-3 px-4 rounded-lg hover:shadow-[#c5a572]/40 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {isLoading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer un compte')}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => { setIsLogin(!isLogin); setError(''); }}
-            className="text-sm text-[#c5a572] hover:text-[#e8cfa0] hover:underline transition-colors"
-          >
-            {isLogin ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter'}
-          </button>
         </div>
-      </div>
-    </div>
+      </Dialog>
+    </Transition>
   );
 }; 
