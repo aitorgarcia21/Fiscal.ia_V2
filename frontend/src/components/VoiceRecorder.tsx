@@ -42,7 +42,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const liveTranscriptionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const recognitionRef = useRef<any>(null);
   const accumulatedTextRef = useRef('');
 
   useEffect(() => {
@@ -116,70 +116,88 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const startRecording = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 44100
-        } 
-      });
+      // Vérifier si Web Speech API est disponible
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        throw new Error('Web Speech API non supportée');
+      }
       
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
       
-      audioChunksRef.current = [];
+      // Configuration pour le temps réel
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'fr-FR';
+      recognitionRef.current.maxAlternatives = 1;
+      
+      // Réinitialiser
       accumulatedTextRef.current = '';
       setLiveText('');
-      
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-      
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        setAudioBlob(blob);
-        stream.getTracks().forEach(track => track.stop());
-        
-        // Arrêter la transcription live
-        if (liveTranscriptionIntervalRef.current) {
-          clearInterval(liveTranscriptionIntervalRef.current);
-          liveTranscriptionIntervalRef.current = null;
-        }
-        setIsLiveTranscribing(false);
-        
-        if (autoTranscribe && blob.size > 0) {
-          setTimeout(() => transcribeAudio(blob), 100);
-        }
-      };
-      
-      // Démarrer l'enregistrement avec des chunks plus petits pour le temps réel
-      mediaRecorderRef.current.start(1000); // Chunk toutes les secondes
       setIsRecording(true);
       setRecordingTime(0);
       setAudioLevel(0);
       
-      analyzeAudioLevel(stream);
+      // Événements de reconnaissance
+      recognitionRef.current.onstart = () => {
+        console.log('Reconnaissance vocale démarrée');
+        setIsLiveTranscribing(true);
+      };
       
-      // Démarrer la transcription live
-      startLiveTranscription();
+      recognitionRef.current.onresult = (event: any) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        // Mettre à jour le texte en temps réel
+        const currentText = finalTranscript + interimTranscript;
+        if (currentText !== accumulatedTextRef.current) {
+          accumulatedTextRef.current = currentText;
+          setLiveText(currentText);
+          
+          // Si c'est final, envoyer le résultat
+          if (finalTranscript) {
+            onTranscriptionComplete(finalTranscript);
+          }
+        }
+      };
       
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Erreur reconnaissance vocale:', event.error);
+        onError?.(`Erreur reconnaissance: ${event.error}`);
+        stopRecording();
+      };
+      
+      recognitionRef.current.onend = () => {
+        console.log('Reconnaissance vocale terminée');
+        setIsLiveTranscribing(false);
+        setIsRecording(false);
+      };
+      
+      // Démarrer la reconnaissance
+      recognitionRef.current.start();
+      
+      // Timer pour l'affichage
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
       
     } catch (error) {
-      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
-      onError?.('Impossible d\'accéder au microphone. Vérifiez les permissions.');
+      console.error('Erreur lors du démarrage de la reconnaissance:', error);
+      onError?.('Reconnaissance vocale non supportée. Utilisez Chrome ou Edge.');
     }
-  }, [autoTranscribe, analyzeAudioLevel, onError]);
+  }, [onTranscriptionComplete, onError]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       setIsRecording(false);
       setAudioLevel(0);
       
@@ -320,54 +338,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const audioLevelPercent = Math.min((audioLevel / 128) * 100, 100);
   const pulseSize = 16 + (audioLevelPercent * 0.5);
-
-  const startLiveTranscription = useCallback(async () => {
-    setIsLiveTranscribing(true);
-    
-    // Transcription live toutes les 2 secondes
-    liveTranscriptionIntervalRef.current = setInterval(async () => {
-      if (audioChunksRef.current.length > 0) {
-        try {
-          // Prendre les derniers chunks pour la transcription live
-          const recentChunks = audioChunksRef.current.slice(-3); // 3 derniers chunks
-          const liveBlob = new Blob(recentChunks, { type: 'audio/webm' });
-          
-          if (liveBlob.size > 1000) { // Seulement si assez d'audio
-            const arrayBuffer = await liveBlob.arrayBuffer();
-            const uint8Array = new Uint8Array(arrayBuffer);
-            const base64Audio = btoa(String.fromCharCode(...Array.from(uint8Array)));
-            
-            const response = await fetch('/api/whisper/transcribe', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                audio_base64: base64Audio,
-                audio_format: 'webm',
-                language: 'fr'
-              }),
-            });
-            
-            if (response.ok) {
-              const result = await response.json();
-              if (result.text && result.text.trim()) {
-                const newText = result.text.trim();
-                if (newText !== accumulatedTextRef.current) {
-                  accumulatedTextRef.current = newText;
-                  setLiveText(newText);
-                  // Mettre à jour en temps réel
-                  onTranscriptionComplete(newText);
-                }
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Erreur transcription live:', error);
-        }
-      }
-    }, 2000); // Toutes les 2 secondes
-  }, [onTranscriptionComplete]);
 
   return (
     <div className={`voice-recorder ${className}`}>
