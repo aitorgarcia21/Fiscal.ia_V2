@@ -1759,6 +1759,19 @@ async def whisper_health():
             error=str(e)
         )
 
+@app.get("/test")
+async def test_endpoint():
+    return {"message": "Backend fonctionne !", "timestamp": datetime.now().isoformat()}
+
+@app.get("/test-whisper")
+async def test_whisper():
+    try:
+        from whisper_service import get_whisper_service
+        service = get_whisper_service()
+        return {"message": "Whisper importé avec succès", "service": service is not None}
+    except Exception as e:
+        return {"error": str(e), "message": "Erreur import Whisper"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080))) 
