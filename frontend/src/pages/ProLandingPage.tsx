@@ -68,11 +68,11 @@ const ProLandingPage = () => {
         {/* Hero Section */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">L'IA qui transforme votre conseil fiscal</span>
-            <span className="block text-[#c5a572] mt-2">Passez de l'analyse à l'action.</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">L'IA au service de votre expertise.</span>
+            <span className="block text-[#c5a572] mt-2">Pas l'inverse.</span>
           </h1>
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Arrêtez de courir après l'information. Avec Francis, votre copilote IA, centralisez vos données, automatisez vos analyses et livrez des stratégies fiscales que vos clients et vos concurrents vous envieront.
+            Fini les heures perdues dans les textes de loi et les tableurs. Francis, votre copilote IA, prend en charge l'analyse complexe pour vous libérer un temps précieux. Un temps pour écouter, conseiller et renforcer la relation de confiance qui fait toute votre valeur.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-20">
             <button
