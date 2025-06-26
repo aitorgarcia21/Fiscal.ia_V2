@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check, BrainCircuit, PiggyBank, Target, Clock, BarChart3 } from 'lucide-react';
+import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check, BrainCircuit, PiggyBank, Target, Clock, BarChart3, ClipboardList, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
 import { AuthModal } from '../components/auth/AuthModal';
@@ -126,6 +126,56 @@ const ProLandingPage = () => {
                   <p className="text-gray-300 text-center text-sm leading-relaxed">{feature.description}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Section ROI */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Un <span className="text-[#c5a572]">investissement</span>, pas une dépense
+            </h2>
+            <p className="text-xl text-gray-300 mb-6 max-w-3xl mx-auto">
+              Francis est conçu pour générer une valeur tangible pour votre cabinet dès le premier jour.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BarChart3 className="w-8 h-8 text-[#c5a572]" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-4">Augmentez votre rentabilité</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Facturez des honoraires plus élevés grâce à des stratégies à forte valeur ajoutée. Un client économisant 15k€ grâce à Francis justifie amplement votre expertise.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <ClipboardList className="w-8 h-8 text-[#c5a572]" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-4">Déléguez 80% de l'administratif</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Gagnez en moyenne 10h par semaine. Réinvestissez ce temps pour acquérir de nouveaux clients ou pour approfondir vos relations existantes.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-8 h-8 text-[#c5a572]" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-4">Fidélisez vos clients à vie</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Offrez un service proactif et ultra-personnalisé. Transformez la fiscalité en une opportunité de croissance pour vos clients, et ils ne vous quitteront plus.
+                </p>
+              </div>
             </div>
           </div>
         </section>
