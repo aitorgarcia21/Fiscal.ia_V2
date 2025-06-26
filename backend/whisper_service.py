@@ -115,7 +115,6 @@ class WhisperTranscriptionService:
                 word_timestamps=False,  # Désactivé pour la vitesse
                 initial_prompt="Français conversation",  # Court et efficace
                 max_initial_timestamp=1.0,  # Limite le temps de traitement
-                condition_on_previous_text=False,
                 suppress_tokens=[-1],  # Supprime les tokens spéciaux
                 without_timestamps=True  # Plus rapide sans timestamps
             )
