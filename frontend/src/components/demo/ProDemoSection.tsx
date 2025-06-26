@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2 } from 'lucide-react';
+import { Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2, Activity } from 'lucide-react';
 
 interface ClientProfile {
   id: string;
@@ -58,11 +58,12 @@ const DemoMessage = ({ author, content, isUser, delay }: { author: string, conte
 };
 
 const demoConversation = [
-  { author: "Vous", content: "Bonjour Francis, j'ai un nouveau client, Mr. Durand. Peux-tu analyser sa situation ?", isUser: true, delay: 1000 },
-  { author: "Francis", content: "Bonjour ! Bien sûr. Pouvez-vous me donner les informations de base ? Ou je peux écouter votre mémo vocal si vous préférez.", delay: 2500 },
-  { author: "Vous", content: "Il a 42 ans, marié, 2 enfants. Revenus annuels de 85k€, patrimoine de 320k€.", isUser: true, delay: 4000 },
-  { author: "Francis", content: "Parfait. Je lance l'analyse complète... Un instant.", delay: 5500 },
-  { author: "Francis", content: "Analyse terminée. J'ai identifié 3 optimisations majeures : un versement sur son PER pour saturer le plafond, une révision de sa déclaration de revenus fonciers (passage au réel), et un ajustement de sa tranche marginale d'imposition. L'économie potentielle est de 2,847€ pour cette année. Je vous génère le rapport détaillé.", delay: 8000 },
+  { author: "Vous", content: "Bonjour Francis, j'ai un nouveau client, Mr. Durand. Je te fais un mémo vocal rapide.", isUser: true, delay: 1000 },
+  { author: "Francis", content: "Bonjour ! Parfait, je vous écoute. Je prendrai des notes et créerai le profil client automatiquement.", delay: 2500 },
+  { author: "Vous", content: "(Audio) 'Mr Durand a 42 ans, marié, 2 enfants. Ingénieur, revenus annuels de 85k€, patrimoine de 320k€ dont un appartement en location.'", isUser: true, delay: 4000 },
+  { author: "Francis", content: "C'est noté. Le profil de M. Durand est créé. Je lance l'analyse complète... Un instant.", delay: 5500 },
+  { author: "Francis", content: "Analyse terminée. J'ai identifié 3 optimisations majeures. L'économie potentielle est de 2,847€ pour cette année.", delay: 8000 },
+  { author: "Francis", content: "Pour finaliser le rapport et valider ces stratégies, j'aurai besoin de son dernier avis d'imposition et des statuts de sa SCI. Les demandes sont ajoutées à sa fiche.", delay: 9500 },
 ];
 
 const ConversationView = () => {
@@ -97,37 +98,29 @@ const ClientView = () => (
         <h3 className="text-2xl font-bold text-white mb-6">Fiche Client : Durand</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
-                <h4 className="font-semibold text-[#c5a572] mb-3">Informations Personnelles</h4>
+                <h4 className="font-semibold text-[#c5a572] mb-3">Informations Clés</h4>
                 <p><strong>Âge:</strong> 42 ans</p>
                 <p><strong>Situation:</strong> Marié, 2 enfants</p>
-                <p><strong>Profession:</strong> Ingénieur</p>
+                <p><strong>Revenus:</strong> 85,000 € / an</p>
+                <p><strong>Patrimoine:</strong> 320,000 €</p>
             </div>
-            <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
-                <h4 className="font-semibold text-[#c5a572] mb-3">Patrimoine & Revenus</h4>
-                <p><strong>Revenus annuels:</strong> 85,000 €</p>
-                <p><strong>Patrimoine mobilier:</strong> 120,000 €</p>
-                <p><strong>Patrimoine immobilier:</strong> 200,000 €</p>
+             <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
+                <h4 className="font-semibold text-[#c5a572] mb-3">Pièces justificatives</h4>
+                <div className="space-y-2">
+                    <p className="flex justify-between items-center text-sm">Avis d'imposition 2023 <span className="font-semibold text-green-400">Reçu</span></p>
+                    <p className="flex justify-between items-center text-sm">Statuts SCI Durand <span className="font-semibold text-yellow-400">En attente</span></p>
+                    <p className="flex justify-between items-center text-sm">Relevés de compte <span className="font-semibold text-red-400">Manquant</span></p>
+                </div>
             </div>
         </div>
         <div className="mt-6 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
             <h4 className="font-semibold text-[#c5a572] mb-4">Optimisations Identifiées</h4>
             <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-[#2A3F6C]/50 rounded-lg">
-                    <span>Versement PER</span>
-                    <span className="font-bold text-green-400">+ 1,250 € / an</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-[#2A3F6C]/50 rounded-lg">
-                    <span>Passage au réel (Revenus Fonciers)</span>
-                    <span className="font-bold text-green-400">+ 987 € / an</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-[#2A3F6C]/50 rounded-lg">
-                    <span>Ajustement TMI via SCPI</span>
-                    <span className="font-bold text-green-400">+ 610 € / an</span>
-                </div>
+                <div className="flex justify-between items-center p-3 bg-[#2A3F6C]/50 rounded-lg"><span>Versement PER</span><span className="font-bold text-green-400">+ 1,250 € / an</span></div>
+                <div className="flex justify-between items-center p-3 bg-[#2A3F6C]/50 rounded-lg"><span>Passage au réel (Fonciers)</span><span className="font-bold text-green-400">+ 987 € / an</span></div>
+                <div className="flex justify-between items-center p-3 bg-[#2A3F6C]/50 rounded-lg"><span>Ajustement TMI (SCPI)</span><span className="font-bold text-green-400">+ 610 € / an</span></div>
             </div>
-            <div className="text-right mt-4 text-xl font-bold text-white">
-                Économie totale : <span className="text-[#c5a572]">2,847 € / an</span>
-            </div>
+            <div className="text-right mt-4 text-xl font-bold text-white">Économie totale : <span className="text-[#c5a572]">2,847 € / an</span></div>
         </div>
     </div>
 );
@@ -144,36 +137,54 @@ const ReportView = () => (
     </div>
 );
 
+const updates = [
+    { title: "Réforme de la plus-value immobilière", description: "Nouvelles règles de calcul pour les résidences secondaires.", impactedClients: ["Martin", "Bernard"] },
+    { title: "Plafond PER 2024 augmenté", description: "Le plafond de déduction a été réévalué de 2%.", impactedClients: ["Durand", "Petit"] },
+    { title: "Fin du dispositif Pinel", description: "Analyse d'impact et alternatives pour les investissements locatifs.", impactedClients: ["Leroy"] },
+];
+
+const UpdatesView = () => (
+    <div className="p-8 h-[542px] overflow-y-auto">
+        <h3 className="text-2xl font-bold text-white mb-6">Veille Législative & Mises à Jour</h3>
+        <div className="space-y-4">
+            {updates.map((update, index) => (
+                <div key={index} className="bg-[#1E3253]/80 p-4 rounded-xl border border-[#2A3F6C] hover:border-[#c5a572] transition-colors">
+                    <h4 className="font-semibold text-white mb-2">{update.title}</h4>
+                    <p className="text-gray-400 text-sm mb-3">{update.description}</p>
+                    <div className="text-xs">
+                        <span className="text-gray-500">Clients impactés : </span>
+                        {update.impactedClients.map(client => <span key={client} className="inline-block bg-[#c5a572]/20 text-[#c5a572] rounded-full px-2 py-0.5 mr-1">{client}</span>)}
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 const tabs = [
     { id: 'chat', label: 'Conversation IA', icon: Bot, component: ConversationView },
     { id: 'client', label: 'Fiche Client', icon: Briefcase, component: ClientView },
-    { id: 'report', label: 'Rapports', icon: BarChart2, component: ReportView }
+    { id: 'report', label: 'Rapports', icon: BarChart2, component: ReportView },
+    { id: 'updates', label: 'Veille Active', icon: Activity, component: UpdatesView }
 ];
 
 export function ProDemoSection() {
     const [activeTab, setActiveTab] = useState('chat');
-
     const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
 
     return (
         <div className="bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] py-20 px-4">
             <div className="max-w-4xl mx-auto text-center mb-12">
-                <h2 className="text-4xl font-extrabold text-white mb-4">
-                    Votre cabinet, <span className="text-[#c5a572]">augmenté</span>.
-                </h2>
-                <p className="text-lg text-gray-300">
-                    Passez de la conversation à la conclusion en un temps record. Tout est centralisé.
-                </p>
+                <h2 className="text-4xl font-extrabold text-white mb-4">Votre cabinet, <span className="text-[#c5a572]">augmenté</span>.</h2>
+                <p className="text-lg text-gray-300">Passez de la conversation à la conclusion en un temps record. Tout est centralisé.</p>
             </div>
-
             <div className="max-w-4xl mx-auto bg-[#0F1E36] rounded-2xl shadow-2xl border border-[#2A3F6C]/50 overflow-hidden">
                 <div className="flex border-b border-[#2A3F6C]/50">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 flex items-center justify-center gap-3 p-4 text-sm font-semibold transition-colors
-                                ${activeTab === tab.id ? 'text-[#c5a572] bg-[#1E3253]' : 'text-gray-400 hover:bg-[#1E3253]/50'}`}
+                            className={`flex-1 flex items-center justify-center gap-3 p-4 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'text-[#c5a572] bg-[#1E3253]' : 'text-gray-400 hover:bg-[#1E3253]/50'}`}
                         >
                             <tab.icon className="w-5 h-5" />
                             <span>{tab.label}</span>
