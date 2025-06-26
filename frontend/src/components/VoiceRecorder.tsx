@@ -42,7 +42,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const recognitionRef = useRef<any>(null);
+  const websocketRef = useRef<WebSocket | null>(null);
   const accumulatedTextRef = useRef('');
 
   useEffect(() => {
@@ -116,88 +116,100 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const startRecording = useCallback(async () => {
     try {
-      // Vérifier si Web Speech API est disponible
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        throw new Error('Web Speech API non supportée');
-      }
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 44100
+        } 
+      });
       
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
+      // Créer le WebSocket pour le streaming
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws/whisper-stream`;
+      websocketRef.current = new WebSocket(wsUrl);
       
-      // Configuration pour le temps réel
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'fr-FR';
-      recognitionRef.current.maxAlternatives = 1;
+      websocketRef.current.onopen = () => {
+        console.log('WebSocket connecté pour streaming');
+        setIsLiveTranscribing(true);
+      };
       
-      // Réinitialiser
+      websocketRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'transcription' && data.text) {
+            setLiveText(data.text);
+            if (data.is_final) {
+              onTranscriptionComplete(data.text);
+            }
+          } else if (data.type === 'error') {
+            onError?.(data.error);
+          }
+        } catch (e) {
+          console.error('Erreur parsing WebSocket:', e);
+        }
+      };
+      
+      websocketRef.current.onerror = (error) => {
+        console.error('Erreur WebSocket:', error);
+        onError?.('Erreur de connexion streaming');
+      };
+      
+      // Démarrer l'enregistrement audio
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
+      audioChunksRef.current = [];
       accumulatedTextRef.current = '';
       setLiveText('');
+      
+      mediaRecorderRef.current.ondataavailable = async (event) => {
+        if (event.data.size > 0 && websocketRef.current?.readyState === WebSocket.OPEN) {
+          // Convertir en base64 et envoyer via WebSocket
+          const arrayBuffer = await event.data.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          const base64Audio = btoa(String.fromCharCode(...Array.from(uint8Array)));
+          
+          websocketRef.current.send(JSON.stringify({
+            type: 'audio',
+            audio: base64Audio
+          }));
+        }
+      };
+      
+      mediaRecorderRef.current.onstop = () => {
+        // Envoyer signal de fin
+        if (websocketRef.current?.readyState === WebSocket.OPEN) {
+          websocketRef.current.send(JSON.stringify({ type: 'end' }));
+        }
+        
+        stream.getTracks().forEach(track => track.stop());
+        setIsLiveTranscribing(false);
+      };
+      
+      // Démarrer l'enregistrement avec des chunks fréquents
+      mediaRecorderRef.current.start(500); // Chunk toutes les 500ms
       setIsRecording(true);
       setRecordingTime(0);
       setAudioLevel(0);
       
-      // Événements de reconnaissance
-      recognitionRef.current.onstart = () => {
-        console.log('Reconnaissance vocale démarrée');
-        setIsLiveTranscribing(true);
-      };
+      analyzeAudioLevel(stream);
       
-      recognitionRef.current.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-        
-        // Mettre à jour le texte en temps réel
-        const currentText = finalTranscript + interimTranscript;
-        if (currentText !== accumulatedTextRef.current) {
-          accumulatedTextRef.current = currentText;
-          setLiveText(currentText);
-          
-          // Si c'est final, envoyer le résultat
-          if (finalTranscript) {
-            onTranscriptionComplete(finalTranscript);
-          }
-        }
-      };
-      
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Erreur reconnaissance vocale:', event.error);
-        onError?.(`Erreur reconnaissance: ${event.error}`);
-        stopRecording();
-      };
-      
-      recognitionRef.current.onend = () => {
-        console.log('Reconnaissance vocale terminée');
-        setIsLiveTranscribing(false);
-        setIsRecording(false);
-      };
-      
-      // Démarrer la reconnaissance
-      recognitionRef.current.start();
-      
-      // Timer pour l'affichage
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
       
     } catch (error) {
-      console.error('Erreur lors du démarrage de la reconnaissance:', error);
-      onError?.('Reconnaissance vocale non supportée. Utilisez Chrome ou Edge.');
+      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
+      onError?.('Impossible d\'accéder au microphone. Vérifiez les permissions.');
     }
-  }, [onTranscriptionComplete, onError]);
+  }, [analyzeAudioLevel, onTranscriptionComplete, onError]);
 
   const stopRecording = useCallback(() => {
-    if (recognitionRef.current && isRecording) {
-      recognitionRef.current.stop();
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
       setAudioLevel(0);
       
@@ -209,6 +221,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
+      }
+      
+      if (websocketRef.current) {
+        websocketRef.current.close();
+        websocketRef.current = null;
       }
     }
   }, [isRecording]);

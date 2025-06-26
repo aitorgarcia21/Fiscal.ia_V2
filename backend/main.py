@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
-from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
@@ -1839,6 +1839,120 @@ async def transcribe_streaming(request: dict):
         
     except Exception as e:
         return {"error": f"Erreur streaming: {str(e)}"}
+
+@app.websocket("/ws/whisper-stream")
+async def websocket_whisper_stream(websocket: WebSocket):
+    """
+    WebSocket pour streaming audio en temps réel avec Whisper.
+    """
+    await websocket.accept()
+    
+    try:
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            await websocket.send_text(json.dumps({"error": "Service Whisper non disponible"}))
+            return
+        
+        audio_buffer = b''
+        buffer_size = 0
+        
+        while True:
+            try:
+                # Recevoir l'audio en chunks
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                if message.get("type") == "audio":
+                    # Décoder l'audio base64
+                    audio_chunk = base64.b64decode(message["audio"])
+                    audio_buffer += audio_chunk
+                    buffer_size += len(audio_chunk)
+                    
+                    # Transcrire quand on a assez d'audio (2 secondes)
+                    if buffer_size > 32000:  # ~2 secondes d'audio
+                        try:
+                            # Créer un fichier temporaire
+                            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+                                temp_file.write(audio_buffer)
+                                temp_file_path = temp_file.name
+                            
+                            try:
+                                # Transcription ultra-rapide
+                                result = whisper_service._transcribe_audio_file_internal(temp_file_path)
+                                
+                                if result["text"].strip():
+                                    # Envoyer le résultat en temps réel
+                                    await websocket.send_text(json.dumps({
+                                        "type": "transcription",
+                                        "text": result["text"],
+                                        "is_final": False
+                                    }))
+                                
+                            except Exception as e:
+                                await websocket.send_text(json.dumps({
+                                    "type": "error",
+                                    "error": str(e)
+                                }))
+                            finally:
+                                # Nettoyage
+                                if os.path.exists(temp_file_path):
+                                    os.unlink(temp_file_path)
+                            
+                            # Réinitialiser le buffer
+                            audio_buffer = b''
+                            buffer_size = 0
+                            
+                        except Exception as e:
+                            await websocket.send_text(json.dumps({
+                                "type": "error",
+                                "error": str(e)
+                            }))
+                
+                elif message.get("type") == "end":
+                    # Transcription finale avec le buffer restant
+                    if audio_buffer:
+                        try:
+                            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+                                temp_file.write(audio_buffer)
+                                temp_file_path = temp_file.name
+                            
+                            try:
+                                result = whisper_service._transcribe_audio_file_internal(temp_file_path)
+                                
+                                if result["text"].strip():
+                                    await websocket.send_text(json.dumps({
+                                        "type": "transcription",
+                                        "text": result["text"],
+                                        "is_final": True
+                                    }))
+                                
+                            except Exception as e:
+                                await websocket.send_text(json.dumps({
+                                    "type": "error",
+                                    "error": str(e)
+                                }))
+                            finally:
+                                if os.path.exists(temp_file_path):
+                                    os.unlink(temp_file_path)
+                    
+                    break
+                    
+            except WebSocketDisconnect:
+                break
+            except Exception as e:
+                await websocket.send_text(json.dumps({
+                    "type": "error",
+                    "error": str(e)
+                }))
+                break
+                
+    except Exception as e:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "error": str(e)
+        }))
+    finally:
+        await websocket.close()
 
 if __name__ == "__main__":
     import uvicorn
