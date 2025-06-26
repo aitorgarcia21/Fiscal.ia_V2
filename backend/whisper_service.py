@@ -103,15 +103,18 @@ class WhisperTranscriptionService:
             # Transcription avec Whisper optimisée
             segments, info = self.model.transcribe(
                 audio_path,
-                beam_size=3,  # Réduit pour plus de vitesse
+                beam_size=5,  # Plus de précision
                 language="fr",  # Français par défaut
                 vad_filter=True,  # Filtre de détection de voix
                 vad_parameters=dict(
-                    min_silence_duration_ms=300,  # Plus sensible
-                    speech_pad_ms=100  # Padding pour éviter les coupures
+                    min_silence_duration_ms=50,  # Très sensible - réduit de 300 à 50ms
+                    speech_pad_ms=500,  # Plus de padding - augmenté de 100 à 500ms
+                    threshold=0.1  # Seuil très bas pour détecter plus de parole
                 ),
                 condition_on_previous_text=False,  # Plus rapide
-                temperature=0.0  # Déterministe pour la cohérence
+                temperature=0.3,  # Plus de flexibilité pour la détection
+                compression_ratio_threshold=2.4,  # Ajusté pour éviter les hallucinations
+                no_speech_threshold=0.4  # Seuil plus bas pour détecter plus de parole
             )
             
             # Récupération du texte complet avec nettoyage
@@ -137,6 +140,45 @@ class WhisperTranscriptionService:
                     })
             
             text = " ".join(text_segments)
+            
+            # Si aucun texte détecté, essayer sans VAD
+            if not text.strip():
+                logger.info("Aucun texte détecté avec VAD, tentative sans VAD...")
+                segments, info = self.model.transcribe(
+                    audio_path,
+                    beam_size=3,
+                    language="fr",
+                    vad_filter=False,  # Désactivé pour cette tentative
+                    condition_on_previous_text=False,
+                    temperature=0.1,
+                    compression_ratio_threshold=2.4,
+                    no_speech_threshold=0.4
+                )
+                
+                # Récupération du texte sans VAD
+                text_segments = []
+                segments_data = []
+                
+                for segment in segments:
+                    clean_text = segment.text.strip()
+                    if clean_text:
+                        text_segments.append(clean_text)
+                        segments_data.append({
+                            "start": segment.start,
+                            "end": segment.end,
+                            "text": clean_text,
+                            "words": [
+                                {
+                                    "start": word.start,
+                                    "end": word.end,
+                                    "word": word.word,
+                                    "probability": word.probability
+                                } for word in segment.words
+                            ] if hasattr(segment, 'words') else []
+                        })
+                
+                text = " ".join(text_segments)
+            
             transcription_time = time.time() - start_time
             
             logger.info(f"Transcription terminée en {transcription_time:.2f}s - {len(text)} caractères")
