@@ -39,7 +39,7 @@ import whisper
 import time
 from pydub import AudioSegment
 import io
-from . import config  # Assure que .env est chargé en premier
+# Configuration des variables d'environnement chargée via load_dotenv() en début de fichier
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
 _whisper_service = None
