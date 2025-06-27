@@ -361,7 +361,6 @@ const ProLandingPage = () => {
                 <div className="flex justify-center space-x-6 mt-4">
                     <a href="/mentions-legales" className="hover:text-[#c5a572] transition-colors">Mentions Légales</a>
                     <a href="/politique-confidentialite" className="hover:text-[#c5a572] transition-colors">Politique de Confidentialité</a>
-                    <a href="/activer-compte" className="hover:text-[#c5a572] transition-colors">Activer mon compte</a>
                 </div>
             </div>
         </footer>
