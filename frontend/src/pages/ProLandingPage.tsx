@@ -355,13 +355,17 @@ const ProLandingPage = () => {
         </section>
 
         {/* Footer */}
-        <footer className="bg-[#0A192F] border-t border-[#2A3F6C]/30 py-8">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="text-center">
-              <p className="text-gray-400">&copy; 2024 Pro. Tous droits réservés.</p>
+        <footer className="bg-[#162238]/80 border-t border-[#2A3F6C]/50 mt-20">
+            <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+                <p>&copy; {new Date().getFullYear()} Francis. Tous droits réservés.</p>
+                <div className="flex justify-center space-x-6 mt-4">
+                    <a href="/mentions-legales" className="hover:text-[#c5a572] transition-colors">Mentions Légales</a>
+                    <a href="/politique-confidentialite" className="hover:text-[#c5a572] transition-colors">Politique de Confidentialité</a>
+                    <a href="/activer-compte" className="hover:text-[#c5a572] transition-colors">Activer mon compte</a>
+                </div>
             </div>
-          </div>
         </footer>
+
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
-from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect, Form
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
@@ -16,7 +16,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+from .assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -24,16 +24,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine, Base, get_db as get_db_session
-from models import UserProfile
-from models_pro import BasePro
-from routers import pro_clients as pro_clients_router
-from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+from .database import SessionLocal, engine, Base, get_db as get_db_session
+from .models import UserProfile
+from .models_pro import BasePro
+from .routers import pro_clients as pro_clients_router
+from .dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
 import sys
 import tempfile
 import logging
-from whisper_service import get_whisper_service
+from .whisper_service import get_whisper_service
 import base64
 import whisper
 import time
@@ -2022,6 +2022,31 @@ async def whisper_transcribe_audio(request: TranscriptionRequest):
     except Exception as e:
         logger.error(f"Erreur lors de la transcription: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur de transcription: {str(e)}")
+
+class UserInvite(BaseModel):
+    email: EmailStr
+
+@api_router.post("/auth/invite-user")
+async def invite_user(user_invite: UserInvite):
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Service Supabase non disponible")
+    
+    email_to_invite = user_invite.email
+    
+    try:
+        # Cette fonction envoie un e-mail "magic link" pour la connexion
+        # ou un lien d'invitation si l'utilisateur n'existe pas.
+        # C'est la méthode la plus simple pour l'activation.
+        response = supabase.auth.admin.invite_user_by_email(email_to_invite)
+        
+        return {"message": f"Si un compte est associé à {email_to_invite}, un e-mail d'activation a été envoyé."}
+
+    except Exception as e:
+        # Ne pas révéler si un email existe ou non.
+        # Logger l'erreur côté serveur pour le débogage.
+        print(f"Erreur lors de la tentative d'invitation pour {email_to_invite}: {e}")
+        # Renvoyer un message générique pour des raisons de sécurité.
+        return {"message": f"Si un compte est associé à {email_to_invite}, un e-mail d'activation a été envoyé."}
 
 if __name__ == "__main__":
     import uvicorn
