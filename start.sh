@@ -49,14 +49,13 @@ if [ ! -f "/var/www/html/index.html" ]; then
     exit 1
 fi
 
-# Ajouter le répertoire backend au PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:/app/backend
+# Ajouter le répertoire de l'application au PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/app
 
 # Démarrer le backend en arrière-plan
 echo "=== Démarrage du backend ==="
-cd backend
-# Utiliser plusieurs workers et augmenter le timeout
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --log-level debug --workers 2 --timeout-keep-alive 300 > /app/backend.log 2>&1 &
+# NE PAS se déplacer dans le répertoire backend. Lancer depuis la racine /app.
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --log-level debug --workers 2 --timeout-keep-alive 300 > /app/backend.log 2>&1 &
 BACKEND_PID=$!
 
 # Attendre que le backend soit prêt
