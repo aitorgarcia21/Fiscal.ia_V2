@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { TrueLayerCallback } from './pages/TrueLayerCallback';
+import { AuthCallback } from './pages/AuthCallback';
 import { SignupPage } from './pages/SignupPage';
 import { ProSignupPage } from './pages/ProSignupPage';
 import { DiscoverPage } from './pages/DiscoverPage';
@@ -54,6 +55,7 @@ function App() {
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
           
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
           <Route element={<ParticulierProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<ChatPage />} />

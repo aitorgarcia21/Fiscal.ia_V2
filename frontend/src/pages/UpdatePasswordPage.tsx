@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase'; // Assurez-vous que ce chemin est correct
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { MessageSquare, Euro, KeyRound, Eye, EyeOff } from 'lucide-react';
 
 const UpdatePasswordPage: React.FC = () => {
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
-    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [isTokenValid, setIsTokenValid] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Le client Supabase gère le token dans l'URL automatiquement.
+        // On vérifie juste si le fragment de token existe pour afficher le formulaire.
         const hash = location.hash;
-        const params = new URLSearchParams(hash.substring(1));
-        const token = params.get('access_token');
-        
-        if (token) {
-            setAccessToken(token);
+        if (hash.includes('access_token')) {
+            setIsTokenValid(true);
         } else {
-            setError("Token de récupération manquant ou invalide. Veuillez réessayer depuis l'e-mail.");
+            setError("Lien invalide ou expiré. Veuillez demander un nouveau lien de récupération.");
         }
     }, [location]);
 
     const handlePasswordUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!accessToken) {
-            setError("Session invalide. Impossible de mettre à jour le mot de passe.");
+        if (!isTokenValid) {
+            setError("Le lien utilisé est invalide. Impossible de mettre à jour le mot de passe.");
             return;
         }
         
@@ -39,45 +40,60 @@ const UpdatePasswordPage: React.FC = () => {
         
         setLoading(false);
         if (error) {
-            setError(error.message);
+            setError(`Erreur: ${error.message}`);
         } else {
-            setMessage("Votre mot de passe a été mis à jour avec succès. Vous pouvez maintenant vous connecter.");
-            setTimeout(() => navigate('/pro/login'), 5000);
+            setMessage("Votre mot de passe a été mis à jour avec succès ! Vous allez être redirigé vers la page de connexion.");
+            setTimeout(() => navigate('/pro/login'), 4000);
         }
     };
+    
+    const inputStyles = "w-full bg-[#162238]/50 border border-[#2A3F6C] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#c5a572]";
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-            <div className="max-w-md w-full p-8 space-y-6 bg-gray-800 rounded-lg">
-                <h2 className="text-2xl font-bold text-center">Choisissez votre nouveau mot de passe</h2>
-
-                {error && <p className="text-red-500 text-center">{error}</p>}
-                {message && <p className="text-green-500 text-center">{message}</p>}
-
-                {!message && (
-                    <form onSubmit={handlePasswordUpdate} className="space-y-6">
-                        <div>
-                            <label htmlFor="new-password" className="sr-only">Nouveau mot de passe</label>
-                            <input
-                                id="new-password"
-                                name="password"
-                                type="password"
-                                required
-                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                placeholder="Nouveau mot de passe"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
+        <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+                 <div className="text-center mb-8">
+                    <Link to="/pro" className="inline-block">
+                         <div className="relative inline-flex items-center justify-center group mb-4">
+                            <MessageSquare className="h-14 w-14 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                            <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1E3253] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                         </div>
-                        <button
-                            type="submit"
-                            disabled={loading || !accessToken}
-                            className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 rounded-md font-semibold disabled:opacity-50"
-                        >
-                            {loading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
-                        </button>
-                    </form>
-                )}
+                    </Link>
+                  <h1 className="text-3xl font-bold text-white">Créer un nouveau mot de passe</h1>
+                </div>
+                
+                <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl">
+                    {message && <p className="text-green-400 text-center text-sm bg-green-900/20 p-3 rounded-lg">{message}</p>}
+                    {error && <p className="text-red-400 text-center text-sm bg-red-900/20 p-3 rounded-lg">{error}</p>}
+
+                    {!message && isTokenValid && (
+                        <form onSubmit={handlePasswordUpdate} className="space-y-6">
+                            <div className="relative">
+                                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <input
+                                    id="new-password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    className={`${inputStyles} pl-12 pr-12`}
+                                    placeholder="Nouveau mot de passe"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all duration-300 disabled:opacity-50"
+                            >
+                                {loading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
+                            </button>
+                        </form>
+                    )}
+                </div>
             </div>
         </div>
     );

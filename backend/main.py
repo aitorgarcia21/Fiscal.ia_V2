@@ -2037,10 +2037,16 @@ async def invite_user(user_invite: UserInvite):
     email_to_invite = user_invite.email
     
     try:
+        # Configurer l'URL de redirection basée sur l'environnement
+        site_url = os.getenv("SITE_URL", "https://fiscal-ia.net")
+        redirect_to = f"{site_url}/auth/callback"
+        
         # Cette fonction envoie un e-mail "magic link" pour la connexion
-        # ou un lien d'invitation si l'utilisateur n'existe pas.
-        # C'est la méthode la plus simple pour l'activation.
-        response = supabase.auth.admin.invite_user_by_email(email_to_invite)
+        # avec l'URL de redirection correcte
+        response = supabase.auth.admin.invite_user_by_email(
+            email_to_invite,
+            options={"redirect_to": redirect_to}
+        )
         
         return {"message": f"Si un compte est associé à {email_to_invite}, un e-mail d'activation a été envoyé."}
 
