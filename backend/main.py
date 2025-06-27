@@ -39,6 +39,7 @@ import whisper
 import time
 from pydub import AudioSegment
 import io
+from . import config  # Assure que .env est chargé en premier
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
 _whisper_service = None
@@ -387,6 +388,39 @@ class GoCardlessBankAccountResponse(BaseModel):
     country_code: str
     currency: str
     status: str
+
+# Modèles Pydantic pour Whisper
+class TranscriptionRequest(BaseModel):
+    audio_base64: str
+    audio_format: str = "wav"
+    language: Optional[str] = "fr"
+
+class TranscriptionResponse(BaseModel):
+    text: str
+    segments: List[Dict[str, Any]]
+    language: str
+    language_probability: float
+    duration: float
+    transcription_time: Optional[float] = None
+    error: Optional[str] = None
+
+class WhisperModelInfoResponse(BaseModel):
+    model_size: str
+    status: str
+    device: str
+    compute_type: str
+    cache_size: Optional[int] = None
+    health_status: Optional[str] = None
+
+class WhisperHealthResponse(BaseModel):
+    status: str
+    model_loaded: bool
+    is_loading: bool
+    cache_size: int
+    error: Optional[str] = None
+
+class UserInvite(BaseModel):
+    email: EmailStr
 
 # Utils
 def create_access_token(data: dict):
@@ -1568,35 +1602,7 @@ async def gocardless_connect_bank(request: GoCardlessBankAccountRequest, user_id
         print(f"Erreur GoCardless: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur lors de la connexion bancaire: {str(e)}")
 
-# Modèles Pydantic pour Whisper
-class TranscriptionRequest(BaseModel):
-    audio_base64: str
-    audio_format: str = "wav"
-    language: Optional[str] = "fr"
 
-class TranscriptionResponse(BaseModel):
-    text: str
-    segments: List[Dict[str, Any]]
-    language: str
-    language_probability: float
-    duration: float
-    transcription_time: Optional[float] = None
-    error: Optional[str] = None
-
-class WhisperModelInfoResponse(BaseModel):
-    model_size: str
-    status: str
-    device: str
-    compute_type: str
-    cache_size: Optional[int] = None
-    health_status: Optional[str] = None
-
-class WhisperHealthResponse(BaseModel):
-    status: str
-    model_loaded: bool
-    is_loading: bool
-    cache_size: int
-    error: Optional[str] = None
 
 # Endpoints Whisper optimisés - SUPPRIMÉS pour éviter les conflits
 # Les endpoints Whisper sont maintenant définis directement sur app
@@ -2022,9 +2028,6 @@ async def whisper_transcribe_audio(request: TranscriptionRequest):
     except Exception as e:
         logger.error(f"Erreur lors de la transcription: {e}")
         raise HTTPException(status_code=500, detail=f"Erreur de transcription: {str(e)}")
-
-class UserInvite(BaseModel):
-    email: EmailStr
 
 @api_router.post("/auth/invite-user")
 async def invite_user(user_invite: UserInvite):
