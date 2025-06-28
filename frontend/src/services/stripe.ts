@@ -6,6 +6,7 @@ export interface CreateCheckoutSessionRequest {
   priceId: string;
   successUrl?: string;
   cancelUrl?: string;
+  userEmail?: string;
 }
 
 export interface CreatePortalSessionRequest {
@@ -27,7 +28,8 @@ export async function createCheckoutSession(data: CreateCheckoutSessionRequest):
       data: {
         priceId: data.priceId,
         successUrl: data.successUrl || `${window.location.origin}/success`,
-        cancelUrl: data.cancelUrl || `${window.location.origin}/pricing`
+        cancelUrl: data.cancelUrl || `${window.location.origin}/pricing`,
+        customer_email: data.userEmail
       }
     });
     

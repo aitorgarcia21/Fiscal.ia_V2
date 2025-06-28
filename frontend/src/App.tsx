@@ -4,7 +4,7 @@ import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { TrueLayerCallback } from './pages/TrueLayerCallback';
 import { AuthCallback } from './pages/AuthCallback';
-import { SignupPage } from './pages/SignupPage';
+import SignupPage from './pages/SignupPage';
 import { ProSignupPage } from './pages/ProSignupPage';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { ChatPage } from './pages/ChatPage';
@@ -32,6 +32,8 @@ import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import ProLoginPage from './pages/ProLoginPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ActivateAccountPage from './pages/ActivateAccountPage';
+import LoginPage from './pages/LoginPage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -43,6 +45,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/pro" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro" replace />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
           <Route path="/demo" element={<DemoPage />} />
@@ -74,6 +77,7 @@ function App() {
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
             <Route path="/pro/login" element={<ProLoginPage />} />
           </Route>
+          <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>
       </Router>
   );

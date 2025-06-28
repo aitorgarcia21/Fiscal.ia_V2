@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useStripe } from '../hooks/useStripe';
 import { PRICING, PricingPlan } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
+import { useAuth } from '../contexts/AuthContext';
 
 export function ProSignupPage() {
   const [step, setStep] = useState(1);
@@ -20,6 +21,7 @@ export function ProSignupPage() {
   });
   const [plan, setPlan] = useState<PricingPlan>('PRO_MONTHLY');
   const { redirectToCheckout, isLoading, error } = useStripe();
+  const { signup } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -31,17 +33,30 @@ export function ProSignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      console.error("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
     if (step < 3) {
       setStep(step + 1);
     } else {
       try {
+        await signup(
+          formData.email,
+          formData.password,
+          `${formData.firstName} ${formData.lastName}`,
+          'professionnel'
+        );
+
         await redirectToCheckout({
           priceId: PRICING[plan].stripePriceId,
           successUrl: `${window.location.origin}/success?type=pro`,
-          cancelUrl: `${window.location.origin}/pro/signup`
+          cancelUrl: `${window.location.origin}/pro/signup`,
+          userEmail: formData.email
         });
       } catch (err) {
-        console.error('Erreur lors du paiement:', err);
+        console.error('Erreur lors de l\'inscription ou du paiement:', err);
       }
     }
   };

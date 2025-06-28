@@ -33,9 +33,9 @@ const DemoMessage = ({ author, content, isUser, delay }: { author: string, conte
   if (!visible) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className={`flex items-start gap-4 my-6 ${isUser ? 'justify-end' : ''}`}
     >
@@ -47,7 +47,7 @@ const DemoMessage = ({ author, content, isUser, delay }: { author: string, conte
       <div className={`p-4 rounded-2xl max-w-lg ${isUser ? 'bg-[#c5a572] text-[#162238] rounded-br-none' : 'bg-[#1E3253] text-gray-200 rounded-bl-none'}`}>
         <p className="font-bold text-sm mb-1">{isUser ? 'Vous' : author}</p>
         <p className="text-sm">{content}</p>
-      </div>
+            </div>
       {isUser && (
         <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
           <User className="w-6 h-6 text-gray-200" />
@@ -79,7 +79,7 @@ const ConversationView = () => {
                 {demoConversation.map((msg, index) => (
                     <DemoMessage key={index} {...msg} />
                 ))}
-            </div>
+                </div>
             <div className="p-4 bg-[#162238]/80 border-t border-[#2A3F6C]/50 backdrop-blur-sm">
               <div className="relative">
                 <input type="text" placeholder="Posez votre question à Francis..." className="w-full bg-[#1E3253] border border-[#2A3F6C] rounded-full py-3 pl-6 pr-24 text-white placeholder-gray-500" disabled />
@@ -110,9 +110,9 @@ const ClientView = () => (
                     <p className="flex justify-between items-center text-sm">Avis d'imposition 2023 <span className="font-semibold text-green-400">Reçu</span></p>
                     <p className="flex justify-between items-center text-sm">Statuts SCI Durand <span className="font-semibold text-yellow-400">En attente</span></p>
                     <p className="flex justify-between items-center text-sm">Relevés de compte <span className="font-semibold text-red-400">Manquant</span></p>
-                </div>
+              </div>
             </div>
-        </div>
+          </div>
         <div className="mt-6 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
             <h4 className="font-semibold text-[#c5a572] mb-4">Optimisations Identifiées</h4>
             <div className="space-y-3">
@@ -122,7 +122,7 @@ const ClientView = () => (
             </div>
             <div className="text-right mt-4 text-xl font-bold text-white">Économie totale : <span className="text-[#c5a572]">2,847 € / an</span></div>
         </div>
-    </div>
+                    </div>
 );
 
 const ReportView = () => (
@@ -133,8 +133,8 @@ const ReportView = () => (
             <h4 className="text-xl font-semibold text-white mb-2">Rapport d'Optimisation Fiscale</h4>
             <p className="text-gray-400 mb-6">Rapport complet de 24 pages généré par Francis.</p>
             <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold py-2 px-6 rounded-lg">Télécharger le PDF</button>
-        </div>
-    </div>
+                      </div>
+                      </div>
 );
 
 const updates = [
@@ -154,11 +154,11 @@ const UpdatesView = () => (
                     <div className="text-xs">
                         <span className="text-gray-500">Clients impactés : </span>
                         {update.impactedClients.map(client => <span key={client} className="inline-block bg-[#c5a572]/20 text-[#c5a572] rounded-full px-2 py-0.5 mr-1">{client}</span>)}
-                    </div>
+                  </div>
                 </div>
             ))}
-        </div>
-    </div>
+                          </div>
+                        </div>
 );
 
 const tabs = [
@@ -177,7 +177,7 @@ export function ProDemoSection() {
             <div className="max-w-4xl mx-auto text-center mb-12">
                 <h2 className="text-4xl font-extrabold text-white mb-4">Votre cabinet, <span className="text-[#c5a572]">augmenté</span>.</h2>
                 <p className="text-lg text-gray-300">Passez de la conversation à la conclusion en un temps record. Tout est centralisé.</p>
-            </div>
+                          </div>
             <div className="max-w-4xl mx-auto bg-[#0F1E36] rounded-2xl shadow-2xl border border-[#2A3F6C]/50 overflow-hidden">
                 <div className="flex border-b border-[#2A3F6C]/50">
                     {tabs.map(tab => (
@@ -202,7 +202,7 @@ export function ProDemoSection() {
                         {ActiveComponent && <ActiveComponent />}
                     </motion.div>
                 </AnimatePresence>
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 } 

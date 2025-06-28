@@ -2,7 +2,7 @@ import React, { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { X, User, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTa
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { login, signup } = useAuth();
+  const { login, signup, isProfessional } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -27,11 +27,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTa
     try {
       await login(email, password);
       onClose();
-      // La redirection sera gérée par le composant appelant ou un protected route
+      // Redirection immédiate selon le rôle enregistré
+      if (isProfessional) {
+        navigate('/pro/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'Erreur de connexion');
     } finally {
-      setIsLoading(false);
+          setIsLoading(false);
     }
   };
 
@@ -96,15 +101,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTa
 
                 <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Fermer">
                     <X />
-                </button>
+        </button>
 
                 <div className="border-b border-[#2A3F6C] mb-6">
                     <nav className="-mb-px flex space-x-4" aria-label="Tabs">
                         <button onClick={() => setActiveTab('login')} className={tabButtonStyles(activeTab === 'login')}>Connexion</button>
                         <button onClick={() => setActiveTab('signup')} className={tabButtonStyles(activeTab === 'signup')}>Inscription</button>
                     </nav>
-                </div>
-                
+        </div>
+
                 {error && <p className="text-red-400 text-center mb-4">{error}</p>}
                 
                 {activeTab === 'login' ? (
@@ -112,33 +117,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTa
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12`} />
-                    </div>
+              </div>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12`} />
-                    </div>
+                </div>
                     <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all disabled:opacity-50">
                       {isLoading ? 'Connexion...' : 'Se connecter'}
                     </button>
+                    <div className="text-center text-sm">
+                      <Link to="/activate-account" className="text-gray-400 hover:text-[#c5a572] transition-colors">
+                        Activer mon compte
+                      </Link>
+              </div>
                   </form>
                 ) : (
                   <form onSubmit={handleSignup} className="space-y-6">
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input type="text" placeholder="Nom complet" value={fullName} onChange={(e) => setFullName(e.target.value)} required className={`${inputStyles} pl-12`} />
-                    </div>
+          </div>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12`} />
-                    </div>
+          </div>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                       <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12`} />
-                    </div>
+            </div>
                     <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all disabled:opacity-50">
                       {isLoading ? 'Création...' : 'Créer un compte'}
-                    </button>
-                  </form>
+          </button>
+        </form>
                 )}
               </Dialog.Panel>
             </Transition.Child>

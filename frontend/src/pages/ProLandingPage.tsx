@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check, BrainCircuit, PiggyBank, Target, Clock, BarChart3, ClipboardList, Heart } from 'lucide-react';
+import { MessageSquare, Euro, Briefcase, FileText, Zap, ShieldCheck, Users, TrendingUp, Check, BrainCircuit, PiggyBank, Target, Clock, BarChart3, ClipboardList, Heart, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
 import { AuthModal } from '../components/auth/AuthModal';
@@ -47,8 +47,15 @@ const ProLandingPage = () => {
               <span className="text-lg font-semibold text-gray-300 ml-2">Pro</span>
             </div>
 
-            {/* Auth Buttons */}
+            {/* Switch to Particulier + Auth Buttons */}
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/')}
+                className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                Particuliers
+              </button>
               <button
                 onClick={() => navigate('/pro/login')}
                 className="text-gray-300 hover:text-[#c5a572] transition-colors"

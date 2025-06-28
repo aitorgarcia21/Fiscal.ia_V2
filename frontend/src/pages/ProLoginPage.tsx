@@ -19,7 +19,7 @@ const ProLoginPage: React.FC = () => {
       await login(email, password);
       // Le contexte se charge de vérifier si l'utilisateur est un pro
       // et la redirection se fera via le composant ProProtectedRoute
-      navigate('/pro/dashboard');
+      navigate('/pro/dashboard', { replace: true });
     } catch (err: any) {
       setError(err.data?.detail || err.message || 'Email ou mot de passe incorrect.');
     } finally {

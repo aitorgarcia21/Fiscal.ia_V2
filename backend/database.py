@@ -12,14 +12,23 @@ from supabase import create_client, Client
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
+# Gestion plus souple en environnement de test / développement
 if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("SUPABASE_URL et SUPABASE_SERVICE_KEY doivent être configurés")
+    # On est probablement en environnement local ou CI ; on désactive Supabase.
+    print("❌ ERROR initializing Supabase client in database.py: variables manquantes", file=sys.stderr)
+    supabase: Client | None = None  # type: ignore
+else:
+    print(f"DATABASE_PY_LOG: SUPABASE_URL configuré: {SUPABASE_URL}", file=sys.stderr)
+    print(
+        f"DATABASE_PY_LOG: SUPABASE_KEY configuré: {'*' * len(SUPABASE_KEY) if SUPABASE_KEY else 'Non configuré'}",
+        file=sys.stderr,
+    )
 
-print(f"DATABASE_PY_LOG: SUPABASE_URL configuré: {SUPABASE_URL}", file=sys.stderr)
-print(f"DATABASE_PY_LOG: SUPABASE_KEY configuré: {'*' * len(SUPABASE_KEY) if SUPABASE_KEY else 'Non configuré'}", file=sys.stderr)
-
-# Initialisation du client Supabase
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    try:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception as e:  # URL invalide ou autre erreur de création
+        print(f"❌ ERROR initializing Supabase client in database.py: {e}", file=sys.stderr)
+        supabase = None  # type: ignore
 
 # Configuration SQLAlchemy pour Supabase
 DATABASE_URL = "postgresql://postgres.lqxfjjtjxktjgpekugtf:21AiPa01....@aws-0-eu-west-3.pooler.supabase.com:5432/postgres"

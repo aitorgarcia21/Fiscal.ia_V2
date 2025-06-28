@@ -70,9 +70,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (response && response.access_token && response.user) {
         localStorage.setItem('authToken', response.access_token);
         setUser(response.user);
-        setIsAuthenticated(true);
+      setIsAuthenticated(true);
         setIsProfessional(response.user.taper === 'professionnel');
-      } else {
+    } else {
         throw new Error("La réponse du serveur est invalide.");
       }
     } catch (error) {

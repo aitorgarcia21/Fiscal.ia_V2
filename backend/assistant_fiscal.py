@@ -8,8 +8,8 @@ from mistralai.models.chat_completion import ChatMessage
 
 # Imports pour les embeddings
 try:
-from mistral_cgi_embeddings import load_embeddings, search_similar_articles
-    from mistral_embeddings import search_similar_bofip_chunks
+    from mistral_cgi_embeddings import load_embeddings, search_similar_articles  # type: ignore
+    from mistral_embeddings import search_similar_bofip_chunks  # type: ignore
     CGI_EMBEDDINGS_AVAILABLE = True
     BOFIP_EMBEDDINGS_AVAILABLE = True
 except ImportError:
@@ -47,6 +47,10 @@ def validate_official_source(source_info: Dict) -> bool:
 def search_similar_cgi_articles(query: str, top_k: int = 3) -> List[Dict]:
     """Recherche les articles du CGI les plus similaires à la requête EXCLUSIVEMENT."""
     try:
+        # Ces imports peuvent échouer en environnement de test ou si les embeddings ne sont pas générés.
+        if not CGI_EMBEDDINGS_AVAILABLE:
+            return []
+        
         embeddings = load_embeddings()
         if not embeddings:
             return []
@@ -84,6 +88,7 @@ def search_similar_cgi_articles(query: str, top_k: int = 3) -> List[Dict]:
 def search_similar_bofip_chunks_filtered(query: str, top_k: int = 3) -> List[Dict]:
     """Recherche les chunks BOFiP avec validation stricte."""
     try:
+        # Ces imports peuvent échouer en environnement de test ou si les embeddings ne sont pas générés.
         if not BOFIP_EMBEDDINGS_AVAILABLE:
             return []
         

@@ -51,9 +51,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcript.trim() + ' ';
-        } else {
+      } else {
           interimTranscript += transcript;
-        }
+      }
       }
 
       onTranscriptionUpdate(accumulatedTextRef.current + finalTranscript + interimTranscript);
@@ -77,7 +77,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       if (isRecordingRef.current) {
         console.log("Speech recognition service stopped, restarting...");
         recognition.start();
-      }
+        } 
     };
 
     // Cleanup function to stop recognition when the component unmounts
@@ -124,17 +124,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <Button
-        onClick={handleButtonClick}
+          <Button
+            onClick={handleButtonClick}
         disabled={disabled}
-        className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
-          isRecording 
+            className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
+              isRecording 
             ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
             : 'bg-green-500 hover:bg-green-600'
         }`}
-      >
+          >
         {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
-      </Button>
+          </Button>
       <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
         <CheckCircle className="w-4 h-4 text-green-500" />
         <span>Reconnaissance instantanée activée</span>

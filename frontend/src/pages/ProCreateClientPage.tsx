@@ -567,7 +567,7 @@ export function ProCreateClientPage() {
   const handleVoiceError = (error: string) => {
     console.error('Erreur dictée profil client:', error);
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-gray-100 font-sans antialiased">
       <header className="bg-[#0D1F3A]/90 backdrop-blur-md border-b border-[#2A3F6C]/30 shadow-lg sticky top-0 z-40">
@@ -593,16 +593,16 @@ export function ProCreateClientPage() {
                 Retour
               </button>
               <h1 className="text-2xl font-bold text-white">Nouveau Client</h1>
-            </div>
-            
+              </div>
+              
             {/* Bouton de dictée vocale */}
-            <button
+                <button
               onClick={() => setShowVoiceInput(!showVoiceInput)}
               className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
-            >
+                >
               {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale IA'}</span>
-            </button>
+                </button>
           </div>
 
           {/* Interface de dictée vocale */}
@@ -626,27 +626,27 @@ export function ProCreateClientPage() {
                 <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
                   <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
                   <div className="text-sm text-white">{voiceText}</div>
-                </div>
-              )}
-              
+              </div>
+            )}
+
               {/* Indicateur d'analyse IA */}
               {isAIAnalyzing && (
                 <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-blue-500/50">
                   <div className="flex items-center gap-2 text-blue-400">
                     <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-sm">Francis analyse votre profil client...</span>
-                  </div>
                 </div>
-              )}
-              
+              </div>
+            )}
+
               {/* Résultat de l'analyse IA */}
               {aiAnalysisResult && !isAIAnalyzing && (
                 <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-green-500/50">
                   <div className="text-sm text-green-400">{aiAnalysisResult}</div>
                 </div>
               )}
-            </div>
-          )}
+              </div>
+            )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <section className={firstSectionStyles}>

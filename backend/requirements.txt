@@ -24,6 +24,6 @@ numpy>=2.1.0,<2.3.0
 requests==2.31.0
 PyPDF2==3.0.1
 tqdm==4.66.1
-faster-whisper==0.10.0
+faster-whisper==0.10.0 
 openai-whisper==20231117
 pydub 

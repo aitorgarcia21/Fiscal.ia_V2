@@ -87,23 +87,16 @@ export function ChatPage() {
         payload.user_profile_context = userProfileContext;
       }
 
-      const response = await fetch('/api/ask', { 
+      const responseData = await apiClient<any>('/api/ask', {
         method: 'POST',
-        headers: headers,
-        body: JSON.stringify(payload),
+        data: payload,
       });
 
-      if (response.ok) {
-        const data = await response.json();
         const assistantMessage: Message = {
           role: 'assistant',
-          content: data.answer || 'Je n\'ai pas pu traiter votre demande.'
+        content: responseData.answer || 'Je n\'ai pas pu traiter votre demande.'
         };
         setMessages(prev => [...prev, assistantMessage]);
-      } else {
-        const errorData = await response.json().catch(() => ({ detail: "Erreur de communication avec Francis"}));
-        throw new Error(errorData.detail || 'Erreur de communication avec Francis');
-      }
     } catch (error: any) {
       console.error('Erreur lors de l\'envoi du message:', error);
       const errorMessage: Message = {

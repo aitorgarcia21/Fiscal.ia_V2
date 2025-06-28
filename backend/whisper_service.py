@@ -419,7 +419,7 @@ class WhisperTranscriptionService:
                 "end": 0,
                 "is_final": True,
                 "error": str(e)
-            }
+        }
 
 # Instance globale du service avec chargement lazy
 _whisper_service = None

@@ -4,6 +4,27 @@ interface ApiClientOptions extends RequestInit {
   data?: any;
 }
 
+// Ajout d'un utilitaire pour construire proprement l'URL et éviter les doublons `/api`
+const buildUrl = (endpoint: string): string => {
+  let base = API_BASE_URL || '';
+  // Supprimer les barres obliques finales du base URL
+  base = base.replace(/\/+$/, '');
+
+  // S'assurer que l'endpoint commence par une barre oblique
+  let cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  /*
+    Cas fréquent : l'env var contient déjà "api" (ex. https://fiscal-ia.net/api)
+    et les composants appellent également un chemin commençant par "api/...".
+    On détecte alors le doublon "api/api/" et on le corrige.
+  */
+  if (base.endsWith('/api') && cleanEndpoint.startsWith('/api/')) {
+    cleanEndpoint = cleanEndpoint.slice(4); // retire le premier "/api"
+  }
+
+  return `${base}${cleanEndpoint}`;
+};
+
 async function apiClient<T = any>(endpoint: string, { data, headers: customHeaders, ...customConfig }: ApiClientOptions = {}): Promise<T> {
   const token = localStorage.getItem('authToken');
   const headers: HeadersInit = {
@@ -25,7 +46,7 @@ async function apiClient<T = any>(endpoint: string, { data, headers: customHeade
     config.body = JSON.stringify(data);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  const response = await fetch(buildUrl(endpoint), config);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: response.statusText }));
