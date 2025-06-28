@@ -68,6 +68,9 @@ function App() {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/discover" element={<DiscoverPage />} />
           </Route>
+          {/* Route de connexion Pro accessible sans authentification */}
+          <Route path="/pro/login" element={<ProLoginPage />} />
+
           <Route element={<ProProtectedRoute />}>
             <Route path="/pro/dashboard" element={<ProDashboardPage />} />
             <Route path="/pro/clients/new" element={<ProCreateClientPage />} />
@@ -75,7 +78,6 @@ function App() {
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
             <Route path="/pro/chat" element={<ProChatPage />} />
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
-            <Route path="/pro/login" element={<ProLoginPage />} />
           </Route>
           <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>
