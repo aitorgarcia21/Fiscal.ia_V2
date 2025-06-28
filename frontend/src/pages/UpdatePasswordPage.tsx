@@ -10,6 +10,7 @@ const UpdatePasswordPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const [isTokenValid, setIsTokenValid] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<string>('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -20,10 +21,24 @@ const UpdatePasswordPage: React.FC = () => {
             const hashParams = new URLSearchParams(location.hash.substring(1));
             const searchParams = new URLSearchParams(location.search);
             
+            // Debug: afficher toutes les informations de l'URL
+            const debugData = {
+                fullUrl: window.location.href,
+                hash: location.hash,
+                search: location.search,
+                pathname: location.pathname,
+                hashParams: Object.fromEntries(hashParams.entries()),
+                searchParams: Object.fromEntries(searchParams.entries())
+            };
+            setDebugInfo(JSON.stringify(debugData, null, 2));
+            console.log('Debug URL info:', debugData);
+            
             // Chercher les tokens de récupération
             const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
             const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
             const type = hashParams.get('type') || searchParams.get('type');
+            
+            console.log('Tokens trouvés:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
             
             // Vérifier si c'est bien un lien de récupération
             if (accessToken && refreshToken && type === 'recovery') {
@@ -98,6 +113,16 @@ const UpdatePasswordPage: React.FC = () => {
                 <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl">
                     {message && <p className="text-green-400 text-center text-sm bg-green-900/20 p-3 rounded-lg">{message}</p>}
                     {error && <p className="text-red-400 text-center text-sm bg-red-900/20 p-3 rounded-lg">{error}</p>}
+                    
+                    {/* Debug info - à supprimer en production */}
+                    {debugInfo && (
+                        <details className="mb-4">
+                            <summary className="text-yellow-400 cursor-pointer text-xs">Debug Info (cliquez pour voir)</summary>
+                            <pre className="text-xs text-gray-400 bg-gray-900/50 p-2 rounded mt-2 overflow-auto max-h-40">
+                                {debugInfo}
+                            </pre>
+                        </details>
+                    )}
 
                     {!message && isTokenValid && (
                         <form onSubmit={handlePasswordUpdate} className="space-y-6">
