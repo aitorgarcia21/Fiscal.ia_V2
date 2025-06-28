@@ -1375,6 +1375,7 @@ async def get_fiscal_insights(request: FiscalInsightsRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des insights: {str(e)}")
 
+# Inclure les routeurs dans l'application principale
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)
 
