@@ -17,56 +17,17 @@ const UpdatePasswordPage: React.FC = () => {
 
     useEffect(() => {
         const handlePasswordRecovery = async () => {
-            // Vérifier les tokens dans l'URL (hash et search params)
             const hashParams = new URLSearchParams(location.hash.substring(1));
-            const searchParams = new URLSearchParams(location.search);
-            
-            // Debug: afficher toutes les informations de l'URL
-            const debugData = {
-                fullUrl: window.location.href,
-                hash: location.hash,
-                search: location.search,
-                pathname: location.pathname,
-                hashParams: Object.fromEntries(hashParams.entries()),
-                searchParams: Object.fromEntries(searchParams.entries())
-            };
-            setDebugInfo(JSON.stringify(debugData, null, 2));
-            console.log('Debug URL info:', debugData);
-            
-            // Chercher les tokens de récupération
-            const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
-            const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
-            const type = hashParams.get('type') || searchParams.get('type');
-            
-            console.log('Tokens trouvés:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
-            
-            // Vérifier si c'est bien un lien de récupération
-            if (accessToken && refreshToken && type === 'recovery') {
-                try {
-                    // Configurer la session avec Supabase pour la récupération
-                    const { data, error } = await supabase.auth.setSession({
-                        access_token: accessToken,
-                        refresh_token: refreshToken
-                    });
+            const accessToken = hashParams.get('access_token');
 
-                    if (error) {
-                        console.error('Erreur lors de la configuration de la session:', error);
-                        setError("Lien invalide ou expiré. Veuillez demander un nouveau lien de récupération.");
-                    } else {
-                        setIsTokenValid(true);
-                        // Nettoyer l'URL
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }
-                } catch (err) {
-                    console.error('Erreur lors du traitement du lien de récupération:', err);
-                    setError("Erreur lors du traitement du lien de récupération.");
-                }
-            } else if (accessToken || type) {
-                // Il y a des tokens mais pas le bon type
-                setError("Ce lien n'est pas valide pour la récupération de mot de passe.");
+            // Pour la récupération de mot de passe, Supabase place le token dans le hash.
+            // Le client JS de Supabase est conçu pour le lire automatiquement.
+            // On a juste besoin de vérifier que le token est là pour afficher le formulaire.
+            if (accessToken) {
+                // Le client Supabase va gérer l'access_token automatiquement pour la prochaine requête `updateUser`.
+                setIsTokenValid(true);
             } else {
-                // Aucun token trouvé
-                setError("Lien invalide ou expiré. Veuillez demander un nouveau lien de récupération.");
+                setError("Lien invalide ou expiré. Il manque le token d'accès. Veuillez demander un nouveau lien.");
             }
         };
 
@@ -75,15 +36,15 @@ const UpdatePasswordPage: React.FC = () => {
 
     const handlePasswordUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!isTokenValid) {
-            setError("Le lien utilisé est invalide. Impossible de mettre à jour le mot de passe.");
-            return;
-        }
+        
+        // Pas besoin de revérifier isTokenValid ici car le formulaire n'est affiché que si c'est bon.
         
         setLoading(true);
         setError(null);
         setMessage(null);
 
+        // Le client Supabase a déjà l'access token de l'URL grâce au useEffect.
+        // Il l'utilisera pour s'authentifier lors de l'appel updateUser.
         const { error } = await supabase.auth.updateUser({ password });
         
         setLoading(false);
