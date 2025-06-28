@@ -31,6 +31,7 @@ import MentionsLegales from './pages/MentionsLegales';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import ProLoginPage from './pages/ProLoginPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -38,6 +39,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/update-password" element={<UpdatePasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/pro" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro" replace />} />

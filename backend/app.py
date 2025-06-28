@@ -1,61 +1,32 @@
-from flask import Flask, render_template, request, jsonify
-import os
-from assistant_fiscal import get_assistant_response
-import logging
-import tempfile
-from whisper_service import transcribe_audio_file
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .main import api_router, pro_clients_router # Importer les routeurs
+from .main import startup_event # Importer l'événement startup
 
-# Configuration du logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# Créer l'instance de l'application principale
+app = FastAPI(
+    title="Fiscal.ia API",
+    description="API pour l'assistant fiscal intelligent",
+    version="1.0.0"
+)
 
-app = Flask(__name__)
+# Configurer les CORS (Cross-Origin Resource Sharing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://fiscal-ia.net"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.route('/')
-def home():
-    logger.debug("Accès à la page d'accueil")
-    return render_template('index.html')
+# Inclure les routeurs dans l'application
+# C'est ici que toutes les routes API sont enregistrées
+app.include_router(api_router)
+app.include_router(pro_clients_router.router)
 
-@app.route('/ask', methods=['POST'])
-def ask():
-    question = request.json.get('question', '')
-    logger.debug(f"Question reçue : {question}")
-    try:
-        response = get_assistant_response(question)
-        logger.debug(f"Réponse générée : {response[:100]}...")
-        return jsonify({'response': response})
-    except Exception as e:
-        logger.error(f"Erreur : {str(e)}")
-        return jsonify({'error': str(e)}), 500
+# Enregistrer l'événement de démarrage
+app.on_event("startup")(startup_event)
 
-@app.route('/api/transcribe-audio', methods=['POST'])
-def transcribe_audio():
-    try:
-        if 'audio' not in request.files:
-            return jsonify({'error': 'Aucun fichier audio fourni'}), 400
-        
-        audio_file = request.files['audio']
-        if audio_file.filename == '':
-            return jsonify({'error': 'Aucun fichier sélectionné'}), 400
-        
-        # Sauvegarder temporairement le fichier audio
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
-            audio_file.save(temp_file.name)
-            temp_path = temp_file.name
-        
-        try:
-            # Transcrire l'audio
-            transcription = transcribe_audio_file(temp_path)
-            return jsonify({'transcription': transcription})
-        finally:
-            # Nettoyer le fichier temporaire
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-                
-    except Exception as e:
-        logger.error(f"Erreur lors de la transcription : {str(e)}")
-        return jsonify({'error': f'Erreur lors de la transcription : {str(e)}'}), 500
-
-if __name__ == '__main__':
-    logger.info("Démarrage de l'application Flask")
-    app.run(debug=True, host='127.0.0.1', port=8080) 
+@app.get("/health")
+async def health():
+    return {"status": "ok"} 

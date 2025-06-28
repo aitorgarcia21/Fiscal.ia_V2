@@ -80,7 +80,14 @@ const ProLoginPage: React.FC = () => {
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <div className="text-center mt-4">
+            <Link to="/forgot-password"
+               className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors">
+                Mot de passe oublié ?
+            </Link>
+          </div>
+
+          <p className="text-center text-sm text-gray-400 mt-8">
             Pas encore de compte ?{' '}
             <Link to="/pro-signup" className="font-semibold text-[#c5a572] hover:underline">
               Inscrivez-vous
