@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, CreditCard, Euro, MessageSquare, Shield, Users, Sparkles, Check, Briefcase, FileText, Zap, Eye, Target, TrendingUp, Lightbulb } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, Variants, Transition } from 'framer-motion';
 import { AuthModal } from '../components/auth/AuthModal';
 import { DemoModal } from '../components/demo/DemoModal';
@@ -8,6 +8,8 @@ import { useStripe } from '../hooks/useStripe';
 import { PRICING, PricingPlan } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
 import { DemoConversation } from '../components/demo/DemoConversation';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 // Définir un type plus précis pour les transitions si nécessaire, ou utiliser Transition directement
 const cardTransition: Transition = { duration: 0.6 };
@@ -41,13 +43,90 @@ export function LandingPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const navigate = useNavigate();
+  const location = useLocation();
   const [showDemo, setShowDemo] = useState(false);
   const { redirectToCheckout, isLoading, error } = useStripe();
+  const { checkAuthStatus } = useAuth();
+  const [authProcessing, setAuthProcessing] = useState(false);
 
   const openAuthModal = (mode: "login" | "signup") => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
   };
+
+  // Gérer les tokens d'authentification dans l'URL
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      const hashParams = new URLSearchParams(location.hash.substring(1));
+      const searchParams = new URLSearchParams(location.search);
+      
+      // Vérifier s'il y a un token d'accès dans l'URL
+      const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        setAuthProcessing(true);
+        
+        try {
+          // Configurer la session avec Supabase
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+
+          if (error) {
+            console.error('Erreur lors de la configuration de la session:', error);
+            return;
+          }
+
+          // Actualiser l'état d'authentification
+          await checkAuthStatus();
+
+          // Nettoyer l'URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          // Rediriger vers le dashboard approprié
+          const user = data.user;
+          if (user) {
+            try {
+              const { data: profile } = await supabase
+                .from('profils_utilisateurs')
+                .select('taper')
+                .eq('user_id', user.id)
+                .single();
+
+              if (profile?.taper === 'professionnel') {
+                navigate('/pro/dashboard', { replace: true });
+              } else {
+                navigate('/dashboard', { replace: true });
+              }
+            } catch (profileError) {
+              console.error('Erreur lors de la récupération du profil:', profileError);
+              navigate('/dashboard', { replace: true });
+            }
+          }
+        } catch (err) {
+          console.error('Erreur lors du traitement de l\'authentification:', err);
+        } finally {
+          setAuthProcessing(false);
+        }
+      }
+    };
+
+    handleAuthCallback();
+  }, [location, navigate, checkAuthStatus]);
+
+  // Afficher un écran de chargement si on traite l'authentification
+  if (authProcessing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c5a572] mx-auto"></div>
+          <p className="mt-4 text-gray-300">Activation de votre compte en cours...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 font-sans antialiased">

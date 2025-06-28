@@ -2039,7 +2039,7 @@ async def invite_user(user_invite: UserInvite):
     try:
         # Configurer l'URL de redirection basée sur l'environnement
         site_url = os.getenv("SITE_URL", "https://fiscal-ia.net")
-        redirect_to = f"{site_url}/auth/callback"
+        redirect_to = site_url  # Rediriger vers la page d'accueil qui gérera les tokens
         
         # Cette fonction envoie un e-mail "magic link" pour la connexion
         # avec l'URL de redirection correcte
