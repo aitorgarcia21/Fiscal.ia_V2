@@ -63,8 +63,22 @@ export function LandingPage() {
       // Vérifier s'il y a un token d'accès dans l'URL
       const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
+      const type = hashParams.get('type') || searchParams.get('type');
       
-      if (accessToken && refreshToken) {
+      // Si c'est un lien de récupération de mot de passe, rediriger vers update-password
+      if (accessToken && refreshToken && type === 'recovery') {
+        // Rediriger vers la page de récupération avec les tokens
+        if (location.hash) {
+          // Les tokens sont dans le hash
+          navigate(`/update-password${location.hash}`, { replace: true });
+        } else {
+          // Les tokens sont dans les query params
+          navigate(`/update-password${location.search}`, { replace: true });
+        }
+        return;
+      }
+      
+      if (accessToken && refreshToken && type !== 'recovery') {
         setAuthProcessing(true);
         
         try {
