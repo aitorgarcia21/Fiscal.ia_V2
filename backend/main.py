@@ -2057,6 +2057,32 @@ async def invite_user(user_invite: UserInvite):
         # Renvoyer un message générique pour des raisons de sécurité.
         return {"message": f"Si un compte est associé à {email_to_invite}, un e-mail d'activation a été envoyé."}
 
+@api_router.post("/auth/reset-password")
+async def reset_password(user_invite: UserInvite):
+    """Envoie un lien de récupération de mot de passe"""
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Service Supabase non disponible")
+    
+    email = user_invite.email
+    
+    try:
+        # Configurer l'URL de redirection pour la récupération de mot de passe
+        site_url = os.getenv("SITE_URL", "https://fiscal-ia.net")
+        redirect_to = f"{site_url}/update-password"
+        
+        # Envoyer l'email de récupération de mot de passe
+        response = supabase.auth.reset_password_email(
+            email,
+            options={"redirect_to": redirect_to}
+        )
+        
+        return {"message": f"Si un compte est associé à {email}, un e-mail de récupération a été envoyé."}
+
+    except Exception as e:
+        # Ne pas révéler si un email existe ou non pour des raisons de sécurité
+        print(f"Erreur lors de la tentative de récupération pour {email}: {e}")
+        return {"message": f"Si un compte est associé à {email}, un e-mail de récupération a été envoyé."}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080))) 

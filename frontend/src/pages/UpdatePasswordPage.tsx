@@ -15,14 +15,47 @@ const UpdatePasswordPage: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Le client Supabase gère le token dans l'URL automatiquement.
-        // On vérifie juste si le fragment de token existe pour afficher le formulaire.
-        const hash = location.hash;
-        if (hash.includes('access_token')) {
-            setIsTokenValid(true);
-        } else {
-            setError("Lien invalide ou expiré. Veuillez demander un nouveau lien de récupération.");
-        }
+        const handlePasswordRecovery = async () => {
+            // Vérifier les tokens dans l'URL (hash et search params)
+            const hashParams = new URLSearchParams(location.hash.substring(1));
+            const searchParams = new URLSearchParams(location.search);
+            
+            // Chercher les tokens de récupération
+            const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+            const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
+            const type = hashParams.get('type') || searchParams.get('type');
+            
+            // Vérifier si c'est bien un lien de récupération
+            if (accessToken && refreshToken && type === 'recovery') {
+                try {
+                    // Configurer la session avec Supabase pour la récupération
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken
+                    });
+
+                    if (error) {
+                        console.error('Erreur lors de la configuration de la session:', error);
+                        setError("Lien invalide ou expiré. Veuillez demander un nouveau lien de récupération.");
+                    } else {
+                        setIsTokenValid(true);
+                        // Nettoyer l'URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                } catch (err) {
+                    console.error('Erreur lors du traitement du lien de récupération:', err);
+                    setError("Erreur lors du traitement du lien de récupération.");
+                }
+            } else if (accessToken || type) {
+                // Il y a des tokens mais pas le bon type
+                setError("Ce lien n'est pas valide pour la récupération de mot de passe.");
+            } else {
+                // Aucun token trouvé
+                setError("Lien invalide ou expiré. Veuillez demander un nouveau lien de récupération.");
+            }
+        };
+
+        handlePasswordRecovery();
     }, [location]);
 
     const handlePasswordUpdate = async (e: React.FormEvent) => {
