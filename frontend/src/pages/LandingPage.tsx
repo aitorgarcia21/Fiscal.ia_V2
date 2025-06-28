@@ -133,9 +133,9 @@ export function LandingPage() {
             </button>
             <button
               onClick={() => navigate('/login')}
-              className="text-sm text-gray-300 hover:text-white"
+              className="text-sm text-gray-300 hover:text-[#c5a572] transition-colors"
             >
-              Se connecter
+              Connexion
             </button>
             <button
               onClick={() => navigate('/signup')}
