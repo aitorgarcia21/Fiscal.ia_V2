@@ -212,7 +212,22 @@ export function Dashboard() {
       color: 'from-purple-500 to-purple-600',
       action: () => handleConsciousnessTest()
     },
-    // Les outils "Simulateur d'Optimisation" et "Alertes Fiscales" sont temporairement désactivés
+    {
+      id: 'optimization',
+      title: 'Simulateur d\'Optimisation',
+      description: 'Évaluez vos économies potentielles',
+      icon: TrendingUp,
+      color: 'from-teal-400 to-emerald-500',
+      action: () => setShowOptimizationModal(true)
+    },
+    {
+      id: 'alerts',
+      title: 'Alertes Fiscales',
+      description: 'Soyez averti des opportunités',
+      icon: Bell,
+      color: 'from-amber-400 to-orange-500',
+      action: () => setShowAlertsModal(true)
+    }
   ];
 
   // Charger le profil utilisateur au montage
@@ -992,8 +1007,8 @@ export function Dashboard() {
                   className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
                 >
                   <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${tool.color}/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                      <tool.icon className="w-7 h-7 text-white" />
+                    <div className={`w-16 h-16 bg-gradient-to-br ${tool.color} shadow-inner rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <tool.icon className="w-8 h-8 text-white" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white">{tool.title}</h3>
