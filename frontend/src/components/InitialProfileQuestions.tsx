@@ -4,6 +4,7 @@ import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingU
 import { VoiceRecorder } from './VoiceRecorder';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useVoiceFlow } from '../hooks/useVoiceFlow';
 
 interface InitialData {
   activite_principale?: string;
@@ -503,8 +504,25 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
 
   const IconComponent = currentQ.icon;
 
+  // --- Mode vocal continu ---
+  const voiceFlow = useVoiceFlow({
+    questions: questions.map(q => q.title),
+    onAnswer: (idx, text) => handleDictation(text),
+  });
+
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6">
+      {!voiceFlow.started && (
+        <div className="text-center mb-8">
+          <button
+            onClick={voiceFlow.start}
+            className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-300"
+          >
+            Lancer la découverte vocale
+          </button>
+        </div>
+      )}
+
       {/* Progress Bar */}
       <div className="mb-6 sm:mb-8">
         <div className="flex justify-between items-center mb-2">
