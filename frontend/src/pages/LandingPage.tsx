@@ -169,7 +169,7 @@ export function LandingPage() {
               onClick={() => openAuthModal("signup")}
               className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
             >
-              S'inscrire
+              Inscription
             </button>
           </div>
         </div>
