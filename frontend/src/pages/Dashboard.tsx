@@ -212,22 +212,7 @@ export function Dashboard() {
       color: 'from-purple-500 to-purple-600',
       action: () => handleConsciousnessTest()
     },
-    {
-      id: 'optimization',
-      title: 'Simulateur d\'Optimisation',
-      description: 'Découvrez vos économies potentielles',
-      icon: TrendingUp,
-      color: 'from-green-500 to-green-600',
-      action: () => setShowOptimizationModal(true)
-    },
-    {
-      id: 'alerts',
-      title: 'Alertes Fiscales',
-      description: 'Restez informé des opportunités',
-      icon: Bell,
-      color: 'from-orange-500 to-orange-600',
-      action: () => setShowAlertsModal(true)
-    }
+    // Les outils "Simulateur d'Optimisation" et "Alertes Fiscales" sont temporairement désactivés
   ];
 
   // Charger le profil utilisateur au montage
