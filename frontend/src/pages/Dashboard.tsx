@@ -639,7 +639,7 @@ export function Dashboard() {
 
   const handleDiscoveryComplete = async () => {
     try {
-      const response = await fetch('/api/user-profile', {
+      const response = await fetch('/user-profile/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
