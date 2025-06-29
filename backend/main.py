@@ -8,7 +8,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any, Generator
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 import asyncio
 import httpx
@@ -739,18 +739,38 @@ async def ask_question(
     try:
         if not MISTRAL_API_KEY:
             raise HTTPException(status_code=500, detail="Service Mistral non disponible")
+
+        # Limite mensuelle gratuite pour les particuliers : 50 questions
+        if supabase:
+            try:
+                profile_resp = supabase.table("profils_utilisateurs").select("taper").eq("user_id", user_id).single().execute()
+                taper = (profile_resp.data or {}).get("taper", "particulier")
+                if taper == "particulier":
+                    now = datetime.utcnow().replace(tzinfo=timezone.utc)
+                    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+                    count_resp = supabase.table("questions").select("id", count='exact').eq("user_id", user_id).gte("created_at", month_start).execute()
+                    questions_used = count_resp.count or 0
+                    if questions_used >= 50:
+                        raise HTTPException(status_code=429, detail="Quota atteint : 50 questions gratuites ce mois-ci. Passez à Francis Pro pour plus d'accès.")
+            except HTTPException:
+                raise
+            except Exception as e:
+                print(f"[Avertissement Quota] Impossible de vérifier le quota pour {user_id}: {e}")
+
         conversation_history_dicts = None
         if request.conversation_history:
             conversation_history_dicts = [
                 {"role": msg.role, "content": msg.content} 
                 for msg in request.conversation_history
             ]
+        
         answer, sources, confidence = get_fiscal_response(
             request.question, 
             conversation_history_dicts, 
             request.user_profile_context
         )
         answer = clean_markdown_formatting(answer)
+
         if supabase:
             try:
                 supabase.table("questions").insert({
@@ -761,14 +781,17 @@ async def ask_question(
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
             except Exception as e:
-                pass 
+                print(f"[Erreur Enregistrement Question] {e}")
+
         return QuestionResponse(
             answer=answer,
             sources=sources,
             confidence=confidence
         )
+    except HTTPException as http_exc:
+        raise http_exc
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors du traitement de la question.")
+        raise HTTPException(status_code=500, detail=f"Erreur interne du serveur : {str(e)}")
 
 @api_router.get("/questions/history")
 async def get_question_history(
