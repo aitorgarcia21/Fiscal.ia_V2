@@ -64,7 +64,7 @@ const ProLandingPage = () => {
               </button>
               <button
                 onClick={() => navigate('/pro/signup')}
-                className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-4 py-2 rounded-lg hover:from-[#e8cfa0] hover:to-[#c5a572] transition-all duration-300 font-semibold"
+                className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
               >
                 Inscription
               </button>
