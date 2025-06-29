@@ -161,7 +161,7 @@ export function LandingPage() {
             </button>
             <button
               onClick={() => openAuthModal("login")}
-              className="px-6 py-2.5 sm:px-8 sm:py-3 bg-white/10 text-gray-100 font-semibold rounded-xl shadow-md hover:bg-white/20 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 text-sm sm:text-base"
+              className="text-sm sm:text-base text-gray-300 hover:text-[#c5a572] transition-colors"
             >
               Connexion
             </button>
