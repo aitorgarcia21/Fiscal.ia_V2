@@ -33,6 +33,9 @@ export interface ClientProfile {
   nombre_enfants_a_charge_client?: number | null;
   details_enfants_client?: any | null;  // JSONB - Peut être List<Dict<string, any>> ou un modèle plus strict
   personnes_dependantes_client?: string | null;
+  situation_familiale?: string | null;
+  nombre_enfants?: number | null;
+  notes?: any[] | null; // Champ pour stocker l'historique de conversation
 
   // IV. SITUATION PROFESSIONNELLE & REVENUS DU FOYER FISCAL
   profession_client1?: string | null;
