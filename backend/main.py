@@ -16,7 +16,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from .assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -24,16 +24,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
 from sqlalchemy.orm import Session
-from .database import SessionLocal, engine, Base, get_db as get_db_session
-from .models import UserProfile
-from .models_pro import BasePro
-from .routers import pro_clients as pro_clients_router
-from .dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+from database import SessionLocal, engine, Base, get_db as get_db_session
+from models import UserProfile
+from models_pro import BasePro
+from routers import pro_clients as pro_clients_router
+from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
 import sys
 import tempfile
 import logging
-from .whisper_service import get_whisper_service
+from whisper_service import get_whisper_service
 import base64
 import whisper
 import time
