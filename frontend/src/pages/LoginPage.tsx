@@ -8,19 +8,8 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isProfessional, isAuthenticated, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  // Redirection automatique après connexion réussie
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      if (isProfessional) {
-        navigate('/pro/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
-    }
-  }, [isAuthenticated, isProfessional, user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +17,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       await login(email, password);
-      // La redirection sera gérée automatiquement par useEffect
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.data?.detail || err.message || 'Email ou mot de passe incorrect.');
     } finally {
