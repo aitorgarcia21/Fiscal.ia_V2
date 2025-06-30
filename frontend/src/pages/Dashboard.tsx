@@ -268,12 +268,21 @@ export function Dashboard() {
 
   const handleOnboardingComplete = async (profileData: any) => {
     try {
+      if (!user?.id) {
+        console.error('Utilisateur non authentifié : impossible d\'enregistrer le profil.');
+        return;
+      }
+      const payload = {
+        auth_user_id: user.id, // UUID Supabase Auth
+        ...profileData,
+      };
+
       const response = await fetch('/user-profile/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(profileData)
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
@@ -298,26 +307,53 @@ export function Dashboard() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() && selectedFiles.length === 0) return;
 
+    const userMessageContent = inputMessage;
     const newMessage: ChatMessage = {
       role: 'user',
-      content: inputMessage,
+      content: userMessageContent,
       timestamp: new Date(),
       attachments: selectedFiles
     };
 
-    setMessages(prev => [...prev, newMessage]);
+    const newMessages = [...messages, newMessage];
+    setMessages(newMessages);
     setInputMessage('');
     setSelectedFiles([]);
+    setIsLoading(true);
 
-    // Simuler une réponse de Francis
-    setTimeout(() => {
-      const francisResponse: ChatMessage = {
+    const historyForApi = newMessages.slice(0, -1).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    try {
+      const response = await apiClient<any>('/api/test-francis', {
+        method: 'POST',
+        data: {
+          question: userMessageContent,
+          conversation_history: historyForApi
+        },
+      });
+
+      const assistantMessage: ChatMessage = {
         role: 'assistant',
-        content: "Merci pour votre message ! Je suis Francis, votre assistant fiscal. Comment puis-je vous aider aujourd'hui ?",
+        content: response.answer || "Désolé, je n'ai pas pu obtenir de réponse.",
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, francisResponse]);
-    }, 1000);
+      setMessages(prev => [...prev, assistantMessage]);
+
+    } catch (err: any) {
+      console.error("Erreur lors de la communication avec Francis:", err);
+      const errorMessage = err.data?.detail || err.message || "Désolé, une erreur s'est produite.";
+      const errorResponse: ChatMessage = {
+        role: 'assistant',
+        content: errorMessage,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -808,13 +844,16 @@ export function Dashboard() {
             </div>
             <h1 className="text-lg font-semibold text-white">Francis</h1>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-gray-400 hover:text-white transition-colors"
-            aria-label="Déconnexion"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-4">
+            <a href="/mes-donnees" className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors">RGPD</a>
+            <button
+              onClick={handleLogout}
+              className="text-gray-400 hover:text-white transition-colors"
+              aria-label="Déconnexion"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
