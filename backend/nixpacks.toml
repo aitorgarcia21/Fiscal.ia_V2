@@ -12,13 +12,8 @@ cmds = [
     "cd /app/backend && pip install --break-system-packages -r requirements.txt"
 ]
 
-[phases.build]
-cmds = [
-    "cd /app/backend && chmod +x start.sh"
-]
-
 [start]
-cmd = "cd /app/backend && ./start.sh"
+cmd = "cd /app/backend && /opt/venv/bin/uvicorn main:app --host 0.0.0.0 --port $PORT"
 
 [variables]
 PYTHONPATH = "/app/backend"

@@ -2170,6 +2170,14 @@ def initialize_embeddings():
                 print(f"✅ Embeddings CGI chargés: {len(embeddings)} articles")
             except Exception as e:
                 print(f"❌ Erreur chargement embeddings CGI: {e}")
+                # Forcer la génération des embeddings
+                try:
+                    print("🔄 Tentative de génération des embeddings CGI...")
+                    from mistral_embeddings import generate_all_embeddings
+                    generate_all_embeddings()
+                    print("✅ Embeddings CGI générés avec succès")
+                except Exception as gen_error:
+                    print(f"❌ Erreur lors de la génération: {gen_error}")
         
         # Test BOFiP embeddings
         if BOFIP_EMBEDDINGS_AVAILABLE:
@@ -2178,6 +2186,14 @@ def initialize_embeddings():
                 print("✅ Embeddings BOFiP disponibles")
             except Exception as e:
                 print(f"❌ Erreur embeddings BOFiP: {e}")
+                # Forcer la génération des embeddings BOFiP
+                try:
+                    print("🔄 Tentative de génération des embeddings BOFiP...")
+                    from generate_bofip_embeddings import generate_all_bofip_embeddings
+                    generate_all_bofip_embeddings()
+                    print("✅ Embeddings BOFiP générés avec succès")
+                except Exception as gen_error:
+                    print(f"❌ Erreur lors de la génération BOFiP: {gen_error}")
                 
     except Exception as e:
         print(f"❌ Erreur lors de l'initialisation des embeddings: {e}")
