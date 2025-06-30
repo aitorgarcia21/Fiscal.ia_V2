@@ -16,12 +16,6 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-try:
-    # Essayer import relatif en premier (pour production)
-    from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
-except ImportError:
-    # Fallback pour développement
-    from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -29,41 +23,37 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
 from sqlalchemy.orm import Session
-try:
-    from database import SessionLocal, engine, Base, get_db as get_db_session
-    from models import UserProfile
-    from models_pro import BasePro
-except ImportError:
-    from backend.database import SessionLocal, engine, Base, get_db as get_db_session
-    from backend.models import UserProfile
-    from backend.models_pro import BasePro
-try:
-    from routers import pro_clients as pro_clients_router
-except ImportError:
-    from backend.routers import pro_clients as pro_clients_router
-try:
-    from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
-except ImportError:
-    from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
 import sys
 import tempfile
 import logging
-from backend.whisper_service import _whisper_service as whisper_service_instance
 import base64
 import whisper
 import time
 from pydub import AudioSegment
 import io
 from pathlib import Path
-# Configuration des variables d'environnement chargée via load_dotenv() en début de fichier
 
-# Import lazy de whisper_service pour éviter les erreurs au démarrage
-_whisper_service = None
-
-def get_whisper_service():
-    """Retourne l'instance de whisper_service"""
-    return whisper_service_instance
+# --- Imports relatifs corrigés pour la production ---
+try:
+    # Pour la production (quand 'backend' n'est pas dans le path)
+    from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+    from database import SessionLocal, engine, Base, get_db as get_db_session
+    from models import UserProfile
+    from models_pro import BasePro
+    from routers import pro_clients as pro_clients_router
+    from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+    from whisper_service import get_whisper_service
+except ImportError:
+    # Pour le développement local (quand on lance depuis la racine)
+    from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+    from backend.database import SessionLocal, engine, Base, get_db as get_db_session
+    from backend.models import UserProfile
+    from backend.models_pro import BasePro
+    from backend.routers import pro_clients as pro_clients_router
+    from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+    from backend.whisper_service import get_whisper_service
+# --- Fin des imports relatifs corrigés ---
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
