@@ -16,7 +16,12 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+try:
+    # Essayer import relatif en premier (pour production)
+    from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+except ImportError:
+    # Fallback pour développement
+    from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -24,16 +29,27 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
 from sqlalchemy.orm import Session
-from backend.database import SessionLocal, engine, Base, get_db as get_db_session
-from backend.models import UserProfile
-from backend.models_pro import BasePro
-from backend.routers import pro_clients as pro_clients_router
-from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+try:
+    from database import SessionLocal, engine, Base, get_db as get_db_session
+    from models import UserProfile
+    from models_pro import BasePro
+except ImportError:
+    from backend.database import SessionLocal, engine, Base, get_db as get_db_session
+    from backend.models import UserProfile
+    from backend.models_pro import BasePro
+try:
+    from routers import pro_clients as pro_clients_router
+except ImportError:
+    from backend.routers import pro_clients as pro_clients_router
+try:
+    from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+except ImportError:
+    from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
 import sys
 import tempfile
 import logging
-from backend.whisper_service import get_whisper_service
+from backend.whisper_service import _whisper_service as whisper_service_instance
 import base64
 import whisper
 import time
@@ -46,16 +62,8 @@ from pathlib import Path
 _whisper_service = None
 
 def get_whisper_service():
-    """Import lazy de whisper_service"""
-    global _whisper_service
-    if _whisper_service is None:
-        try:
-            from backend.whisper_service import get_whisper_service as _get_whisper_service
-            _whisper_service = _get_whisper_service()
-        except Exception as e:
-            print(f"Erreur lors du chargement de Whisper: {e}")
-            _whisper_service = None
-    return _whisper_service
+    """Retourne l'instance de whisper_service"""
+    return whisper_service_instance
 
 # Configuration
 APP_ENV = os.getenv("APP_ENV", "production")
