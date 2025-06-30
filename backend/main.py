@@ -2107,6 +2107,55 @@ async def reset_password(user_invite: UserInvite):
         print(f"Erreur lors de la tentative de récupération pour {email}: {e}")
         return {"message": f"Si un compte est associé à {email}, un e-mail de récupération a été envoyé."}
 
+@api_router.get("/diagnostic-embeddings")
+async def diagnostic_embeddings():
+    """Endpoint de diagnostic pour vérifier l'état des embeddings."""
+    try:
+        diagnostic = {
+            "timestamp": time.time(),
+            "mistral_api_key": bool(MISTRAL_API_KEY),
+            "cgi_embeddings": {
+                "available": CGI_EMBEDDINGS_AVAILABLE,
+                "loaded": False,
+                "count": 0,
+                "error": None
+            },
+            "bofip_embeddings": {
+                "available": BOFIP_EMBEDDINGS_AVAILABLE,
+                "loaded": False,
+                "count": 0,
+                "error": None
+            }
+        }
+        
+        # Test CGI embeddings
+        if CGI_EMBEDDINGS_AVAILABLE:
+            try:
+                from mistral_cgi_embeddings import load_embeddings
+                embeddings = load_embeddings()
+                diagnostic["cgi_embeddings"]["loaded"] = True
+                diagnostic["cgi_embeddings"]["count"] = len(embeddings) if embeddings else 0
+            except Exception as e:
+                diagnostic["cgi_embeddings"]["error"] = str(e)
+        
+        # Test BOFiP embeddings
+        if BOFIP_EMBEDDINGS_AVAILABLE:
+            try:
+                from mistral_embeddings import search_similar_bofip_chunks
+                # Test simple pour vérifier que la fonction existe
+                diagnostic["bofip_embeddings"]["loaded"] = True
+                diagnostic["bofip_embeddings"]["count"] = "N/A (fonction disponible)"
+            except Exception as e:
+                diagnostic["bofip_embeddings"]["error"] = str(e)
+        
+        return diagnostic
+        
+    except Exception as e:
+        return {
+            "error": f"Erreur lors du diagnostic: {str(e)}",
+            "timestamp": time.time()
+        }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080))) 

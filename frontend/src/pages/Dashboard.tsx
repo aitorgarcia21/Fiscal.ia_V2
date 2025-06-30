@@ -792,7 +792,7 @@ export function Dashboard() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: `Dans le contexte du parcours de découverte, étape ${discoveryStep + 1}, l'utilisateur a répondu vocalement: "${transcribedText}". Analyse cette réponse et extrait les informations pertinentes pour compléter le profil. Réponds de manière naturelle et pose la question suivante.`,
+          question: `Dans le contexte du parcours de découverte, étape ${discoveryStep + 1}, l'utilisateur a répondu vocalement: "${transcribedText}". Analyse cette réponse et extrait les informations pertinentes pour compléter le profil. Réponds de manière naturelle et pose la question suivante.`,
           user_profile: userProfile
         }),
       });
@@ -807,7 +807,7 @@ export function Dashboard() {
           timestamp: new Date()
         }, {
           role: 'assistant',
-          content: result.response,
+          content: result.answer || result.response || 'Je n\'ai pas pu traiter votre réponse.',
           timestamp: new Date()
         }]);
 

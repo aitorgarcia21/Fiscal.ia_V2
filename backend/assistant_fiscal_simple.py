@@ -54,34 +54,49 @@ def get_quick_answer(query: str) -> tuple[str, bool]:
     return "", False
 
 def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None):
-    """Génère une réponse fiscale précise basée EXCLUSIVEMENT sur le CGI et le BOFiP, en tenant compte du profil utilisateur si fourni."""
+    """
+    Génère une réponse fiscale en utilisant RAG avec les sources officielles.
+    """
+    if not client:
+        return ("Service Mistral non disponible. Veuillez vérifier la configuration de l'API.", [], 0.0)
+    
+    # Construction du contexte utilisateur si fourni
+    user_context_str = ""
+    if user_profile_context:
+        user_context_str = f"\n\nContexte utilisateur:\n{json.dumps(user_profile_context, indent=2, ensure_ascii=False)}"
+    
+    # 1. Recherche dans le CGI (source principale)
+    context_from_sources = ""
+    official_sources = []
+    
     try:
-        # Initialisation du client Mistral
-        client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
-        if not client:
-            return "Erreur: Clé API Mistral non configurée", [], 0.0
-        
-        official_sources = []
-        context_from_sources = "" # Renommé pour clarté
-        
-        # 1. Recherche dans le CGI (priorité absolue) - CHARGEMENT À LA DEMANDE
-        try:
-            cgi_articles = search_cgi_embeddings(query, max_results=3)
-            if cgi_articles:
-                context_from_sources += "=== ARTICLES DU CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
-                for article in cgi_articles:
-                    if validate_official_source({'type': 'CGI', 'path': 'cgi_chunks'}):
-                        article_content = article['content']
-                        article_source = article['source']
-                        context_from_sources += f"{article_source}:\n{article_content}\n\n"
-                        official_sources.append(article_source)
+        if CGI_EMBEDDINGS_AVAILABLE:
+            print(f"🔍 Recherche CGI pour: {query[:100]}...")
+            cgi_chunks = search_cgi_embeddings(query, max_results=3)
+            print(f"📄 Chunks CGI trouvés: {len(cgi_chunks)}")
+            
+            if cgi_chunks:
+                context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
+                for chunk in cgi_chunks:
+                    chunk_content = chunk.get('content', '')[:2000]
+                    chunk_source = chunk.get('source', 'CGI Article N/A')
+                    context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
+                    official_sources.append(chunk_source)
                 context_from_sources += "\n" + "="*60 + "\n\n"
-        except Exception as e:
-            print(f"Erreur lors de la recherche CGI (non bloquante): {e}")
-        
-        # 2. Recherche dans le BOFiP (complément officiel)
-        try:
+            else:
+                print("⚠️ Aucun chunk CGI trouvé")
+        else:
+            print("❌ Embeddings CGI non disponibles")
+    except Exception as e:
+        print(f"❌ Erreur lors de la recherche CGI: {e}")
+    
+    # 2. Recherche dans le BOFiP (complément officiel)
+    try:
+        if BOFIP_EMBEDDINGS_AVAILABLE:
+            print(f"🔍 Recherche BOFiP pour: {query[:100]}...")
             bofip_chunks = search_bofip_embeddings(query, max_results=3)
+            print(f"📄 Chunks BOFiP trouvés: {len(bofip_chunks)}")
+            
             if bofip_chunks:
                 context_from_sources += "=== BULLETIN OFFICIEL DES FINANCES PUBLIQUES (BOFiP) ===\n\n"
                 for chunk in bofip_chunks:
@@ -91,34 +106,20 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
                         context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
                         official_sources.append(chunk_source)
                 context_from_sources += "\n" + "="*60 + "\n\n"
-        except Exception as e:
-            print(f"Erreur lors de la recherche BOFiP (non bloquante): {e}")
-        
-        if not context_from_sources:
-            return ("Je ne trouve pas d'informations dans les sources officielles (CGI et BOFiP) disponibles pour répondre à votre question. "
-                   "Cela peut être dû à un problème de chargement des données. Pourriez-vous reformuler votre question ?"), [], 0.0
-        
-        # Construction du contexte utilisateur si fourni
-        user_context_str = ""
-        if user_profile_context:
-            user_context_str += "\nCONTEXTE FISCAL DE L'UTILISATEUR (pour mieux cibler la réponse dans les textes officiels) :\n"
-            if user_profile_context.get('tmi') is not None:
-                user_context_str += f"- TMI (Tranche Marginale d'Imposition) : {user_profile_context['tmi']}%\n"
-            if user_profile_context.get('situation_familiale'):
-                user_context_str += f"- Situation familiale : {user_profile_context['situation_familiale']}\n"
-            if user_profile_context.get('nombre_enfants') is not None:
-                user_context_str += f"- Nombre d'enfants à charge : {user_profile_context['nombre_enfants']}\n"
-            if user_profile_context.get('revenus_annuels') is not None:
-                user_context_str += f"- Revenus annuels nets : {user_profile_context['revenus_annuels']} €\n"
-            if user_profile_context.get('charges_deductibles') is not None:
-                user_context_str += f"- Charges déductibles annuelles : {user_profile_context['charges_deductibles']} €\n"
-            if user_profile_context.get('residence_principale') is not None:
-                user_context_str += f"- Propriétaire résidence principale : {'Oui' if user_profile_context['residence_principale'] else 'Non'}\n"
-            if user_profile_context.get('residence_secondaire') is not None:
-                user_context_str += f"- Propriétaire résidence secondaire : {'Oui' if user_profile_context['residence_secondaire'] else 'Non'}\n"
-            user_context_str += "NE PAS MENTIONNER EXPLICITEMENT CES DONNÉES PERSONNELLES DANS LA RÉPONSE, MAIS LES UTILISER POUR INTERPRÉTER LA QUESTION.\n\n"
-
-        system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français.
+            else:
+                print("⚠️ Aucun chunk BOFiP trouvé")
+        else:
+            print("❌ Embeddings BOFiP non disponibles")
+    except Exception as e:
+        print(f"❌ Erreur lors de la recherche BOFiP: {e}")
+    
+    if not context_from_sources:
+        error_msg = ("Je ne trouve pas d'informations dans les sources officielles (CGI et BOFiP) disponibles pour répondre à votre question. "
+                    "Cela peut être dû à un problème de chargement des données. Pourriez-vous reformuler votre question ?")
+        print(f"❌ Aucune source trouvée pour: {query}")
+        return error_msg, [], 0.0
+    
+    system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français.
 
 RÈGLES STRICTES :
 1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous.
@@ -135,7 +136,7 @@ RÈGLES STRICTES :
 SOURCES OFFICIELLES DISPONIBLES :
 """
         
-        full_prompt = f"""{system_message}
+    full_prompt = f"""{system_message}
 {context_from_sources}
 {user_context_str}QUESTION DE L'UTILISATEUR :
 {query}
@@ -143,40 +144,35 @@ SOURCES OFFICIELLES DISPONIBLES :
 RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisateur pour l'interprétation) :
 """
 
-        # Construire l'historique de conversation si disponible
-        messages_for_api = []
-        if conversation_history:
-            # Inclure jusqu'à 10 messages précédents pour un meilleur contexte
-            for msg in conversation_history[-10:]:
-                if msg.get('role') and msg.get('content'):
-                    # Tronquer chaque message pour éviter l'explosion des tokens
-                    truncated_content = msg['content'][:400]
-                    messages_for_api.append(ChatMessage(role=msg['role'], content=truncated_content))
-        
-        messages_for_api.append(ChatMessage(role="user", content=full_prompt))
-        
-        # Appel à Mistral avec température basse pour plus de précision
-        response = client.chat(
-            model="mistral-large-latest",
-            messages=messages_for_api,
-            temperature=0.1,  # Très faible pour privilégier la précision
-            max_tokens=1000
-        )
-        
-        answer = response.choices[0].message.content.strip()
-        
-        # Supprimer la logique d'ajout du disclaimer. Francis gère les citations.
-        final_answer = answer
-        
-        # Score de confiance basé sur la qualité des sources officielles
-        confidence_score = min(1.0, len(official_sources) / 2.0) if official_sources else 0.1 # Ajusté pour être plus sensible
-        
-        return final_answer, list(set(official_sources)), confidence_score
-        
-    except Exception as e:
-        print(f"Erreur lors du traitement de la question get_fiscal_response: {e}")
-        return ("Erreur lors de la consultation des sources officielles. "
-               "Veuillez réessayer ou reformuler votre question."), [], 0.0
+    # Construire l'historique de conversation si disponible
+    messages_for_api = []
+    if conversation_history:
+        # Inclure jusqu'à 10 messages précédents pour un meilleur contexte
+        for msg in conversation_history[-10:]:
+            if msg.get('role') and msg.get('content'):
+                # Tronquer chaque message pour éviter l'explosion des tokens
+                truncated_content = msg['content'][:400]
+                messages_for_api.append(ChatMessage(role=msg['role'], content=truncated_content))
+    
+    messages_for_api.append(ChatMessage(role="user", content=full_prompt))
+    
+    # Appel à Mistral avec température basse pour plus de précision
+    response = client.chat(
+        model="mistral-large-latest",
+        messages=messages_for_api,
+        temperature=0.1,  # Très faible pour privilégier la précision
+        max_tokens=1000
+    )
+    
+    answer = response.choices[0].message.content.strip()
+    
+    # Supprimer la logique d'ajout du disclaimer. Francis gère les citations.
+    final_answer = answer
+    
+    # Score de confiance basé sur la qualité des sources officielles
+    confidence_score = min(1.0, len(official_sources) / 2.0) if official_sources else 0.1 # Ajusté pour être plus sensible
+    
+    return final_answer, list(set(official_sources)), confidence_score
 
 def search_bofip_embeddings(query: str, max_results: int = 3) -> List[Dict]:
     """Recherche dans les embeddings BOFiP (source officielle)."""
