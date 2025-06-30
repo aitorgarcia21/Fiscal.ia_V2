@@ -19,7 +19,18 @@ CHUNKS_DIR = Path('data/cgi_chunks')
 EMBEDDINGS_DIR = Path('data/embeddings')  # Dossier des embeddings existants
 
 def load_articles() -> List[Dict]:
-    """Charge tous les articles depuis les fichiers JSON."""
+    """Charge tous les articles depuis les fichiers JSON ou les extrait si ils ne sont pas présents."""
+    # Vérifier si les chunks existent
+    if not CHUNKS_DIR.exists() or not any(CHUNKS_DIR.glob('*.json')):
+        print("⚠️ Aucun chunk CGI trouvé, extraction en cours...")
+        try:
+            from extract_cgi_articles import extract_all_articles
+            extract_all_articles()
+            print("✅ Articles CGI extraits avec succès")
+        except Exception as e:
+            print(f"❌ Erreur lors de l'extraction des articles: {e}")
+            return []
+    
     articles = []
     for json_file in CHUNKS_DIR.glob('*.json'):
         with open(json_file, 'r', encoding='utf-8') as f:
@@ -28,8 +39,19 @@ def load_articles() -> List[Dict]:
     return articles
 
 def load_embeddings() -> Dict[str, Dict]:
-    """Charge tous les embeddings existants."""
+    """Charge tous les embeddings existants ou les génère si ils ne sont pas présents."""
     embeddings = {}
+    
+    # Vérifier si les embeddings existent
+    if not EMBEDDINGS_DIR.exists() or not any(EMBEDDINGS_DIR.glob('*.npy')):
+        print("⚠️ Aucun embedding trouvé, génération en cours...")
+        try:
+            from mistral_embeddings import generate_all_embeddings
+            generate_all_embeddings()
+            print("✅ Embeddings générés avec succès")
+        except Exception as e:
+            print(f"❌ Erreur lors de la génération des embeddings: {e}")
+            return {}
     
     # Charger tous les articles une seule fois
     articles_dict = {}
