@@ -1066,51 +1066,93 @@ export function Dashboard() {
             <div className="text-center">
               <h2 className="text-3xl font-bold text-white mb-2">Découverte Personnalisée</h2>
               <p className="text-xl text-gray-400">Répondez à quelques questions pour des conseils ultra-personnalisés</p>
-              
-              {/* Bouton pour compléter le profil avec Francis */}
-              <div className="mb-6">
-                <button
-                  onClick={() => setShowDiscoveryExtraction(true)}
-                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center mx-auto text-lg"
-                >
-                  <MessageSquare className="w-6 h-6" />
-                  Compléter mon profil avec Francis
-                </button>
-                <p className="text-xs text-gray-500 mt-2 text-center">
-                  Francis vous guide vocalement pour une analyse ultra-précise et des conseils personnalisés
-                </p>
-              </div>
             </div>
 
-            {/* Contenu de la découverte */}
             <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-8">
-              {/* Barre de progression */}
               <div className="mb-8">
                 <div className="flex justify-between text-sm text-gray-400 mb-2">
-                  <span>Étape {discoveryStep + 1} sur 7</span>
-                  <span>{Math.round(discoveryProgress)}%</span>
+                  <span>Étape {discoveryStep + 1} sur 3</span>
+                  <span>{Math.round(((discoveryStep + 1) / 3) * 100)}%</span>
                 </div>
                 <div className="w-full bg-[#162238] rounded-full h-2">
                   <div 
                     className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${discoveryProgress}%` }}
+                    style={{ width: `${((discoveryStep + 1) / 3) * 100}%` }}
                   />
                 </div>
               </div>
 
-              {/* Contenu des étapes */}
-              <div className="min-h-[400px]">
-                <div className="text-center py-16">
-                  <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30">
-                    <Sparkles className="w-12 h-12 text-[#c5a572]" />
+              <div className="min-h-[300px]">
+                {discoveryStep === 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-4">Informations Personnelles</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label id="age-label" className="block text-sm font-medium text-gray-300 mb-2">Quel est votre âge ?</label>
+                        <input type="number" value={discoveryData.age} onChange={e => updateDiscoveryData('age', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="age-label" />
+                      </div>
+                      <div>
+                        <label id="situation-label" className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
+                        <select value={discoveryData.situation_familiale} onChange={e => updateDiscoveryData('situation_familiale', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="situation-label">
+                          <option value="celibataire">Célibataire</option>
+                          <option value="marie">Marié(e) / PACS</option>
+                          <option value="veuf">Veuf(ve)</option>
+                          <option value="divorce">Divorcé(e)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label id="enfants-label" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants à charge</label>
+                        <input type="number" value={discoveryData.nombre_enfants} onChange={e => updateDiscoveryData('nombre_enfants', parseInt(e.target.value))} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="enfants-label" />
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-3">
-                    Découverte Personnalisée
-                  </h2>
-                  <p className="text-lg text-gray-400 mb-8 max-w-md mx-auto">
-                    Cliquez sur "Compléter mon profil avec Francis" pour une analyse ultra-précise et des conseils fiscalement optimisés !
-                  </p>
-                </div>
+                )}
+                {discoveryStep === 1 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-4">Revenus et Patrimoine</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label id="revenus-label" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels bruts (€)</label>
+                        <input type="number" value={discoveryData.revenus_principaux} onChange={e => updateDiscoveryData('revenus_principaux', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="revenus-label" />
+                      </div>
+                      <div>
+                        <label id="residence-label" className="block text-sm font-medium text-gray-300 mb-2">Propriétaire de votre résidence principale ?</label>
+                        <select value={discoveryData.residence_principale.toString()} onChange={e => updateDiscoveryData('residence_principale', e.target.value === 'true')} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="residence-label">
+                          <option value="false">Non</option>
+                          <option value="true">Oui</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {discoveryStep === 2 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-white mb-4">Objectifs et Projets</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label id="objectifs-label" className="block text-sm font-medium text-gray-300 mb-2">Quels sont vos principaux objectifs ?</label>
+                        <textarea value={discoveryData.questions_prioritaires} onChange={e => updateDiscoveryData('questions_prioritaires', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="objectifs-label" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between mt-8">
+                <button
+                  onClick={prevDiscoveryStep}
+                  disabled={discoveryStep === 0}
+                  className="px-6 py-2 border border-[#c5a572]/20 text-[#c5a572] rounded-lg hover:bg-[#c5a572]/10 transition-colors disabled:opacity-50"
+                >
+                  Précédent
+                </button>
+                <button
+                  onClick={nextDiscoveryStep}
+                  disabled={discoveryStep === 2}
+                  className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                >
+                  Suivant
+                </button>
               </div>
             </div>
           </div>
