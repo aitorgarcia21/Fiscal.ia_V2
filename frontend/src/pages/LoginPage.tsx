@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, MessageSquare, Euro, Users, User } from 'lucide-react';
+import { Mail, Lock, MessageSquare, Euro } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [accountType, setAccountType] = useState<'particulier' | 'professionnel'>('particulier');
-  const { login } = useAuth();
+  const { login, isProfessional, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  // Suppression de la redirection automatique - maintenant basée sur le choix utilisateur
+  // Redirection automatique après connexion réussie
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (isProfessional) {
+        navigate('/pro/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [isAuthenticated, isProfessional, user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +28,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       await login(email, password);
-      // Redirection basée sur le choix de l'utilisateur
-      if (accountType === 'professionnel') {
-        navigate('/pro/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      // La redirection sera gérée automatiquement par useEffect
     } catch (err: any) {
       setError(err.data?.detail || err.message || 'Email ou mot de passe incorrect.');
     } finally {
@@ -45,43 +48,12 @@ const LoginPage: React.FC = () => {
               <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1E3253] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
           </Link>
-          <h1 className="text-3xl font-bold text-white">Connexion</h1>
-          <p className="text-gray-400 mt-2">Choisissez votre type de compte et connectez-vous.</p>
+          <h1 className="text-3xl font-bold text-white">Espace Particulier</h1>
+          <p className="text-gray-400 mt-2">Connectez-vous pour accéder à votre tableau de bord.</p>
         </div>
         <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-6">
             {error && <p className="text-red-400 text-center text-sm mb-4 bg-red-900/20 p-3 rounded-lg">{error}</p>}
-            
-            {/* Sélecteur de type de compte */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-300">Type de compte</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAccountType('particulier')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-all ${
-                    accountType === 'particulier'
-                      ? 'bg-[#c5a572] text-[#162238] border-[#c5a572] font-semibold'
-                      : 'bg-[#162238]/50 text-gray-300 border-[#2A3F6C] hover:border-[#c5a572]/50'
-                  }`}
-                >
-                  <User className="w-4 h-4" />
-                  Particulier
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccountType('professionnel')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-all ${
-                    accountType === 'professionnel'
-                      ? 'bg-[#c5a572] text-[#162238] border-[#c5a572] font-semibold'
-                      : 'bg-[#162238]/50 text-gray-300 border-[#2A3F6C] hover:border-[#c5a572]/50'
-                  }`}
-                >
-                  <Users className="w-4 h-4" />
-                  Professionnel
-                </button>
-              </div>
-            </div>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12`} />
@@ -90,9 +62,8 @@ const LoginPage: React.FC = () => {
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12`} />
             </div>
-            <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2">
-              {isLoading ? 'Connexion...' : `Se connecter en tant que ${accountType}`}
-              {accountType === 'professionnel' ? <Users className="w-5 h-5" /> : <User className="w-5 h-5" />}
+            <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all duration-300 disabled:opacity-50">
+              {isLoading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
           <div className="text-center mt-4">
