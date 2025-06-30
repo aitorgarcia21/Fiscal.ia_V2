@@ -28,11 +28,32 @@ import sys
 import tempfile
 import logging
 import base64
-import whisper
+# --- Import optionnel de Whisper ---
+import base64
+try:
+    import whisper  # type: ignore
+except ImportError:
+    whisper = None  # type: ignore
 import time
-from pydub import AudioSegment
+try:
+    from pydub import AudioSegment  # type: ignore
+except ImportError:
+    AudioSegment = None  # type: ignore
 import io
 from pathlib import Path
+
+# ------------------------------------------------------------------
+# Fallback : assurer l'existence des indicateurs d'embeddings
+# ------------------------------------------------------------------
+try:
+    CGI_EMBEDDINGS_AVAILABLE
+except NameError:
+    CGI_EMBEDDINGS_AVAILABLE = False
+
+try:
+    BOFIP_EMBEDDINGS_AVAILABLE
+except NameError:
+    BOFIP_EMBEDDINGS_AVAILABLE = False
 
 # --- Imports relatifs corrigés pour la production ---
 try:
@@ -1397,9 +1418,9 @@ async def get_fiscal_insights(request: FiscalInsightsRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des insights: {str(e)}")
 
-# Inclure les routeurs dans l'application principale
-app.include_router(api_router)
-app.include_router(pro_clients_router.router)
+# (L'inclusion finale des routeurs se trouve en bas du fichier)
+# app.include_router(api_router)
+# app.include_router(pro_clients_router.router)
 
 @app.on_event("startup")
 async def startup_event():
@@ -2199,6 +2220,9 @@ def initialize_embeddings():
 
 # Appeler l'initialisation au démarrage
 initialize_embeddings()
+
+app.include_router(api_router)
+app.include_router(pro_clients_router.router)
 
 if __name__ == "__main__":
     import uvicorn
