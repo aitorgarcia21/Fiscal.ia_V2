@@ -2156,6 +2156,35 @@ async def diagnostic_embeddings():
             "timestamp": time.time()
         }
 
+# Initialisation des embeddings au démarrage
+def initialize_embeddings():
+    """Initialise les embeddings au démarrage de l'application."""
+    try:
+        print("🚀 Initialisation des embeddings au démarrage...")
+        
+        # Test CGI embeddings
+        if CGI_EMBEDDINGS_AVAILABLE:
+            try:
+                from mistral_cgi_embeddings import load_embeddings
+                embeddings = load_embeddings()
+                print(f"✅ Embeddings CGI chargés: {len(embeddings)} articles")
+            except Exception as e:
+                print(f"❌ Erreur chargement embeddings CGI: {e}")
+        
+        # Test BOFiP embeddings
+        if BOFIP_EMBEDDINGS_AVAILABLE:
+            try:
+                from mistral_embeddings import search_similar_bofip_chunks
+                print("✅ Embeddings BOFiP disponibles")
+            except Exception as e:
+                print(f"❌ Erreur embeddings BOFiP: {e}")
+                
+    except Exception as e:
+        print(f"❌ Erreur lors de l'initialisation des embeddings: {e}")
+
+# Appeler l'initialisation au démarrage
+initialize_embeddings()
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080))) 

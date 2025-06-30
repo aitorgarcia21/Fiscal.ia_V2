@@ -14,12 +14,11 @@ cmds = [
 
 [phases.build]
 cmds = [
-    "cd /app/backend && python -c \"from mistral_cgi_embeddings import load_embeddings; print('✅ Embeddings CGI chargés:', len(load_embeddings()))\"",
-    "cd /app/backend && python -c \"from mistral_embeddings import search_similar_bofip_chunks; print('✅ Embeddings BOFiP disponibles')\""
+    "cd /app/backend && chmod +x start.sh"
 ]
 
 [start]
-cmd = "cd /app/backend && /opt/venv/bin/uvicorn main:app --host 0.0.0.0 --port $PORT"
+cmd = "cd /app/backend && ./start.sh"
 
 [variables]
 PYTHONPATH = "/app/backend"
