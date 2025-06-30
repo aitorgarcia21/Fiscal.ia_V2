@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 load_dotenv()
-from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect, Form, Request
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect, Form, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any, Generator
 import os
@@ -16,7 +16,7 @@ from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
@@ -24,21 +24,22 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 import concurrent.futures
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine, Base, get_db as get_db_session
-from models import UserProfile
-from models_pro import BasePro
-from routers import pro_clients as pro_clients_router
-from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+from backend.database import SessionLocal, engine, Base, get_db as get_db_session
+from backend.models import UserProfile
+from backend.models_pro import BasePro
+from backend.routers import pro_clients as pro_clients_router
+from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
 import re
 import sys
 import tempfile
 import logging
-from whisper_service import get_whisper_service
+from backend.whisper_service import get_whisper_service
 import base64
 import whisper
 import time
 from pydub import AudioSegment
 import io
+from pathlib import Path
 # Configuration des variables d'environnement chargée via load_dotenv() en début de fichier
 
 # Import lazy de whisper_service pour éviter les erreurs au démarrage
@@ -49,7 +50,7 @@ def get_whisper_service():
     global _whisper_service
     if _whisper_service is None:
         try:
-            from whisper_service import get_whisper_service as _get_whisper_service
+            from backend.whisper_service import get_whisper_service as _get_whisper_service
             _whisper_service = _get_whisper_service()
         except Exception as e:
             print(f"Erreur lors du chargement de Whisper: {e}")
