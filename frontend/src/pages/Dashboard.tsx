@@ -736,17 +736,41 @@ export function Dashboard() {
 
   const transcribeAudio = async (audioBlob: Blob) => {
     try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.wav');
+      // Convertir l'audio en base64
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const base64Audio = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
 
-      const response = await fetch('/api/transcribe-audio', {
+      const response = await fetch('/api/whisper/transcribe', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          audio_base64: base64Audio,
+          audio_format: 'wav',
+          language: 'fr'
+        }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        setExtractionResult(result);
+        
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        
+        // Si on est en mode vocal Francis, traiter la réponse
+        if (voiceMode && result.text) {
+          // Analyser la réponse vocale et mettre à jour les données de découverte
+          await processVoiceResponse(result.text);
+        }
+        
+        setExtractionResult({
+          text: result.text,
+          confiance: result.language_probability || 0.8,
+          validation_notes: []
+        });
         setIsTranscribing(false);
       } else {
         throw new Error('Erreur lors de la transcription');
@@ -755,6 +779,71 @@ export function Dashboard() {
       console.error('Erreur lors de la transcription:', error);
       setIsTranscribing(false);
       alert('Erreur lors de la transcription audio. Veuillez réessayer.');
+    }
+  };
+
+  // Nouvelle fonction pour traiter les réponses vocales
+  const processVoiceResponse = async (transcribedText: string) => {
+    try {
+      // Envoyer le texte transcrit à Francis pour analyse
+      const response = await fetch('/api/test-francis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Dans le contexte du parcours de découverte, étape ${discoveryStep + 1}, l'utilisateur a répondu vocalement: "${transcribedText}". Analyse cette réponse et extrait les informations pertinentes pour compléter le profil. Réponds de manière naturelle et pose la question suivante.`,
+          user_profile: userProfile
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Ajouter la réponse de Francis au chat
+        setMessages(prev => [...prev, {
+          role: 'user',
+          content: transcribedText,
+          timestamp: new Date()
+        }, {
+          role: 'assistant',
+          content: result.response,
+          timestamp: new Date()
+        }]);
+
+        // Passer à la question suivante après un délai
+        setTimeout(() => {
+          askNextVoiceQuestion();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Erreur lors du traitement de la réponse vocale:', error);
+    }
+  };
+
+  // Fonction pour poser la question suivante
+  const askNextVoiceQuestion = () => {
+    const questions = [
+      "Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?",
+      "Parfait ! Maintenant, quelle est votre situation familiale ? Êtes-vous célibataire, marié, ou autre ?",
+      "Excellent ! Combien d'enfants avez-vous à charge ?",
+      "Maintenant, parlons de vos revenus. Quel est votre revenu annuel brut approximatif ?",
+      "Êtes-vous propriétaire de votre résidence principale ?",
+      "Enfin, quels sont vos principaux objectifs fiscaux ? Par exemple, optimiser vos impôts, préparer votre retraite, ou investir ?"
+    ];
+
+    if (discoveryStep < questions.length - 1) {
+      setDiscoveryStep(discoveryStep + 1);
+      speakQuestion(questions[discoveryStep + 1]);
+    } else {
+      // Fin du parcours vocal
+      speakQuestion("Parfait ! J'ai toutes les informations nécessaires. Je vais maintenant analyser votre situation et vous proposer des recommandations personnalisées.");
+      setTimeout(() => {
+        setVoiceMode(false);
+        setShowDiscoveryExtraction(false);
+        // Traiter les données complètes
+        handleDiscoveryComplete();
+      }, 3000);
     }
   };
 
@@ -803,13 +892,19 @@ export function Dashboard() {
       if (voiceMode) {
         setTimeout(() => {
           startRecording();
-        }, 500);
+        }, 1000); // Délai plus long pour laisser le temps à l'utilisateur de se préparer
       }
     };
 
     utterance.onerror = (event) => {
       console.error('Erreur de synthèse vocale:', event);
       setIsFrancisSpeaking(false);
+      // En cas d'erreur, essayer de redémarrer l'enregistrement
+      if (voiceMode) {
+        setTimeout(() => {
+          startRecording();
+        }, 1000);
+      }
     };
 
     speechSynthesis?.speak(utterance);
@@ -1211,20 +1306,110 @@ export function Dashboard() {
                   <p className="text-gray-400 mb-4">
                     Francis pose les questions à haute voix et écoute vos réponses. Cette approche naturelle permet une analyse plus précise de votre situation et des conseils ultra-personnalisés pour optimiser votre fiscalité.
                   </p>
-                  <button
-                    onClick={() => {
-                      setVoiceMode(true);
-                      setShowDiscoveryExtraction(false);
-                      // Démarrer la première question vocale
-                      setTimeout(() => {
-                        speakQuestion("Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?");
-                      }, 500);
-                    }}
-                    className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3"
-                  >
-                    <Mic className="w-5 h-5" />
-                    Commencer avec Francis
-                  </button>
+                  
+                  {/* Indicateurs visuels pour le mode vocal */}
+                  {voiceMode && (
+                    <div className="mb-4 p-3 bg-[#1a2332] rounded-lg border border-[#c5a572]/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-[#c5a572]">Mode vocal actif</span>
+                        <div className="flex items-center gap-2">
+                          {isFrancisSpeaking && (
+                            <div className="flex items-center gap-1 text-blue-400">
+                              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                              <span className="text-xs">Francis parle...</span>
+                            </div>
+                          )}
+                          {isRecording && (
+                            <div className="flex items-center gap-1 text-red-400">
+                              <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                              <span className="text-xs">Enregistrement...</span>
+                            </div>
+                          )}
+                          {isTranscribing && (
+                            <div className="flex items-center gap-1 text-yellow-400">
+                              <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-xs">Transcription...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Barre de progression du parcours vocal */}
+                      <div className="mb-2">
+                        <div className="flex justify-between text-xs text-gray-400 mb-1">
+                          <span>Étape {discoveryStep + 1} sur 6</span>
+                          <span>{Math.round(((discoveryStep + 1) / 6) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-[#1a2332] rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${((discoveryStep + 1) / 6) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Question actuelle */}
+                      <div className="text-sm text-gray-300 bg-[#1a2332]/50 p-2 rounded">
+                        <span className="font-medium text-[#c5a572]">Question actuelle :</span>
+                        <p className="mt-1">
+                          {discoveryStep === 0 && "Quel est votre âge ?"}
+                          {discoveryStep === 1 && "Quelle est votre situation familiale ?"}
+                          {discoveryStep === 2 && "Combien d'enfants avez-vous à charge ?"}
+                          {discoveryStep === 3 && "Quel est votre revenu annuel brut ?"}
+                          {discoveryStep === 4 && "Êtes-vous propriétaire de votre résidence principale ?"}
+                          {discoveryStep === 5 && "Quels sont vos principaux objectifs fiscaux ?"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-3">
+                    {!voiceMode ? (
+                      <button
+                        onClick={() => {
+                          setVoiceMode(true);
+                          setDiscoveryStep(0);
+                          // Démarrer la première question vocale
+                          setTimeout(() => {
+                            speakQuestion("Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?");
+                          }, 500);
+                        }}
+                        className="flex-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3"
+                      >
+                        <Mic className="w-5 h-5" />
+                        Commencer avec Francis
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            setVoiceMode(false);
+                            stopSpeaking();
+                            stopRecording();
+                            setDiscoveryStep(0);
+                          }}
+                          className="flex-1 bg-gray-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-700 transition-all flex items-center justify-center gap-3"
+                        >
+                          <MicOff className="w-5 h-5" />
+                          Arrêter
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (isFrancisSpeaking) {
+                              stopSpeaking();
+                            } else if (!isRecording) {
+                              speakQuestion("Pouvez-vous répéter votre réponse ?");
+                            }
+                          }}
+                          className="px-4 py-3 bg-[#1a2332] border border-[#c5a572]/20 text-[#c5a572] rounded-xl hover:bg-[#1a2332]/80 transition-all"
+                          title="Répéter la question"
+                          aria-label="Répéter la question"
+                        >
+                          <MessageSquare className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Résultats de l'extraction */}
