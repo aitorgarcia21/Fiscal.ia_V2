@@ -1065,10 +1065,32 @@ export function Dashboard() {
           <div className="max-w-4xl mx-auto w-full space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-white mb-2">Découverte Personnalisée</h2>
-              <p className="text-xl text-gray-400">Répondez à quelques questions pour des conseils ultra-personnalisés</p>
+              <p className="text-xl text-gray-400 mb-6">Répondez à quelques questions pour des conseils ultra-personnalisés, ou laissez-vous guider par Francis.</p>
+              
+              <button
+                onClick={() => setShowDiscoveryExtraction(true)}
+                className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center mx-auto text-lg"
+              >
+                <MessageSquare className="w-6 h-6" />
+                Compléter mon profil avec Francis (Vocal)
+              </button>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Francis vous guide vocalement pour une analyse ultra-précise.
+              </p>
+            </div>
+
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-gray-600" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-[#1a2332] px-3 text-lg font-medium text-white">OU</span>
+              </div>
             </div>
 
             <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-8">
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Questionnaire Manuel</h3>
+              <p className="text-center text-gray-400 mb-6">Remplissez le formulaire à votre rythme.</p>
               <div className="mb-8">
                 <div className="flex justify-between text-sm text-gray-400 mb-2">
                   <span>Étape {discoveryStep + 1} sur 3</span>
@@ -1149,7 +1171,7 @@ export function Dashboard() {
                 <button
                   onClick={nextDiscoveryStep}
                   disabled={discoveryStep === 2}
-                  className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+                  className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Suivant
                 </button>
