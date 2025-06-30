@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, MessageSquare, Euro } from 'lucide-react';
@@ -8,8 +8,19 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isProfessional, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirection automatique après connexion réussie
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (isProfessional) {
+        navigate('/pro/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [isAuthenticated, isProfessional, user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +28,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       await login(email, password);
-      navigate('/dashboard'); // Redirection vers le dashboard particulier
+      // La redirection sera gérée automatiquement par useEffect
     } catch (err: any) {
       setError(err.data?.detail || err.message || 'Email ou mot de passe incorrect.');
     } finally {

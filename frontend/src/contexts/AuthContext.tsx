@@ -69,6 +69,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       if (response && response.access_token && response.user) {
         localStorage.setItem('authToken', response.access_token);
+        localStorage.setItem('userData', JSON.stringify(response.user)); // Stocker les données utilisateur
         setUser(response.user);
       setIsAuthenticated(true);
         setIsProfessional(response.user.taper === 'professionnel');
@@ -83,6 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userData'); // Supprimer les données utilisateur
     setUser(null);
     setIsAuthenticated(false);
     setIsProfessional(false);
@@ -98,6 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       if (response && response.access_token && response.user) {
         localStorage.setItem('authToken', response.access_token);
+        localStorage.setItem('userData', JSON.stringify(response.user)); // Stocker les données utilisateur
         setUser(response.user);
         setIsAuthenticated(true);
         setIsProfessional(response.user.taper === 'professionnel');
