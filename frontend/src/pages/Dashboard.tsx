@@ -58,7 +58,8 @@ import {
   User,
   UserCheck,
   Mic,
-  MicOff
+  MicOff,
+  Volume2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
@@ -697,19 +698,26 @@ export function Dashboard() {
 
   // Fonctions pour l'enregistrement vocal
   const startRecording = async () => {
+    console.log('🎙️ startRecording appelée');
     try {
+      console.log('🔐 Demande d\'accès au microphone...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('✅ Accès au microphone accordé');
+      
       const recorder = new MediaRecorder(stream);
       const chunks: Blob[] = [];
 
       recorder.ondataavailable = (event) => {
+        console.log('📦 Données audio reçues:', event.data.size, 'bytes');
         if (event.data.size > 0) {
           chunks.push(event.data);
         }
       };
 
       recorder.onstop = async () => {
+        console.log('🛑 Enregistrement arrêté, traitement des données...');
         const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        console.log('🎵 Blob audio créé:', audioBlob.size, 'bytes');
         setAudioChunks(chunks);
         setIsTranscribing(true);
         
@@ -717,11 +725,13 @@ export function Dashboard() {
         await transcribeAudio(audioBlob);
       };
 
+      console.log('▶️ Démarrage de l\'enregistrement...');
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
+      console.log('✅ Enregistrement démarré avec succès');
     } catch (error) {
-      console.error('Erreur lors du démarrage de l\'enregistrement:', error);
+      console.error('❌ Erreur lors du démarrage de l\'enregistrement:', error);
       alert('Impossible d\'accéder au microphone. Vérifiez les permissions.');
     }
   };
@@ -858,16 +868,21 @@ export function Dashboard() {
   };
 
   const speakQuestion = (question: string) => {
+    console.log('🎤 speakQuestion appelée avec:', question);
+    
     if (!speechSynthesis) {
+      console.log('🔧 Initialisation de la synthèse vocale...');
       const synthesis = initializeSpeechSynthesis();
       if (!synthesis) {
-        console.error('Synthèse vocale non supportée');
+        console.error('❌ Synthèse vocale non supportée');
+        alert('La synthèse vocale n\'est pas supportée par votre navigateur.');
         return;
       }
     }
 
     // Arrêter toute parole en cours
     speechSynthesis?.cancel();
+    console.log('🛑 Parole précédente annulée');
 
     const utterance = new SpeechSynthesisUtterance(question);
     utterance.lang = 'fr-FR';
@@ -877,36 +892,46 @@ export function Dashboard() {
 
     // Choisir une voix française si disponible
     const voices = speechSynthesis?.getVoices() || [];
+    console.log('🗣️ Voix disponibles:', voices.map(v => `${v.name} (${v.lang})`));
     const frenchVoice = voices.find(voice => voice.lang.startsWith('fr'));
     if (frenchVoice) {
       utterance.voice = frenchVoice;
+      console.log('✅ Voix française sélectionnée:', frenchVoice.name);
+    } else {
+      console.log('⚠️ Aucune voix française trouvée, utilisation de la voix par défaut');
     }
 
     utterance.onstart = () => {
+      console.log('🎤 Francis commence à parler');
       setIsFrancisSpeaking(true);
     };
 
     utterance.onend = () => {
+      console.log('🔇 Francis a fini de parler');
       setIsFrancisSpeaking(false);
       // Démarrer automatiquement l'enregistrement après que Francis ait fini de parler
       if (voiceMode) {
+        console.log('⏰ Démarrage de l\'enregistrement dans 1 seconde...');
         setTimeout(() => {
+          console.log('🎙️ Démarrage de l\'enregistrement...');
           startRecording();
         }, 1000); // Délai plus long pour laisser le temps à l'utilisateur de se préparer
       }
     };
 
     utterance.onerror = (event) => {
-      console.error('Erreur de synthèse vocale:', event);
+      console.error('❌ Erreur de synthèse vocale:', event);
       setIsFrancisSpeaking(false);
       // En cas d'erreur, essayer de redémarrer l'enregistrement
       if (voiceMode) {
+        console.log('🔄 Tentative de redémarrage de l\'enregistrement après erreur...');
         setTimeout(() => {
           startRecording();
         }, 1000);
       }
     };
 
+    console.log('🗣️ Lancement de la synthèse vocale...');
     speechSynthesis?.speak(utterance);
   };
 
@@ -1365,20 +1390,29 @@ export function Dashboard() {
                   
                   <div className="flex gap-3">
                     {!voiceMode ? (
-                      <button
-                        onClick={() => {
-                          setVoiceMode(true);
-                          setDiscoveryStep(0);
-                          // Démarrer la première question vocale
-                          setTimeout(() => {
-                            speakQuestion("Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?");
-                          }, 500);
-                        }}
-                        className="flex-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3"
-                      >
-                        <Mic className="w-5 h-5" />
-                        Commencer avec Francis
-                      </button>
+                      <>
+                        <button
+                          onClick={() => {
+                            setVoiceMode(true);
+                            setDiscoveryStep(0);
+                            // Démarrer la première question vocale
+                            setTimeout(() => {
+                              speakQuestion("Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?");
+                            }, 500);
+                          }}
+                          className="flex-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3"
+                        >
+                          <Mic className="w-5 h-5" />
+                          Commencer avec Francis
+                        </button>
+                        <button
+                          onClick={() => speakQuestion("Test de la synthèse vocale. Si vous entendez cette phrase, la synthèse vocale fonctionne correctement.")}
+                          className="px-4 py-3 bg-[#1a2332] border border-[#c5a572]/20 text-[#c5a572] rounded-xl hover:bg-[#1a2332]/80 transition-all"
+                          title="Tester la synthèse vocale"
+                        >
+                          <Volume2 className="w-5 h-5" />
+                        </button>
+                      </>
                     ) : (
                       <>
                         <button
