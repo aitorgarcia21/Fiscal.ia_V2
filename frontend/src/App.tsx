@@ -43,8 +43,8 @@ function App() {
         <Routes>
           <Route path="/update-password" element={<UpdatePasswordPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/pro" element={<ProLandingPage />} />
+          <Route path="/" element={<Navigate to="/pro-landing" replace />} />
+          <Route path="/pro-landing" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />

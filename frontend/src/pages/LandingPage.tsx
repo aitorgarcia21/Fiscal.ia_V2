@@ -153,23 +153,11 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-x-3 sm:gap-x-5">
             <button
-              onClick={() => navigate('/patrimonia')}
+              onClick={() => navigate('/pro-landing')}
               className="px-4 py-2 sm:px-5 sm:py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
             >
               <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden sm:inline">Espace</span> Pro
-            </button>
-            <button
-              onClick={() => openAuthModal("login")}
-              className="text-sm sm:text-base text-gray-300 hover:text-[#c5a572] transition-colors"
-            >
-              Connexion
-            </button>
-            <button
-              onClick={() => openAuthModal("signup")}
-              className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#162238] transition-all duration-300 text-sm sm:text-base"
-            >
-              Inscription
             </button>
           </div>
         </div>
@@ -219,22 +207,14 @@ export function LandingPage() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={heroButtonTransition} className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
             <motion.button
-              onClick={() => openAuthModal("signup")}
+              onClick={() => navigate('/pro-signup')}
               whileHover={{ scale: 1.03, boxShadow: "0px 12px 30px rgba(197, 165, 114, 0.4)" }}
               whileTap={{ scale: 0.98 }}
               className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-transparent hover:border-[#e8cfa0]/50"
             >
               <CreditCard className="w-6 h-6" />
-              Commencer maintenant !
+              Accéder à l'Espace Pro
               <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)", boxShadow: "0px 8px 20px rgba(255, 255, 255, 0.1)" }}
-              onClick={() => navigate('/demo')}
-              className="px-10 py-4 bg-white/5 text-gray-100 font-semibold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg border-2 border-white/20 hover:border-white/40 backdrop-blur-sm group"
-            >
-              Voir la démo
-              <ArrowRight className="w-6 h-6 ml-1 opacity-80 group-hover:opacity-100 transition-opacity group-hover:translate-x-1 duration-200" />
             </motion.button>
           </motion.div>
 
