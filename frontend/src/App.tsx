@@ -35,8 +35,6 @@ import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
-import DiscoverySummaryPage from './pages/DiscoverySummaryPage';
-import ProConversationSummaryPage from './pages/ProConversationSummaryPage';
 
 // Commentaire pour forcer un nouveau build - v1
 function App() {
@@ -71,17 +69,15 @@ function App() {
             <Route path="/profil" element={<ProfilePage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/discover" element={<DiscoverPage />} />
-            <Route path="/discovery-summary" element={<DiscoverySummaryPage />} />
           </Route>
           {/* Route de connexion Pro accessible sans authentification */}
           <Route path="/pro/login" element={<ProLoginPage />} />
 
           <Route element={<ProProtectedRoute />}>
             <Route path="/pro/dashboard" element={<ProDashboardPage />} />
-            <Route path="/pro/clients/nouveau" element={<ProCreateClientPage />} />
+            <Route path="/pro/clients/new" element={<ProCreateClientPage />} />
             <Route path="/pro/clients/:clientId" element={<ProClientDetailPage />} />
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
-            <Route path="/pro/clients/:clientId/conversation" element={<ProConversationSummaryPage />} />
             <Route path="/pro/chat" element={<ProChatPage />} />
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
           </Route>

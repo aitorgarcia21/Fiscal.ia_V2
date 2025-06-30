@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon, Euro, Mail, Phone, Building, Calendar, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon, Euro } from 'lucide-react';
 
 // TODO: Déplacer vers un fichier de types partagés si utilisé ailleurs
 interface AnalysisResult {
@@ -497,36 +497,6 @@ export function ProClientDetailPage() {
               </div>
             </form>
           </section>
-
-          {/* Boutons d'action */}
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              to={`/pro/clients/${clientId}/edit`}
-              className="flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              <Edit className="w-4 h-4" />
-              Modifier
-            </Link>
-            <Link
-              to={`/pro/clients/${clientId}/conversation`}
-              state={{ 
-                conversationHistory: client.notes || [], 
-                clientName: `${client.prenom_client || ''} ${client.nom_client || ''}` 
-              }}
-              className="flex items-center justify-center gap-2 bg-teal-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-teal-700 transition-colors"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Voir Conversation
-            </Link>
-            <button
-              onClick={() => {}}
-              disabled={false}
-              className="flex items-center justify-center gap-2 bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
-            >
-              <Trash2 className="w-4 h-4" />
-              Supprimer
-            </button>
-          </div>
 
         </div>
       </main>
