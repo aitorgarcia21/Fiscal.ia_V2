@@ -25,6 +25,52 @@ client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 _embeddings_cache = None
 _cache_loaded = False
 
+# Embeddings de base pour les questions essentielles (fallback)
+BASE_EMBEDDINGS = {
+    "tmi": {
+        "content": """Article 197 du CGI - Calcul de l'impôt sur le revenu
+
+L'impôt sur le revenu est calculé en appliquant le barème progressif aux revenus imposables.
+
+Le barème 2024 est le suivant :
+- Jusqu'à 11 294 € : 0%
+- De 11 295 € à 28 797 € : 11%
+- De 28 798 € à 82 341 € : 30%
+- De 82 342 € à 177 106 € : 41%
+- Au-delà de 177 106 € : 45%
+
+Le taux marginal d'imposition (TMI) correspond au taux de la tranche la plus élevée dans laquelle se situe le revenu imposable.""",
+        "source": "CGI Article 197"
+    },
+    "tva": {
+        "content": """Article 278 du CGI - Taxe sur la valeur ajoutée
+
+La TVA est un impôt indirect sur la consommation. Les taux applicables sont :
+
+- Taux normal : 20% (majorité des biens et services)
+- Taux réduit : 10% (restauration, transports, travaux d'amélioration énergétique)
+- Taux réduit : 5,5% (produits alimentaires, livres, spectacles)
+- Taux spécial : 2,1% (médicaments remboursés, presse)
+
+La TVA est collectée par les entreprises et reversée à l'État.""",
+        "source": "CGI Article 278"
+    },
+    "plus_value": {
+        "content": """Article 150 du CGI - Plus-values immobilières
+
+Les plus-values immobilières sont imposables selon les règles suivantes :
+
+- Calcul : Prix de vente - Prix d'achat - Frais
+- Abattement : 6% par année de détention (après 5 ans)
+- Taux : 19% + 17,2% de prélèvements sociaux
+
+Pour les plus-values mobilières :
+- Abattement : 50% après 2 ans de détention
+- Taux : 12,8% + 17,2% de prélèvements sociaux""",
+        "source": "CGI Article 150"
+    }
+}
+
 # Sources officielles autorisées
 OFFICIAL_SOURCES = {
     'CGI': ['cgi_chunks', 'CGI'],
@@ -112,6 +158,30 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
             print("❌ Embeddings BOFiP non disponibles")
     except Exception as e:
         print(f"❌ Erreur lors de la recherche BOFiP: {e}")
+    
+    # 3. Fallback vers les embeddings de base si aucune source trouvée
+    if not context_from_sources:
+        print("🔄 Utilisation des embeddings de base...")
+        query_lower = query.lower()
+        
+        if any(term in query_lower for term in ['tmi', 'taux marginal', 'tranche', 'impôt', 'impot']):
+            base_embedding = BASE_EMBEDDINGS['tmi']
+            context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
+            context_from_sources += f"{base_embedding['source']}:\n{base_embedding['content']}\n\n"
+            official_sources.append(base_embedding['source'])
+            context_from_sources += "\n" + "="*60 + "\n\n"
+        elif any(term in query_lower for term in ['tva', 'taxe valeur ajoutée']):
+            base_embedding = BASE_EMBEDDINGS['tva']
+            context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
+            context_from_sources += f"{base_embedding['source']}:\n{base_embedding['content']}\n\n"
+            official_sources.append(base_embedding['source'])
+            context_from_sources += "\n" + "="*60 + "\n\n"
+        elif any(term in query_lower for term in ['plus-value', 'plusvalue', 'plus value']):
+            base_embedding = BASE_EMBEDDINGS['plus_value']
+            context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
+            context_from_sources += f"{base_embedding['source']}:\n{base_embedding['content']}\n\n"
+            official_sources.append(base_embedding['source'])
+            context_from_sources += "\n" + "="*60 + "\n\n"
     
     if not context_from_sources:
         error_msg = ("Je ne trouve pas d'informations dans les sources officielles (CGI et BOFiP) disponibles pour répondre à votre question. "
