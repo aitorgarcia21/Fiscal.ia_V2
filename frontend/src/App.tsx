@@ -65,10 +65,17 @@ function App() {
           
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/activate" element={<ActivateAccountPage />} />
-          <Route path="/pro-signup" element={<ProSignupPage />} />
+          <Route element={<ParticulierProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/discover" element={<DiscoverPage />} />
+            <Route path="/discovery-summary" element={<DiscoverySummaryPage />} />
+          </Route>
+          {/* Route de connexion Pro accessible sans authentification */}
+          <Route path="/pro/login" element={<ProLoginPage />} />
 
-          {/* Routes Pro Protégées */}
           <Route element={<ProProtectedRoute />}>
             <Route path="/pro/dashboard" element={<ProDashboardPage />} />
             <Route path="/pro/clients/nouveau" element={<ProCreateClientPage />} />
@@ -78,6 +85,7 @@ function App() {
             <Route path="/pro/chat" element={<ProChatPage />} />
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
           </Route>
+          <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>
       </Router>
   );
