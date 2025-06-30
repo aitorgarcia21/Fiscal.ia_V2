@@ -795,65 +795,85 @@ export function Dashboard() {
   // Nouvelle fonction pour traiter les réponses vocales
   const processVoiceResponse = async (transcribedText: string) => {
     try {
-      // Envoyer le texte transcrit à Francis pour analyse
-      const response = await fetch('/api/test-francis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          question: `Dans le contexte du parcours de découverte, étape ${discoveryStep + 1}, l'utilisateur a répondu vocalement: "${transcribedText}". Analyse cette réponse et extrait les informations pertinentes pour compléter le profil. Réponds de manière naturelle et pose la question suivante.`,
-          user_profile: userProfile
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Ajouter la réponse de Francis au chat
-        setMessages(prev => [...prev, {
-          role: 'user',
-          content: transcribedText,
-          timestamp: new Date()
-        }, {
-          role: 'assistant',
-          content: result.answer || result.response || 'Je n\'ai pas pu traiter votre réponse.',
-          timestamp: new Date()
-        }]);
-
-        // Passer à la question suivante après un délai
-        setTimeout(() => {
-          askNextVoiceQuestion();
-        }, 2000);
+      console.log('🧠 Traitement de la réponse:', transcribedText);
+      
+      // Traitement local rapide pour les réponses simples
+      const text = transcribedText.toLowerCase();
+      let processedResponse = transcribedText;
+      
+      // Extraction rapide des informations communes
+      if (discoveryStep === 0) { // Âge
+        const ageMatch = text.match(/(\d+)/);
+        if (ageMatch) {
+          updateDiscoveryData('age', ageMatch[1]);
+          processedResponse = `${ageMatch[1]} ans`;
+        }
+      } else if (discoveryStep === 1) { // Situation familiale
+        if (text.includes('marié') || text.includes('marie')) {
+          updateDiscoveryData('situation_familiale', 'marie');
+          processedResponse = 'Marié(e)';
+        } else if (text.includes('célibataire') || text.includes('celibataire')) {
+          updateDiscoveryData('situation_familiale', 'celibataire');
+          processedResponse = 'Célibataire';
+        }
+      } else if (discoveryStep === 2) { // Enfants
+        const enfantsMatch = text.match(/(\d+)/);
+        if (enfantsMatch) {
+          updateDiscoveryData('nombre_enfants', parseInt(enfantsMatch[1]));
+          processedResponse = `${enfantsMatch[1]} enfant${parseInt(enfantsMatch[1]) > 1 ? 's' : ''}`;
+        } else if (text.includes('aucun') || text.includes('pas') || text.includes('zero') || text.includes('zéro')) {
+          updateDiscoveryData('nombre_enfants', 0);
+          processedResponse = 'Aucun enfant';
+        }
       }
+      
+      // Ajouter la conversation au chat pour le suivi
+      setMessages(prev => [...prev, {
+        role: 'user',
+        content: processedResponse,
+        timestamp: new Date()
+      }]);
+
+      // Passer à la question suivante rapidement
+      setTimeout(() => {
+        askNextVoiceQuestion();
+      }, 800); // Délai très réduit pour plus de fluidité
+      
     } catch (error) {
-      console.error('Erreur lors du traitement de la réponse vocale:', error);
+      console.error('❌ Erreur lors du traitement de la réponse vocale:', error);
+      // En cas d'erreur, continuer quand même
+      setTimeout(() => {
+        askNextVoiceQuestion();
+      }, 1000);
     }
   };
 
   // Fonction pour poser la question suivante
   const askNextVoiceQuestion = () => {
     const questions = [
-      "Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?",
-      "Parfait ! Maintenant, quelle est votre situation familiale ? Êtes-vous célibataire, marié, ou autre ?",
-      "Excellent ! Combien d'enfants avez-vous à charge ?",
-      "Maintenant, parlons de vos revenus. Quel est votre revenu annuel brut approximatif ?",
+      "Quel est votre âge ?",
+      "Parfait ! Quelle est votre situation familiale ?",
+      "Combien d'enfants avez-vous à charge ?",
+      "Quel est votre revenu annuel brut ?",
       "Êtes-vous propriétaire de votre résidence principale ?",
-      "Enfin, quels sont vos principaux objectifs fiscaux ? Par exemple, optimiser vos impôts, préparer votre retraite, ou investir ?"
+      "Quels sont vos objectifs fiscaux principaux ?"
     ];
 
     if (discoveryStep < questions.length - 1) {
       setDiscoveryStep(discoveryStep + 1);
-      speakQuestion(questions[discoveryStep + 1]);
+      // Transition fluide avec délai réduit
+      setTimeout(() => {
+        speakQuestion(questions[discoveryStep + 1]);
+      }, 500); // Délai réduit pour plus de fluidité
     } else {
       // Fin du parcours vocal
-      speakQuestion("Parfait ! J'ai toutes les informations nécessaires. Je vais maintenant analyser votre situation et vous proposer des recommandations personnalisées.");
+      speakQuestion("Parfait ! J'ai toutes les informations. Je prépare vos recommandations personnalisées...");
       setTimeout(() => {
         setVoiceMode(false);
         setShowDiscoveryExtraction(false);
         // Traiter les données complètes
         handleDiscoveryComplete();
-      }, 3000);
+      }, 2000); // Délai réduit
     }
   };
 
@@ -1390,29 +1410,41 @@ export function Dashboard() {
                   
                   <div className="flex gap-3">
                     {!voiceMode ? (
-                      <>
-                        <button
-                          onClick={() => {
+                      <button
+                        onClick={async () => {
+                          console.log('🚀 Démarrage du mode vocal superfluide...');
+                          
+                          // Test rapide des capacités avant de commencer
+                          try {
+                            // Vérifier l'accès au microphone immédiatement
+                            await navigator.mediaDevices.getUserMedia({ audio: true });
+                            console.log('✅ Microphone OK');
+                            
+                            // Vérifier la synthèse vocale
+                            if (!('speechSynthesis' in window)) {
+                              throw new Error('Synthèse vocale non supportée');
+                            }
+                            console.log('✅ Synthèse vocale OK');
+                            
+                            // Démarrer le mode vocal
                             setVoiceMode(true);
                             setDiscoveryStep(0);
-                            // Démarrer la première question vocale
+                            
+                            // Message de bienvenue et démarrage automatique
                             setTimeout(() => {
-                              speakQuestion("Bonjour ! Je suis Francis, votre assistant fiscal. Commençons par vos informations personnelles. Quel est votre âge ?");
-                            }, 500);
-                          }}
-                          className="flex-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3"
-                        >
-                          <Mic className="w-5 h-5" />
-                          Commencer avec Francis
-                        </button>
-                        <button
-                          onClick={() => speakQuestion("Test de la synthèse vocale. Si vous entendez cette phrase, la synthèse vocale fonctionne correctement.")}
-                          className="px-4 py-3 bg-[#1a2332] border border-[#c5a572]/20 text-[#c5a572] rounded-xl hover:bg-[#1a2332]/80 transition-all"
-                          title="Tester la synthèse vocale"
-                        >
-                          <Volume2 className="w-5 h-5" />
-                        </button>
-                      </>
+                              speakQuestion("Bonjour ! Je suis Francis. Je vais vous poser quelques questions pour optimiser votre fiscalité. Commençons : quel est votre âge ?");
+                            }, 100);
+                            
+                          } catch (error) {
+                            console.error('❌ Erreur lors de l\'initialisation:', error);
+                            alert('Pour utiliser le mode vocal, vous devez autoriser l\'accès au microphone. Cliquez sur "Autoriser" quand votre navigateur vous le demande.');
+                          }
+                        }}
+                        className="flex-1 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-3 text-lg"
+                      >
+                        <Mic className="w-6 h-6" />
+                        Discuter avec Francis (Mode Vocal)
+                      </button>
                     ) : (
                       <>
                         <button
