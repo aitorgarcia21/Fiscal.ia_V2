@@ -40,7 +40,9 @@ COPY --from=frontend-builder /app/frontend/dist /var/www/html
 COPY backend/ ./backend
 
 ENV PIP_NO_CACHE_DIR=1
-RUN pip install --no-cache-dir -r backend/requirements.txt
+# Utiliser --extra-index-url pour ajouter le dépôt CPU de PyTorch sans remplacer PyPI
+# Cela garantit que toutes les dépendances sont trouvées tout en forçant la version CPU pour torch.
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r backend/requirements.txt
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY start.sh .

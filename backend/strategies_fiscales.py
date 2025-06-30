@@ -571,12 +571,5 @@ class StrategieCESU(StrategieOptimisation):
         )
 
 # Registre des stratégies à instancier et à utiliser
-REGISTRE_STRATEGIES: List[StrategieOptimisation] = [
-    StrategiePER(),
-    StrategieLMNP(),
-    StrategieDonationIFI(),
-    StrategiePVI(),
-    StrategieDonsOeuvres(),
-    StrategieCESU(),
-]
+REGISTRE_STRATEGIES: List[StrategieOptimisation] = []
  

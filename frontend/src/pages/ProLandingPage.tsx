@@ -32,6 +32,14 @@ const ProLandingPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isProfessional, isLoadingAuth } = useAuth();
   
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+
+  const openAuthModal = (mode: 'login' | 'signup') => {
+    setAuthMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100">
@@ -57,13 +65,13 @@ const ProLandingPage = () => {
                 Particuliers
               </button>
               <button
-                onClick={() => navigate('/pro/login')}
+                onClick={() => openAuthModal('login')}
                 className="text-gray-300 hover:text-[#c5a572] transition-colors"
               >
                 Connexion
               </button>
               <button
-                onClick={() => navigate('/pro/signup')}
+                onClick={() => openAuthModal('signup')}
                 className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
               >
                 Inscription
@@ -371,6 +379,11 @@ const ProLandingPage = () => {
                 </div>
             </div>
         </footer>
+
+        {/* Auth modal */}
+        {isAuthModalOpen && (
+          <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialTab={authMode} defaultAccountType="professionnel" />
+        )}
 
       </div>
     </>

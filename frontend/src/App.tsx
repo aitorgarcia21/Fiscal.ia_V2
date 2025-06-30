@@ -29,6 +29,7 @@ import { SimulateurImpot } from './pages/SimulateurImpot';
 import BlogPage from './pages/BlogPage';
 import MentionsLegales from './pages/MentionsLegales';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
+import DataPrivacyPage from './pages/DataPrivacyPage';
 import ProLoginPage from './pages/ProLoginPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -58,6 +59,7 @@ function App() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+          <Route path="/mes-donnees" element={<DataPrivacyPage />} />
           
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
         <Route path="/auth/callback" element={<AuthCallback />} />

@@ -80,7 +80,7 @@ export function ChatPage() {
       
       const payload: any = {
         question: currentInput,
-        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content })).concat([userMessage])
+        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content }))
       };
 
       if (userProfileContext) {
@@ -190,6 +190,14 @@ export function ChatPage() {
                   className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors flex items-center"
                 >
                   <UserCog className="mr-1.5 w-4 h-4" /> Mon Profil
+                </Link>
+              )}
+              {isAuthenticated && (
+                <Link
+                  to="/mes-donnees"
+                  className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors"
+                >
+                  RGPD
                 </Link>
               )}
               <button 

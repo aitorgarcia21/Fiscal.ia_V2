@@ -8,9 +8,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: 'login' | 'signup';
+  defaultAccountType?: 'particulier' | 'professionnel';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTab = 'login' }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTab = 'login', defaultAccountType = 'particulier' }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,10 +46,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialTa
     setError(null);
     setIsLoading(true);
     try {
-      // Le type de compte est géré ici
-      await signup(email, password, fullName, activeTab === 'login' ? 'particulier' : 'professionnel');
+      const accountType = defaultAccountType;
+      await signup(email, password, fullName, accountType);
       onClose();
-      // La redirection sera gérée par le composant appelant ou un protected route
+      if (accountType === 'professionnel') {
+        navigate('/pro/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'Erreur d\'inscription');
     } finally {

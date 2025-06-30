@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, MessageSquare, Euro } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -30,7 +30,16 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white text-center mb-8">Connexion Particulier</h1>
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-block">
+            <div className="relative inline-flex items-center justify-center group mb-4">
+              <MessageSquare className="h-14 w-14 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1E3253] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+            </div>
+          </Link>
+          <h1 className="text-3xl font-bold text-white">Espace Particulier</h1>
+          <p className="text-gray-400 mt-2">Connectez-vous pour accéder à votre tableau de bord.</p>
+        </div>
         <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-6">
             {error && <p className="text-red-400 text-center text-sm mb-4 bg-red-900/20 p-3 rounded-lg">{error}</p>}
@@ -47,8 +56,8 @@ const LoginPage: React.FC = () => {
             </button>
           </form>
           <div className="text-center mt-4">
-            <Link to="/activate-account" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors">
-              Activer mon compte
+            <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors">
+              Mot de passe oublié ?
             </Link>
           </div>
           <p className="text-center text-sm text-gray-400 mt-8">
