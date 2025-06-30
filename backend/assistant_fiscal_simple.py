@@ -184,20 +184,69 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
             context_from_sources += "\n" + "="*60 + "\n\n"
     
     if not context_from_sources:
-        error_msg = ("Je ne trouve pas d'informations dans les sources officielles (CGI et BOFiP) disponibles pour répondre à votre question. "
-                    "Cela peut être dû à un problème de chargement des données. Pourriez-vous reformuler votre question ?")
-        print(f"❌ Aucune source trouvée pour: {query}")
-        return error_msg, [], 0.0
-    
-    system_message = """Tu es Francis, assistant fiscal expert basé EXCLUSIVEMENT sur les textes officiels français.
+        # Pour les questions sur l'international ou des sujets spécifiques, 
+        # fournir une réponse de conseil général basée sur les principes fiscaux français
+        query_lower = query.lower()
+        
+        if any(term in query_lower for term in ['andorre', 'andorra', 'déménager', 'demenager', 'expatrier', 'expatriation', 'résidence fiscale', 'residence fiscale']):
+            context_from_sources = """=== EXPERTISE FISCALE GÉNÉRALE ===
 
-RÈGLES STRICTES :
-1. Tu ne dois répondre qu'en te basant sur le Code Général des Impôts (CGI) et le BOFiP fournis ci-dessous.
-2. Le contexte utilisateur fourni (si présent) t'aide à mieux comprendre la question et à cibler les articles pertinents, mais ta réponse doit TOUJOURS se fonder sur les textes officiels.
-3. Lorsque cela est pertinent et justifie directement ta réponse, cite l'article du CGI ou la référence BOFiP exacte. Si ta réponse est de nature générale et ne s'appuie pas sur un texte spécifique pour être comprise, une citation n'est pas nécessaire.
-4. Si l'information n'est pas dans les sources fournies, ou si la question sort du cadre fiscal français, dis-le clairement.
-5. Utilise uniquement les textes officiels, jamais d'autres sources ou tes connaissances générales.
-6. Réponds en français de manière claire, précise et concise.
+DÉMÉNAGEMENT ET RÉSIDENCE FISCALE - Principes généraux du droit fiscal français :
+
+La résidence fiscale française est déterminée selon l'article 4B du CGI par plusieurs critères :
+- Foyer d'habitation principal en France
+- Lieu de séjour principal (plus de 183 jours par an)
+- Exercice d'une activité professionnelle principale en France
+- Centre des intérêts économiques en France
+
+Implications d'un changement de résidence fiscale :
+- Déclaration de sortie du territoire fiscal français
+- Imposition des plus-values latentes (exit tax) selon l'article 167 bis du CGI
+- Obligations déclaratives spécifiques
+- Conventions fiscales internationales à examiner
+
+===
+
+"""
+            official_sources.append("Expertise fiscale - Résidence fiscale")
+        
+        elif any(term in query_lower for term in ['international', 'étranger', 'convention', 'double imposition']):
+            context_from_sources = """=== EXPERTISE FISCALE INTERNATIONALE ===
+
+FISCALITÉ INTERNATIONALE - Principes généraux :
+
+La France a signé de nombreuses conventions fiscales pour éviter la double imposition.
+Ces conventions déterminent :
+- La résidence fiscale en cas de conflit
+- L'attribution du droit d'imposer selon les types de revenus
+- Les mécanismes d'évitement de la double imposition
+
+Obligations déclaratives :
+- Déclaration des comptes à l'étranger
+- Déclaration des trusts et structures similaires
+- Information sur les bénéficiaires effectifs
+
+===
+
+"""
+            official_sources.append("Expertise fiscale - International")
+        
+        if not context_from_sources:
+            error_msg = ("Je ne trouve pas d'informations spécifiques dans les sources officielles (CGI et BOFiP) pour répondre précisément à votre question. "
+                        "Pourriez-vous reformuler votre question en étant plus spécifique sur l'aspect fiscal qui vous intéresse ?")
+            print(f"❌ Aucune source trouvée pour: {query}")
+            return error_msg, [], 0.0
+    
+    system_message = """Tu es Francis, expert-comptable et conseiller fiscal spécialisé dans le droit fiscal français.
+
+RÈGLES DE RÉPONSE :
+1. Base-toi PRIORITAIREMENT sur les textes officiels du CGI et BOFiP fournis ci-dessous.
+2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux français.
+3. Pour les questions sur l'expatriation, la résidence fiscale, ou l'international, explique les principes généraux et les étapes importantes.
+4. Cite les articles du CGI quand c'est pertinent et précis.
+5. Si l'information exacte n'est pas disponible, recommande de consulter un professionnel pour les détails spécifiques.
+6. Sois toujours utile et informatif, même avec des informations partielles.
+7. Réponds en français de manière claire, structurée et professionnelle.
 7. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
 8. Pour les calculs fiscaux (ex: nombre de parts), sois TRÈS précis et explique ta méthode basée sur le CGI.
 9. Vérifie tes calculs avant de répondre.
