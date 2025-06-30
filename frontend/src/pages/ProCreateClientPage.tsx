@@ -559,9 +559,8 @@ export function ProCreateClientPage() {
 
   const handleFinalTranscription = async (text: string) => {
     setFinalTranscript(text);
-    if (text.trim().length > 10) { // Lancer l'analyse uniquement si le texte est pertinent
-      analyzeWithAI(text);
-    }
+    // L'utilisateur déclenchera l'analyse IA manuellement via un bouton
+    // analyseWithAI(text) est maintenant appelé sur action utilisateur
   };
 
   const handleVoiceError = (error: string) => {
@@ -623,11 +622,28 @@ export function ProCreateClientPage() {
               />
               
               {voiceText && (
-                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
-                  <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
-                  <div className="text-sm text-white">{voiceText}</div>
-              </div>
-            )}
+                <>
+                  <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
+                    <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
+                    <div className="text-sm text-white whitespace-pre-wrap">{voiceText}</div>
+                  </div>
+                  <button
+                    onClick={() => analyzeWithAI(voiceText)}
+                    disabled={isAIAnalyzing}
+                    className="mt-4 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 mx-auto"
+                  >
+                    {isAIAnalyzing ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="w-5 h-5" /> Analyser et pré-remplir
+                      </>
+                    )}
+                  </button>
+                </>
+              )}
 
               {/* Indicateur d'analyse IA */}
               {isAIAnalyzing && (
