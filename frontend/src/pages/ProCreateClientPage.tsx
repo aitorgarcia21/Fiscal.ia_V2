@@ -605,8 +605,8 @@ export function ProCreateClientPage() {
                 <div className="flex items-center gap-4">
                   {showVoiceInput ? <MicOff className="w-10 h-10" /> : <Mic className="w-10 h-10" />}
                   <div>
-                    <h3 className="text-xl font-bold">Dictée vocale IA</h3>
-                    <p className="text-sm opacity-80">Parlez et Francis pré-remplit automatiquement le profil</p>
+                    <h3 className="text-xl font-bold">Francis enregistre votre entretien</h3>
+                    <p className="text-sm opacity-80">Il crée le profil automatiquement et vous offre l'export du verbatim ou du résumé</p>
                   </div>
                 </div>
                 <button
