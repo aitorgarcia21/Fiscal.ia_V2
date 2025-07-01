@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2, Activity, Download, Euro, AlertCircle, Play, Pause, Volume2 } from 'lucide-react';
+import { Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2, Activity, Download, Euro, AlertCircle, Play, Pause, Volume2, MessageSquare, UserCheck, BarChart } from 'lucide-react';
 
 interface ClientProfile {
   id: string;
@@ -128,56 +128,62 @@ const DemoMessage = ({ message, visible }: { message: any, visible: boolean }) =
   );
 };
 
+// Vrai entretien client format Q/R
 const demoConversation = [
-  { 
-    type: 'system',
-    content: "Enregistrement en cours...",
+  {
+    type: 'recording_start',
+    content: "Début de l'enregistrement de l'entretien",
     delay: 500
   },
   {
-    type: 'user_audio',
-    content: "Donc Monsieur Durand, vous avez 42 ans, vous êtes marié avec 2 enfants. Vos revenus annuels sont de 85 000€ en tant qu'ingénieur. Vous avez un patrimoine de 320 000€ incluant votre résidence principale et un appartement en location qui génère 800€ par mois...",
-    duration: "0:47",
+    type: 'conseiller',
+    content: "Bonjour Monsieur Durand, merci de prendre le temps pour faire le point sur votre situation. Pouvez-vous me rappeler votre âge et votre situation familiale ?",
     delay: 1000
   },
   {
-    type: 'francis',
-    content: "J'ai bien enregistré les informations de M. Durand. Je détecte plusieurs opportunités d'optimisation fiscale.",
-    delay: 3000
+    type: 'client',
+    content: "Bonjour, j'ai 42 ans, je suis marié et nous avons 2 enfants de 8 et 12 ans.",
+    delay: 2500
   },
   {
-    type: 'francis_analysis',
-    content: "Analyse en cours...",
-    items: [
-      { text: "Analyse des revenus fonciers", status: 'done', delay: 3500 },
-      { text: "Calcul du TMI actuel", status: 'done', delay: 4000 },
-      { text: "Recherche d'optimisations", status: 'done', delay: 4500 },
-      { text: "Génération du rapport", status: 'done', delay: 5000 }
-    ],
-    delay: 3200
+    type: 'conseiller',
+    content: "Très bien. Et concernant votre situation professionnelle et vos revenus ?",
+    delay: 3500
   },
   {
-    type: 'francis_result',
-    content: "✅ Analyse terminée ! J'ai identifié 3 optimisations principales :",
-    optimizations: [
-      { 
-        title: "Déficit foncier", 
-        description: "Passage au régime réel pour l'appartement locatif",
-        saving: "1 250€/an"
-      },
-      {
-        title: "PER déductible",
-        description: "Versement optimal calculé selon votre TMI",
-        saving: "987€/an"
-      },
-      {
-        title: "Frais réels",
-        description: "Option plus avantageuse que les 10%",
-        saving: "610€/an"
-      }
-    ],
-    totalSaving: "2 847€/an",
-    delay: 5500
+    type: 'client',
+    content: "Je suis ingénieur chez Airbus, mon salaire net annuel est de 85 000€. Ma femme est professeure, elle gagne environ 35 000€ net par an.",
+    delay: 5000
+  },
+  {
+    type: 'conseiller',
+    content: "D'accord. Avez-vous des revenus complémentaires ou du patrimoine immobilier ?",
+    delay: 6500
+  },
+  {
+    type: 'client',
+    content: "Oui, nous avons notre résidence principale estimée à 380 000€, et un appartement que nous louons 900€ par mois à Toulouse, acheté 150 000€ il y a 5 ans.",
+    delay: 8000
+  },
+  {
+    type: 'conseiller',
+    content: "Et comment déclarez-vous actuellement ces revenus locatifs ?",
+    delay: 9500
+  },
+  {
+    type: 'client',
+    content: "En micro-foncier, c'est plus simple. Mais je me demande si c'est le plus avantageux...",
+    delay: 10500
+  },
+  {
+    type: 'francis_interrupt',
+    content: "Francis a détecté une opportunité d'optimisation",
+    delay: 11500
+  },
+  {
+    type: 'recording_end',
+    content: "Fin de l'enregistrement - Analyse en cours...",
+    delay: 12000
   }
 ];
 
