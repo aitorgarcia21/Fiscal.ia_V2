@@ -76,7 +76,10 @@ const ProLandingPage = () => {
         {/* Hero Section */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">Francis, le copilote</span>
+            <span className="block">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">Francis, le </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FF8C00] animate-pulse">copilote</span>
+            </span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">de tous les conseillers financiers.</span>
           </h1>
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
