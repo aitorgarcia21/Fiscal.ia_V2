@@ -58,13 +58,6 @@ const ProLandingPage = () => {
             {/* Switch to Particulier + Auth Buttons */}
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/')}
-                className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <User className="w-4 h-4" />
-                Particuliers
-              </button>
-              <button
                 onClick={() => openAuthModal('login')}
                 className="text-gray-300 hover:text-[#c5a572] transition-colors"
               >

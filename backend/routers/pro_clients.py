@@ -11,7 +11,8 @@ from backend.models_pro import ClientProfile, RendezVousProfessionnel
 from backend.schemas_pro import (
     ClientProfileCreate, ClientProfileResponse, ClientProfileUpdate, 
     AnalysisResultSchema, AnalysisRecommendation,
-    RendezVousCreate, RendezVousResponse, RendezVousUpdate
+    RendezVousCreate, RendezVousResponse, RendezVousUpdate,
+    IRPPAnalysisResponse, ClientProfileWithAnalysisResponse
 )
 from backend.dependencies import supabase, verify_token
 from backend.assistant_fiscal_simple import get_fiscal_response
@@ -63,7 +64,7 @@ async def verify_professional_user(current_user_id: str = Depends(verify_token))
             detail=f"Erreur lors de la vérification du profil professionnel: {str(e)}"
         )
 
-@router.post("/clients/", response_model=ClientProfileResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/clients/", response_model=ClientProfileWithAnalysisResponse, status_code=status.HTTP_201_CREATED)
 async def create_client_profile(
     client_profile_data: ClientProfileCreate,
     db: Session = Depends(get_db),
@@ -84,7 +85,28 @@ async def create_client_profile(
     db.add(db_client_profile)
     db.commit()
     db.refresh(db_client_profile)
-    return db_client_profile
+
+    # Lancer immédiatement une analyse IA du profil nouvellement créé
+    try:
+        analysis_result: AnalysisResultSchema = await analyze_client_profile(
+            client_id=db_client_profile.id,
+            db=db,
+            professional_user_id=professional_user_id  # On réutilise l'ID du pro courant
+        )
+    except Exception as e:
+        # Si l'analyse échoue, on retourne quand même le profil avec un message d'erreur minimal
+        # mais on ne fait pas échouer toute la requête de création.
+        print(f"[WARN] Échec de l'analyse IA post-création pour le client {db_client_profile.id}: {e}")
+        analysis_result = AnalysisResultSchema(
+            summary="Analyse indisponible pour le moment.",
+            recommendations=[AnalysisRecommendation(title="Analyse échouée", details="Francis n'a pas pu analyser ce profil immédiatement.")],
+            actionPoints=["Réessayer l'analyse plus tard"]
+        )
+
+    return {
+        "client": db_client_profile,
+        "analysis": analysis_result
+    }
 
 @router.get("/clients/", response_model=List[ClientProfileResponse])
 async def list_client_profiles(

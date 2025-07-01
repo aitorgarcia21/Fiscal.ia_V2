@@ -92,11 +92,6 @@ export function ProDashboardPage() {
             <span className="text-sm text-gray-300 hidden md:block">
               {professionalName}
             </span>
-            <button 
-              onClick={() => navigate('/dashboard')} 
-              className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-              Espace Particulier
-            </button>
           </div>
         </div>
       </div>

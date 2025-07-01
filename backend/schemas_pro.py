@@ -139,6 +139,17 @@ class AnalysisResultSchema(BaseModel):
     class Config:
         from_attributes = True 
 
+# -------------------------------------------------------------
+# Schéma combiné : profil client + analyse IA (pour création)
+# -------------------------------------------------------------
+
+class ClientProfileWithAnalysisResponse(BaseModel):
+    client: ClientProfileResponse
+    analysis: AnalysisResultSchema
+
+    class Config:
+        from_attributes = True
+
 # --- Schémas Pydantic pour les Rendez-vous Professionnels ---
 class RendezVousBase(BaseModel):
     id_client: int
