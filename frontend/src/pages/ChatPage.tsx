@@ -22,12 +22,7 @@ interface UserProfileData {
 }
 
 export function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "Bonjour ! Je suis Francis, votre assistant financier IA. Posez-moi vos questions sur les impôts, la fiscalité ou l'optimisation de vos finances personnelles. Pour des conseils encore plus précis, n'hésitez pas à compléter votre profil !"
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
@@ -38,6 +33,7 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const [initDone, setInitDone] = useState(false);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,6 +155,19 @@ export function ChatPage() {
     
     return () => clearTimeout(timeoutId);
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (!initDone) {
+      let firstName = '';
+      if (isAuthenticated && user && (user as any).user_metadata && (user as any).user_metadata.full_name) {
+        const full = (user as any).user_metadata.full_name as string;
+        firstName = full.split(' ')[0];
+      }
+      const greeting = `Bonjour${firstName ? ' ' + firstName : ''} ! Je suis Francis, votre copilote fiscal. Pose-moi toutes tes questions sur l'optimisation et la conformité.\nSi tu renseignes ton profil, je pourrai être encore plus précis.`;
+      setMessages([{ role: 'assistant', content: greeting }]);
+      setInitDone(true);
+    }
+  }, [isAuthenticated, user, initDone]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
