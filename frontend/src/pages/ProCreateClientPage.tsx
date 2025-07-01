@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3 } from 'lucide-react';
-// import { VoiceRecorder } from '../components/VoiceRecorder'; // Temporairement désactivé
+import { VoiceRecorder } from '../components/VoiceRecorder';
 import { StepperVertical } from '../components/ui/StepperVertical';
 
 interface ProCreateClientFormState {
@@ -175,8 +175,8 @@ export function ProCreateClientPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showVoiceInput, setShowVoiceInput] = useState(false);
-  // const [voiceText, setVoiceText] = useState(""); // Temporairement désactivé
-  // const [finalTranscript, setFinalTranscript] = useState(""); // Temporairement désactivé
+  const [voiceText, setVoiceText] = useState("");
+  const [finalTranscript, setFinalTranscript] = useState("");
   const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string>('');
   
@@ -554,19 +554,18 @@ export function ProCreateClientPage() {
     }
   };
 
-  // Handlers de dictée vocale temporairement désactivés
-  // const handleVoiceTranscription = (text: string) => {
-  //   setVoiceText(text);
-  // };
+  const handleVoiceTranscription = (text: string) => {
+    setVoiceText(text);
+  };
 
-  // const handleFinalTranscription = (text: string) => {
-  //   setVoiceText(text);
-  //   setFinalTranscript(text);
-  // };
+  const handleFinalTranscription = (text: string) => {
+    setVoiceText(text);
+    setFinalTranscript(text);
+  };
 
-  // const handleVoiceError = (error: string) => {
-  //   console.error('Erreur dictée profil client:', error);
-  // };
+  const handleVoiceError = (error: string) => {
+    console.error('Erreur dictée profil client:', error);
+  };
   
   const steps = [
     { id: 'identite', label: 'Identité' },
