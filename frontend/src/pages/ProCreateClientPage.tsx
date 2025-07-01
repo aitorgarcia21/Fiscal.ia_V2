@@ -627,23 +627,36 @@ export function ProCreateClientPage() {
                   </p>
                 </div>
                 
-                {/* Dictée vocale temporairement désactivée pour résoudre le conflit TypeScript */}
-                <div className="mb-4 p-4 bg-[#1a2942] rounded-lg border border-gray-600">
-                  <div className="text-center text-gray-400">
-                    <Mic className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Dictée vocale temporairement indisponible</p>
-                    <p className="text-xs mt-1">Utilisez la saisie manuelle du formulaire</p>
-                  </div>
-                </div>
-                
-                {/* Section d'analyse IA temporairement désactivée */}
-                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-gray-600/50">
-                  <div className="text-center text-gray-400">
-                    <Brain className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Analyse IA Francis temporairement indisponible</p>
-                    <p className="text-xs mt-1">Fonctionnalité en cours de correction</p>
-                  </div>
-                </div>
+                <VoiceRecorder
+                  onTranscriptionUpdate={handleVoiceTranscription}
+                  onTranscriptionComplete={handleFinalTranscription}
+                  onError={handleVoiceError}
+                  className="mb-4"
+                />
+
+                {voiceText && (
+                  <>
+                    <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
+                      <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
+                      <div className="text-sm text-white whitespace-pre-wrap">{voiceText}</div>
+                    </div>
+                    <button
+                      onClick={() => analyzeWithAI(voiceText)}
+                      disabled={isAIAnalyzing}
+                      className="mt-4 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 mx-auto"
+                    >
+                      {isAIAnalyzing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="w-5 h-5" /> Analyser et pré-remplir
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
 
                 {/* Indicateur d'analyse IA */}
                 {isAIAnalyzing && (
