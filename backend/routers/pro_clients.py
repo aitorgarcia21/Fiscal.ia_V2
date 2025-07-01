@@ -5,6 +5,9 @@ import asyncio
 import json
 import uuid
 from datetime import datetime
+from fastapi.responses import StreamingResponse
+import pandas as pd
+import io
 
 from backend.database import get_db
 from backend.models_pro import ClientProfile, RendezVousProfessionnel
@@ -1154,3 +1157,69 @@ def generate_validation_notes(extracted_data: Dict[str, Any], validated_data: Di
         notes.append("Objectifs à court terme non identifiés")
     
     return notes 
+
+# -------------------------
+# Export CSV / Excel
+# -------------------------
+
+def _client_to_dataframe(client: ClientProfile) -> pd.DataFrame:
+    data = {}
+    for column in client.__table__.columns:
+        key = column.name
+        value = getattr(client, key)
+        # Convert Decimal to float for CSV/Excel compatibility
+        if isinstance(value, (Decimal,)):
+            try:
+                value = float(value)
+            except Exception:
+                value = str(value)
+        data[key] = value
+    return pd.DataFrame([data])
+
+@router.get("/clients/{client_id}/export-csv")
+async def export_client_csv(
+    client_id: int,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    client = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client non trouvé ou accès refusé")
+
+    df = _client_to_dataframe(client)
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False)
+    buffer.seek(0)
+
+    filename = f"profil_client_{client_id}.csv"
+    return StreamingResponse(iter([buffer.getvalue()]), media_type="text/csv", headers={
+        "Content-Disposition": f"attachment; filename={filename}"
+    })
+
+@router.get("/clients/{client_id}/export-excel")
+async def export_client_excel(
+    client_id: int,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    client = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client non trouvé ou accès refusé")
+
+    df = _client_to_dataframe(client)
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, sheet_name="Profil", index=False)
+    buffer.seek(0)
+    filename = f"profil_client_{client_id}.xlsx"
+    return StreamingResponse(buffer, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={
+        "Content-Disposition": f"attachment; filename={filename}"
+    }) 
