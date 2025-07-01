@@ -184,58 +184,11 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
             context_from_sources += "\n" + "="*60 + "\n\n"
     
     if not context_from_sources:
-        # Pour les questions sur l'international ou des sujets spécifiques, 
-        # fournir une réponse de conseil général basée sur les principes fiscaux français
-        query_lower = query.lower()
-        
-        if any(term in query_lower for term in ['andorre', 'andorra', 'déménager', 'demenager', 'expatrier', 'expatriation', 'résidence fiscale', 'residence fiscale']):
-            context_from_sources = """=== EXPERTISE FISCALE GÉNÉRALE ===
-
-DÉMÉNAGEMENT ET RÉSIDENCE FISCALE - Principes généraux du droit fiscal français :
-
-La résidence fiscale française est déterminée selon l'article 4B du CGI par plusieurs critères :
-- Foyer d'habitation principal en France
-- Lieu de séjour principal (plus de 183 jours par an)
-- Exercice d'une activité professionnelle principale en France
-- Centre des intérêts économiques en France
-
-Implications d'un changement de résidence fiscale :
-- Déclaration de sortie du territoire fiscal français
-- Imposition des plus-values latentes (exit tax) selon l'article 167 bis du CGI
-- Obligations déclaratives spécifiques
-- Conventions fiscales internationales à examiner
-
-===
-
-"""
-            official_sources.append("Expertise fiscale - Résidence fiscale")
-        
-        elif any(term in query_lower for term in ['international', 'étranger', 'convention', 'double imposition']):
-            context_from_sources = """=== EXPERTISE FISCALE INTERNATIONALE ===
-
-FISCALITÉ INTERNATIONALE - Principes généraux :
-
-La France a signé de nombreuses conventions fiscales pour éviter la double imposition.
-Ces conventions déterminent :
-- La résidence fiscale en cas de conflit
-- L'attribution du droit d'imposer selon les types de revenus
-- Les mécanismes d'évitement de la double imposition
-
-Obligations déclaratives :
-- Déclaration des comptes à l'étranger
-- Déclaration des trusts et structures similaires
-- Information sur les bénéficiaires effectifs
-
-===
-
-"""
-            official_sources.append("Expertise fiscale - International")
-        
-        if not context_from_sources:
-            error_msg = ("Je ne trouve pas d'informations spécifiques dans les sources officielles (CGI et BOFiP) pour répondre précisément à votre question. "
-                        "Pourriez-vous reformuler votre question en étant plus spécifique sur l'aspect fiscal qui vous intéresse ?")
-            print(f"❌ Aucune source trouvée pour: {query}")
-            return error_msg, [], 0.0
+        # Fallback : répondre tout de même en mode "expert conseil" sans citation précise
+        print(f"⚠️ Aucune source officielle trouvée pour : {query} – utilisation du mode conseil générique")
+        context_from_sources = "=== EXPERTISE FISCALE GÉNÉRALE ===\n\n" \
+                             + "Les informations suivantes reposent sur les principes généraux du droit fiscal français, " \
+                             + "les pratiques courantes de planification patrimoniale et l'expérience de Francis en tant que conseiller CGP.\n\n"
     
     system_message = """Tu es Francis, expert-comptable et conseiller fiscal spécialisé dans le droit fiscal français.
 
