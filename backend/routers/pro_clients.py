@@ -12,7 +12,7 @@ from backend.schemas_pro import (
     ClientProfileCreate, ClientProfileResponse, ClientProfileUpdate, 
     AnalysisResultSchema, AnalysisRecommendation,
     RendezVousCreate, RendezVousResponse, RendezVousUpdate,
-    IRPPAnalysisResponse, ClientProfileWithAnalysisResponse
+    ClientProfileWithAnalysisResponse
 )
 from backend.dependencies import supabase, verify_token
 from backend.assistant_fiscal_simple import get_fiscal_response
