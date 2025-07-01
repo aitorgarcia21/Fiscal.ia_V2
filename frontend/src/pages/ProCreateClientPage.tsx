@@ -606,76 +606,97 @@ export function ProCreateClientPage() {
                 </button>
                 <h1 className="text-2xl font-bold text-white">Nouveau Client</h1>
               </div>
-              
-              {/* Bouton de dictée vocale */}
-              <button
-                onClick={() => setShowVoiceInput(!showVoiceInput)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
-              >
-                {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale IA'}</span>
-              </button>
             </div>
 
-            {/* Interface de dictée vocale */}
-            {showVoiceInput && (
-              <div className="mb-8 p-6 bg-[#162238]/50 rounded-xl border border-[#c5a572]/30">
-                <div className="text-center mb-4">
-                  <h3 className="text-lg font-semibold text-white mb-2">🎤 Dictée vocale intelligente</h3>
-                  <p className="text-gray-400 text-sm">
-                    Parlez de votre profil client et Francis remplira automatiquement le formulaire
-                  </p>
-                </div>
-                
-                <VoiceRecorder
-                  onTranscriptionUpdate={handleVoiceTranscription}
-                  onTranscriptionComplete={handleFinalTranscription}
-                  onError={handleVoiceError}
-                  className="mb-4"
-                />
-
-                {voiceText && (
-                  <>
-                    <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
-                      <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
-                      <div className="text-sm text-white whitespace-pre-wrap">{voiceText}</div>
-                    </div>
-                    <button
-                      onClick={() => analyzeWithAI(voiceText)}
-                      disabled={isAIAnalyzing}
-                      className="mt-4 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 mx-auto"
-                    >
-                      {isAIAnalyzing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
-                        </>
-                      ) : (
-                        <>
-                          <Brain className="w-5 h-5" /> Analyser et pré-remplir
-                        </>
-                      )}
-                    </button>
-                  </>
-                )}
-
-                {/* Indicateur d'analyse IA */}
-                {isAIAnalyzing && (
-                  <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-blue-500/50">
-                    <div className="flex items-center gap-2 text-blue-400">
-                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-sm">Francis analyse votre profil client...</span>
+            {/* Nouvelle bannière dictée vocale – toujours visible */}
+            <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#0A192F] shadow-xl">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  {showVoiceInput ? <MicOff className="w-10 h-10" /> : <Mic className="w-10 h-10" />}
+                  <div>
+                    <h3 className="text-xl font-bold">Dictée vocale IA</h3>
+                    <p className="text-sm opacity-80">Parlez et Francis pré-remplit automatiquement le profil</p>
                   </div>
+                </div>
+                <button
+                  onClick={() => setShowVoiceInput(!showVoiceInput)}
+                  className="px-5 py-2 rounded-lg font-semibold shadow-md bg-[#0A192F] text-[#c5a572] hover:bg-[#162238] transition-colors"
+                >
+                  {showVoiceInput ? 'Masquer' : 'Activer'}
+                </button>
+              </div>
+
+              {showVoiceInput && (
+                <div className="mt-6 bg-[#162238]/80 p-6 rounded-lg border border-[#c5a572]/30">
+                  <div className="text-center mb-4">
+                    <h4 className="text-lg font-semibold text-white mb-2 flex items-center justify-center gap-2"><Mic className="w-5 h-5" /> Enregistrement actif</h4>
+                  </div>
+                  <VoiceRecorder
+                    onTranscriptionUpdate={handleVoiceTranscription}
+                    onTranscriptionComplete={handleFinalTranscription}
+                    onError={handleVoiceError}
+                    className="mb-4"
+                  />
+
+                  <div className="mt-4 space-y-4 bg-[#1a2942] rounded-xl border border-[#c5a572]/40 p-4 shadow-inner">
+                    <div className="text-xs font-semibold text-[#c5a572] uppercase tracking-wide mb-2">Texte dicté</div>
+                    <pre className="text-sm text-white whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                      {voiceText}
+                    </pre>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                      <button
+                        onClick={() => analyzeWithAI(voiceText)}
+                        disabled={isAIAnalyzing}
+                        className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 justify-center"
+                      >
+                        {isAIAnalyzing ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
+                          </>
+                        ) : (
+                          <>
+                            <Brain className="w-5 h-5" /> Analyser / pré-remplir
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          const blob = new Blob([voiceText], { type: 'text/plain;charset=utf-8' });
+                          const url = URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = `entretien_${formData.nom_client || 'client'}.txt`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                        className="flex-1 sm:flex-none px-6 py-3 bg-[#0A192F] text-[#c5a572] font-semibold rounded-xl shadow-md hover:bg-[#162238] transition-colors flex items-center gap-2 justify-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 12l5 5m0 0l5-5m-5 5V4" /></svg>
+                        Exporter (.txt)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Indicateur d'analyse IA */}
+                  {isAIAnalyzing && (
+                    <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-blue-500/50">
+                      <div className="flex items-center gap-2 text-blue-400">
+                        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm">Francis analyse votre profil client...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Résultat de l'analyse IA */}
+                  {aiAnalysisResult && !isAIAnalyzing && (
+                    <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-green-500/50">
+                      <div className="text-sm text-green-400">{aiAnalysisResult}</div>
+                    </div>
+                  )}
                 </div>
               )}
-
-                {/* Résultat de l'analyse IA */}
-                {aiAnalysisResult && !isAIAnalyzing && (
-                  <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-green-500/50">
-                    <div className="text-sm text-green-400">{aiAnalysisResult}</div>
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
               <section id="identite" className={firstSectionStyles}>
