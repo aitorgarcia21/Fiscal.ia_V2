@@ -163,7 +163,7 @@ export function ChatPage() {
         const full = (user as any).user_metadata.full_name as string;
         firstName = full.split(' ')[0];
       }
-      const greeting = `Bonjour${firstName ? ' ' + firstName : ''} ! Je suis Francis, votre copilote fiscal. Pose-moi toutes tes questions sur l'optimisation et la conformité.\nSi tu renseignes ton profil, je pourrai être encore plus précis.`;
+      const greeting = `Bonjour${firstName ? ' ' + firstName : ''} ! Je suis Francis, votre copilote financier. Pose-moi toutes tes questions et je t'aiderai à trouver la meilleure stratégie.\nComplète ton profil pour des réponses encore plus précises.`;
       setMessages([{ role: 'assistant', content: greeting }]);
       setInitDone(true);
     }

@@ -83,7 +83,7 @@ export function ProDashboardPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Dashboard Pro</h1>
-                <p className="text-sm text-[#c5a572] font-medium">Assistant fiscal intelligent</p>
+                <p className="text-sm text-[#c5a572] font-medium">Le copilote financier</p>
               </div>
             </div>
           </div>
