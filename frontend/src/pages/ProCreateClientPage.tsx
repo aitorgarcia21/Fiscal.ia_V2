@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3 } from 'lucide-react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
+import { StepperVertical } from '../components/ui/StepperVertical';
 
 interface ProCreateClientFormState {
   nom_client: string;
@@ -553,22 +554,29 @@ export function ProCreateClientPage() {
     }
   };
 
-  const handleVoiceTranscription = async (text: string) => {
+  const handleFinalTranscription = (text: string) => {
     setVoiceText(text);
-  };
-
-  const handleFinalTranscription = async (text: string) => {
     setFinalTranscript(text);
     // L'utilisateur déclenchera l'analyse IA manuellement via un bouton
-    // analyseWithAI(text) est maintenant appelé sur action utilisateur
   };
 
   const handleVoiceError = (error: string) => {
     console.error('Erreur dictée profil client:', error);
   };
   
+  const steps = [
+    { id: 'identite', label: 'Identité' },
+    { id: 'coordonnees', label: 'Coordonnées' },
+    { id: 'famille', label: 'Situation familiale' },
+    { id: 'revenus', label: 'Revenus' },
+    { id: 'patrimoine', label: 'Patrimoine' },
+    { id: 'objectifs', label: 'Objectifs' },
+    { id: 'fiscal', label: 'Fiscalité' },
+    { id: 'suivi', label: 'Suivi pro' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-gray-100 font-sans antialiased">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-gray-100 font-sans antialiased scroll-smooth">
       <header className="bg-[#0D1F3A]/90 backdrop-blur-md border-b border-[#2A3F6C]/30 shadow-lg sticky top-0 z-40">
         <div className="h-20 max-w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
@@ -581,243 +589,245 @@ export function ProCreateClientPage() {
       </header>
 
       <main className="p-4 sm:p-6 lg:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate('/pro/dashboard')}
-                className="flex items-center text-gray-400 hover:text-white transition-colors mr-4"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                Retour
-              </button>
-              <h1 className="text-2xl font-bold text-white">Nouveau Client</h1>
-              </div>
-              
-            {/* Bouton de dictée vocale */}
+        <div className="max-w-6xl mx-auto lg:flex gap-8">
+          <StepperVertical steps={steps} />
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center">
                 <button
-              onClick={() => setShowVoiceInput(!showVoiceInput)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
+                  onClick={() => navigate('/pro/dashboard')}
+                  className="flex items-center text-gray-400 hover:text-white transition-colors mr-4"
                 >
-              {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale IA'}</span>
+                  <ChevronLeft className="w-5 h-5 mr-1" />
+                  Retour
                 </button>
-          </div>
-
-          {/* Interface de dictée vocale */}
-          {showVoiceInput && (
-            <div className="mb-8 p-6 bg-[#162238]/50 rounded-xl border border-[#c5a572]/30">
-              <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-white mb-2">🎤 Dictée vocale intelligente</h3>
-                <p className="text-gray-400 text-sm">
-                  Parlez de votre profil client et Francis remplira automatiquement le formulaire
-                </p>
+                <h1 className="text-2xl font-bold text-white">Nouveau Client</h1>
               </div>
               
-              <VoiceRecorder
-                onTranscriptionUpdate={handleVoiceTranscription}
-                onTranscriptionComplete={handleFinalTranscription}
-                onError={handleVoiceError}
-                className="mb-4"
-              />
-              
-              {voiceText && (
-                <>
-                  <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
-                    <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
-                    <div className="text-sm text-white whitespace-pre-wrap">{voiceText}</div>
-                  </div>
-                  <button
-                    onClick={() => analyzeWithAI(voiceText)}
-                    disabled={isAIAnalyzing}
-                    className="mt-4 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 mx-auto"
-                  >
-                    {isAIAnalyzing ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
-                      </>
-                    ) : (
-                      <>
-                        <Brain className="w-5 h-5" /> Analyser et pré-remplir
-                      </>
-                    )}
-                  </button>
-                </>
-              )}
-
-              {/* Indicateur d'analyse IA */}
-              {isAIAnalyzing && (
-                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-blue-500/50">
-                  <div className="flex items-center gap-2 text-blue-400">
-                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm">Francis analyse votre profil client...</span>
-                </div>
-              </div>
-            )}
-
-              {/* Résultat de l'analyse IA */}
-              {aiAnalysisResult && !isAIAnalyzing && (
-                <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-green-500/50">
-                  <div className="text-sm text-green-400">{aiAnalysisResult}</div>
-                </div>
-              )}
-              </div>
-            )}
-
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <section className={firstSectionStyles}>
-              <div className="flex items-center"><UserIconLucide className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Identité</h2></div>
-              <div className={gridStyles}>
-                <div><label htmlFor="civilite_client" className={labelStyles}>Civilité</label><select id="civilite_client" name="civilite_client" value={formData.civilite_client} onChange={handleChange} className={inputStyles}><option value="M.">M.</option><option value="Mme">Mme</option><option value="Mlle">Mlle</option></select></div>
-                <div></div> 
-                <div><label htmlFor="nom_client" className={labelStyles}>Nom *</label><input id="nom_client" type="text" name="nom_client" value={formData.nom_client} onChange={handleChange} required className={inputStyles} /></div>
-                <div><label htmlFor="prenom_client" className={labelStyles}>Prénom *</label><input id="prenom_client" type="text" name="prenom_client" value={formData.prenom_client} onChange={handleChange} required className={inputStyles} /></div>
-                <div><label htmlFor="nom_usage_client" className={labelStyles}>Nom d'usage</label><input id="nom_usage_client" type="text" name="nom_usage_client" value={formData.nom_usage_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="date_naissance_client" className={labelStyles}>Date de Naissance</label><input id="date_naissance_client" type="date" name="date_naissance_client" value={formData.date_naissance_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="lieu_naissance_client" className={labelStyles}>Lieu de Naissance</label><input id="lieu_naissance_client" type="text" name="lieu_naissance_client" value={formData.lieu_naissance_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="nationalite_client" className={labelStyles}>Nationalité</label><input id="nationalite_client" type="text" name="nationalite_client" value={formData.nationalite_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="numero_fiscal_client" className={labelStyles}>N° Fiscal</label><input id="numero_fiscal_client" type="text" name="numero_fiscal_client" value={formData.numero_fiscal_client} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-            </section>
-
-            <section className={sectionContainerStyles}>
-              <div className="flex items-center"><Home className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Coordonnées</h2></div>
-              <div className={gridStyles}>
-                <div><label htmlFor="email_client" className={labelStyles}>Email</label><input id="email_client" type="email" name="email_client" value={formData.email_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="telephone_principal_client" className={labelStyles}>Téléphone Principal</label><input id="telephone_principal_client" type="tel" name="telephone_principal_client" value={formData.telephone_principal_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="telephone_secondaire_client" className={labelStyles}>Téléphone Secondaire</label><input id="telephone_secondaire_client" type="tel" name="telephone_secondaire_client" value={formData.telephone_secondaire_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="pays_residence_fiscale_client" className={labelStyles}>Pays de Résidence Fiscale</label><input id="pays_residence_fiscale_client" type="text" name="pays_residence_fiscale_client" value={formData.pays_residence_fiscale_client} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="adresse_postale_client" className={labelStyles}>Adresse Postale</label><input id="adresse_postale_client" type="text" name="adresse_postale_client" value={formData.adresse_postale_client} onChange={handleChange} className={inputStyles} /></div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
-                <div><label htmlFor="code_postal_client" className={labelStyles}>Code Postal</label><input id="code_postal_client" type="text" name="code_postal_client" value={formData.code_postal_client} onChange={handleChange} className={inputStyles} /></div>
-                <div className="sm:col-span-2"><label htmlFor="ville_client" className={labelStyles}>Ville</label><input id="ville_client" type="text" name="ville_client" value={formData.ville_client} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-            </section>
-
-            <section className={sectionContainerStyles}>
-              <div className="flex items-center"><UsersGroupIcon className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Situation Familiale</h2></div>
-              <div className={gridStyles}>
-                <div><label htmlFor="situation_maritale_client" className={labelStyles}>Situation Maritale</label><select id="situation_maritale_client" name="situation_maritale_client" value={formData.situation_maritale_client} onChange={handleChange} className={inputStyles}><option value="Célibataire">Célibataire</option><option value="Marié(e)">Marié(e)</option><option value="Pacsé(e)">Pacsé(e)</option><option value="Divorcé(e)">Divorcé(e)</option><option value="Veuf(ve)">Veuf(ve)</option></select></div>
-                <div><label htmlFor="date_mariage_pacs_client" className={labelStyles}>Date Mariage/PACS</label><input id="date_mariage_pacs_client" type="date" name="date_mariage_pacs_client" value={formData.date_mariage_pacs_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="regime_matrimonial_client" className={labelStyles}>Régime Matrimonial</label><input id="regime_matrimonial_client" type="text" name="regime_matrimonial_client" value={formData.regime_matrimonial_client} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="nombre_enfants_a_charge_client" className={labelStyles}>Nombre d'enfants à charge</label><input id="nombre_enfants_a_charge_client" type="number" name="nombre_enfants_a_charge_client" value={formData.nombre_enfants_a_charge_client} onChange={handleChange} min="0" className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="details_enfants_client_json_str" className={labelStyles}>Détails Enfants (Format JSON Array)</label><textarea id="details_enfants_client_json_str" name="details_enfants_client_json_str" value={formData.details_enfants_client_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"prenom": "Leo", "date_naissance": "2010-05-20"}]'></textarea></div>
-              <div><label htmlFor="personnes_dependantes_client" className={labelStyles}>Autres personnes dépendantes</label><textarea id="personnes_dependantes_client" name="personnes_dependantes_client" value={formData.personnes_dependantes_client} onChange={handleChange} className={textAreaStyles}></textarea></div>
-            </section>
-
-            <section className={sectionContainerStyles}>
-              <div className="flex items-center"><Briefcase className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Situation Professionnelle & Revenus</h2></div>
-              <h3 className={sectionSubHeaderStyles}>Client Principal</h3>
-              <div className={gridStyles}>
-                <div><label htmlFor="profession_client1" className={labelStyles}>Profession</label><input id="profession_client1" type="text" name="profession_client1" value={formData.profession_client1} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="statut_professionnel_client1" className={labelStyles}>Statut Pro</label><input id="statut_professionnel_client1" type="text" name="statut_professionnel_client1" value={formData.statut_professionnel_client1} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="nom_employeur_entreprise_client1" className={labelStyles}>Employeur/Entreprise</label><input id="nom_employeur_entreprise_client1" type="text" name="nom_employeur_entreprise_client1" value={formData.nom_employeur_entreprise_client1} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="type_contrat_client1" className={labelStyles}>Type Contrat</label><input id="type_contrat_client1" type="text" name="type_contrat_client1" value={formData.type_contrat_client1} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="revenu_net_annuel_client1" className={labelStyles}>Revenu Net Annuel</label><input id="revenu_net_annuel_client1" type="text" name="revenu_net_annuel_client1" value={formData.revenu_net_annuel_client1} onChange={handleChange} placeholder="Ex: 50000.00" className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="autres_revenus_client1_json_str" className={labelStyles}>Autres Revenus Client 1 (JSON Array)</label><textarea id="autres_revenus_client1_json_str" name="autres_revenus_client1_json_str" value={formData.autres_revenus_client1_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "Dividendes", "montant_annuel": 5000}]'></textarea></div>
-              
-              <h3 className={sectionSubHeaderStyles}>Conjoint / Client 2 (si applicable)</h3>
-              <div className={gridStyles}>
-                <div><label htmlFor="profession_client2" className={labelStyles}>Profession</label><input id="profession_client2" type="text" name="profession_client2" value={formData.profession_client2} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="statut_professionnel_client2" className={labelStyles}>Statut Pro</label><input id="statut_professionnel_client2" type="text" name="statut_professionnel_client2" value={formData.statut_professionnel_client2} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="revenu_net_annuel_client2" className={labelStyles}>Revenu Net Annuel</label><input id="revenu_net_annuel_client2" type="text" name="revenu_net_annuel_client2" value={formData.revenu_net_annuel_client2} onChange={handleChange} placeholder="Ex: 45000.00" className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="autres_revenus_client2_json_str" className={labelStyles}>Autres Revenus Client 2 (JSON Array)</label><textarea id="autres_revenus_client2_json_str" name="autres_revenus_client2_json_str" value={formData.autres_revenus_client2_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "BIC", "montant_annuel": 12000}]'></textarea></div>
-
-              <h3 className={sectionSubHeaderStyles}>Revenus Communs du Foyer</h3>
-              <div className={gridStyles}>
-                <div><label htmlFor="revenus_fonciers_annuels_bruts_foyer" className={labelStyles}>R. Fonciers Bruts</label><input id="revenus_fonciers_annuels_bruts_foyer" type="text" name="revenus_fonciers_annuels_bruts_foyer" value={formData.revenus_fonciers_annuels_bruts_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="charges_foncieres_deductibles_foyer" className={labelStyles}>Charges Foncières Déductibles</label><input id="charges_foncieres_deductibles_foyer" type="text" name="charges_foncieres_deductibles_foyer" value={formData.charges_foncieres_deductibles_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="revenus_capitaux_mobiliers_foyer" className={labelStyles}>RCM (Dividendes, Intérêts)</label><input id="revenus_capitaux_mobiliers_foyer" type="text" name="revenus_capitaux_mobiliers_foyer" value={formData.revenus_capitaux_mobiliers_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="plus_values_mobilieres_foyer" className={labelStyles}>Plus-Values Mobilières</label><input id="plus_values_mobilieres_foyer" type="text" name="plus_values_mobilieres_foyer" value={formData.plus_values_mobilieres_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="plus_values_immobilieres_foyer" className={labelStyles}>Plus-Values Immobilières</label><input id="plus_values_immobilieres_foyer" type="text" name="plus_values_immobilieres_foyer" value={formData.plus_values_immobilieres_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="benefices_industriels_commerciaux_foyer" className={labelStyles}>BIC</label><input id="benefices_industriels_commerciaux_foyer" type="text" name="benefices_industriels_commerciaux_foyer" value={formData.benefices_industriels_commerciaux_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="benefices_non_commerciaux_foyer" className={labelStyles}>BNC</label><input id="benefices_non_commerciaux_foyer" type="text" name="benefices_non_commerciaux_foyer" value={formData.benefices_non_commerciaux_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="pensions_retraites_percues_foyer" className={labelStyles}>Pensions/Retraites Reçues</label><input id="pensions_retraites_percues_foyer" type="text" name="pensions_retraites_percues_foyer" value={formData.pensions_retraites_percues_foyer} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="pensions_alimentaires_percues_foyer" className={labelStyles}>Pensions Alimentaires Reçues</label><input id="pensions_alimentaires_percues_foyer" type="text" name="pensions_alimentaires_percues_foyer" value={formData.pensions_alimentaires_percues_foyer} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="autres_revenus_foyer_details" className={labelStyles}>Autres Revenus du Foyer (Détails)</label><textarea id="autres_revenus_foyer_details" name="autres_revenus_foyer_details" value={formData.autres_revenus_foyer_details} onChange={handleChange} className={textAreaStyles}></textarea></div>
-            </section>
-            
-            <section className={sectionContainerStyles}>
-              <div className="flex items-center"><DollarSign className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Patrimoine</h2></div>
-              <h3 className={sectionSubHeaderStyles}>Immobilier</h3>
-              <div><label htmlFor="residence_principale_details_json_str" className={labelStyles}>Résidence Principale (JSON Object)</label><textarea id="residence_principale_details_json_str" name="residence_principale_details_json_str" value={formData.residence_principale_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"adresse\": \"...\", \"valeur_estimee\": 300000, \"capital_restant_du_emprunt\": 150000, \"date_acquisition\": \"2015-01-01\"}'></textarea></div>
-              <div><label htmlFor="residences_secondaires_details_json_str" className={labelStyles}>Résidences Secondaires (JSON Array)</label><textarea id="residences_secondaires_details_json_str" name="residences_secondaires_details_json_str" value={formData.residences_secondaires_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"adresse": "...", "valeur_estimee": 150000}]'></textarea></div>
-              <div><label htmlFor="investissements_locatifs_details_json_str" className={labelStyles}>Investissements Locatifs (JSON Array)</label><textarea id="investissements_locatifs_details_json_str" name="investissements_locatifs_details_json_str" value={formData.investissements_locatifs_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type_bien": "Appartement T2", "valeur": 120000, "loyer_annuel": 6000, "regime_fiscal": "LMNP"}]'></textarea></div>
-              <div><label htmlFor="autres_biens_immobiliers_details_json_str" className={labelStyles}>Autres Biens Immobiliers (SCPI, Terrains... JSON Array)</label><textarea id="autres_biens_immobiliers_details_json_str" name="autres_biens_immobiliers_details_json_str" value={formData.autres_biens_immobiliers_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "SCPI", "nom": "Corum XL", "valeur": 50000}]'></textarea></div>
-              
-              <h3 className={sectionSubHeaderStyles}>Financier</h3>
-              <div className={gridStyles}>
-                <div><label htmlFor="comptes_courants_solde_total_estime" className={labelStyles}>Solde Cpt Courants Estimé</label><input id="comptes_courants_solde_total_estime" type="text" name="comptes_courants_solde_total_estime" value={formData.comptes_courants_solde_total_estime} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="compte_titres_valeur_estimee" className={labelStyles}>Valeur Cpt-Titres Estimée</label><input id="compte_titres_valeur_estimee" type="text" name="compte_titres_valeur_estimee" value={formData.compte_titres_valeur_estimee} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="livrets_epargne_details_json_str" className={labelStyles}>Livrets Épargne (JSON Object)</label><textarea id="livrets_epargne_details_json_str" name="livrets_epargne_details_json_str" value={formData.livrets_epargne_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"Livret A\": 22000, \"LDDS\": 12000}'></textarea></div>
-              <div><label htmlFor="assurance_vie_details_json_str" className={labelStyles}>Assurances Vie (JSON Array)</label><textarea id="assurance_vie_details_json_str" name="assurance_vie_details_json_str" value={formData.assurance_vie_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"contrat": "Linxea Avenir", "valeur_rachat": 75000, "date_ouverture": "2010-01-01"}]'></textarea></div>
-              <div><label htmlFor="pea_details_json_str" className={labelStyles}>PEA (JSON Object)</label><textarea id="pea_details_json_str" name="pea_details_json_str" value={formData.pea_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"valeur\": 150000, \"date_ouverture\": \"2012-01-01\"}'></textarea></div>
-              <div><label htmlFor="epargne_retraite_details_json_str" className={labelStyles}>Épargne Retraite (PER, Madelin... JSON Array)</label><textarea id="epargne_retraite_details_json_str" name="epargne_retraite_details_json_str" value={formData.epargne_retraite_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "PER", "valeur": 30000}]'></textarea></div>
-              <div><label htmlFor="autres_placements_financiers_details" className={labelStyles}>Autres Placements (Crypto, Crowdfunding...)</label><textarea id="autres_placements_financiers_details" name="autres_placements_financiers_details" value={formData.autres_placements_financiers_details} onChange={handleChange} className={textAreaStyles}></textarea></div>
-
-              <h3 className={sectionSubHeaderStyles}>Professionnel (si applicable)</h3>
-              <div className={gridStyles}>
-                <div><label htmlFor="valeur_entreprise_parts_sociales" className={labelStyles}>Valeur Entreprise/Parts Sociales</label><input id="valeur_entreprise_parts_sociales" type="text" name="valeur_entreprise_parts_sociales" value={formData.valeur_entreprise_parts_sociales} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="comptes_courants_associes_solde" className={labelStyles}>Solde Cpt Courants Associé</label><input id="comptes_courants_associes_solde" type="text" name="comptes_courants_associes_solde" value={formData.comptes_courants_associes_solde} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-
-              <h3 className={sectionSubHeaderStyles}>Autres Biens & Dettes</h3>
-              <div className={gridStyles}>
-                <div><label htmlFor="vehicules_valeur_estimee" className={labelStyles}>Valeur Véhicules Estimée</label><input id="vehicules_valeur_estimee" type="text" name="vehicules_valeur_estimee" value={formData.vehicules_valeur_estimee} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="objets_art_valeur_estimee" className={labelStyles}>Valeur Objets d'Art Estimée</label><input id="objets_art_valeur_estimee" type="text" name="objets_art_valeur_estimee" value={formData.objets_art_valeur_estimee} onChange={handleChange} className={inputStyles} /></div>
-                <div><label htmlFor="credits_consommation_encours_total" className={labelStyles}>Crédits Conso. Encours</label><input id="credits_consommation_encours_total" type="text" name="credits_consommation_encours_total" value={formData.credits_consommation_encours_total} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="autres_dettes_details" className={labelStyles}>Autres Dettes (Détails)</label><textarea id="autres_dettes_details" name="autres_dettes_details" value={formData.autres_dettes_details} onChange={handleChange} className={textAreaStyles}></textarea></div>
-            </section>
-
-            <section className={sectionContainerStyles}>
-              <div className="flex items-center"><Target className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Objectifs & Projets</h2></div>
-              <div><label htmlFor="objectifs_fiscaux_client" className={labelStyles}>Objectifs Fiscaux</label><textarea id="objectifs_fiscaux_client" name="objectifs_fiscaux_client" value={formData.objectifs_fiscaux_client} onChange={handleChange} className={textAreaStyles} placeholder="Ex: Réduire IRPP, préparer transmission..."></textarea></div>
-              <div><label htmlFor="objectifs_patrimoniaux_client" className={labelStyles}>Objectifs Patrimoniaux</label><textarea id="objectifs_patrimoniaux_client" name="objectifs_patrimoniaux_client" value={formData.objectifs_patrimoniaux_client} onChange={handleChange} className={textAreaStyles} placeholder="Ex: Achat RP, épargne retraite..."></textarea></div>
-              <div className={gridStyles}>
-                <div><label htmlFor="horizon_placement_client" className={labelStyles}>Horizon de Placement</label><select id="horizon_placement_client" name="horizon_placement_client" value={formData.horizon_placement_client} onChange={handleChange} className={inputStyles}><option value="">Non défini</option><option value="Court terme">Court terme</option><option value="Moyen terme">Moyen terme</option><option value="Long terme">Long terme</option></select></div>
-                <div><label htmlFor="profil_risque_investisseur_client" className={labelStyles}>Profil de Risque</label><select id="profil_risque_investisseur_client" name="profil_risque_investisseur_client" value={formData.profil_risque_investisseur_client} onChange={handleChange} className={inputStyles}><option value="">Non défini</option><option value="Prudent">Prudent</option><option value="Équilibré">Équilibré</option><option value="Dynamique">Dynamique</option><option value="Agressif">Agressif</option></select></div>
-              </div>
-              <div><label htmlFor="notes_objectifs_projets_client" className={labelStyles}>Notes sur Objectifs/Projets</label><textarea id="notes_objectifs_projets_client" name="notes_objectifs_projets_client" value={formData.notes_objectifs_projets_client} onChange={handleChange} className={textAreaStyles}></textarea></div>
-            </section>
-
-            <section className={sectionContainerStyles}>
-              <div className="flex items-center"><FileTextIcon className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Informations Fiscales (Référence)</h2></div>
-              <div><label htmlFor="dernier_avis_imposition_details_json_str" className={labelStyles}>Dernier Avis d'Imposition (JSON Object)</label><textarea id="dernier_avis_imposition_details_json_str" name="dernier_avis_imposition_details_json_str" value={formData.dernier_avis_imposition_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"annee_revenus\": 2023, \"revenu_fiscal_reference\": 60000, \"montant_impot_net\": 5000}'></textarea></div>
-              <div className={gridStyles}>
-                <div><label htmlFor="tranche_marginale_imposition_estimee" className={labelStyles}>TMI Estimée (%)</label><input id="tranche_marginale_imposition_estimee" type="text" name="tranche_marginale_imposition_estimee" value={formData.tranche_marginale_imposition_estimee} onChange={handleChange} placeholder="Ex: 30" className={inputStyles} /></div>
-                <div><label htmlFor="ifi_concerne_client" className={labelStyles}>Soumis à l'IFI</label><select id="ifi_concerne_client" name="ifi_concerne_client" value={formData.ifi_concerne_client} onChange={handleChange} className={inputStyles}><option value="Non précisé">Non précisé</option><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
-              </div>
-              <div><label htmlFor="credits_reductions_impot_recurrents" className={labelStyles}>Crédits/Réductions Impôt Récurrents</label><textarea id="credits_reductions_impot_recurrents" name="credits_reductions_impot_recurrents" value={formData.credits_reductions_impot_recurrents} onChange={handleChange} className={textAreaStyles} placeholder="Ex: Emploi à domicile, dons aux oeuvres..."></textarea></div>
-              <div><label htmlFor="notes_fiscales_client" className={labelStyles}>Notes Fiscales Générales</label><textarea id="notes_fiscales_client" name="notes_fiscales_client" value={formData.notes_fiscales_client} onChange={handleChange} className={textAreaStyles}></textarea></div>
-            </section>
-
-            <section className="pt-6 space-y-4">
-              <div className="flex items-center"><EditIcon className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Suivi Professionnel (Interne)</h2></div>
-              <div className={gridStyles}>
-                <div><label htmlFor="statut_dossier_pro" className={labelStyles}>Statut du Dossier</label><select id="statut_dossier_pro" name="statut_dossier_pro" value={formData.statut_dossier_pro} onChange={handleChange} className={inputStyles}><option value="Actif">Actif</option><option value="Prospect">Prospect</option><option value="En attente informations">En attente informations</option><option value="Optimisation en cours">Optimisation en cours</option><option value="Suivi annuel">Suivi annuel</option><option value="Archivé">Archivé</option></select></div>
-                <div><label htmlFor="prochain_rendez_vous_pro" className={labelStyles}>Prochain RDV</label><input id="prochain_rendez_vous_pro" type="datetime-local" name="prochain_rendez_vous_pro" value={formData.prochain_rendez_vous_pro} onChange={handleChange} className={inputStyles} /></div>
-              </div>
-              <div><label htmlFor="notes_internes_pro" className={labelStyles}>Notes Internes (pour vous)</label><textarea id="notes_internes_pro" name="notes_internes_pro" value={formData.notes_internes_pro} onChange={handleChange} className={textAreaStyles}></textarea></div>
-            </section>
-
-            {error && <p className="text-sm text-red-400 mt-6 text-center py-2 px-4 bg-red-900/30 rounded-md border border-red-700">{error}</p>}
-            <div className="pt-8 flex justify-end">
-              <button type="submit" disabled={isLoading} className={buttonPrimaryStyles}>
-                {isLoading ? (
-                  <><div className="w-5 h-5 border-2 border-transparent border-t-[#0A192F] rounded-full animate-spin mr-2"></div>Enregistrement...</>
-                ) : (
-                  <><Save className="w-5 h-5 mr-2" />Enregistrer le Client</>
-                )}
+              {/* Bouton de dictée vocale */}
+              <button
+                onClick={() => setShowVoiceInput(!showVoiceInput)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
+              >
+                {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale IA'}</span>
               </button>
             </div>
-          </form>
+
+            {/* Interface de dictée vocale */}
+            {showVoiceInput && (
+              <div className="mb-8 p-6 bg-[#162238]/50 rounded-xl border border-[#c5a572]/30">
+                <div className="text-center mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2">🎤 Dictée vocale intelligente</h3>
+                  <p className="text-gray-400 text-sm">
+                    Parlez de votre profil client et Francis remplira automatiquement le formulaire
+                  </p>
+                </div>
+                
+                <VoiceRecorder
+                  onTranscriptionComplete={handleFinalTranscription}
+                  onError={handleVoiceError}
+                  className="mb-4"
+                />
+                
+                {voiceText && (
+                  <>
+                    <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-[#c5a572]/50">
+                      <div className="text-xs text-[#c5a572] mb-1">Texte dicté :</div>
+                      <div className="text-sm text-white whitespace-pre-wrap">{voiceText}</div>
+                    </div>
+                    <button
+                      onClick={() => analyzeWithAI(voiceText)}
+                      disabled={isAIAnalyzing}
+                      className="mt-4 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 mx-auto"
+                    >
+                      {isAIAnalyzing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="w-5 h-5" /> Analyser et pré-remplir
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+
+                {/* Indicateur d'analyse IA */}
+                {isAIAnalyzing && (
+                  <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-blue-500/50">
+                    <div className="flex items-center gap-2 text-blue-400">
+                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm">Francis analyse votre profil client...</span>
+                  </div>
+                </div>
+              )}
+
+                {/* Résultat de l'analyse IA */}
+                {aiAnalysisResult && !isAIAnalyzing && (
+                  <div className="mt-4 p-3 bg-[#1a2942] rounded-lg border border-green-500/50">
+                    <div className="text-sm text-green-400">{aiAnalysisResult}</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <section id="identite" className={firstSectionStyles}>
+                <div className="flex items-center"><UserIconLucide className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Identité</h2></div>
+                <div className={gridStyles}>
+                  <div><label htmlFor="civilite_client" className={labelStyles}>Civilité</label><select id="civilite_client" name="civilite_client" value={formData.civilite_client} onChange={handleChange} className={inputStyles}><option value="M.">M.</option><option value="Mme">Mme</option><option value="Mlle">Mlle</option></select></div>
+                  <div></div> 
+                  <div><label htmlFor="nom_client" className={labelStyles}>Nom *</label><input id="nom_client" type="text" name="nom_client" value={formData.nom_client} onChange={handleChange} required className={inputStyles} /></div>
+                  <div><label htmlFor="prenom_client" className={labelStyles}>Prénom *</label><input id="prenom_client" type="text" name="prenom_client" value={formData.prenom_client} onChange={handleChange} required className={inputStyles} /></div>
+                  <div><label htmlFor="nom_usage_client" className={labelStyles}>Nom d'usage</label><input id="nom_usage_client" type="text" name="nom_usage_client" value={formData.nom_usage_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="date_naissance_client" className={labelStyles}>Date de Naissance</label><input id="date_naissance_client" type="date" name="date_naissance_client" value={formData.date_naissance_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="lieu_naissance_client" className={labelStyles}>Lieu de Naissance</label><input id="lieu_naissance_client" type="text" name="lieu_naissance_client" value={formData.lieu_naissance_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="nationalite_client" className={labelStyles}>Nationalité</label><input id="nationalite_client" type="text" name="nationalite_client" value={formData.nationalite_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="numero_fiscal_client" className={labelStyles}>N° Fiscal</label><input id="numero_fiscal_client" type="text" name="numero_fiscal_client" value={formData.numero_fiscal_client} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+              </section>
+
+              <section id="coordonnees" className={sectionContainerStyles}>
+                <div className="flex items-center"><Home className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Coordonnées</h2></div>
+                <div className={gridStyles}>
+                  <div><label htmlFor="email_client" className={labelStyles}>Email</label><input id="email_client" type="email" name="email_client" value={formData.email_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="telephone_principal_client" className={labelStyles}>Téléphone Principal</label><input id="telephone_principal_client" type="tel" name="telephone_principal_client" value={formData.telephone_principal_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="telephone_secondaire_client" className={labelStyles}>Téléphone Secondaire</label><input id="telephone_secondaire_client" type="tel" name="telephone_secondaire_client" value={formData.telephone_secondaire_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="pays_residence_fiscale_client" className={labelStyles}>Pays de Résidence Fiscale</label><input id="pays_residence_fiscale_client" type="text" name="pays_residence_fiscale_client" value={formData.pays_residence_fiscale_client} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="adresse_postale_client" className={labelStyles}>Adresse Postale</label><input id="adresse_postale_client" type="text" name="adresse_postale_client" value={formData.adresse_postale_client} onChange={handleChange} className={inputStyles} /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  <div><label htmlFor="code_postal_client" className={labelStyles}>Code Postal</label><input id="code_postal_client" type="text" name="code_postal_client" value={formData.code_postal_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div className="sm:col-span-2"><label htmlFor="ville_client" className={labelStyles}>Ville</label><input id="ville_client" type="text" name="ville_client" value={formData.ville_client} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+              </section>
+
+              <section id="famille" className={sectionContainerStyles}>
+                <div className="flex items-center"><UsersGroupIcon className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Situation Familiale</h2></div>
+                <div className={gridStyles}>
+                  <div><label htmlFor="situation_maritale_client" className={labelStyles}>Situation Maritale</label><select id="situation_maritale_client" name="situation_maritale_client" value={formData.situation_maritale_client} onChange={handleChange} className={inputStyles}><option value="Célibataire">Célibataire</option><option value="Marié(e)">Marié(e)</option><option value="Pacsé(e)">Pacsé(e)</option><option value="Divorcé(e)">Divorcé(e)</option><option value="Veuf(ve)">Veuf(ve)</option></select></div>
+                  <div><label htmlFor="date_mariage_pacs_client" className={labelStyles}>Date Mariage/PACS</label><input id="date_mariage_pacs_client" type="date" name="date_mariage_pacs_client" value={formData.date_mariage_pacs_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="regime_matrimonial_client" className={labelStyles}>Régime Matrimonial</label><input id="regime_matrimonial_client" type="text" name="regime_matrimonial_client" value={formData.regime_matrimonial_client} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="nombre_enfants_a_charge_client" className={labelStyles}>Nombre d'enfants à charge</label><input id="nombre_enfants_a_charge_client" type="number" name="nombre_enfants_a_charge_client" value={formData.nombre_enfants_a_charge_client} onChange={handleChange} min="0" className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="details_enfants_client_json_str" className={labelStyles}>Détails Enfants (Format JSON Array)</label><textarea id="details_enfants_client_json_str" name="details_enfants_client_json_str" value={formData.details_enfants_client_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"prenom": "Leo", "date_naissance": "2010-05-20"}]'></textarea></div>
+                <div><label htmlFor="personnes_dependantes_client" className={labelStyles}>Autres personnes dépendantes</label><textarea id="personnes_dependantes_client" name="personnes_dependantes_client" value={formData.personnes_dependantes_client} onChange={handleChange} className={textAreaStyles}></textarea></div>
+              </section>
+
+              <section id="revenus" className={sectionContainerStyles}>
+                <div className="flex items-center"><Briefcase className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Situation Professionnelle & Revenus</h2></div>
+                <h3 className={sectionSubHeaderStyles}>Client Principal</h3>
+                <div className={gridStyles}>
+                  <div><label htmlFor="profession_client1" className={labelStyles}>Profession</label><input id="profession_client1" type="text" name="profession_client1" value={formData.profession_client1} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="statut_professionnel_client1" className={labelStyles}>Statut Pro</label><input id="statut_professionnel_client1" type="text" name="statut_professionnel_client1" value={formData.statut_professionnel_client1} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="nom_employeur_entreprise_client1" className={labelStyles}>Employeur/Entreprise</label><input id="nom_employeur_entreprise_client1" type="text" name="nom_employeur_entreprise_client1" value={formData.nom_employeur_entreprise_client1} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="type_contrat_client1" className={labelStyles}>Type Contrat</label><input id="type_contrat_client1" type="text" name="type_contrat_client1" value={formData.type_contrat_client1} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="revenu_net_annuel_client1" className={labelStyles}>Revenu Net Annuel</label><input id="revenu_net_annuel_client1" type="text" name="revenu_net_annuel_client1" value={formData.revenu_net_annuel_client1} onChange={handleChange} placeholder="Ex: 50000.00" className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="autres_revenus_client1_json_str" className={labelStyles}>Autres Revenus Client 1 (JSON Array)</label><textarea id="autres_revenus_client1_json_str" name="autres_revenus_client1_json_str" value={formData.autres_revenus_client1_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "Dividendes", "montant_annuel": 5000}]'></textarea></div>
+                
+                <h3 className={sectionSubHeaderStyles}>Conjoint / Client 2 (si applicable)</h3>
+                <div className={gridStyles}>
+                  <div><label htmlFor="profession_client2" className={labelStyles}>Profession</label><input id="profession_client2" type="text" name="profession_client2" value={formData.profession_client2} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="statut_professionnel_client2" className={labelStyles}>Statut Pro</label><input id="statut_professionnel_client2" type="text" name="statut_professionnel_client2" value={formData.statut_professionnel_client2} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="revenu_net_annuel_client2" className={labelStyles}>Revenu Net Annuel</label><input id="revenu_net_annuel_client2" type="text" name="revenu_net_annuel_client2" value={formData.revenu_net_annuel_client2} onChange={handleChange} placeholder="Ex: 45000.00" className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="autres_revenus_client2_json_str" className={labelStyles}>Autres Revenus Client 2 (JSON Array)</label><textarea id="autres_revenus_client2_json_str" name="autres_revenus_client2_json_str" value={formData.autres_revenus_client2_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "BIC", "montant_annuel": 12000}]'></textarea></div>
+
+                <h3 className={sectionSubHeaderStyles}>Revenus Communs du Foyer</h3>
+                <div className={gridStyles}>
+                  <div><label htmlFor="revenus_fonciers_annuels_bruts_foyer" className={labelStyles}>R. Fonciers Bruts</label><input id="revenus_fonciers_annuels_bruts_foyer" type="text" name="revenus_fonciers_annuels_bruts_foyer" value={formData.revenus_fonciers_annuels_bruts_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="charges_foncieres_deductibles_foyer" className={labelStyles}>Charges Foncières Déductibles</label><input id="charges_foncieres_deductibles_foyer" type="text" name="charges_foncieres_deductibles_foyer" value={formData.charges_foncieres_deductibles_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="revenus_capitaux_mobiliers_foyer" className={labelStyles}>RCM (Dividendes, Intérêts)</label><input id="revenus_capitaux_mobiliers_foyer" type="text" name="revenus_capitaux_mobiliers_foyer" value={formData.revenus_capitaux_mobiliers_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="plus_values_mobilieres_foyer" className={labelStyles}>Plus-Values Mobilières</label><input id="plus_values_mobilieres_foyer" type="text" name="plus_values_mobilieres_foyer" value={formData.plus_values_mobilieres_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="plus_values_immobilieres_foyer" className={labelStyles}>Plus-Values Immobilières</label><input id="plus_values_immobilieres_foyer" type="text" name="plus_values_immobilieres_foyer" value={formData.plus_values_immobilieres_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="benefices_industriels_commerciaux_foyer" className={labelStyles}>BIC</label><input id="benefices_industriels_commerciaux_foyer" type="text" name="benefices_industriels_commerciaux_foyer" value={formData.benefices_industriels_commerciaux_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="benefices_non_commerciaux_foyer" className={labelStyles}>BNC</label><input id="benefices_non_commerciaux_foyer" type="text" name="benefices_non_commerciaux_foyer" value={formData.benefices_non_commerciaux_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="pensions_retraites_percues_foyer" className={labelStyles}>Pensions/Retraites Reçues</label><input id="pensions_retraites_percues_foyer" type="text" name="pensions_retraites_percues_foyer" value={formData.pensions_retraites_percues_foyer} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="pensions_alimentaires_percues_foyer" className={labelStyles}>Pensions Alimentaires Reçues</label><input id="pensions_alimentaires_percues_foyer" type="text" name="pensions_alimentaires_percues_foyer" value={formData.pensions_alimentaires_percues_foyer} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="autres_revenus_foyer_details" className={labelStyles}>Autres Revenus du Foyer (Détails)</label><textarea id="autres_revenus_foyer_details" name="autres_revenus_foyer_details" value={formData.autres_revenus_foyer_details} onChange={handleChange} className={textAreaStyles}></textarea></div>
+              </section>
+              
+              <section id="patrimoine" className={sectionContainerStyles}>
+                <div className="flex items-center"><DollarSign className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Patrimoine</h2></div>
+                <h3 className={sectionSubHeaderStyles}>Immobilier</h3>
+                <div><label htmlFor="residence_principale_details_json_str" className={labelStyles}>Résidence Principale (JSON Object)</label><textarea id="residence_principale_details_json_str" name="residence_principale_details_json_str" value={formData.residence_principale_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"adresse\": \"...\", \"valeur_estimee\": 300000, \"capital_restant_du_emprunt\": 150000, \"date_acquisition\": \"2015-01-01\"}'></textarea></div>
+                <div><label htmlFor="residences_secondaires_details_json_str" className={labelStyles}>Résidences Secondaires (JSON Array)</label><textarea id="residences_secondaires_details_json_str" name="residences_secondaires_details_json_str" value={formData.residences_secondaires_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"adresse": "...", "valeur_estimee": 150000}]'></textarea></div>
+                <div><label htmlFor="investissements_locatifs_details_json_str" className={labelStyles}>Investissements Locatifs (JSON Array)</label><textarea id="investissements_locatifs_details_json_str" name="investissements_locatifs_details_json_str" value={formData.investissements_locatifs_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type_bien": "Appartement T2", "valeur": 120000, "loyer_annuel": 6000, "regime_fiscal": "LMNP"}]'></textarea></div>
+                <div><label htmlFor="autres_biens_immobiliers_details_json_str" className={labelStyles}>Autres Biens Immobiliers (SCPI, Terrains... JSON Array)</label><textarea id="autres_biens_immobiliers_details_json_str" name="autres_biens_immobiliers_details_json_str" value={formData.autres_biens_immobiliers_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "SCPI", "nom": "Corum XL", "valeur": 50000}]'></textarea></div>
+                
+                <h3 className={sectionSubHeaderStyles}>Financier</h3>
+                <div className={gridStyles}>
+                  <div><label htmlFor="comptes_courants_solde_total_estime" className={labelStyles}>Solde Cpt Courants Estimé</label><input id="comptes_courants_solde_total_estime" type="text" name="comptes_courants_solde_total_estime" value={formData.comptes_courants_solde_total_estime} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="compte_titres_valeur_estimee" className={labelStyles}>Valeur Cpt-Titres Estimée</label><input id="compte_titres_valeur_estimee" type="text" name="compte_titres_valeur_estimee" value={formData.compte_titres_valeur_estimee} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="livrets_epargne_details_json_str" className={labelStyles}>Livrets Épargne (JSON Object)</label><textarea id="livrets_epargne_details_json_str" name="livrets_epargne_details_json_str" value={formData.livrets_epargne_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"Livret A\": 22000, \"LDDS\": 12000}'></textarea></div>
+                <div><label htmlFor="assurance_vie_details_json_str" className={labelStyles}>Assurances Vie (JSON Array)</label><textarea id="assurance_vie_details_json_str" name="assurance_vie_details_json_str" value={formData.assurance_vie_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"contrat": "Linxea Avenir", "valeur_rachat": 75000, "date_ouverture": "2010-01-01"}]'></textarea></div>
+                <div><label htmlFor="pea_details_json_str" className={labelStyles}>PEA (JSON Object)</label><textarea id="pea_details_json_str" name="pea_details_json_str" value={formData.pea_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"valeur\": 150000, \"date_ouverture\": \"2012-01-01\"}'></textarea></div>
+                <div><label htmlFor="epargne_retraite_details_json_str" className={labelStyles}>Épargne Retraite (PER, Madelin... JSON Array)</label><textarea id="epargne_retraite_details_json_str" name="epargne_retraite_details_json_str" value={formData.epargne_retraite_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='[{"type": "PER", "valeur": 30000}]'></textarea></div>
+                <div><label htmlFor="autres_placements_financiers_details" className={labelStyles}>Autres Placements (Crypto, Crowdfunding...)</label><textarea id="autres_placements_financiers_details" name="autres_placements_financiers_details" value={formData.autres_placements_financiers_details} onChange={handleChange} className={textAreaStyles}></textarea></div>
+
+                <h3 className={sectionSubHeaderStyles}>Professionnel (si applicable)</h3>
+                <div className={gridStyles}>
+                  <div><label htmlFor="valeur_entreprise_parts_sociales" className={labelStyles}>Valeur Entreprise/Parts Sociales</label><input id="valeur_entreprise_parts_sociales" type="text" name="valeur_entreprise_parts_sociales" value={formData.valeur_entreprise_parts_sociales} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="comptes_courants_associes_solde" className={labelStyles}>Solde Cpt Courants Associé</label><input id="comptes_courants_associes_solde" type="text" name="comptes_courants_associes_solde" value={formData.comptes_courants_associes_solde} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+
+                <h3 className={sectionSubHeaderStyles}>Autres Biens & Dettes</h3>
+                <div className={gridStyles}>
+                  <div><label htmlFor="vehicules_valeur_estimee" className={labelStyles}>Valeur Véhicules Estimée</label><input id="vehicules_valeur_estimee" type="text" name="vehicules_valeur_estimee" value={formData.vehicules_valeur_estimee} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="objets_art_valeur_estimee" className={labelStyles}>Valeur Objets d'Art Estimée</label><input id="objets_art_valeur_estimee" type="text" name="objets_art_valeur_estimee" value={formData.objets_art_valeur_estimee} onChange={handleChange} className={inputStyles} /></div>
+                  <div><label htmlFor="credits_consommation_encours_total" className={labelStyles}>Crédits Conso. Encours</label><input id="credits_consommation_encours_total" type="text" name="credits_consommation_encours_total" value={formData.credits_consommation_encours_total} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="autres_dettes_details" className={labelStyles}>Autres Dettes (Détails)</label><textarea id="autres_dettes_details" name="autres_dettes_details" value={formData.autres_dettes_details} onChange={handleChange} className={textAreaStyles}></textarea></div>
+              </section>
+
+              <section id="objectifs" className={sectionContainerStyles}>
+                <div className="flex items-center"><Target className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Objectifs & Projets</h2></div>
+                <div><label htmlFor="objectifs_fiscaux_client" className={labelStyles}>Objectifs Fiscaux</label><textarea id="objectifs_fiscaux_client" name="objectifs_fiscaux_client" value={formData.objectifs_fiscaux_client} onChange={handleChange} className={textAreaStyles} placeholder="Ex: Réduire IRPP, préparer transmission..."></textarea></div>
+                <div><label htmlFor="objectifs_patrimoniaux_client" className={labelStyles}>Objectifs Patrimoniaux</label><textarea id="objectifs_patrimoniaux_client" name="objectifs_patrimoniaux_client" value={formData.objectifs_patrimoniaux_client} onChange={handleChange} className={textAreaStyles} placeholder="Ex: Achat RP, épargne retraite..."></textarea></div>
+                <div className={gridStyles}>
+                  <div><label htmlFor="horizon_placement_client" className={labelStyles}>Horizon de Placement</label><select id="horizon_placement_client" name="horizon_placement_client" value={formData.horizon_placement_client} onChange={handleChange} className={inputStyles}><option value="">Non défini</option><option value="Court terme">Court terme</option><option value="Moyen terme">Moyen terme</option><option value="Long terme">Long terme</option></select></div>
+                  <div><label htmlFor="profil_risque_investisseur_client" className={labelStyles}>Profil de Risque</label><select id="profil_risque_investisseur_client" name="profil_risque_investisseur_client" value={formData.profil_risque_investisseur_client} onChange={handleChange} className={inputStyles}><option value="">Non défini</option><option value="Prudent">Prudent</option><option value="Équilibré">Équilibré</option><option value="Dynamique">Dynamique</option><option value="Agressif">Agressif</option></select></div>
+                </div>
+                <div><label htmlFor="notes_objectifs_projets_client" className={labelStyles}>Notes sur Objectifs/Projets</label><textarea id="notes_objectifs_projets_client" name="notes_objectifs_projets_client" value={formData.notes_objectifs_projets_client} onChange={handleChange} className={textAreaStyles}></textarea></div>
+              </section>
+
+              <section id="fiscal" className={sectionContainerStyles}>
+                <div className="flex items-center"><FileTextIcon className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Informations Fiscales (Référence)</h2></div>
+                <div><label htmlFor="dernier_avis_imposition_details_json_str" className={labelStyles}>Dernier Avis d'Imposition (JSON Object)</label><textarea id="dernier_avis_imposition_details_json_str" name="dernier_avis_imposition_details_json_str" value={formData.dernier_avis_imposition_details_json_str} onChange={handleChange} className={textAreaStyles} placeholder='{\"annee_revenus\": 2023, \"revenu_fiscal_reference\": 60000, \"montant_impot_net\": 5000}'></textarea></div>
+                <div className={gridStyles}>
+                  <div><label htmlFor="tranche_marginale_imposition_estimee" className={labelStyles}>TMI Estimée (%)</label><input id="tranche_marginale_imposition_estimee" type="text" name="tranche_marginale_imposition_estimee" value={formData.tranche_marginale_imposition_estimee} onChange={handleChange} placeholder="Ex: 30" className={inputStyles} /></div>
+                  <div><label htmlFor="ifi_concerne_client" className={labelStyles}>Soumis à l'IFI</label><select id="ifi_concerne_client" name="ifi_concerne_client" value={formData.ifi_concerne_client} onChange={handleChange} className={inputStyles}><option value="Non précisé">Non précisé</option><option value="Oui">Oui</option><option value="Non">Non</option></select></div>
+                </div>
+                <div><label htmlFor="credits_reductions_impot_recurrents" className={labelStyles}>Crédits/Réductions Impôt Récurrents</label><textarea id="credits_reductions_impot_recurrents" name="credits_reductions_impot_recurrents" value={formData.credits_reductions_impot_recurrents} onChange={handleChange} className={textAreaStyles} placeholder="Ex: Emploi à domicile, dons aux oeuvres..."></textarea></div>
+                <div><label htmlFor="notes_fiscales_client" className={labelStyles}>Notes Fiscales Générales</label><textarea id="notes_fiscales_client" name="notes_fiscales_client" value={formData.notes_fiscales_client} onChange={handleChange} className={textAreaStyles}></textarea></div>
+              </section>
+
+              <section id="suivi" className="pt-6 space-y-4">
+                <div className="flex items-center"><EditIcon className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Suivi Professionnel (Interne)</h2></div>
+                <div className={gridStyles}>
+                  <div><label htmlFor="statut_dossier_pro" className={labelStyles}>Statut du Dossier</label><select id="statut_dossier_pro" name="statut_dossier_pro" value={formData.statut_dossier_pro} onChange={handleChange} className={inputStyles}><option value="Actif">Actif</option><option value="Prospect">Prospect</option><option value="En attente informations">En attente informations</option><option value="Optimisation en cours">Optimisation en cours</option><option value="Suivi annuel">Suivi annuel</option><option value="Archivé">Archivé</option></select></div>
+                  <div><label htmlFor="prochain_rendez_vous_pro" className={labelStyles}>Prochain RDV</label><input id="prochain_rendez_vous_pro" type="datetime-local" name="prochain_rendez_vous_pro" value={formData.prochain_rendez_vous_pro} onChange={handleChange} className={inputStyles} /></div>
+                </div>
+                <div><label htmlFor="notes_internes_pro" className={labelStyles}>Notes Internes (pour vous)</label><textarea id="notes_internes_pro" name="notes_internes_pro" value={formData.notes_internes_pro} onChange={handleChange} className={textAreaStyles}></textarea></div>
+              </section>
+
+              {error && <p className="text-sm text-red-400 mt-6 text-center py-2 px-4 bg-red-900/30 rounded-md border border-red-700">{error}</p>}
+              <div className="pt-8 flex justify-end">
+                <button type="submit" disabled={isLoading} className={buttonPrimaryStyles}>
+                  {isLoading ? (
+                    <><div className="w-5 h-5 border-2 border-transparent border-t-[#0A192F] rounded-full animate-spin mr-2"></div>Enregistrement...</>
+                  ) : (
+                    <><Save className="w-5 h-5 mr-2" />Enregistrer le Client</>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </main>
     </div>
