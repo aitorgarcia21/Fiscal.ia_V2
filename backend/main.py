@@ -105,9 +105,13 @@ GOCARDLESS_BASE_URL = "https://api-sandbox.gocardless.com" if GOCARDLESS_ENV == 
 
 # Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+
+# Gestion plus souple : ne pas bloquer l'application si la clé n'est pas définie.
 if not MISTRAL_API_KEY:
-    raise ValueError("MISTRAL_API_KEY doit être défini dans les variables d'environnement pour que l'application fonctionne.")
-mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
+    print("⚠️  WARNING : MISTRAL_API_KEY non défini. Les fonctionnalités IA basées sur Mistral seront désactivées.")
+    mistral_client = None  # type: ignore
+else:
+    mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 
 app = FastAPI(
     title="Fiscal.ia API",
