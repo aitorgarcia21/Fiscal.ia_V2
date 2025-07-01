@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield } from 'lucide-react';
+import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
 import { AuthModal } from '../components/auth/AuthModal';
@@ -25,6 +25,34 @@ const features = [
     icon: Shield,
     title: "Sécurité maximale",
     description: "Vos données sont chiffrées et hébergées en France. Conformité RGPD garantie."
+  }
+];
+
+// Étapes du processus
+const processSteps = [
+  {
+    step: "1",
+    title: "Activez Francis pendant votre entretien",
+    description: "Un simple clic et Francis écoute discrètement votre conversation",
+    icon: Mic
+  },
+  {
+    step: "2", 
+    title: "Parlez naturellement avec votre client",
+    description: "Francis transcrit et analyse en temps réel sans vous interrompre",
+    icon: Users
+  },
+  {
+    step: "3",
+    title: "Recevez votre synthèse structurée",
+    description: "Profil fiscal complet, opportunités identifiées, todo list générée",
+    icon: FileText
+  },
+  {
+    step: "4",
+    title: "Exportez en 1 clic",
+    description: "PDF pour le client, Excel pour vous, CSV pour votre logiciel",
+    icon: BarChart3
   }
 ];
 
@@ -76,8 +104,8 @@ const ProLandingPage = () => {
         {/* Hero Section simplifiée */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
-            Francis, votre assistant fiscal 
-            <span className="block text-[#c5a572] mt-2">intelligent</span>
+            Francis, le <span className="text-[#c5a572]">copilote</span>
+            <span className="block mt-2">des conseillers financiers</span>
           </h1>
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
             Francis écoute vos entretiens, prend des notes et génère vos rapports automatiquement. 
@@ -99,6 +127,48 @@ const ProLandingPage = () => {
             </button>
           </div>
         </main>
+
+        {/* Comment ça marche - Étapes concrètes */}
+        <section className="py-20 bg-gradient-to-b from-transparent to-[#162238]/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Comment ça marche concrètement
+              </h2>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+                Francis s'intègre naturellement dans votre flux de travail
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-6">
+              {processSteps.map((step, index) => (
+                <div key={index} className="relative">
+                  {index < processSteps.length - 1 && (
+                    <div className="hidden md:block absolute top-10 left-full w-full">
+                      <ChevronRight className="w-6 h-6 text-[#c5a572]/50 -ml-3" />
+                    </div>
+                  )}
+                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-6 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-10 h-10 bg-[#c5a572] rounded-full flex items-center justify-center text-[#162238] font-bold">
+                        {step.step}
+                      </div>
+                      <step.icon className="w-6 h-6 text-[#c5a572]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
+                    <p className="text-sm text-gray-300">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <p className="text-gray-300 mb-4">
+                Temps total : <span className="text-[#c5a572] font-semibold">moins de 5 minutes</span> après votre entretien
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Démo Section */}
         <section id="demo" className="py-20">
