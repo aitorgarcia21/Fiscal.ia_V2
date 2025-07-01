@@ -80,7 +80,7 @@ const ProLandingPage = () => {
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-white">de tous les conseillers financiers.</span>
           </h1>
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-             Francis écoute vos entretiens, structure les données, propose des optimisations et génère vos rapports en un clic (CSV, Excel, PDF). Vous restez concentré sur le conseil&nbsp;–&nbsp;il s'occupe du reste.
+            Concentrez-vous sur l'essentiel : votre client. Francis écoute vos entretiens, structure les données et génère vos rapports (CSV, Excel, PDF) en un clic. L'IA ne vous remplace pas ; elle amplifie votre expertise et l'expérience de vos clients.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-20">
             <button
