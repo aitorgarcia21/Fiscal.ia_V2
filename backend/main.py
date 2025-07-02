@@ -42,6 +42,9 @@ except ImportError:
 import io
 from pathlib import Path
 
+# Import outils Andorre
+from backend.calculs_andorra import calc_igi, calc_irpf
+
 # ------------------------------------------------------------------
 # Fallback : assurer l'existence des indicateurs d'embeddings
 # ------------------------------------------------------------------
