@@ -8,6 +8,7 @@ interface VoiceRecorderProps {
   onError?: (error: string) => void;
   disabled?: boolean;
   className?: string;
+  autoStart?: boolean;
 }
 
 const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -18,6 +19,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onError,
   disabled = false,
   className = '',
+  autoStart = false,
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
@@ -85,8 +87,20 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      // Si on était en cours d'enregistrement, renvoyer la transcription accumulée
+      if (isRecordingRef.current && accumulatedTextRef.current) {
+        onTranscriptionComplete(accumulatedTextRef.current.trim());
+      }
     };
   }, [onTranscriptionUpdate, onError]); // This effect should run only once.
+
+  // Démarrage automatique si demandé
+  useEffect(() => {
+    if (autoStart && !isRecording && recognitionRef.current) {
+      startRecording();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
 
   const startRecording = useCallback(() => {
     if (recognitionRef.current) {

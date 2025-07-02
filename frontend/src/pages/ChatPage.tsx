@@ -349,6 +349,7 @@ export function ChatPage() {
                 onError={handleVoiceError}
                 disabled={isLoading}
                 className="flex justify-center"
+                autoStart
               />
               {voiceInput && (
                 <p className="mt-2 text-sm text-gray-300">
