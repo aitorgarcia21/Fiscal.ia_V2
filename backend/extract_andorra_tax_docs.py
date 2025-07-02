@@ -28,7 +28,22 @@ CHUNK_SIZE = 1000  # caractères
 PDF_SOURCES = {
     "IRPF_5_2014.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%205_2014_IRPF.pdf",
     "IGI_95_2010.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2010_IGI.pdf",
-    "IS_95_2014.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2014_ImpostSocietats.pdf"
+    "IS_95_2014.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2014_ImpostSocietats.pdf",
+    # ---- Impôts directs ----
+    "Llei_5_2014_IRPF.pdf": "https://www.consellgeneral.ad/ca/arxiu/arxiu-de-lleis-i-textos-aprovats-en-legislatures-anteriors/vi-legislatura-2011-2015/copy_of_lleis-aprovades/llei-5-2014-del-24-d2019abril-de-l2019impost-sobre-la-renda-de-les-persones-fisiques/llei-5-2014.pdf",
+    "Llei_94_2010_IRNR.pdf": "https://www.consellgeneral.ad/fitxers/documents/lleis-2010/llei-94-2010.pdf",
+    "Llei_95_2010_IS.pdf": "https://www.consellgeneral.ad/fitxers/documents/lleis-2010/llei-95-2010.pdf",
+    "Llei_11_2005_Rendements_Epargne.pdf": "https://www.consellgeneral.ad/fitxers/documents/lleis-2005/llei-11-2005.pdf",
+    # ---- IGI ----
+    "Llei_16_2004_Modifications_IGI.pdf": "https://www.consellgeneral.ad/fitxers/documents/lleis-2004/llei-16-2004.pdf",
+    "Llei_11_2012_Text_refo_IGI.pdf": "https://www.consellgeneral.ad/ca/arxiu/arxiu-de-lleis-i-textos-aprovats-en-legislatures-anteriors/vi-legislatura-2011-2015/copy_of_lleis-aprovades/decret-legislatiu-del-23-07-2014-de-publicacio-del-text-refos-de-la-llei-11-2012-del-21-de-juny-de-l2019impost-general-indirecte/at_download/PDF",
+    # ---- Bases fiscales ----
+    "Llei_21_2014_Bases_Tributari.pdf": "https://www.consellgeneral.ad/fitxers/documents/lleis-2014/llei-21-2014.pdf",
+    # ---- Administration fiscale ----
+    "BOPA_61_2019_Codi_Administracio.pdf": "https://bopadocuments.blob.core.windows.net/bopa-documents/034048/pdf/CGL20220414_11_15_29.pdf",
+    # ---- Conventions internationales ----
+    "Convention_Andorre_France_2013.pdf": "https://www.impots.gouv.fr/sites/default/files/media/10_conventions/andorre/andorre_convention-avec-la-principaute-d-andorre-revenu-signee-le-2-avril-2013_fd_7522.pdf",
+    "OCDE_MLI_Signatories.pdf": "https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/beps-mli/beps-mli-signatories-and-parties.pdf"
 }
 
 BOPA_BASE = "https://www.bopa.ad"
