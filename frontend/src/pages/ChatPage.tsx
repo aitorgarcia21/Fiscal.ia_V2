@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog, Mic, MicOff, Volume2, Sparkles, AlertCircle } from 'lucide-react';
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, UserCog, Mic, MicOff, Volume2, Sparkles, AlertCircle, Globe2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui/Logo';
@@ -30,6 +30,7 @@ export function ChatPage() {
   const [voiceInput, setVoiceInput] = useState("");
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>('FR');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -76,7 +77,8 @@ export function ChatPage() {
       
       const payload: any = {
         question: currentInput,
-        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content }))
+        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content })),
+        jurisdiction,
       };
 
       if (userProfileContext) {
@@ -216,6 +218,19 @@ export function ChatPage() {
               >
                 Découvrir <ArrowRight className="ml-1 w-4 h-4" />
               </button>
+              {/* Sélecteur de juridiction */}
+              <div className="flex items-center gap-1 text-gray-300 text-sm">
+                <Globe2 className="w-4 h-4" />
+                <select
+                  value={jurisdiction}
+                  onChange={(e) => setJurisdiction(e.target.value as 'FR' | 'AD')}
+                  className="bg-transparent border-none focus:outline-none text-sm"
+                  aria-label="Juridiction"
+                >
+                  <option className="text-black" value="FR">FR</option>
+                  <option className="text-black" value="AD">AD</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

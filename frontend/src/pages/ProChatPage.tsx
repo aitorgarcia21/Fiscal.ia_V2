@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft, Globe2 } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -42,6 +42,8 @@ export function ProChatPage() {
   const [isLoadingClients, setIsLoadingClients] = useState(false);
   const [selectedClientProfile, setSelectedClientProfile] = useState<ClientProfile | null>(null);
   const [isLoadingClientProfile, setIsLoadingClientProfile] = useState(false);
+
+  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>('FR');
 
   // Charger la liste des clients du professionnel au montage
   useEffect(() => {
@@ -95,7 +97,8 @@ export function ProChatPage() {
     let payload: any = {
       question: currentInput,
       // L'historique est constitué des messages précédents avant le nouveau message utilisateur
-      conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content }))
+      conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content })),
+      jurisdiction
     };
 
     if (selectedClientId) {
@@ -104,7 +107,8 @@ export function ProChatPage() {
       // conversation_history est attendu à la racine par get_fiscal_response
       payload = {
         query: currentInput,
-        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content }))
+        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content })),
+        jurisdiction
       };
       // Le contexte client sera géré par le backend pour cet endpoint
     } else {
@@ -159,6 +163,20 @@ export function ProChatPage() {
               <div>
                 <h1 className="text-xl font-bold text-white">Chat Pro</h1>
                 <p className="text-sm text-gray-400">Assistant pour vos clients</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 text-gray-300 text-sm">
+                <Globe2 className="w-4 h-4" />
+                <select
+                  value={jurisdiction}
+                  onChange={(e) => setJurisdiction(e.target.value as 'FR' | 'AD')}
+                  className="bg-transparent border-none focus:outline-none text-sm"
+                  aria-label="Juridiction"
+                >
+                  <option className="text-black" value="FR">FR</option>
+                  <option className="text-black" value="AD">AD</option>
+                </select>
               </div>
             </div>
             <button
