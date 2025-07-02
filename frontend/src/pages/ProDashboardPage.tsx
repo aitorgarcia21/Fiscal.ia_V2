@@ -89,6 +89,12 @@ export function ProDashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/pro/extension')}
+              className="px-4 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-gray-300 hover:text-white hover:border-[#c5a572]/50 transition-colors text-sm"
+            >
+              Extension Chrome
+            </button>
             <span className="text-sm text-gray-300 hidden md:block">
               {professionalName}
             </span>

@@ -22,6 +22,7 @@ import ProLandingPage from './pages/ProLandingPage';
 import { ProChatPage } from './pages/ProChatPage';
 import { ProAgendaPage } from './pages/ProAgendaPage';
 import { ProSettingsPage } from './pages/ProSettingsPage';
+import { ProExtensionPage } from './pages/ProExtensionPage';
 // import { ProfilePage } from './pages/ProfilePage';
 import { SuccessPage } from './pages/SuccessPage';
 // import { AccountPage } from './pages/AccountPage';
@@ -95,6 +96,7 @@ function App() {
             <Route path="/pro/chat" element={<ProChatPage />} />
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
             <Route path="/pro/settings" element={<ProSettingsPage />} />
+            <Route path="/pro/extension" element={<ProExtensionPage />} />
           </Route>
           <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>
