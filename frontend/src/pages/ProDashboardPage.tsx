@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -70,7 +70,7 @@ export function ProDashboardPage() {
   const professionalName = user?.user_metadata?.full_name || user?.email || 'Professionnel';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
       {/* Header amélioré avec logo */}
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
@@ -78,11 +78,11 @@ export function ProDashboardPage() {
             {/* Logo Francis (bulle + euro) */}
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group">
-                <MessageSquareIcon className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Dashboard Pro</h1>
+                <h1 className="text-2xl font-bold text-white">Francis</h1>
                 <p className="text-sm text-[#c5a572] font-medium">Le copilote financier</p>
               </div>
             </div>
@@ -108,7 +108,7 @@ export function ProDashboardPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/pro/chat')}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
             >
               <MessageSquareIcon className="w-5 h-5" />
               <span className="font-semibold">Francis Pro</span>
@@ -266,6 +266,16 @@ export function ProDashboardPage() {
           </>
         )}
       </div>
+      {/* Footer */}
+      <footer className="mt-auto bg-[#162238] border-t border-[#c5a572]/20 p-4 text-center">
+        <button
+          onClick={() => navigate('/pro/settings')}
+          className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+        >
+          <Settings className="w-5 h-5" />
+          Paramètres
+        </button>
+      </footer>
     </div>
   );
 } 
