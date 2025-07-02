@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Any, Dict, Optional, Union
+from typing import List, Any, Dict, Optional, Union, Literal
 import asyncio
 import json
 import uuid
@@ -341,6 +341,7 @@ async def analyze_client_profile(
 class AskFrancisRequest(BaseModel):
     query: str
     conversation_history: Optional[List[Dict[str, str]]] = None
+    jurisdiction: Literal["FR", "AD"] = "FR"
 
 class FrancisClientResponse(BaseModel):
     answer: str
@@ -450,7 +451,8 @@ async def ask_francis_for_client(
         answer, sources, confidence = get_fiscal_response(
             query=request.query,
             conversation_history=request.conversation_history,
-            user_profile_context=client_context 
+            user_profile_context=client_context,
+            jurisdiction=request.jurisdiction
         )
         return FrancisClientResponse(answer=answer, sources=sources, confidence=confidence)
     except Exception as e:

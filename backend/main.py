@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List, Dict, Any, Generator
+from typing import Optional, List, Dict, Any, Generator, Literal
 import os
 import json
 from datetime import datetime, timedelta, timezone
@@ -275,6 +275,7 @@ class QuestionRequest(BaseModel):
     question: str
     conversation_history: Optional[List[ChatMessage]] = None
     user_profile_context: Optional[Dict[str, Any]] = None
+    jurisdiction: Literal["FR", "AD"] = "FR"
 
 class QuestionResponse(BaseModel):
     answer: str
@@ -791,7 +792,8 @@ async def ask_question(
         answer, sources, confidence = get_fiscal_response(
             request.question, 
             conversation_history_dicts, 
-            request.user_profile_context
+            request.user_profile_context,
+            request.jurisdiction
         )
         answer = clean_markdown_formatting(answer)
 

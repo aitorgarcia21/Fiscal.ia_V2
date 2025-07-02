@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List, Dict, Tuple, AsyncGenerator, Optional
+from typing import List, Dict, Tuple, AsyncGenerator, Optional, Literal
 import typing
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
@@ -14,6 +14,13 @@ try:
 except ImportError:
     CGI_EMBEDDINGS_AVAILABLE = False
     BOFIP_EMBEDDINGS_AVAILABLE = False
+
+# Import des embeddings andorrans
+try:
+    from mistral_andorra_embeddings import search_similar_chunks as search_similar_andorra_chunks
+    ANDORRA_EMBEDDINGS_AVAILABLE = True
+except ImportError:
+    ANDORRA_EMBEDDINGS_AVAILABLE = False
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -99,7 +106,7 @@ def get_quick_answer(query: str) -> tuple[str, bool]:
     """Retourne toujours une réponse vide pour forcer une recherche approfondie dans les sources officielles."""
     return "", False
 
-def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None):
+def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None, jurisdiction: Literal["FR", "AD"] = "FR"):
     """
     Génère une réponse fiscale en utilisant RAG avec les sources officielles.
     """
@@ -111,53 +118,78 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
     if user_profile_context:
         user_context_str = f"\n\nContexte utilisateur:\n{json.dumps(user_profile_context, indent=2, ensure_ascii=False)}"
     
-    # 1. Recherche dans le CGI (source principale)
-    context_from_sources = ""
-    official_sources = []
-    
-    try:
-        if CGI_EMBEDDINGS_AVAILABLE:
-            print(f"🔍 Recherche CGI pour: {query[:100]}...")
-            cgi_chunks = search_cgi_embeddings(query, max_results=3)
-            print(f"📄 Chunks CGI trouvés: {len(cgi_chunks)}")
-            
-            if cgi_chunks:
-                context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
-                for chunk in cgi_chunks:
-                    chunk_content = chunk.get('content', '')[:2000]
-                    chunk_source = chunk.get('source', 'CGI Article N/A')
-                    context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
-                    official_sources.append(chunk_source)
-                context_from_sources += "\n" + "="*60 + "\n\n"
-            else:
-                print("⚠️ Aucun chunk CGI trouvé")
-        else:
-            print("❌ Embeddings CGI non disponibles")
-    except Exception as e:
-        print(f"❌ Erreur lors de la recherche CGI: {e}")
-    
-    # 2. Recherche dans le BOFiP (complément officiel)
-    try:
-        if BOFIP_EMBEDDINGS_AVAILABLE:
-            print(f"🔍 Recherche BOFiP pour: {query[:100]}...")
-            bofip_chunks = search_bofip_embeddings(query, max_results=3)
-            print(f"📄 Chunks BOFiP trouvés: {len(bofip_chunks)}")
-            
-            if bofip_chunks:
-                context_from_sources += "=== BULLETIN OFFICIEL DES FINANCES PUBLIQUES (BOFiP) ===\n\n"
-                for chunk in bofip_chunks:
-                    if validate_official_source({'type': 'BOFIP', 'path': 'bofip_chunks'}):
+    # Si juridiction = AD (Andorre), on utilise les embeddings andorrans et on ignore CGI/BOFIP
+    if jurisdiction == "AD":
+        context_from_sources = ""
+        official_sources = []
+
+        try:
+            if ANDORRA_EMBEDDINGS_AVAILABLE:
+                print(f"🔍 Recherche Lois Andorranes pour: {query[:100]}...")
+                andorra_chunks = search_similar_andorra_chunks(query, top_k=3)
+                print(f"📄 Chunks Andorre trouvés: {len(andorra_chunks)}")
+
+                if andorra_chunks:
+                    context_from_sources += "=== LÉGISLATION FISCALE ANDORRANE ===\n\n"
+                    for chunk in andorra_chunks:
                         chunk_content = chunk.get('text', '')[:2000]
-                        chunk_source = f"BOFiP - {chunk.get('file', 'Chunk N/A')}"
+                        chunk_source = chunk.get('file', 'Texte Andorran')
                         context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
                         official_sources.append(chunk_source)
-                context_from_sources += "\n" + "="*60 + "\n\n"
+                    context_from_sources += "\n" + "="*60 + "\n\n"
+                else:
+                    print("⚠️ Aucun chunk Andorran trouvé")
             else:
-                print("⚠️ Aucun chunk BOFiP trouvé")
-        else:
-            print("❌ Embeddings BOFiP non disponibles")
-    except Exception as e:
-        print(f"❌ Erreur lors de la recherche BOFiP: {e}")
+                print("❌ Embeddings Andorrans non disponibles")
+        except Exception as e:
+            print(f"❌ Erreur lors de la recherche Andorre: {e}")
+
+        # Fallback commun si aucune source trouvée (réutilise la logique plus bas)
+
+    else:
+        # 1. Recherche dans le CGI (source principale)
+        context_from_sources = ""
+        official_sources = []
+
+        try:
+            if CGI_EMBEDDINGS_AVAILABLE:
+                print(f"🔍 Recherche CGI pour: {query[:100]}...")
+                cgi_chunks = search_cgi_embeddings(query, max_results=3)
+                print(f"📄 Chunks CGI trouvés: {len(cgi_chunks)}")
+
+                if cgi_chunks:
+                    context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
+                    for chunk in cgi_chunks:
+                        chunk_content = chunk.get('content', '')[:2000]
+                        chunk_source = chunk.get('source', 'CGI Article N/A')
+                        context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
+                        official_sources.append(chunk_source)
+                    context_from_sources += "\n" + "="*60 + "\n\n"
+                else:
+                    print("⚠️ Aucun chunk CGI trouvé")
+        except Exception as e:
+            print(f"❌ Erreur lors de la recherche CGI: {e}")
+
+        # 2. Recherche dans le BOFiP (complément officiel)
+        try:
+            if BOFIP_EMBEDDINGS_AVAILABLE:
+                print(f"🔍 Recherche BOFiP pour: {query[:100]}...")
+                bofip_chunks = search_bofip_embeddings(query, max_results=3)
+                print(f"📄 Chunks BOFiP trouvés: {len(bofip_chunks)}")
+
+                if bofip_chunks:
+                    context_from_sources += "=== BULLETIN OFFICIEL DES FINANCES PUBLIQUES (BOFiP) ===\n\n"
+                    for chunk in bofip_chunks:
+                        if validate_official_source({'type': 'BOFIP', 'path': 'bofip_chunks'}):
+                            chunk_content = chunk.get('text', '')[:2000]
+                            chunk_source = f"BOFiP - {chunk.get('file', 'Chunk N/A')}"
+                            context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
+                            official_sources.append(chunk_source)
+                    context_from_sources += "\n" + "="*60 + "\n\n"
+                else:
+                    print("⚠️ Aucun chunk BOFiP trouvé")
+        except Exception as e:
+            print(f"❌ Erreur lors de la recherche BOFiP: {e}")
     
     # 3. Fallback vers les embeddings de base si aucune source trouvée
     if not context_from_sources:
@@ -190,7 +222,27 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
                              + "Les informations suivantes reposent sur les principes généraux du droit fiscal français, " \
                              + "les pratiques courantes de planification patrimoniale et l'expérience de Francis en tant que conseiller CGP.\n\n"
     
-    system_message = """Tu es Francis, expert-comptable et conseiller fiscal spécialisé dans le droit fiscal français.
+    # Adapter le message système selon la juridiction
+    if jurisdiction == "AD":
+        system_message = """Tu es Francis, expert fiscal spécialiste du droit fiscal andorran.
+
+RÈGLES DE RÉPONSE :
+1. Base-toi PRIORITAIREMENT sur les textes officiels andorrans fournis ci-dessous.
+2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux andorrans.
+3. Pour les questions transfrontalières (France ↔ Andorre), explique les principes et conventions applicables.
+4. Cite les articles de loi ou décrets andorrans quand c'est pertinent et précis.
+5. Si l'information exacte n'est pas disponible, recommande de consulter un professionnel local.
+6. Sois toujours utile et informatif, même avec des informations partielles.
+7. Réponds en français de manière claire, structurée et professionnelle.
+7. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
+8. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
+9. Vérifie tes calculs avant de répondre.
+10. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+
+SOURCES OFFICIELLES DISPONIBLES :
+"""
+    else:
+        system_message = """Tu es Francis, expert-comptable et conseiller fiscal spécialisé dans le droit fiscal français.
 
 RÈGLES DE RÉPONSE :
 1. Base-toi PRIORITAIREMENT sur les textes officiels du CGI et BOFiP fournis ci-dessous.
@@ -242,7 +294,7 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisate
     final_answer = answer
     
     # Score de confiance basé sur la qualité des sources officielles
-    confidence_score = min(1.0, len(official_sources) / 2.0) if official_sources else 0.1 # Ajusté pour être plus sensible
+    confidence_score = min(1.0, len(official_sources) / 2.0) if official_sources else 0.1
     
     return final_answer, list(set(official_sources)), confidence_score
 
