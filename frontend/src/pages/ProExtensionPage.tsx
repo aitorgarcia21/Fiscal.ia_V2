@@ -26,7 +26,7 @@ export function ProExtensionPage() {
           <li>
             Téléchargez le fichier zip de l’extension&nbsp;:
             <a
-              href="https://github.com/aitorgarcia21/Francis-Autofill-Extension/archive/refs/heads/main.zip"
+              href="https://github.com/aitorgarcia21/Fiscal.ia_V2/archive/refs/heads/main.zip"
               className="text-[#c5a572] hover:underline ml-1"
               target="_blank" rel="noopener noreferrer"
             >

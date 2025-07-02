@@ -1,0 +1,38 @@
+{
+  "name": "Remplir avec Francis",
+  "description": "Remplit automatiquement les formulaires grâce à votre IA Francis.",
+  "version": "0.1.0",
+  "manifest_version": 3,
+
+  "host_permissions": [
+    "https://api.francis.ai/*"
+  ],
+  "permissions": ["activeTab", "storage"],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Francis",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+} 
