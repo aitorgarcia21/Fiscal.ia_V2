@@ -1,0 +1,26 @@
+{
+  "version": "2025.1",
+  "ir_bareme": [
+    { "inf": 0, "sup": 11329, "taux": 0.00 },
+    { "inf": 11329, "sup": 29470, "taux": 0.11 },
+    { "inf": 29470, "sup": 78845, "taux": 0.30 },
+    { "inf": 78845, "sup": 168994, "taux": 0.41 },
+    { "inf": 168994, "sup": "inf", "taux": 0.45 }
+  ],
+  "plafond_per": 5070,
+  "plafond_pinel_plus": 300000,
+  "lmnp_micro_seuil": 77000,
+  "lmnp_micro_abattement": 0.5,
+  "crypto_pfu_rate": 0.30,
+  "decote_celibataire": 1883,
+  "decote_couple": 3110,
+  "qf_cap_half_part": 1678,
+  "cehr_tranches": [
+    {"limite_inf": 0, "limite_sup": 0, "taux": 0.0},
+    {"limite_inf": 250000, "limite_sup": 500000, "taux": 0.03},
+    {"limite_inf": 500000, "limite_sup": 1000000, "taux": 0.04},
+    {"limite_inf": 1000000, "limite_sup": 1500000, "taux": 0.07},
+    {"limite_inf": 1500000, "limite_sup": "inf", "taux": 0.08}
+  ],
+  "prelevements_sociaux": 0.172
+} 

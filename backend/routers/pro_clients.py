@@ -6,7 +6,6 @@ import json
 import uuid
 from datetime import datetime
 from fastapi.responses import StreamingResponse
-import pandas as pd
 import io
 
 from backend.database import get_db
@@ -21,6 +20,12 @@ from backend.dependencies import supabase, verify_token
 from backend.assistant_fiscal_simple import get_fiscal_response
 from pydantic import BaseModel
 from decimal import Decimal
+from backend.calculs_fiscaux import simulate_tax_scenario
+
+try:
+    import pandas as pd
+except ImportError:  # En environnement sans pandas (tests)
+    pd = None
 
 router = APIRouter(
     prefix="/api/pro",
@@ -1222,4 +1227,51 @@ async def export_client_excel(
     filename = f"profil_client_{client_id}.xlsx"
     return StreamingResponse(buffer, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={
         "Content-Disposition": f"attachment; filename={filename}"
-    }) 
+    })
+
+class SimulationScenario(BaseModel):
+    label: str = "Scenario"
+    per_versement: float = 0.0
+    lmnp_revenus_brut: float = 0.0
+    pinel_investissement: float = 0.0
+    crypto_plus_value: float = 0.0
+
+class SimulationResult(BaseModel):
+    label: str
+    ir_base: float
+    ir_apres: float
+    economie: float
+    tax_crypto: Optional[float] = None
+    cehr: Optional[float] = None
+    impot_total: Optional[float] = None
+
+@router.post("/clients/{client_id}/simulate", response_model=List[SimulationResult])
+async def simulate_scenarios(
+    client_id: int,
+    scenarios: List[SimulationScenario],
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    db_client = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if db_client is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client non trouvé")
+
+    revenu_net_global = _calculate_revenu_net_global_imposable(db_client)
+    nombre_parts = _calculate_nombre_parts(db_client.situation_maritale_client, db_client.nombre_enfants_a_charge_client)
+
+    results: List[SimulationResult] = []
+    for scen in scenarios:
+        values = simulate_tax_scenario(
+            revenu_net_global,
+            nombre_parts,
+            per_versement=scen.per_versement,
+            lmnp_revenus_brut=scen.lmnp_revenus_brut,
+            pinel_investissement=scen.pinel_investissement,
+            crypto_plus_value=scen.crypto_plus_value,
+        )
+        results.append(SimulationResult(label=scen.label, **values))
+    return results 

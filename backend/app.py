@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .main import api_router, pro_clients_router # Importer les routeurs
 from .main import startup_event # Importer l'événement startup
+from backend.routers import pro_clients
+from backend.routers import meta
 
 # Créer l'instance de l'application principale
 app = FastAPI(
@@ -23,6 +25,8 @@ app.add_middleware(
 # C'est ici que toutes les routes API sont enregistrées
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)
+app.include_router(pro_clients.router)
+app.include_router(meta.router)
 
 # Enregistrer l'événement de démarrage
 app.on_event("startup")(startup_event)
