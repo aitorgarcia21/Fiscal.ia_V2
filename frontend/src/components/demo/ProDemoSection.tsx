@@ -386,7 +386,7 @@ const ReportView = () => (
   <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
     <h3 className="text-2xl font-bold text-white mb-6">Documents Générés</h3>
     
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {/* Rapport PDF */}
       <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C] hover:border-[#c5a572] transition-colors cursor-pointer">
         <div className="flex items-start justify-between mb-4">
@@ -428,6 +428,34 @@ const ReportView = () => (
       </div>
       <button className="mt-4 text-[#c5a572] hover:text-[#e8cfa0] text-sm font-medium">
         Envoyer l'email au client →
+      </button>
+    </div>
+
+    {/* Analyse détaillée */}
+    <div className="mt-8 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
+      <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
+        <BarChart className="w-5 h-5" /> Analyse détaillée (extrait)
+      </h4>
+      <p className="text-sm text-gray-300 mb-4">
+        Francis a identifié <span className="text-[#c5a572] font-semibold">5 axes d'optimisation</span> prioritaires :
+      </p>
+      <ul className="list-disc list-inside space-y-2 text-sm text-gray-400 mb-6">
+        <li>Ponction PER maximale : déduction jusqu'à 9 690 €</li>
+        <li>Passage LMNP réel : économie d'impôt estimée à 1 250 €</li>
+        <li>Dons IFI réallocation : réduction supplémentaire de 700 €</li>
+        <li>Arbitrage dividendes versus rémunération : gain social potentiel 1 100 €</li>
+        <li>Immobilier Pinel +: réduction d'impôt de 4 000 €/an sur 6 ans</li>
+      </ul>
+
+      <p className="text-sm text-gray-300 mb-2 font-semibold">Éléments manquants pour une analyse approfondie :</p>
+      <ul className="list-disc list-inside space-y-1 text-sm text-red-400 mb-4">
+        <li>Montant exact des charges locatives 2024</li>
+        <li>Relevés d'investissements financiers (PEA, CTO)</li>
+        <li>Capital restant dû sur emprunts immobiliers</li>
+      </ul>
+
+      <button className="mt-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
+        Voir l'analyse complète
       </button>
     </div>
   </div>
