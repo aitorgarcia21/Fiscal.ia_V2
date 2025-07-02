@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List
 import PyPDF2
 import textwrap
+import requests
 
 """
 Extract Andorran fiscal laws (PDF) and split them into manageable text chunks
@@ -21,6 +22,12 @@ Les chunks sont de 1 000 caractères max, sans chevauchement pour la simplicité
 PDF_DIR = Path('data/andorra_docs')
 CHUNKS_DIR = Path('data/andorra_chunks_text')
 CHUNK_SIZE = 1000  # caractères
+
+PDF_SOURCES = {
+    "IRPF_5_2014.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%205_2014_IRPF.pdf",
+    "IGI_95_2010.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2010_IGI.pdf",
+    "IS_95_2014.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2014_ImpostSocietats.pdf"
+}
 
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
@@ -51,7 +58,28 @@ def save_chunks(chunks: List[str]):
         filename.write_text(chunk, encoding='utf-8')
 
 
+def download_pdfs():
+    PDF_DIR.mkdir(parents=True, exist_ok=True)
+    for filename, url in PDF_SOURCES.items():
+        dest = PDF_DIR / filename
+        if dest.exists():
+            continue
+        try:
+            print(f"⬇️ Téléchargement de {url} …")
+            r = requests.get(url, timeout=30)
+            if r.status_code == 200 and r.headers.get('content-type', '').startswith('application/pdf'):
+                dest.write_bytes(r.content)
+                print(f"   → Enregistré sous {dest}")
+            else:
+                print(f"⚠️ Échec téléchargement {url} (code {r.status_code})")
+        except Exception as e:
+            print(f"❌ Erreur téléchargement {url}: {e}")
+
+
 def main():
+    # Étape 0 : télécharger les PDF si manquants
+    download_pdfs()
+
     if not PDF_DIR.exists() or not any(PDF_DIR.glob('*.pdf')):
         print(f"⚠️ Aucun PDF trouvé dans {PDF_DIR}. Placez-y les lois andorranes (PDF 2025) puis réexécutez.")
         return
