@@ -187,7 +187,7 @@ const demoConversation = [
   }
 ];
 
-const ConversationView = () => {
+const ConversationView = ({ onComplete }: { onComplete: () => void }) => {
   const [visibleMessages, setVisibleMessages] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -201,6 +201,9 @@ const ConversationView = () => {
           setIsRecording(true);
         } else if (msg.type === 'user_audio') {
           setTimeout(() => setIsRecording(false), 1500);
+        }
+        if (index === demoConversation.length - 1) {
+          setTimeout(() => onComplete(), 2000);
         }
       }, msg.delay);
       timers.push(timer);
@@ -251,79 +254,114 @@ const ConversationView = () => {
   );
 };
 
-const ClientView = () => (
-  <div className="p-8 h-[542px] overflow-y-auto">
-    <h3 className="text-2xl font-bold text-white mb-6">Profil Client Généré</h3>
-    
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Informations personnelles */}
-      <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
+const ClientView = ({ onComplete }: { onComplete: () => void }) => {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timers: NodeJS.Timeout[] = [];
+    [1,2,3,4].forEach((s, idx) => {
+      const t = setTimeout(() => setStep(s), (idx + 1) * 1500);
+      timers.push(t);
+    });
+    const doneTimer = setTimeout(onComplete, 6500);
+    timers.push(doneTimer);
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <div className="p-8 h-[542px] overflow-y-auto">
+      <h3 className="text-2xl font-bold text-white mb-6">Profil Client Généré</h3>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Informations personnelles */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: step >= 1 ? 1 : 0, y: step >= 1 ? 0 : 10 }}
+          transition={{ duration: 0.4 }}
+          className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]"
+        >
+          <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
+            <User className="w-5 h-5" />
+            M. Durand Jean-Pierre
+          </h4>
+          <div className="space-y-2 text-sm">
+            <p><span className="text-gray-400">Âge:</span> 42 ans</p>
+            <p><span className="text-gray-400">Situation familiale:</span> Marié, 2 enfants</p>
+            <p><span className="text-gray-400">Profession:</span> Ingénieur</p>
+            <p><span className="text-gray-400">Revenus annuels:</span> 85 000 €</p>
+          </div>
+        </motion.div>
+
+        {/* Patrimoine */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: step >= 2 ? 1 : 0, y: step >= 2 ? 0 : 10 }}
+          transition={{ duration: 0.4 }}
+          className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]"
+        >
+          <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
+            <Euro className="w-5 h-5" />
+            Patrimoine
+          </h4>
+          <div className="space-y-2 text-sm">
+            <p><span className="text-gray-400">Total:</span> 320 000 €</p>
+            <p><span className="text-gray-400">Résidence principale:</span> 220 000 €</p>
+            <p><span className="text-gray-400">Appartement locatif:</span> 100 000 €</p>
+            <p><span className="text-gray-400">Revenus locatifs:</span> 800 €/mois</p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Points d'attention */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: step >= 3 ? 1 : 0, y: step >= 3 ? 0 : 10 }}
+        transition={{ duration: 0.4 }}
+        className="mt-6 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]"
+      >
         <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-          <User className="w-5 h-5" />
-          M. Durand Jean-Pierre
+          <AlertCircle className="w-5 h-5" />
+          Points d'attention identifiés
         </h4>
-        <div className="space-y-2 text-sm">
-          <p><span className="text-gray-400">Âge:</span> 42 ans</p>
-          <p><span className="text-gray-400">Situation familiale:</span> Marié, 2 enfants</p>
-          <p><span className="text-gray-400">Profession:</span> Ingénieur</p>
-          <p><span className="text-gray-400">Revenus annuels:</span> 85 000 €</p>
-        </div>
-      </div>
-
-      {/* Patrimoine */}
-      <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
-        <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-          <Euro className="w-5 h-5" />
-          Patrimoine
-        </h4>
-        <div className="space-y-2 text-sm">
-          <p><span className="text-gray-400">Total:</span> 320 000 €</p>
-          <p><span className="text-gray-400">Résidence principale:</span> 220 000 €</p>
-          <p><span className="text-gray-400">Appartement locatif:</span> 100 000 €</p>
-          <p><span className="text-gray-400">Revenus locatifs:</span> 800 €/mois</p>
-        </div>
-      </div>
-    </div>
-
-    {/* Points d'attention */}
-    <div className="mt-6 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
-      <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-        <AlertCircle className="w-5 h-5" />
-        Points d'attention identifiés
-      </h4>
-      <div className="space-y-3">
-        <div className="flex items-start gap-3">
-          <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-          <div>
-            <p className="font-medium">TMI élevé (30%)</p>
-            <p className="text-sm text-gray-400">Opportunités de défiscalisation importantes</p>
+        <div className="space-y-3">
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+            <div>
+              <p className="font-medium">TMI élevé (30%)</p>
+              <p className="text-sm text-gray-400">Opportunités de défiscalisation importantes</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+            <div>
+              <p className="font-medium">Revenus fonciers non optimisés</p>
+              <p className="text-sm text-gray-400">Micro-foncier moins avantageux que le réel</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+            <div>
+              <p className="font-medium">Absence de PER</p>
+              <p className="text-sm text-gray-400">Potentiel de déduction important non exploité</p>
+            </div>
           </div>
         </div>
-        <div className="flex items-start gap-3">
-          <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-          <div>
-            <p className="font-medium">Revenus fonciers non optimisés</p>
-            <p className="text-sm text-gray-400">Micro-foncier moins avantageux que le réel</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3">
-          <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-          <div>
-            <p className="font-medium">Absence de PER</p>
-            <p className="text-sm text-gray-400">Potentiel de déduction important non exploité</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      </motion.div>
 
-    {/* Actions suivantes */}
-    <div className="mt-6 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 p-4 rounded-xl border border-[#c5a572]/30">
-      <p className="text-sm text-gray-300">
-        <strong className="text-[#c5a572]">Prochaines étapes :</strong> Demander l'avis d'imposition et les charges de l'appartement locatif pour affiner les calculs.
-      </p>
+      {/* Actions suivantes */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: step >= 4 ? 1 : 0, y: step >= 4 ? 0 : 10 }}
+        transition={{ duration: 0.4 }}
+        className="mt-6 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 p-4 rounded-xl border border-[#c5a572]/30"
+      >
+        <p className="text-sm text-gray-300">
+          <strong className="text-[#c5a572]">Prochaines étapes :</strong> Demander l'avis d'imposition et les charges de l'appartement locatif pour affiner les calculs.
+        </p>
+      </motion.div>
     </div>
-  </div>
-);
+  );
+};
 
 const ReportView = () => (
   <div className="p-8 h-[542px] overflow-y-auto">
@@ -401,14 +439,22 @@ const UpdatesView = () => (
 );
 
 const tabs = [
-    { id: 'chat', label: 'Entretien Client', icon: Mic, component: ConversationView },
-    { id: 'client', label: 'Profil Généré', icon: User, component: ClientView },
-    { id: 'report', label: 'Documents', icon: FileText, component: ReportView }
+    { id: 'chat', label: 'Entretien Client', icon: Mic },
+    { id: 'client', label: 'Profil Généré', icon: User },
+    { id: 'report', label: 'Documents', icon: FileText }
 ];
 
 export function ProDemoSection() {
   const [activeTab, setActiveTab] = useState('chat');
-  const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
+
+  const handleChatDone = () => setActiveTab('client');
+  const handleClientDone = () => setActiveTab('report');
+
+  const renderContent = () => {
+    if (activeTab === 'chat') return <ConversationView onComplete={handleChatDone} />;
+    if (activeTab === 'client') return <ClientView onComplete={handleClientDone} />;
+    return <ReportView />;
+  };
 
   return (
     <div className="py-20 px-4">
@@ -450,7 +496,7 @@ export function ProDemoSection() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {ActiveComponent && <ActiveComponent />}
+            {renderContent()}
           </motion.div>
         </AnimatePresence>
       </div>
