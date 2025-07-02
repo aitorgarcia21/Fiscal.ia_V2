@@ -171,6 +171,32 @@ const blogPosts = [
     tags: ['LMNP', 'optimisation fiscale', 'immobilier', 'investissement'],
     readTime: '7 min',
     priority: 0.8
+  },
+  {
+    id: 'transformer-cabinet-conseil',
+    title: 'Transformer votre cabinet en 2025 : Automatisation et IA au service des conseillers',
+    excerpt: 'Découvrez comment digitaliser vos processus, automatiser la prise de notes et offrir une expérience client premium grâce à Francis.',
+    content: `
+      <h2>Transformer votre cabinet en 2025</h2>
+      <p>Les cabinets de conseil financier qui adoptent l\'IA voient leur productivité grimper de 30 % en moyenne. Dans cet article, nous détaillons les étapes pour automatiser vos tâches administratives et recentrer votre temps sur la valeur ajoutée : le conseil.</p>
+      <h3>1. Identifier les tâches chronophages</h3>
+      <p>Transcription d\'entretiens, rédaction de synthèses, mise à jour des dossiers clients… Autant d\'activités que Francis peut réaliser automatiquement.</p>
+      <h3>2. Mettre en place une solution d\'IA sécurisée</h3>
+      <p>Francis assure la conformité RGPD et l\'hébergement en France, garantissant la sécurité des données sensibles de vos clients.</p>
+      <h3>3. Mesurer l\'impact économique</h3>
+      <ul>
+        <li>Jusqu\'à 10 h économisées par conseiller chaque semaine</li>
+        <li>Augmentation de 20 % du nombre de rendez-vous traités</li>
+        <li>Amélioration de la satisfaction client (+15 pts NPS)</li>
+      </ul>
+      <h2>Conclusion</h2>
+      <p>La transformation digitale de votre cabinet n\'est plus une option. Avec Francis, vous passez à la vitesse supérieure tout en offrant un service haut de gamme.</p>
+    `,
+    date: '2025-01-05',
+    author: 'Équipe Francis',
+    tags: ['digitalisation', 'cabinet', 'IA', 'automatisation'],
+    readTime: '5 min',
+    priority: 1.1
   }
 ];
 
