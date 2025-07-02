@@ -454,6 +454,16 @@ export function ProDemoSection() {
           De l'entretien client au rapport complet en quelques minutes. 
           Découvrez comment Francis transforme votre pratique.
         </p>
+        {!started && (
+          <div className="mt-6">
+            <button
+              onClick={() => setStarted(true)}
+              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+            >
+              Lancer la démo
+            </button>
+          </div>
+        )}
       </div>
 
       {started && (
