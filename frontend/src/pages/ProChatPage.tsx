@@ -40,6 +40,8 @@ export function ProChatPage() {
   const [clients, setClients] = useState<ClientProfile[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [isLoadingClients, setIsLoadingClients] = useState(false);
+  const [selectedClientProfile, setSelectedClientProfile] = useState<ClientProfile | null>(null);
+  const [isLoadingClientProfile, setIsLoadingClientProfile] = useState(false);
 
   // Charger la liste des clients du professionnel au montage
   useEffect(() => {
@@ -58,6 +60,26 @@ export function ProChatPage() {
     };
     fetchClients();
   }, [isAuthenticated, isProfessional]);
+
+  // Charger le profil complet dès qu'un client est sélectionné
+  useEffect(() => {
+    const fetchClientProfile = async () => {
+      if (selectedClientId) {
+        setIsLoadingClientProfile(true);
+        try {
+          const profile = await apiClient<ClientProfile>(`/api/pro/clients/${selectedClientId}`, { method: 'GET' });
+          setSelectedClientProfile(profile);
+        } catch (err) {
+          console.error('Erreur chargement du profil client:', err);
+          setSelectedClientProfile(null);
+        }
+        setIsLoadingClientProfile(false);
+      } else {
+        setSelectedClientProfile(null);
+      }
+    };
+    fetchClientProfile();
+  }, [selectedClientId]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,94 +193,138 @@ export function ProChatPage() {
           </div>
         )}
 
-        {/* Messages (similaire à ChatPage) */}
-        <div className="flex-grow overflow-y-auto p-4 space-y-4">
-          {messages.map((message, index) => (
-            <div 
-              key={index} 
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div 
-                className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
-                  message.role === 'user'
-                    ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
-                    : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
-                }`}
-              >
-                <div className="flex items-start space-x-2">
-                  {message.role === 'assistant' && (
-                    <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                      <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                      <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                    </div>
-                  )}
-                  <div className='flex-grow'>
-                    <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
-                    {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-white/20">
-                        <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
-                        <ul className="list-disc list-inside pl-1 space-y-0.5">
-                            {message.sources.slice(0, 3).map((source, idx) => (
-                            <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
-                            ))}
-                        </ul>
+        {/* Corps principal du composant */}
+        <div className="flex flex-col lg:flex-row flex-grow">
+          {/* Zone de chat */}
+          <div className="flex flex-col flex-grow">
+            {/* Messages (similaire à ChatPage) */}
+            <div className="flex-grow overflow-y-auto p-4 space-y-4">
+              {messages.map((message, index) => (
+                <div 
+                  key={index} 
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div 
+                    className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
+                      message.role === 'user'
+                        ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
+                        : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
+                    }`}
+                  >
+                    <div className="flex items-start space-x-2">
+                      {message.role === 'assistant' && (
+                        <div className="flex-shrink-0 relative inline-flex items-center justify-center">
+                          <MessageSquare className="w-7 h-7 text-[#c5a572]" />
+                          <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
                         </div>
-                    )}
+                      )}
+                      <div className='flex-grow'>
+                        <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
+                        {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                            <div className="mt-2 pt-2 border-t border-white/20">
+                            <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
+                            <ul className="list-disc list-inside pl-1 space-y-0.5">
+                                {message.sources.slice(0, 3).map((source, idx) => (
+                                <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
+                                ))}
+                            </ul>
+                            </div>
+                        )}
+                      </div>
+                      {message.role === 'user' && (
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                          <UserIcon className="w-4 h-4 text-[#c5a572]" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  {message.role === 'user' && (
-                    <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
-                      <UserIcon className="w-4 h-4 text-[#c5a572]" />
-                    </div>
-                  )}
                 </div>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start p-3">
-                <div className="flex items-center space-x-2">
-                    <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                        <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                        <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                    </div>
-                    <div className="flex items-center space-x-1.5 bg-[#1a2332]/80 border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
-                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start p-3">
+                    <div className="flex items-center space-x-2">
+                        <div className="flex-shrink-0 relative inline-flex items-center justify-center">
+                            <MessageSquare className="w-7 h-7 text-[#c5a572]" />
+                            <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
+                        </div>
+                        <div className="flex items-center space-x-1.5 bg-[#1a2332]/80 border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
+                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
                     </div>
                 </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
 
-        {/* Input (similaire à ChatPage) */}
-        <form onSubmit={handleSend} className="p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60">
-          <div className="flex space-x-2">
-            <textarea // Utilisation de textarea pour questions plus longues
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
-              className="flex-1 px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
-              rows={2} // Hauteur initiale pour 2 lignes
-              disabled={isLoading}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend(e as any); // type assertion for event
-                }
-              }}
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
-              aria-label="Envoyer le message" 
-            >
-              <Send className="w-5 h-5" />
-            </button>
+            {/* Input (similaire à ChatPage) */}
+            <form onSubmit={handleSend} className="p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60">
+              <div className="flex space-x-2">
+                <textarea // Utilisation de textarea pour questions plus longues
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
+                  className="flex-1 px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
+                  rows={2} // Hauteur initiale pour 2 lignes
+                  disabled={isLoading}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend(e as any); // type assertion for event
+                    }
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
+                  aria-label="Envoyer le message" 
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
+
+          {/* Panneau latéral d'aperçu client */}
+          {selectedClientId && (
+            <aside className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-[#2A3F6C]/30 bg-[#0E2444]/60 flex flex-col">
+              <div className="p-4 border-b border-[#2A3F6C]/30 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-white font-semibold">
+                  <Users className="w-5 h-5 text-[#c5a572]" />
+                  <span>Profil Client</span>
+                </div>
+                <button
+                  className="text-sm text-gray-400 hover:text-red-400"
+                  onClick={() => setSelectedClientId(null)}
+                >
+                  Annuler
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-2 text-gray-200 text-sm">
+                {isLoadingClientProfile && <p>Chargement du profil...</p>}
+                {!isLoadingClientProfile && selectedClientProfile && (
+                  <>
+                    <p className="font-semibold text-lg text-white mb-2">{selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}</p>
+                    {selectedClientProfile.email_client && <p><span className="text-gray-400">Email:</span> {selectedClientProfile.email_client}</p>}
+                    {selectedClientProfile.telephone_principal_client && <p><span className="text-gray-400">Téléphone:</span> {selectedClientProfile.telephone_principal_client}</p>}
+                    {selectedClientProfile.situation_maritale_client && <p><span className="text-gray-400">Situation familiale:</span> {selectedClientProfile.situation_maritale_client}</p>}
+                    {selectedClientProfile.revenu_net_annuel_client1 && <p><span className="text-gray-400">Revenus annuels (C1):</span> {Number(selectedClientProfile.revenu_net_annuel_client1).toLocaleString('fr-FR')} €</p>}
+                    {selectedClientProfile.tranche_marginale_imposition_estimee && <p><span className="text-gray-400">TMI estimée:</span> {selectedClientProfile.tranche_marginale_imposition_estimee}%</p>}
+                    <button
+                      onClick={() => navigate(`/pro/clients/${selectedClientId}`)}
+                      className="mt-4 w-full py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all"
+                    >
+                      Voir fiche complète
+                    </button>
+                  </>
+                )}
+                {!isLoadingClientProfile && !selectedClientProfile && <p className="text-gray-400">Aucun détail trouvé pour ce client.</p>}
+              </div>
+            </aside>
+          )}
+        </div>
       </div>
     </div>
   );
