@@ -140,22 +140,22 @@ const ProLandingPage = () => {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
               {processSteps.map((step, index) => (
                 <div key={index} className="relative">
                   {index < processSteps.length - 1 && (
-                    <div className="hidden md:block absolute top-10 left-full w-full">
-                      <ChevronRight className="w-6 h-6 text-[#c5a572]/50 -ml-3" />
+                    <div className="hidden lg:block absolute top-12 left-full w-full">
+                      <ChevronRight className="w-8 h-8 text-[#c5a572]/40 -ml-3" />
                     </div>
                   )}
-                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300 flex flex-col items-center text-center h-full">
-                    <div className="flex flex-col items-center gap-3 mb-4">
-                      <div className="w-12 h-12 bg-[#c5a572] rounded-full flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
+                  <div className="bg-[#1E3253]/70 hover:bg-[#1E3253]/90 backdrop-blur-lg p-10 rounded-2xl border border-[#2A3F6C]/40 hover:border-[#c5a572]/60 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl flex flex-col items-center text-center h-full">
+                    <div className="flex flex-col items-center gap-4 mb-6">
+                      <div className="w-14 h-14 bg-gradient-to-tr from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-extrabold text-xl shadow-xl">
                         {step.step}
                       </div>
-                      <step.icon className="w-7 h-7 text-[#c5a572]" />
+                      <step.icon className="w-8 h-8 text-[#c5a572]" />
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
+                    <h3 className="text-lg font-semibold text-white mb-3">{step.title}</h3>
                     <p className="text-sm text-gray-400 leading-relaxed">{step.description}</p>
                   </div>
                 </div>
