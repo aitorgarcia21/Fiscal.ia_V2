@@ -102,7 +102,7 @@ const ProLandingPage = () => {
         </header>
 
         {/* Hero Section simplifiée */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
             Francis, le <span className="text-[#c5a572]">copilote</span>
             <span className="block mt-2">des conseillers financiers</span>
@@ -130,7 +130,7 @@ const ProLandingPage = () => {
 
         {/* Comment ça marche - Étapes concrètes */}
         <section className="py-20 bg-gradient-to-b from-transparent to-[#162238]/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Comment ça marche concrètement
@@ -176,7 +176,7 @@ const ProLandingPage = () => {
         </section>
 
         {/* Features simples */}
-        <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <section id="features" className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Un outil simple et efficace
