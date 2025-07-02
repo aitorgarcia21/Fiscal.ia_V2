@@ -113,8 +113,12 @@ def crawl_bopa_for_pdfs(max_pdfs: int = 20):
             filename = Path(urlparse(full_url).path).name
             if not filename:
                 continue
-            # Filtrer uniquement lois fiscales courantes
-            if not any(keyword in filename.lower() for keyword in ['impost', 'irpf', 'igi']):
+            # Filtrer uniquement documents fiscaux (lois ou décrets)
+            KEYWORDS = [
+                'impost', 'irpf', 'igi', 'plus', 'procediment', 'recobrament',
+                'tribut', 'revisio', 'reglament', 'decret', 'valor', 'base', 'renda'
+            ]
+            if not any(kw in filename.lower() for kw in KEYWORDS):
                 continue
             if (PDF_DIR / filename).exists():
                 continue
@@ -137,7 +141,7 @@ def main():
     # Étape 0 : télécharger les PDF si manquants (listes statiques)
     download_pdfs()
     # Étape 0 bis : crawler BOPA pour PDF supplémentaires
-    crawl_bopa_for_pdfs()
+    crawl_bopa_for_pdfs(max_pdfs=50)
 
     if not PDF_DIR.exists() or not any(PDF_DIR.glob('*.pdf')):
         print(f"⚠️ Aucun PDF trouvé dans {PDF_DIR}. Placez-y les lois andorranes (PDF 2025) puis réexécutez.")
