@@ -97,6 +97,12 @@ const ProLandingPage = () => {
               >
                 Inscription
               </button>
+              <button
+                onClick={() => navigate('/blog')}
+                className="text-gray-300 hover:text-[#c5a572] transition-colors font-medium"
+              >
+                Blog
+              </button>
             </div>
           </div>
         </header>
@@ -117,7 +123,7 @@ const ProLandingPage = () => {
               onClick={() => openAuthModal('signup')}
               className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
-              Commencer gratuitement
+              Commencer maintenant !
             </button>
             <button
               onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
@@ -296,6 +302,24 @@ const ProLandingPage = () => {
               className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-bold hover:shadow-lg transition-all duration-300"
             >
               Démarrer maintenant
+            </button>
+          </div>
+        </section>
+
+        {/* CTA Final */}
+        <section className="py-20 bg-gradient-to-tr from-[#234876] to-[#162238]">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8">
+              Prêt à transformer votre cabinet ?
+            </h2>
+            <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+              Rejoignez dès maintenant les conseillers qui automatisent leur paperasse grâce à Francis.
+            </p>
+            <button
+              onClick={() => openAuthModal('signup')}
+              className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl text-lg font-semibold hover:shadow-lg transition-all duration-300"
+            >
+              Commencer maintenant !
             </button>
           </div>
         </section>
