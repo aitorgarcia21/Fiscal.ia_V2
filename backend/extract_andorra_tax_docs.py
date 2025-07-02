@@ -4,6 +4,8 @@ from typing import List
 import PyPDF2
 import textwrap
 import requests
+from urllib.parse import urljoin, urlparse
+from bs4 import BeautifulSoup
 
 """
 Extract Andorran fiscal laws (PDF) and split them into manageable text chunks
@@ -28,6 +30,9 @@ PDF_SOURCES = {
     "IGI_95_2010.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2010_IGI.pdf",
     "IS_95_2014.pdf": "https://www.impostos.ad/sites/default/files/2024-02/Llei%2095_2014_ImpostSocietats.pdf"
 }
+
+BOPA_BASE = "https://www.bopa.ad"
+BOPA_LEGISLACIO_URL = "https://www.bopa.ad/Legislacio"
 
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
@@ -76,9 +81,48 @@ def download_pdfs():
             print(f"❌ Erreur téléchargement {url}: {e}")
 
 
+def crawl_bopa_for_pdfs(max_pdfs: int = 20):
+    """Parcourt la page législation et récupère les liens PDF (lois)."""
+    try:
+        resp = requests.get(BOPA_LEGISLACIO_URL, timeout=30)
+        if resp.status_code != 200:
+            print(f"⚠️ Impossible d'accéder à {BOPA_LEGISLACIO_URL} (code {resp.status_code})")
+            return
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        links = [a.get('href') for a in soup.find_all('a', href=True) if a['href'].lower().endswith('.pdf')]
+        found = 0
+        for href in links:
+            if found >= max_pdfs:
+                break
+            full_url = urljoin(BOPA_BASE, href) if urlparse(href).netloc == '' else href
+            filename = Path(urlparse(full_url).path).name
+            if not filename:
+                continue
+            # Filtrer uniquement lois fiscales courantes
+            if not any(keyword in filename.lower() for keyword in ['impost', 'irpf', 'igi']):
+                continue
+            if (PDF_DIR / filename).exists():
+                continue
+            try:
+                print(f"⬇️ Téléchargement BOPA {full_url} …")
+                r = requests.get(full_url, timeout=30, stream=True)
+                if r.status_code == 200:
+                    (PDF_DIR / filename).write_bytes(r.content)
+                    print(f"   → {filename} sauvegardé")
+                    found += 1
+                else:
+                    print(f"   ⚠️ code {r.status_code} pour {full_url}")
+            except Exception as e:
+                print(f"❌ Erreur téléchargement {full_url}: {e}")
+    except Exception as e:
+        print(f"❌ Erreur lors du crawl BOPA: {e}")
+
+
 def main():
-    # Étape 0 : télécharger les PDF si manquants
+    # Étape 0 : télécharger les PDF si manquants (listes statiques)
     download_pdfs()
+    # Étape 0 bis : crawler BOPA pour PDF supplémentaires
+    crawl_bopa_for_pdfs()
 
     if not PDF_DIR.exists() or not any(PDF_DIR.glob('*.pdf')):
         print(f"⚠️ Aucun PDF trouvé dans {PDF_DIR}. Placez-y les lois andorranes (PDF 2025) puis réexécutez.")
