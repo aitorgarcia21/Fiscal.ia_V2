@@ -102,7 +102,7 @@ const ProLandingPage = () => {
         </header>
 
         {/* Hero Section simplifiée */}
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 md:pt-40 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
             Francis, le <span className="text-[#c5a572]">copilote</span>
             <span className="block mt-2">des conseillers financiers</span>
