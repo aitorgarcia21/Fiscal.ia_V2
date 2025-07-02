@@ -232,24 +232,7 @@ const ConversationView = ({ onComplete }: { onComplete: () => void }) => {
           />
         ))}
       </div>
-      <div className="p-4 bg-[#162238]/80 border-t border-[#2A3F6C]/50">
-        <div className="flex items-center justify-center gap-4">
-          <button 
-            className={`px-6 py-3 rounded-full flex items-center gap-2 transition-all ${
-              isRecording 
-                ? 'bg-red-500 text-white animate-pulse' 
-                : 'bg-[#c5a572] text-[#162238] hover:bg-[#e8cfa0]'
-            }`}
-          >
-            <Mic className="w-5 h-5" />
-            {isRecording ? 'Enregistrement...' : 'Démarrer l\'enregistrement'}
-          </button>
-          <span className="text-gray-400 text-sm">ou</span>
-          <button className="text-[#c5a572] hover:text-[#e8cfa0] text-sm underline">
-            Importer un audio
-          </button>
-        </div>
-      </div>
+      {/* Footer interactif supprimé pour la démo automatisée */}
     </>
   );
 };
