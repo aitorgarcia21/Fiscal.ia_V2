@@ -140,7 +140,7 @@ const ProLandingPage = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {processSteps.map((step, index) => (
                 <div key={index} className="relative">
                   {index < processSteps.length - 1 && (
@@ -148,15 +148,15 @@ const ProLandingPage = () => {
                       <ChevronRight className="w-6 h-6 text-[#c5a572]/50 -ml-3" />
                     </div>
                   )}
-                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-6 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-10 h-10 bg-[#c5a572] rounded-full flex items-center justify-center text-[#162238] font-bold">
+                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300 flex flex-col items-center text-center h-full">
+                    <div className="flex flex-col items-center gap-3 mb-4">
+                      <div className="w-12 h-12 bg-[#c5a572] rounded-full flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
                         {step.step}
                       </div>
-                      <step.icon className="w-6 h-6 text-[#c5a572]" />
+                      <step.icon className="w-7 h-7 text-[#c5a572]" />
                     </div>
                     <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-                    <p className="text-sm text-gray-300">{step.description}</p>
+                    <p className="text-sm text-gray-400 leading-relaxed">{step.description}</p>
                   </div>
                 </div>
               ))}
