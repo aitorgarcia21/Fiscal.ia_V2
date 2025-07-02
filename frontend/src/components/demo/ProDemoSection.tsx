@@ -571,7 +571,7 @@ export function ProDemoSection() {
               Prêt à transformer votre cabinet ?
             </p>
             <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
-              Démarrer votre essai gratuit
+              Commencer maintenant !
             </button>
           </div>
         </>
