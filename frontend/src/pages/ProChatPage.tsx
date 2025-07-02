@@ -174,8 +174,8 @@ export function ProChatPage() {
                   className="bg-transparent border-none focus:outline-none text-sm"
                   aria-label="Juridiction"
                 >
-                  <option className="text-black" value="FR">FR</option>
-                  <option className="text-black" value="AD">AD</option>
+                  <option className="text-black" value="FR">France</option>
+                  <option className="text-black" value="AD">Andorre</option>
                 </select>
               </div>
             </div>
