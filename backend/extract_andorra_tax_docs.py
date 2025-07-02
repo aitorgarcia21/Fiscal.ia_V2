@@ -43,11 +43,28 @@ PDF_SOURCES = {
     "BOPA_61_2019_Codi_Administracio.pdf": "https://bopadocuments.blob.core.windows.net/bopa-documents/034048/pdf/CGL20220414_11_15_29.pdf",
     # ---- Conventions internationales ----
     "Convention_Andorre_France_2013.pdf": "https://www.impots.gouv.fr/sites/default/files/media/10_conventions/andorre/andorre_convention-avec-la-principaute-d-andorre-revenu-signee-le-2-avril-2013_fd_7522.pdf",
-    "OCDE_MLI_Signatories.pdf": "https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/beps-mli/beps-mli-signatories-and-parties.pdf"
+    "OCDE_MLI_Signatories.pdf": "https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/beps-mli/beps-mli-signatories-and-parties.pdf",
+    # ---- Lois et décrets supplémentaires (sources BOPA / Portal Jurídic) ----
+    # NB : certaines URL peuvent encore évoluer ; le script tentera de les
+    #      récupérer directement et, en échec, s'appuiera sur crawl_bopa_for_pdfs.
+    "Llei_21_2014_Bases_Ordenament_Tributari.pdf": "https://www.bopa.ad/bopa/03012015/Llei_21_2014.pdf",
+    # Décrets d'application procédure fiscale 2015 (nº 11, 22, 150)
+    "Decret_11_02_2015_Procediment_Tributari.pdf": "https://www.bopa.ad/bopa/11022015/Decret_11_2015.pdf",
+    "Decret_22_04_2015_Procediment_Tributari.pdf": "https://www.bopa.ad/bopa/22042015/Decret_22_2015.pdf",
+    "Decret_21_10_2015_Recobrament_Tributari.pdf": "https://www.bopa.ad/bopa/21102015/Decret_21_2015.pdf",
+    # Plus-values immobilières 2017
+    "Decret_6_12_2017_PlusValues_Immobilieres.pdf": "https://www.bopa.ad/bopa/06122017/Decret_PlusValues_2017.pdf",
 }
 
 BOPA_BASE = "https://www.bopa.ad"
 BOPA_LEGISLACIO_URL = "https://www.bopa.ad/Legislacio"
+
+# Étend le filtre de mots-clés pour couvrir les nouvelles références
+KEYWORDS = [
+    'impost', 'irpf', 'igi', 'plus', 'procediment', 'recobrament',
+    'tribut', 'revisio', 'reglament', 'decret', 'valor', 'base', 'renda',
+    'ordenament', 'plusvalues', 'plus-v', '2015', '2017'
+]
 
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
@@ -114,10 +131,6 @@ def crawl_bopa_for_pdfs(max_pdfs: int = 20):
             if not filename:
                 continue
             # Filtrer uniquement documents fiscaux (lois ou décrets)
-            KEYWORDS = [
-                'impost', 'irpf', 'igi', 'plus', 'procediment', 'recobrament',
-                'tribut', 'revisio', 'reglament', 'decret', 'valor', 'base', 'renda'
-            ]
             if not any(kw in filename.lower() for kw in KEYWORDS):
                 continue
             if (PDF_DIR / filename).exists():
