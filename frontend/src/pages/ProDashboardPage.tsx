@@ -130,32 +130,7 @@ export function ProDashboardPage() {
           </div>
         </div>
 
-        {/* Cartes fonctionnalités clés */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {/* Pilotage intelligent */}
-          <div className="bg-[#1E3253]/70 border border-[#c5a572]/30 rounded-xl p-6 hover:border-[#c5a572]/50 transition-shadow hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-[#c5a572] mb-2">Pilotage intelligent & coaching fiscal</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Moteur de recommandations ultra-précises&nbsp;: optimisation en temps réel selon l'actualité fiscale, les situations spécifiques et les projets de vos clients.
-            </p>
-          </div>
-
-          {/* Simulation multi-scénarios */}
-          <div className="bg-[#1E3253]/70 border border-[#c5a572]/30 rounded-xl p-6 hover:border-[#c5a572]/50 transition-shadow hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-[#c5a572] mb-2">Simulation avancée multi-scénarios</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Comparez instantanément l'impact sur&nbsp;IR, IS, IFI, plus-values, transmission, LMNP, crypto, expatriation, retraite, Pinel&nbsp;+, etc.
-            </p>
-          </div>
-
-          {/* Alertes proactives */}
-          <div className="bg-[#1E3253]/70 border border-[#c5a572]/30 rounded-xl p-6 hover:border-[#c5a572]/50 transition-shadow hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-[#c5a572] mb-2">Alertes proactives</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Notifications sur les échéances, opportunités fiscales, plafonnements et risques de redressement pour chaque client de votre cabinet.
-            </p>
-          </div>
-        </div>
+        {/* Section fonctionnalités avancées supprimée pour épurer l'interface */}
 
         {/* Recherche améliorée */}
         <div className="mb-8">
