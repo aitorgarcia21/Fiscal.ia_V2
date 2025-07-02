@@ -125,6 +125,40 @@ const DemoMessage = ({ message, visible }: { message: any, visible: boolean }) =
           </div>
         </div>
       )}
+
+      {/* Intervention conseiller */}
+      {message.type === 'conseiller' && (
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#c5a572] flex items-center justify-center">
+            <UserCheck className="w-6 h-6 text-[#162238]" />
+          </div>
+          <div className="bg-[#1E3253] text-gray-200 rounded-2xl rounded-bl-none p-4 max-w-md">
+            <p className="font-semibold text-[#c5a572] mb-1">Conseiller</p>
+            <p className="text-sm">{message.content}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Réponse client */}
+      {message.type === 'client' && (
+        <div className="flex items-start gap-3 justify-end">
+          <div className="bg-[#c5a572] text-[#162238] rounded-2xl rounded-br-none p-4 max-w-md">
+            <p className="font-semibold mb-1">Client</p>
+            <p className="text-sm">{message.content}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
+            <User className="w-6 h-6 text-white" />
+          </div>
+        </div>
+      )}
+
+      {/* Messages système d'interruption Francis */}
+      {(message.type === 'francis_interrupt' || message.type === 'recording_start' || message.type === 'recording_end') && (
+        <div className="text-center text-gray-400 text-sm flex items-center justify-center gap-2">
+          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          {message.content}
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -198,10 +232,11 @@ const ConversationView = ({ onComplete }: { onComplete: () => void }) => {
     demoConversation.forEach((msg, index) => {
       const timer = setTimeout(() => {
         setVisibleMessages(prev => [...prev, index]);
-        if (msg.type === 'system') {
+        if (msg.type === 'recording_start') {
           setIsRecording(true);
-        } else if (msg.type === 'user_audio') {
-          setTimeout(() => setIsRecording(false), 1500);
+        }
+        if (msg.type === 'recording_end') {
+          setIsRecording(false);
         }
         if (index === demoConversation.length - 1) {
           setTimeout(() => onComplete(), 2000);
