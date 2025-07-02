@@ -198,30 +198,6 @@ export function Dashboard() {
   // Données factices pour les outils
   const tools = [
     {
-      id: 'tmi',
-      title: 'Calculateur TMI',
-      description: 'Calculez votre Taux Marginal d\'Imposition',
-      icon: Calculator,
-      color: 'from-[#c5a572] to-[#e8cfa0]',
-      action: () => setShowTmiModal(true)
-    },
-    {
-      id: 'consciousness',
-      title: 'Test de Conscience',
-      description: 'Évaluez votre niveau de conscience fiscale',
-      icon: Brain,
-      color: 'from-[#c5a572] to-[#e8cfa0]',
-      action: () => handleConsciousnessTest()
-    },
-    {
-      id: 'optimization',
-      title: 'Simulateur d\'Optimisation',
-      description: 'Évaluez vos économies potentielles',
-      icon: TrendingUp,
-      color: 'from-[#c5a572] to-[#e8cfa0]',
-      action: () => setShowOptimizationModal(true)
-    },
-    {
       id: 'alerts',
       title: 'Alertes Fiscales',
       description: 'Soyez averti des opportunités',
