@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2, Activity, Download, Euro, AlertCircle, Play, Pause, Volume2, MessageSquare, UserCheck, BarChart } from 'lucide-react';
+import { useInView } from 'react-intersection-observer';
 
 interface ClientProfile {
   id: string;
@@ -429,6 +430,10 @@ const tabs = [
 
 export function ProDemoSection() {
   const [activeTab, setActiveTab] = useState('chat');
+  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '-100px' });
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => { if (inView) setStarted(true); }, [inView]);
 
   const handleChatDone = () => setActiveTab('client');
   const handleClientDone = () => setActiveTab('report');
@@ -440,7 +445,7 @@ export function ProDemoSection() {
   };
 
   return (
-    <div className="py-20 px-4">
+    <div className="py-20 px-4" ref={ref}>
       <div className="max-w-5xl mx-auto text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Voyez Francis en action
@@ -451,48 +456,53 @@ export function ProDemoSection() {
         </p>
       </div>
 
-      <div className="max-w-5xl mx-auto bg-[#0F1E36] rounded-2xl shadow-2xl border border-[#2A3F6C]/50 overflow-hidden">
-        {/* Onglets */}
-        <div className="flex border-b border-[#2A3F6C]/50 bg-[#162238]">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 p-4 text-sm font-medium transition-all ${
-                activeTab === tab.id 
-                  ? 'text-[#c5a572] bg-[#1E3253] border-b-2 border-[#c5a572]' 
-                  : 'text-gray-400 hover:text-gray-300 hover:bg-[#1E3253]/50'
-              }`}
+      {started && (
+        <div className="max-w-5xl mx-auto bg-[#0F1E36] rounded-2xl shadow-2xl border border-[#2A3F6C]/50 overflow-hidden">
+          {/* Onglets */}
+          <div className="flex border-b border-[#2A3F6C]/50 bg-[#162238]">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex items-center justify-center gap-2 p-4 text-sm font-medium transition-all ${
+                  activeTab === tab.id 
+                    ? 'text-[#c5a572] bg-[#1E3253] border-b-2 border-[#c5a572]' 
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-[#1E3253]/50'
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Contenu */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
             >
-              <tab.icon className="w-5 h-5" />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
         </div>
+      )}
 
-        {/* Contenu */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {renderContent()}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* CTA */}
-      <div className="mt-12 text-center">
-        <p className="text-gray-300 mb-4">
-          Prêt à transformer votre cabinet ?
-        </p>
-        <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
-          Démarrer votre essai gratuit
-        </button>
-      </div>
+      {started && (
+        <>
+          <div className="mt-12 text-center">
+            <p className="text-gray-300 mb-4">
+              Prêt à transformer votre cabinet ?
+            </p>
+            <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
+              Démarrer votre essai gratuit
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 } 
