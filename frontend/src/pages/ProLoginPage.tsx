@@ -74,7 +74,7 @@ const ProLoginPage: React.FC = () => {
             <button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-lg hover:from-[#e8cfa0] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-xl shadow-lg hover:from-[#e8cfa0] hover:to-[#c5a572] hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </button>
