@@ -221,7 +221,7 @@ const ConversationView = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <>
-      <div className="p-6 h-[450px] overflow-y-auto" ref={scrollRef}>
+      <div className="p-6 h-[65vh] max-h-[500px] overflow-y-auto" ref={scrollRef}>
         <div className="text-center mb-6">
           <p className="text-gray-400 text-sm">Démonstration d'un entretien client avec Francis</p>
         </div>
@@ -253,7 +253,7 @@ const ClientView = ({ onComplete }: { onComplete: () => void }) => {
   }, []);
 
   return (
-    <div className="p-8 h-[542px] overflow-y-auto">
+    <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
       <h3 className="text-2xl font-bold text-white mb-6">Profil Client Généré</h3>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -348,7 +348,7 @@ const ClientView = ({ onComplete }: { onComplete: () => void }) => {
 };
 
 const ReportView = () => (
-  <div className="p-8 h-[542px] overflow-y-auto">
+  <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
     <h3 className="text-2xl font-bold text-white mb-6">Documents Générés</h3>
     
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -405,7 +405,7 @@ const updates = [
 ];
 
 const UpdatesView = () => (
-    <div className="p-8 h-[542px] overflow-y-auto">
+    <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
         <h3 className="text-2xl font-bold text-white mb-6">Veille Législative & Mises à Jour</h3>
         <div className="space-y-4">
             {updates.map((update, index) => (
