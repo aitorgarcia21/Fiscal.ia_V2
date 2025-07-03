@@ -5,9 +5,22 @@ OLLAMA_URL = os.getenv("LLM_ENDPOINT", "http://localhost:11434")
 
 def _post(endpoint: str, payload: dict, timeout: int = 60) -> dict:
     url = f"{OLLAMA_URL}{endpoint}"
-    r = requests.post(url, json=payload, timeout=timeout)
-    r.raise_for_status()
-    return r.json()
+    try:
+        r = requests.post(url, json=payload, timeout=timeout)
+        r.raise_for_status()
+        return r.json()
+    except (requests.exceptions.ConnectionError, requests.exceptions.RequestException) as e:
+        # Fallback automatique : si l'hôte est "llm", retenter sur localhost
+        if "//llm" in OLLAMA_URL:
+            alt_url = OLLAMA_URL.replace("//llm", "//localhost")
+            try:
+                alt_full = f"{alt_url}{endpoint}"
+                r = requests.post(alt_full, json=payload, timeout=timeout)
+                r.raise_for_status()
+                return r.json()
+            except Exception:
+                pass  # Tombe dans l'exception générique plus bas
+        raise e
 
 
 def generate(prompt: str, model: str = "mistral", max_tokens: int = 512, temperature: float = 0.2) -> str:
