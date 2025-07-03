@@ -17,10 +17,19 @@ except ImportError:
 
 # Import des embeddings andorrans
 try:
-    from mistral_andorra_embeddings import search_similar_chunks as search_similar_andorra_chunks
+    from backend.mistral_andorra_embeddings import (
+        search_similar_chunks as search_similar_andorra_chunks,
+    )
     ANDORRA_EMBEDDINGS_AVAILABLE = True
 except ImportError:
-    ANDORRA_EMBEDDINGS_AVAILABLE = False
+    # Fallback si le chemin absolu échoue (exécution depuis backend)
+    try:
+        from mistral_andorra_embeddings import (
+            search_similar_chunks as search_similar_andorra_chunks,
+        )
+        ANDORRA_EMBEDDINGS_AVAILABLE = True
+    except ImportError:
+        ANDORRA_EMBEDDINGS_AVAILABLE = False
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -33,7 +42,7 @@ _embeddings_cache = None
 _cache_loaded = False
 
 # Embeddings de base pour les questions essentielles (fallback)
-BASE_EMBEDDINGS = {
+BASE_EMBEDDINGS_FR = {
     "tmi": {
         "content": """Article 197 du CGI - Calcul de l'impôt sur le revenu
 
@@ -75,6 +84,36 @@ Pour les plus-values mobilières :
 - Abattement : 50% après 2 ans de détention
 - Taux : 12,8% + 17,2% de prélèvements sociaux""",
         "source": "CGI Article 150"
+    }
+}
+
+# -----------------------------
+# Embeddings de base Andorre
+# -----------------------------
+
+BASE_EMBEDDINGS_AD = {
+    "irpf": {
+        "content": """Llei 5/2014, article 83 – Barème de l'impôt sur le revenu (IRPF)
+
+Le barème appliqué au revenu net imposable est le suivant (2025) :
+• 0 % jusqu'à 24 000 €
+• 5 % de 24 001 € à 40 000 €
+• 10 % au-delà de 40 000 €
+
+Exemple : pour 55 000 €, l'impôt est 2 300 € :
+0 € (≤ 24 000 €) + 800 € (5 % de 16 000 €) + 1 500 € (10 % de 15 000 €).""",
+        "source": "Llei 5/2014 – Art. 83"
+    },
+    "igi": {
+        "content": """Llei 11/2012, articles 47 à 52 – Impost General Indirecte (IGI)
+
+Taux applicables :
+• 4,5 % général
+• 1 % réduit (alimentation, santé, livres…)
+• 2,5 % spécial restauration
+• 9,5 % majoré pour services financiers
+• 0 % exportations et secteurs exonérés.""",
+        "source": "Llei 11/2012 – Art. 47-52"
     }
 }
 
@@ -192,24 +231,35 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
             print(f"❌ Erreur lors de la recherche BOFiP: {e}")
     
     # 3. Fallback vers les embeddings de base si aucune source trouvée
-    if not context_from_sources:
+    if jurisdiction == "AD" and not context_from_sources:
+        print("🔄 Fallback Andorre simplifié…")
+        query_lower = query.lower()
+        if any(term in query_lower for term in ['irpf', 'impôt sur le revenu', 'impot sur le revenu']):
+            base = BASE_EMBEDDINGS_AD['irpf']
+            context_from_sources += "=== FISCALITÉ ANDORRANE – IRPF ===\n\n" + f"{base['source']}:\n{base['content']}\n\n"
+            official_sources.append(base['source'])
+        elif any(term in query_lower for term in ['igi', 'tva', 'taxe', 'indirect']):
+            base = BASE_EMBEDDINGS_AD['igi']
+            context_from_sources += "=== FISCALITÉ ANDORRANE – IGI ===\n\n" + f"{base['source']}:\n{base['content']}\n\n"
+            official_sources.append(base['source'])
+
+    if jurisdiction == "FR" and not context_from_sources:
         print("🔄 Utilisation des embeddings de base...")
         query_lower = query.lower()
-        
         if any(term in query_lower for term in ['tmi', 'taux marginal', 'tranche', 'impôt', 'impot']):
-            base_embedding = BASE_EMBEDDINGS['tmi']
+            base_embedding = BASE_EMBEDDINGS_FR['tmi']
             context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
             context_from_sources += f"{base_embedding['source']}:\n{base_embedding['content']}\n\n"
             official_sources.append(base_embedding['source'])
             context_from_sources += "\n" + "="*60 + "\n\n"
         elif any(term in query_lower for term in ['tva', 'taxe valeur ajoutée']):
-            base_embedding = BASE_EMBEDDINGS['tva']
+            base_embedding = BASE_EMBEDDINGS_FR['tva']
             context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
             context_from_sources += f"{base_embedding['source']}:\n{base_embedding['content']}\n\n"
             official_sources.append(base_embedding['source'])
             context_from_sources += "\n" + "="*60 + "\n\n"
         elif any(term in query_lower for term in ['plus-value', 'plusvalue', 'plus value']):
-            base_embedding = BASE_EMBEDDINGS['plus_value']
+            base_embedding = BASE_EMBEDDINGS_FR['plus_value']
             context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
             context_from_sources += f"{base_embedding['source']}:\n{base_embedding['content']}\n\n"
             official_sources.append(base_embedding['source'])
@@ -493,7 +543,7 @@ def get_relevant_context(query: str) -> str:
 async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None) -> AsyncGenerator[str, None]:
     """Génère une réponse fiscale en streaming (actuellement, une seule réponse complète)."""
     try:
-        answer, sources, confidence = get_fiscal_response(query, conversation_history, user_profile_context)
+        answer, sources, confidence = get_fiscal_response(query)
         
         response_data = {
             "type": "full_response",

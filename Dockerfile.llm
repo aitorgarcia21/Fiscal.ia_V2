@@ -1,0 +1,17 @@
+# Base image avec Ollama (CPU)
+FROM ollama/ollama:0.1.34
+
+# Téléchargement des modèles nécessaires :
+#  • mistral:7b-instruct-q4_K_M  (génération)
+#  • nomic-embed-text           (embeddings 384-d)
+RUN ollama pull mistral:7b-instruct-q4_K_M && \
+    ollama pull nomic-embed-text
+
+# Port exposé par ollama
+EXPOSE 11434
+
+# Dossier modèles (optionnel : permet de monter un volume Railway)
+ENV OLLAMA_MODELS=/root/.ollama/models
+
+# Commande par défaut : démarrer le serveur
+CMD ["ollama", "serve"] 

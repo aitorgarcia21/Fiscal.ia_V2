@@ -1,9 +1,7 @@
-import os
+import os, time
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
-import time
-from mistralai.client import MistralClient
 
 """
 Génération d'embeddings Mistral pour les chunks de fiscalité andorrane.
@@ -17,29 +15,43 @@ Pré-requis :
 Les embeddings sont créés dans backend/data/andorra_embeddings/
 """
 
-MODEL_NAME = "mistral-embed"
+# Choix dynamique du backend embeddings : Ollama (local) ou API Mistral
+USE_LOCAL = bool(os.getenv("LLM_ENDPOINT"))
+
+if USE_LOCAL:
+    from backend.ollama_client import embed as embed_local
+else:
+    from mistralai.client import MistralClient
+
+MODEL_NAME = "nomic-embed-text" if USE_LOCAL else "mistral-embed"
 CHUNKS_DIR = Path('data/andorra_chunks_text')
 EMBEDDINGS_DIR = Path('data/andorra_embeddings')
 
-MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
-if not MISTRAL_API_KEY:
-    raise ValueError("MISTRAL_API_KEY manquante. Définissez-la avant d'exécuter ce script.")
-
-client = MistralClient(api_key=MISTRAL_API_KEY)
+if not USE_LOCAL:
+    MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
+    if not MISTRAL_API_KEY:
+        raise ValueError("Spécifiez MISTRAL_API_KEY ou configurez LLM_ENDPOINT pour un backend local.")
+    client = MistralClient(api_key=MISTRAL_API_KEY)
+else:
+    client = None
 
 
 def get_embedding(text: str, retries: int = 3, delay: float = 1.0) -> np.ndarray:
     for attempt in range(retries):
         try:
-            resp = client.embeddings(model=MODEL_NAME, input=[text])
-            return np.array(resp.data[0].embedding, dtype=np.float32)
+            if USE_LOCAL:
+                vecs = embed_local(text)
+                return np.array(vecs[0], dtype=np.float32)
+            else:
+                resp = client.embeddings(model=MODEL_NAME, input=[text])
+                return np.array(resp.data[0].embedding, dtype=np.float32)
         except Exception as e:
             if attempt == retries - 1:
                 raise e
             wait = delay * (2 ** attempt)
             print(f"⏳ Tentative {attempt+1}/{retries} échouée, nouvelle tentative dans {wait}s…")
             time.sleep(wait)
-    raise RuntimeError("Échec de l'obtention de l'embedding après plusieurs tentatives")
+    raise RuntimeError("Impossible d'obtenir l'embedding après plusieurs tentatives")
 
 
 def generate_embeddings():

@@ -19,7 +19,6 @@ export function OptimisationFiscaleIA() {
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/demo" className="text-gray-300 hover:text-white transition-colors">Démo</Link>
             <Link to="/pricing" className="text-gray-300 hover:text-white transition-colors">Tarifs</Link>
-            <Link to="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</Link>
             <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
           </nav>
           

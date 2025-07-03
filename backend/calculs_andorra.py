@@ -74,6 +74,53 @@ def calc_irpf(revenu_net: float) -> Dict[str, float]:
     }
 
 
+# ----------------------------------
+#  IS — Impost sobre Societats (10 %)
+# ----------------------------------
+
+def calc_is(benefice_net: float, regime: Literal["standard", "holding"] = "standard") -> Dict[str, float]:
+    """Calcule l'impôt sur les sociétés andorran.
+
+    • Régime standard : 10 % sur le bénéfice net.
+    • Régime holding / patent box (art. 23 Llei 95/2010) : taux effectif 2 %.
+    """
+    if benefice_net < 0:
+        raise ValueError("Le bénéfice doit être positif.")
+    taux = 0.10 if regime == "standard" else 0.02
+    impot = round(benefice_net * taux, 2)
+    return {"benefice": round(benefice_net, 2), "taux": taux, "is": impot}
+
+
+# -------------------------------------------------
+#  CASS — Cotisations sociales (salariés & employeur)
+# -------------------------------------------------
+
+_CASS_RATES = {
+    "salarie": 0.065,   # part employé 6,5 %
+    "employeur": 0.155, # part employeur 15,5 % (13 % + 2,5 % risques)
+}
+
+def calc_cass(brut_annuel: float) -> Dict[str, float]:
+    """Calcule les cotisations CASS pour un salaire annuel brut.
+    Plafond annuel 2025 : 49 260 € (approx. 4 × salaire moyen).
+    Toute rémunération au-delà du plafond n'est pas soumise.
+    """
+    if brut_annuel < 0:
+        raise ValueError("Salaire brut négatif.")
+    plafond = 49_260
+    assiette = min(brut_annuel, plafond)
+    part_salarie = round(assiette * _CASS_RATES["salarie"], 2)
+    part_employeur = round(assiette * _CASS_RATES["employeur"], 2)
+    total = part_salarie + part_employeur
+    return {
+        "brut_annuel": round(brut_annuel, 2),
+        "assiette": assiette,
+        "part_salarie": part_salarie,
+        "part_employeur": part_employeur,
+        "cotisations_totales": total,
+    }
+
+
 # Petit test manuel
 if __name__ == "__main__":
     print(calc_igi(1000, "general"))

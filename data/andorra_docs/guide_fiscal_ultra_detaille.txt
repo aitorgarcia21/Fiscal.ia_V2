@@ -1,0 +1,153 @@
+Fiscalité Andorrane – Guide Ultra-Détaillé
+
+## 1. Introduction générale
+
+Andorre a transformé son système fiscal entre 2010 et 2016 pour sortir des listes grises de l’OCDE et s’aligner sur les standards européens. Le pays propose aujourd’hui une fiscalité complète, transparente, mais toujours attractive, avec :
+
+- Des taux faibles et peu de taxes annexes
+- Un système simple (peu d’impôts, peu de niches)
+- Des obligations déclaratives strictes
+- Une administration fiscale moderne et informatisée
+
+## 2. Impôt sur le Revenu des Personnes Physiques (IRPF)
+
+### 2.1. Loi de référence
+
+- **Loi 5/2014, du 24 avril, de l’impôt sur le revenu des personnes physiques**
+- <https://www.bopa.ad/bopa/027039/Pagines/IRPF.aspx>
+
+### 2.2. Champ d’application
+
+- Personnes résidant > 183 jours/an ou centre d’intérêts économiques en Andorre.
+- Revenus mondiaux imposables : salaires, indépendants, dividendes, intérêts, loyers…
+
+### 2.3. Barème 2025
+
+| Tranche (€) | Taux |
+|-------------|------|
+| ≤ 24 000    | 0 %  |
+| 24 001-40 000 | 5 % |
+| > 40 000    | 10 % |
+
+### 2.4. Déductions et abattements
+
+- **Abattement général capital mobilier** : 3 000 €
+- **Enfants à charge** : 750 €/enfant
+- **Personnes à charge** : 750 €/personne
+- **Handicap** : 800 €
+- **Cotisations sociales obligatoires** (CASS)
+- **Pensions alimentaires** imposées par jugement
+
+### 2.5. Revenus exonérés
+
+- Certaines prestations sociales andorranes
+- Indemnités de licenciement dans la limite légale
+- Plus-value sur résidence principale (conditions)
+
+### 2.6. Revenus du capital
+
+- Dividendes société andorrane → 0 %
+- Intérêts → 10 % au-delà de l’abattement de 3 000 €
+- Plus-values mobilières → 10 %
+
+### 2.7. Obligations déclaratives
+
+- **Déclaration annuelle** via portail impostos.ad (formulaire IRPF)
+- **Acomptes** si impôt > 40 € : juin & novembre
+- **Sanctions** : 50 € à 150 % de l’impôt éludé
+
+## 3. Impôt sur le Revenu des Non-Résidents (IRNR)
+
+### 3.1. Loi 94/2010, 29 décembre
+<https://www.bopa.ad/bopa/025849/Pagines/IRNR.aspx>
+
+### 3.3. Taux
+
+- Général : 10 %
+- Dividendes & intérêts : 0 %
+- Revenus immobiliers : 10 %
+- Artistes/sportifs : 5 % ou 10 %
+
+## 4. Impôt sur les Sociétés (IS)
+
+### 4.1. Loi 95/2010, 29 décembre
+<https://www.bopa.ad/bopa/025850/Pagines/IS.aspx>
+
+### 4.3. Taux
+
+- Standard : 10 %
+- Réduit : 2-5 % (holdings, fonds)
+- Exonérations : dividendes intra-groupe, plus-values sous conditions
+
+### 4.5. Obligations
+
+- Déclaration annuelle (30 sept.)
+- Acomptes trimestriels
+- Comptabilité PGCA, audit au-delà de seuils
+
+## 5. IGI (TVA andorrane) – Loi 11/2012
+
+### 5.3. Taux
+
+| Taux | % | Exemples |
+|------|---|----------|
+| Général | 4,5 | biens & services usuels |
+| Réduit | 1 | santé, éducation |
+| Spécial | 2,5 | transports, culture |
+| Majoré | 9,5 | services financiers |
+| Super-réduit | 0 | export, biens essentiels |
+
+### 5.4. Déclarations
+
+- Mensuelles si CA > 250 k€ sinon trimestrielles.
+
+## 6. Fiscalité immobilière
+
+### 6.2. ITP : 4 % à la charge de l’acquéreur.
+
+### 6.3. Plus-value immobilière
+
+| Détention | Taux |
+|-----------|------|
+| <1 an | 15 % |
+| 1-2 ans | 13 % |
+| 2-3 ans | 10 % |
+| 3-4 ans | 8 % |
+| 4-5 ans | 5 % |
+| 5-13 ans | 1 % |
+| >13 ans | 0 % |
+
+## 7. Autres taxes
+
+- Droits d’enregistrement, taxe véhicules, licence d’activité, publicité.
+
+## 8. Incitations
+
+- Investisseurs étrangers : régimes préférentiels.
+- Startups : exonération partielle d’IS 3 ans.
+
+## 9. Conventions fiscales
+
+- France (2013), Espagne (2015), etc.
+
+## 10. Contrôles & sanctions
+
+- Retard : 50 € à 1 000 €
+- Intérêts : 3 %/an
+- Fraude : jusqu’à 150 % de l’impôt éludé
+
+## 11. Procédures pratiques (résumé)
+
+- Déclaration IRPF : formulaire en ligne ‑ pièces justificatives.
+- Création de société : capital 3 000 €, statuts, registre, NRT.
+- Achat immobilier : compromis notarié, ITP, registre foncier.
+
+## 12. Ressources utiles
+
+- <https://www.impostos.ad>
+- <https://www.consellgeneral.ad/ca/legislacio>
+- <https://www.actua.ad/fr/>
+- <https://www.ccis.ad/>
+- <https://www.notaris.ad/>
+
+*Guide mis à jour juillet 2025.* 
