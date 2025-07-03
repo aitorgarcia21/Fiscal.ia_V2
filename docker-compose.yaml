@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  # Service LLM local basé sur Ollama
+  llm:
+    image: ollama/ollama:latest
+    container_name: llm
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama  # Persistance des modèles téléchargés
+    # Démarre automatiquement si le conteneur s'arrête
+    restart: unless-stopped
+
+  # Service API FastAPI (Francis)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Dockerfile existant à la racine
+    container_name: fiscalia_api
+    environment:
+      # Pointe l'API sur le service llm
+      - LLM_ENDPOINT=http://llm:11434
+      # Laisse vide si tu veux forcer le mode local, sinon renseigne ta clé Mistral
+      - MISTRAL_API_KEY=
+      # Autres variables (exemple) :
+      # - SUPABASE_SERVICE_KEY=xxx
+      # - STRIPE_SECRET_KEY=sk_test_xxx
+    depends_on:
+      - llm
+    ports:
+      - "9000:9000"  # expose uvicorn
+    volumes:
+      - .:/app  # montage code source pour hot-reload éventuel
+    command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "9000"]
+    restart: unless-stopped
+
+volumes:
+  ollama_models: 
