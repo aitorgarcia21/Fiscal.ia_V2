@@ -44,7 +44,7 @@ const ProLoginPage: React.FC = () => {
           <p className="text-gray-400 mt-2">Connectez-vous pour accéder à votre tableau de bord.</p>
         </div>
 
-        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl">
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(197,165,114,0.4)] transform hover:-translate-y-1 hover:scale-105">
           <form onSubmit={handleLogin} className="space-y-6">
             {error && <p className="text-red-400 text-center text-sm mb-4 bg-red-900/20 p-3 rounded-lg">{error}</p>}
             
@@ -56,7 +56,7 @@ const ProLoginPage: React.FC = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
-                className={`${inputStyles} pl-12`} 
+                className={`${inputStyles} pl-12 focus:ring-4 focus:ring-primary transition-all`} 
               />
             </div>
 
@@ -68,7 +68,7 @@ const ProLoginPage: React.FC = () => {
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
-                className={`${inputStyles} pl-12`} 
+                className={`${inputStyles} pl-12 focus:ring-4 focus:ring-primary transition-all`} 
               />
             </div>
 
