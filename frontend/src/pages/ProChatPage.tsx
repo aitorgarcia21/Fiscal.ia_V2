@@ -43,7 +43,7 @@ export function ProChatPage() {
   const [selectedClientProfile, setSelectedClientProfile] = useState<ClientProfile | null>(null);
   const [isLoadingClientProfile, setIsLoadingClientProfile] = useState(false);
 
-  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>('FR');
+  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>((localStorage.getItem('jurisdiction') as 'FR' | 'AD') || 'FR');
 
   // Charger la liste des clients du professionnel au montage
   useEffect(() => {
@@ -170,7 +170,11 @@ export function ProChatPage() {
                 <Globe2 className="w-4 h-4" />
                 <select
                   value={jurisdiction}
-                  onChange={(e) => setJurisdiction(e.target.value as 'FR' | 'AD')}
+                  onChange={(e) => {
+                    const value = e.target.value as 'FR' | 'AD';
+                    setJurisdiction(value);
+                    localStorage.setItem('jurisdiction', value);
+                  }}
                   className="bg-transparent border-none focus:outline-none text-sm"
                   aria-label="Juridiction"
                 >

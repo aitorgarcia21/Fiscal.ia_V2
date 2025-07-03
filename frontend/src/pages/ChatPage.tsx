@@ -30,7 +30,7 @@ export function ChatPage() {
   const [voiceInput, setVoiceInput] = useState("");
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
-  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>('FR');
+  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>((localStorage.getItem('jurisdiction') as 'FR' | 'AD') || 'FR');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -223,7 +223,11 @@ export function ChatPage() {
                 <Globe2 className="w-4 h-4" />
                 <select
                   value={jurisdiction}
-                  onChange={(e) => setJurisdiction(e.target.value as 'FR' | 'AD')}
+                  onChange={(e) => {
+                    const value = e.target.value as 'FR' | 'AD';
+                    setJurisdiction(value);
+                    localStorage.setItem('jurisdiction', value);
+                  }}
                   className="bg-transparent border-none focus:outline-none text-sm"
                   aria-label="Juridiction"
                 >
