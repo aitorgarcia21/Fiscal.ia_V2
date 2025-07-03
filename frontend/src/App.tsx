@@ -37,7 +37,7 @@ import ProLoginPage from './pages/ProLoginPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
-// import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/LoginPage';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -49,10 +49,8 @@ function App() {
           <Route path="/" element={<Navigate to="/pro-landing" replace />} />
           <Route path="/pro-landing" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
-          {/* Routes particuliers temporairement désactivées */}
-          {/* <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} /> */}
-          <Route path="/login" element={<Navigate to="/pro/login" replace />} />
+          {/* Page de connexion unifiée */}
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
           <Route path="/demo" element={<DemoPage />} />

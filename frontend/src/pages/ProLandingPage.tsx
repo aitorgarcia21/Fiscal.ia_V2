@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
-import { AuthModal } from '../components/auth/AuthModal';
+
 
 const features = [
   {
@@ -60,12 +60,14 @@ const ProLandingPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isProfessional, isLoadingAuth } = useAuth();
   
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
-  const openAuthModal = (mode: 'login' | 'signup') => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
+
+  const handleAuth = (mode: 'login' | 'signup') => {
+    if (mode === 'login') {
+      navigate('/login');
+    } else {
+      navigate('/pro/signup');
+    }
   };
 
   return (
@@ -86,13 +88,13 @@ const ProLandingPage = () => {
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => openAuthModal('login')}
+                onClick={() => handleAuth('login')}
                 className="text-gray-300 hover:text-[#c5a572] transition-colors font-medium"
               >
                 Connexion
               </button>
               <button
-                onClick={() => openAuthModal('signup')}
+                onClick={() => handleAuth('signup')}
                 className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-300"
               >
                 Inscription
@@ -114,7 +116,7 @@ const ProLandingPage = () => {
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
             <button
-              onClick={() => openAuthModal('signup')}
+              onClick={() => handleAuth('signup')}
               className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
               Commencer maintenant !
@@ -239,7 +241,7 @@ const ProLandingPage = () => {
                 </li>
               </ul>
               <button 
-                onClick={() => openAuthModal('signup')}
+                onClick={() => handleAuth('signup')}
                 className="w-full border border-[#c5a572] text-[#c5a572] px-6 py-3 rounded-xl font-semibold hover:bg-[#c5a572]/10 transition-all duration-300"
               >
                 Commencer
@@ -273,7 +275,7 @@ const ProLandingPage = () => {
                 </li>
               </ul>
               <button 
-                onClick={() => openAuthModal('signup')}
+                onClick={() => handleAuth('signup')}
                 className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
               >
                 Essai gratuit
@@ -292,7 +294,7 @@ const ProLandingPage = () => {
               Rejoignez les conseillers qui utilisent déjà Francis pour gagner du temps et mieux servir leurs clients.
             </p>
             <button
-              onClick={() => openAuthModal('signup')}
+              onClick={() => handleAuth('signup')}
               className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-bold hover:shadow-lg transition-all duration-300"
             >
               Démarrer maintenant
@@ -310,7 +312,7 @@ const ProLandingPage = () => {
               Rejoignez dès maintenant les conseillers qui automatisent leur paperasse grâce à Francis.
             </p>
             <button
-              onClick={() => openAuthModal('signup')}
+              onClick={() => handleAuth('signup')}
               className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl text-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
               Commencer maintenant !
@@ -330,15 +332,7 @@ const ProLandingPage = () => {
           </div>
         </footer>
 
-        {/* Auth modal */}
-        {isAuthModalOpen && (
-          <AuthModal 
-            isOpen={isAuthModalOpen} 
-            onClose={() => setIsAuthModalOpen(false)} 
-            initialTab={authMode} 
-            defaultAccountType="professionnel" 
-          />
-        )}
+
       </div>
     </>
   );

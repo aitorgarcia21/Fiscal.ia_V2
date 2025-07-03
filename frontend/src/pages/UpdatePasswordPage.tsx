@@ -52,7 +52,7 @@ const UpdatePasswordPage: React.FC = () => {
             setError(`Erreur: ${error.message}`);
         } else {
             setMessage("Votre mot de passe a été mis à jour avec succès ! Vous allez être redirigé vers la page de connexion.");
-            setTimeout(() => navigate('/pro/login'), 4000);
+            setTimeout(() => navigate('/login'), 4000);
         }
     };
     
