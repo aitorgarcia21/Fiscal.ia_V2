@@ -973,21 +973,37 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         
         return_url = request.get("returnUrl", "https://fiscal-ia.net/account")
         
-        # TODO: Récupérer le customer_id Stripe de la base de données
-        # Pour l'instant, on redirige vers la page de gestion manuelle
-        # Dans une vraie implémentation, il faudrait :
-        # 1. Récupérer le customer_id Stripe lié à user_id
-        # 2. Créer une portal session avec ce customer_id
-        
-        # customer_id = get_stripe_customer_id(user_id)
-        # portal_session = stripe.billing_portal.Session.create(
-        #     customer=customer_id,
-        #     return_url=return_url,
-        # )
-        # return {"url": portal_session.url}
-        
-        # Fallback temporaire
-        raise HTTPException(status_code=501, detail="Portal de gestion non encore implémenté - Contactez le support")
+        # 1. Récupérer l'email de l'utilisateur pour retrouver / créer le Customer Stripe
+        customer_email = None
+        if supabase:
+            try:
+                resp = supabase.table("profils_utilisateurs").select("email").eq("user_id", user_id).single().execute()
+                customer_email = (resp.data or {}).get("email")
+            except Exception:
+                pass
+
+        if not customer_email:
+            raise HTTPException(status_code=400, detail="Email utilisateur introuvable pour créer la session portal")
+
+        # 2. Chercher un customer existant, sinon le créer
+        customer_id = None
+        try:
+            search_res = stripe.Customer.list(email=customer_email, limit=1)
+            if search_res.data:
+                customer_id = search_res.data[0].id
+        except Exception:
+            pass
+
+        if not customer_id:
+            customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
+            customer_id = customer.id
+
+        # 3. Créer la session du portail
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=return_url,
+        )
+        return {"url": portal_session.url}
         
     except Exception as e:
         print(f"Erreur création portal session: {e}")
