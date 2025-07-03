@@ -56,7 +56,8 @@ RUN find . -type f -name "*.pyc" -delete
 # Sécurité : exécuter en non-root
 # ----------------------------
 RUN addgroup --system app && useradd --system --gid app --create-home app \
-    && chown -R app:app /app /var/www/html /etc/nginx /var/log/nginx
+    && mkdir -p /var/lib/nginx \
+    && chown -R app:app /app /var/www/html /etc/nginx /var/log/nginx /var/lib/nginx
 
 USER app
 
