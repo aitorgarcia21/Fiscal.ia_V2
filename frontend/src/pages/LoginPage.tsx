@@ -42,16 +42,16 @@ const LoginPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-white">Espace Particulier</h1>
           <p className="text-gray-400 mt-2">Connectez-vous pour accéder à votre tableau de bord.</p>
         </div>
-        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl">
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(197,165,114,0.4)]">
           <form onSubmit={handleLogin} className="space-y-6">
             {error && <p className="text-red-400 text-center text-sm mb-4 bg-red-900/20 p-3 rounded-lg">{error}</p>}
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12`} />
+              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className={`${inputStyles} pl-12 focus:ring-4 focus:ring-[#c5a572]/30 transition-all`} />
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12`} />
+              <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className={`${inputStyles} pl-12 focus:ring-4 focus:ring-[#c5a572]/30 transition-all`} />
             </div>
             <div className="mb-4 text-gray-300 text-sm">
               <label htmlFor="jurisdiction-select" className="block mb-1">Juridiction fiscale :</label>
