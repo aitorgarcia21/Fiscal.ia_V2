@@ -284,23 +284,7 @@ const ProLandingPage = () => {
           </div>
         </section>
 
-        {/* CTA simple */}
-        <section className="py-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Prêt à simplifier votre quotidien ?
-            </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Rejoignez les conseillers qui utilisent déjà Francis pour gagner du temps et mieux servir leurs clients.
-            </p>
-            <button
-              onClick={() => handleAuth('signup')}
-              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-bold hover:shadow-lg transition-all duration-300"
-            >
-              Démarrer maintenant
-            </button>
-          </div>
-        </section>
+
 
         {/* CTA Final */}
         <section className="py-20 bg-gradient-to-tr from-[#234876] to-[#162238]">
