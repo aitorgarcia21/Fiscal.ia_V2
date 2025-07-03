@@ -16,6 +16,9 @@ module.exports = {
           light: '#223c63',
         },
       },
+      ringColor: {
+        primary: '#c5a572',
+      },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
@@ -23,5 +26,15 @@ module.exports = {
   },
   plugins: [
     require('tailwind-scrollbar'),
+  ],
+  safelist: [
+    {
+      pattern: /ring-primary/,
+      variants: ['focus'],
+    },
+    {
+      pattern: /hover:shadow-\[0_0_20px_rgba\(197,165,114,0\.4\)\]/,
+      variants: ['hover'],
+    },
   ],
 } 
