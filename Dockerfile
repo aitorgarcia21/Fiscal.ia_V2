@@ -52,6 +52,14 @@ RUN chmod +x start.sh
 RUN find . -type d -name "__pycache__" -exec rm -r {} +
 RUN find . -type f -name "*.pyc" -delete
 
+# ----------------------------
+# Sécurité : exécuter en non-root
+# ----------------------------
+RUN addgroup --system app && useradd --system --gid app --create-home app \
+    && chown -R app:app /app /var/www/html /etc/nginx /var/log/nginx
+
+USER app
+
 ENV PORT=8080
 # Assurez-vous que PYTHONPATH est correct pour les imports `backend.`
 ENV PYTHONPATH=/app
