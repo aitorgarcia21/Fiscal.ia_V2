@@ -2,8 +2,6 @@ import os
 import json
 from typing import List, Dict, Tuple, AsyncGenerator, Optional, Literal
 import typing
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
 
 # Imports pour les embeddings CGI
 try:
@@ -34,8 +32,23 @@ except ImportError:
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
-# Initialisation du client Mistral
-client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
+# -----------------------------------------
+# Sélection dynamique du backend LLM
+# -----------------------------------------
+# Si LLM_ENDPOINT est défini *ou* si la clé Mistral est absente,
+# on bascule en mode local (Ollama ou proxy LiteLLM compatible).
+USE_LOCAL_LLM = bool(os.getenv("LLM_ENDPOINT")) or not MISTRAL_API_KEY
+
+if USE_LOCAL_LLM:
+    # Client local (Ollama / LiteLLM proxy)
+    from backend.ollama_client import generate as _local_generate  # type: ignore
+    ChatMessage = None  # Placeholder pour éviter les références inutiles
+    client = None
+else:
+    # Client Mistral officiel
+    from mistralai.client import MistralClient  # type: ignore
+    from mistralai.models.chat_completion import ChatMessage  # type: ignore
+    client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 
 # Cache global pour éviter de recharger les embeddings - CHARGEMENT À LA DEMANDE
 _embeddings_cache = None
@@ -149,8 +162,8 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
     """
     Génère une réponse fiscale en utilisant RAG avec les sources officielles.
     """
-    if not client:
-        return ("Service Mistral non disponible. Veuillez vérifier la configuration de l'API.", [], 0.0)
+    if not client and not USE_LOCAL_LLM:
+        return ("Service Mistral non disponible et aucun backend local détecté. Configurez MISTRAL_API_KEY ou LLM_ENDPOINT.", [], 0.0)
     
     # Construction du contexte utilisateur si fourni
     user_context_str = ""
@@ -319,27 +332,52 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisate
 """
 
     # Construire l'historique de conversation si disponible
-    messages_for_api = []
-    if conversation_history:
-        # Inclure jusqu'à 10 messages précédents pour un meilleur contexte
-        for msg in conversation_history[-10:]:
-            if msg.get('role') and msg.get('content'):
-                # Tronquer chaque message pour éviter l'explosion des tokens
-                truncated_content = msg['content'][:400]
-                messages_for_api.append(ChatMessage(role=msg['role'], content=truncated_content))
-    
-    messages_for_api.append(ChatMessage(role="user", content=full_prompt))
-    
-    # Appel à Mistral avec température basse pour plus de précision
-    response = client.chat(
-        model="mistral-large-latest",
-        messages=messages_for_api,
-        temperature=0.1,  # Très faible pour privilégier la précision
-        max_tokens=1000
-    )
-    
-    answer = response.choices[0].message.content.strip()
-    
+    if USE_LOCAL_LLM:
+        history_str = ""
+        if conversation_history:
+            for msg in conversation_history[-10:]:
+                role = msg.get("role", "user").capitalize()
+                content = msg.get("content", "")[:400]
+                history_str += f"{role}: {content}\n"
+        # Prompt final pour un modèle simple type chat-instruct
+        local_prompt = (
+            f"{history_str}Utilisateur: {full_prompt}\nAssistant:"  # On reste cohérent en français
+        )
+        try:
+            answer = _local_generate(
+                local_prompt,
+                model=os.getenv("LLM_LOCAL_MODEL", "mistral"),
+                max_tokens=1000,
+                temperature=0.1,
+            ).strip()
+        except Exception as e:
+            return (f"Erreur lors de l'appel au LLM local : {e}", [], 0.0)
+    else:
+        # --------------------
+        # Appel API Mistral
+        # --------------------
+        messages_for_api = []
+        if conversation_history and ChatMessage is not None:
+            for msg in conversation_history[-10:]:
+                if msg.get("role") and msg.get("content"):
+                    truncated_content = msg["content"][:400]
+                    messages_for_api.append(ChatMessage(role=msg["role"], content=truncated_content))
+
+        if ChatMessage is not None:
+            messages_for_api.append(ChatMessage(role="user", content=full_prompt))
+
+        if not client:
+            return ("Service Mistral non disponible. Configurez MISTRAL_API_KEY ou un LLM local.", [], 0.0)
+
+        response = client.chat(
+            model="mistral-large-latest",
+            messages=messages_for_api,
+            temperature=0.1,
+            max_tokens=1000,
+        )
+
+        answer = response.choices[0].message.content.strip()
+
     # Supprimer la logique d'ajout du disclaimer. Francis gère les citations.
     final_answer = answer
     
