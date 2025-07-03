@@ -351,7 +351,25 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisate
                 temperature=0.1,
             ).strip()
         except Exception as e:
-            return (f"Erreur lors de l'appel au LLM local : {e}", [], 0.0)
+            # 🔄 Fallback automatique vers l'API Mistral si une clé est dispo
+            if MISTRAL_API_KEY:
+                try:
+                    from mistralai.client import MistralClient  # type: ignore
+                    from mistralai.models.chat_completion import ChatMessage as _ChatMessage  # type: ignore
+
+                    _client_fallback = MistralClient(api_key=MISTRAL_API_KEY)
+                    messages_fallback = [_ChatMessage(role="user", content=full_prompt)]
+                    response_fb = _client_fallback.chat(
+                        model="mistral-large-latest",
+                        messages=messages_fallback,
+                        temperature=0.1,
+                        max_tokens=1000,
+                    )
+                    answer = response_fb.choices[0].message.content.strip()
+                except Exception as e2:
+                    return (f"Erreur LLM local puis fallback API Mistral : {e} / {e2}", [], 0.0)
+            else:
+                return (f"Erreur lors de l'appel au LLM local et aucune API Mistral disponible : {e}", [], 0.0)
     else:
         # --------------------
         # Appel API Mistral
