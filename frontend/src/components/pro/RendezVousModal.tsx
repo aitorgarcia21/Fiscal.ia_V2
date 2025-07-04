@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Calendar, Clock, MapPin, AlignLeft, Tag, AlertTriangle, Loader2 } from 'lucide-react';
-import { RendezVous } from '../../pages/ProAgendaPage'; // Importer l'interface RendezVous
+
+// Interface RendezVous définie localement
+interface RendezVous {
+  id?: number;
+  id_client: number;
+  titre: string;
+  description?: string;
+  date_heure_debut: string;
+  date_heure_fin: string;
+  lieu?: string;
+  statut: string;
+  notes_rdv?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 // Interface pour les props de la modale
 interface RendezVousModalProps {
