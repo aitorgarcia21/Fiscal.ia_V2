@@ -131,7 +131,7 @@ const ProLandingPage = () => {
         </main>
 
         {/* Comment ça marche - Étapes concrètes */}
-        <section className="py-20 bg-gradient-to-b from-transparent to-[#162238]/30">
+        <section className="pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -173,12 +173,12 @@ const ProLandingPage = () => {
         </section>
 
         {/* Démo Section */}
-        <section id="demo" className="py-20">
+        <section id="demo" className="pb-20">
           <ProDemoSection />
         </section>
 
         {/* Features simples */}
-        <section id="features" className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <section id="features" className="container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Un outil simple et efficace
@@ -203,7 +203,7 @@ const ProLandingPage = () => {
         </section>
 
         {/* Tarifs simplifiés */}
-        <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Tarifs transparents
@@ -284,10 +284,8 @@ const ProLandingPage = () => {
           </div>
         </section>
 
-
-
         {/* CTA Final */}
-        <section className="py-20 bg-gradient-to-tr from-[#234876] to-[#162238]">
+        <section className="pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8">
               Prêt à transformer votre cabinet ?
