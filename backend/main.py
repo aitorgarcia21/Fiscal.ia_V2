@@ -75,15 +75,31 @@ try:
     from whisper_service import get_whisper_service
 except ImportError:
     # Pour le développement local (quand on lance depuis la racine)
-    from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
-    from backend.database import SessionLocal, engine, Base, get_db as get_db_session
-    from backend.models import UserProfile
-    from backend.models_pro import BasePro
-    from backend.routers import pro_clients as pro_clients_router
-    from backend.routers import swiss_tax as swiss_tax_router
-    from backend.routers import francis_swiss as francis_swiss_router
-    from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
-    from backend.whisper_service import get_whisper_service
+    try:
+        from backend.assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+        from backend.database import SessionLocal, engine, Base, get_db as get_db_session
+        from backend.models import UserProfile
+        from backend.models_pro import BasePro
+        from backend.routers import pro_clients as pro_clients_router
+        from backend.routers import swiss_tax as swiss_tax_router
+        from backend.routers import francis_swiss as francis_swiss_router
+        from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+        from backend.whisper_service import get_whisper_service
+    except ImportError:
+        # Fallback : imports directs depuis le répertoire courant
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        
+        from assistant_fiscal_simple import get_fiscal_response, get_fiscal_response_stream, search_cgi_embeddings
+        from database import SessionLocal, engine, Base, get_db as get_db_session
+        from models import UserProfile
+        from models_pro import BasePro
+        from routers import pro_clients as pro_clients_router
+        from routers import swiss_tax as swiss_tax_router
+        from routers import francis_swiss as francis_swiss_router
+        from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
+        from whisper_service import get_whisper_service
 # --- Fin des imports relatifs corrigés ---
 
 # Configuration
