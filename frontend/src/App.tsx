@@ -34,11 +34,8 @@ import MentionsLegales from './pages/MentionsLegales';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import DataPrivacyPage from './pages/DataPrivacyPage';
 import ProLoginPage from './pages/ProLoginPage';
-import UpdatePasswordPage from './pages/UpdatePasswordPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
-import SetPasswordPage from './pages/SetPasswordPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -51,9 +48,6 @@ function App() {
   return (
       <Router>
         <Routes>
-          <Route path="/update-password" element={<UpdatePasswordPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/set-password" element={<SetPasswordPage />} />
           <Route path="/" element={<Navigate to="/pro-landing" replace />} />
           <Route path="/pro-landing" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
