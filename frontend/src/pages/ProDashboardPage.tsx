@@ -250,22 +250,7 @@ export function ProDashboardPage() {
               </div>
             </button>
 
-            <button
-              onClick={() => navigate('/pro/agenda')}
-              className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-[#162238]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
-                    Agenda
-                  </h3>
-                  <p className="text-sm text-gray-400">Gérez vos rendez-vous</p>
-                </div>
-              </div>
-            </button>
+
 
             <button
               onClick={() => navigate('/pro/settings')}
