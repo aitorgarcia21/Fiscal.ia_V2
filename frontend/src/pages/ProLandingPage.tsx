@@ -72,7 +72,7 @@ const ProLandingPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100">
+      <div className="min-h-screen bg-gradient-to-tr from-[#234876] to-[#162238] text-gray-100">
         {/* Header simple */}
         <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
           <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -209,7 +209,7 @@ const ProLandingPage = () => {
               Tarifs transparents
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Essayez gratuitement pendant 14 jours. Sans engagement.
+              Tarifs transparents et sans surprise
             </p>
           </div>
 
@@ -278,7 +278,7 @@ const ProLandingPage = () => {
                 onClick={() => handleAuth('signup')}
                 className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
               >
-                Essai gratuit
+                Commencer
               </button>
             </div>
           </div>
