@@ -17,17 +17,24 @@ const UpdatePasswordPage: React.FC = () => {
 
     useEffect(() => {
         const handlePasswordRecovery = async () => {
+            console.log("🔍 Debug - URL complète:", window.location.href);
+            console.log("🔍 Debug - Hash:", location.hash);
+            console.log("🔍 Debug - Search:", location.search);
+            
             // 1. Récupérer les tokens dans le hash (prioritaire)
             let hash = location.hash.startsWith('#/') ? location.hash.slice(2) : location.hash.slice(1);
             const hashParams = new URLSearchParams(hash);
             let accessToken = hashParams.get('access_token');
             let refreshToken = hashParams.get('refresh_token');
 
+            console.log("🔍 Debug - Hash params:", { accessToken: accessToken ? 'PRESENT' : 'MISSING', refreshToken: refreshToken ? 'PRESENT' : 'MISSING' });
+
             // 2. Si pas trouvé, regarder dans les query params
             if (!accessToken || !refreshToken) {
                 const urlParams = new URLSearchParams(location.search);
                 accessToken = accessToken || urlParams.get('access_token');
                 refreshToken = refreshToken || urlParams.get('refresh_token');
+                console.log("🔍 Debug - Query params:", { accessToken: accessToken ? 'PRESENT' : 'MISSING', refreshToken: refreshToken ? 'PRESENT' : 'MISSING' });
             }
 
             // 3. Fallback : certains clients mettent le hash sous forme #/update-password?access_token=...
@@ -37,10 +44,25 @@ const UpdatePasswordPage: React.FC = () => {
                     const weirdParams = new URLSearchParams(afterQ);
                     accessToken = accessToken || weirdParams.get('access_token');
                     refreshToken = refreshToken || weirdParams.get('refresh_token');
+                    console.log("🔍 Debug - Weird params:", { accessToken: accessToken ? 'PRESENT' : 'MISSING', refreshToken: refreshToken ? 'PRESENT' : 'MISSING' });
+                }
+            }
+
+            // 4. Nouveau fallback : essayer de parser l'URL complète
+            if (!accessToken || !refreshToken) {
+                const fullUrl = window.location.href;
+                const urlObj = new URL(fullUrl);
+                const fragment = urlObj.hash;
+                if (fragment) {
+                    const fragmentParams = new URLSearchParams(fragment.slice(1));
+                    accessToken = accessToken || fragmentParams.get('access_token');
+                    refreshToken = refreshToken || fragmentParams.get('refresh_token');
+                    console.log("🔍 Debug - Fragment params:", { accessToken: accessToken ? 'PRESENT' : 'MISSING', refreshToken: refreshToken ? 'PRESENT' : 'MISSING' });
                 }
             }
 
             if (accessToken && refreshToken) {
+                console.log("✅ Tokens trouvés, tentative de session...");
                 try {
                     const { error } = await supabase.auth.setSession({
                         access_token: accessToken,
@@ -48,16 +70,21 @@ const UpdatePasswordPage: React.FC = () => {
                     });
 
                     if (error) {
+                        console.error("❌ Erreur Supabase:", error);
                         setError("Erreur lors de la validation du lien. Veuillez demander un nouveau lien.");
                     } else {
+                        console.log("✅ Session établie avec succès");
                         setIsTokenValid(true);
                         setDebugInfo(`Session établie avec succès. Token: ${accessToken.substring(0, 20)}...`);
                     }
                 } catch (err) {
+                    console.error("❌ Erreur exception:", err);
                     setError("Erreur lors de la validation du lien. Veuillez demander un nouveau lien.");
                 }
             } else {
+                console.log("❌ Aucun token trouvé");
                 setError("Lien invalide ou expiré. Il manque les tokens d'accès. Veuillez demander un nouveau lien.");
+                setDebugInfo(`Debug: Hash="${location.hash}", Search="${location.search}", URL="${window.location.href}"`);
             }
         };
 
