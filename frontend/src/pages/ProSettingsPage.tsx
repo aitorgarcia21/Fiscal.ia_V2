@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { CreditCard, User, Settings, ExternalLink, ArrowLeft, Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { CreditCard, User, Settings, ExternalLink, ArrowLeft, Check, Lock, Mail, User as UserIcon } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useStripe } from '../hooks/useStripe';
+import { useAuth } from '../contexts/AuthContext';
 
 export function ProSettingsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { redirectToPortal, isLoading, error } = useStripe();
   const [activeTab, setActiveTab] = useState<'profile' | 'billing'>('profile');
 
@@ -13,6 +15,13 @@ export function ProSettingsPage() {
       returnUrl: `${window.location.origin}/pro/settings`
     });
   };
+
+  // Récupérer les informations de l'utilisateur
+  const userEmail = user?.email || 'Non renseigné';
+  const userFirstName = user?.user_metadata?.first_name || user?.user_metadata?.prenom || 'Non renseigné';
+  const userLastName = user?.user_metadata?.last_name || user?.user_metadata?.nom || 'Non renseigné';
+  const userFullName = `${userFirstName} ${userLastName}`.trim() || 'Non renseigné';
+  const userCreatedAt = 'Non renseigné'; // La date de création n'est pas disponible dans l'interface AuthUser
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] px-4 py-8 flex flex-col">
@@ -60,6 +69,7 @@ export function ProSettingsPage() {
           {activeTab === 'profile' && (
             <div className="p-8">
               <h2 className="text-2xl font-semibold text-white mb-6">Informations du profil</h2>
+              
               {/* Statut de l'abonnement */}
               <div className="bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-6 mb-6">
                 <div className="flex items-center gap-3">
@@ -77,15 +87,36 @@ export function ProSettingsPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email
+                    </label>
                     <div className="bg-[#162238]/50 border border-[#c5a572]/20 rounded-lg px-4 py-3 text-gray-300">
-                      user@exemple.com
+                      {userEmail}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Nom complet</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <UserIcon className="w-4 h-4" />
+                      Nom complet
+                    </label>
                     <div className="bg-[#162238]/50 border border-[#c5a572]/20 rounded-lg px-4 py-3 text-gray-300">
-                      Non renseigné
+                      {userFullName}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Prénom</label>
+                    <div className="bg-[#162238]/50 border border-[#c5a572]/20 rounded-lg px-4 py-3 text-gray-300">
+                      {userFirstName}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Nom</label>
+                    <div className="bg-[#162238]/50 border border-[#c5a572]/20 rounded-lg px-4 py-3 text-gray-300">
+                      {userLastName}
                     </div>
                   </div>
                 </div>
@@ -93,16 +124,25 @@ export function ProSettingsPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Date d'inscription</label>
                   <div className="bg-[#162238]/50 border border-[#c5a572]/20 rounded-lg px-4 py-3 text-gray-300">
-                    {new Date().toLocaleDateString('fr-FR')}
+                    {userCreatedAt}
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
               <div className="mt-8 pt-6 border-t border-[#c5a572]/20">
-                <button className="px-6 py-3 bg-[#c5a572] text-[#162238] font-semibold rounded-lg hover:bg-[#e8cfa0] transition-colors">
-                  Modifier le profil
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    to="/change-password"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                  >
+                    <Lock className="w-4 h-4" />
+                    Changer le mot de passe
+                  </Link>
+                  <button className="px-6 py-3 bg-[#c5a572] text-[#162238] font-semibold rounded-lg hover:bg-[#e8cfa0] transition-colors">
+                    Modifier le profil
+                  </button>
+                </div>
               </div>
             </div>
           )}

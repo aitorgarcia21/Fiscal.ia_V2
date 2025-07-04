@@ -39,6 +39,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
 import SetPasswordPage from './pages/SetPasswordPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AccountPage } from './pages/AccountPage';
@@ -89,6 +90,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/discover" element={<DiscoverPage />} />
           </Route>
@@ -105,6 +108,7 @@ function App() {
             <Route path="/pro/agenda" element={<ProAgendaPage />} />
             <Route path="/pro/settings" element={<ProSettingsPage />} />
             <Route path="/pro/extension" element={<ProExtensionPage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
           </Route>
           <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>

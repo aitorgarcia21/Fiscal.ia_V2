@@ -202,35 +202,69 @@ async def send_reset_email(request: Request):
             )
         
         print(f"📧 Envoi reset pour: {email}")
+        print(f"🌐 URL de base: {request.base_url}")
+        
+        # Vérifier si l'utilisateur existe dans Supabase
+        try:
+            # Essayer de récupérer l'utilisateur
+            user_response = supabase.auth.admin.list_users()
+            user_exists = any(user.email == email for user in user_response.users)
+            print(f"👤 Utilisateur existe: {user_exists}")
+            
+            if not user_exists:
+                return JSONResponse(
+                    status_code=404,
+                    content={"error": "Utilisateur non trouvé dans la base de données"}
+                )
+                
+        except Exception as e:
+            print(f"❌ Erreur vérification utilisateur: {e}")
         
         # Envoyer un email de reset standard avec le bon redirectTo
         try:
+            # Utiliser une URL plus simple pour éviter les problèmes de tokens
+            reset_url = f"{request.base_url}update-password"
+            print(f"🔗 URL de reset: {reset_url}")
+            
+            # Essayer avec une approche différente
             reset_result = supabase.auth.reset_password_for_email(
                 email,
                 {
-                    "redirectTo": f"{request.base_url}update-password"
+                    "redirectTo": reset_url,
+                    "captchaToken": None  # Désactiver captcha si présent
                 }
             )
             
             print(f"✅ Email de reset envoyé pour {email}")
+            print(f"📤 Résultat: {reset_result}")
             
             return JSONResponse(
                 status_code=200,
                 content={
                     "message": "Email de récupération envoyé !",
                     "type": "email_sent",
-                    "note": "Vérifiez votre boîte de réception et cliquez sur le lien dans l'email."
+                    "note": "Vérifiez votre boîte de réception et cliquez sur le lien dans l'email.",
+                    "debug": {
+                        "email": email,
+                        "reset_url": reset_url,
+                        "warning": "Si le refresh_token est vide, vérifiez le template d'email Supabase"
+                    }
                 }
             )
             
         except Exception as e:
             print(f"❌ Erreur envoi email: {e}")
+            print(f"❌ Type d'erreur: {type(e)}")
             
             return JSONResponse(
                 status_code=500,
                 content={
                     "error": f"Erreur lors de l'envoi: {str(e)}",
-                    "note": "Vérifiez que l'email existe dans votre base de données Supabase."
+                    "note": "Vérifiez que l'email existe dans votre base de données Supabase.",
+                    "debug": {
+                        "email": email,
+                        "error_type": str(type(e))
+                    }
                 }
             )
                     
