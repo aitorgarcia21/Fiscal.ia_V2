@@ -98,12 +98,15 @@ const LoginPage: React.FC = () => {
               {isLoading ? 'Connexion...' : `Se connecter${userType === 'professionnel' ? ' (Pro)' : ''}`}
             </button>
           </form>
-          <div className="text-center mt-4 space-y-2">
+          <div className="text-center mt-6 space-y-2">
             <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
               Mot de passe oublié ?
             </Link>
+            <Link to="/manual-password-reset" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
+              Reset manuel (si le lien email ne fonctionne pas)
+            </Link>
             <Link to="/set-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
-              Définir un mot de passe (compte OAuth)
+              Définir un mot de passe (OAuth)
             </Link>
           </div>
           

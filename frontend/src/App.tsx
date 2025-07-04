@@ -39,6 +39,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
 import SetPasswordPage from './pages/SetPasswordPage';
+import ManualPasswordReset from './pages/ManualPasswordReset';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AccountPage } from './pages/AccountPage';
@@ -53,6 +54,7 @@ function App() {
           <Route path="/update-password" element={<UpdatePasswordPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/set-password" element={<SetPasswordPage />} />
+          <Route path="/manual-password-reset" element={<ManualPasswordReset />} />
           <Route path="/" element={<Navigate to="/pro-landing" replace />} />
           <Route path="/pro-landing" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
