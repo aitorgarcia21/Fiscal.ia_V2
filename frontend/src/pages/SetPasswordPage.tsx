@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { MessageSquare, Euro, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { MessageSquare, Euro, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 
 const SetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -13,11 +13,26 @@ const SetPasswordPage: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isInvitation, setIsInvitation] = useState(false);
+  const [invitationEmail, setInvitationEmail] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Vérifier si c'est une invitation
+        const invite = searchParams.get('invite');
+        const email = searchParams.get('email');
+        
+        if (invite === 'true' && email) {
+          setIsInvitation(true);
+          setInvitationEmail(email);
+          setIsAuthenticated(false); // Pas besoin d'être connecté pour une invitation
+          setIsCheckingAuth(false);
+          return;
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession();
         if (session && !error) {
           setIsAuthenticated(true);
@@ -33,7 +48,7 @@ const SetPasswordPage: React.FC = () => {
     };
 
     checkAuth();
-  }, []);
+  }, [searchParams]);
 
   const handleOAuthLogin = async (provider: 'google' | 'github') => {
     try {
@@ -70,16 +85,44 @@ const SetPasswordPage: React.FC = () => {
     setMessage(null);
 
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      
-      if (error) {
-        setError(`Erreur: ${error.message}`);
+      if (isInvitation && invitationEmail) {
+        // Pour les invitations, on doit d'abord se connecter avec l'email
+        // puis définir le mot de passe
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: invitationEmail,
+          password: 'temporary_password_for_invitation'
+        });
+
+        if (signInError) {
+          // Si la connexion échoue, on essaie de créer un compte
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: invitationEmail,
+            password: password
+          });
+
+          if (signUpError) {
+            throw new Error(signUpError.message);
+          }
+        } else {
+          // Si la connexion réussit, on met à jour le mot de passe
+          const { error: updateError } = await supabase.auth.updateUser({ password });
+          if (updateError) {
+            throw new Error(updateError.message);
+          }
+        }
       } else {
-        setMessage('Votre mot de passe a été défini avec succès ! Vous allez être redirigé vers le dashboard.');
-        setTimeout(() => navigate('/dashboard'), 3000);
+        // Pour les utilisateurs connectés normalement
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) {
+          throw new Error(error.message);
+        }
       }
+      
+      setMessage('Votre mot de passe a été défini avec succès ! Vous allez être redirigé vers le dashboard.');
+      setTimeout(() => navigate('/dashboard'), 3000);
+      
     } catch (err: any) {
-      setError('Erreur lors de la définition du mot de passe. Veuillez réessayer.');
+      setError(`Erreur lors de la définition du mot de passe: ${err.message}`);
     } finally {
       setLoading(false);
     }

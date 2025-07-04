@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .main import api_router, pro_clients_router # Importer les routeurs
-from .main import startup_event # Importer l'événement startup
-from backend.routers import pro_clients
-from backend.routers import meta
+from main import api_router, pro_clients_router # Importer les routeurs
+from main import startup_event # Importer l'événement startup
+from routers import pro_clients
+from routers import meta
 from fastapi.responses import JSONResponse
 from fastapi import Request
+from supabase_client import supabase
+import time
 
 # Créer l'instance de l'application principale
 app = FastAPI(
@@ -36,6 +38,70 @@ app.on_event("startup")(startup_event)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.post("/api/auth/send-invitation")
+async def send_invitation_email(request: Request):
+    """Route pour envoyer des emails d'invitation aux utilisateurs créés manuellement"""
+    try:
+        data = await request.json()
+        email = data.get("email")
+        
+        if not email:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Email requis"}
+            )
+        
+        print(f"📧 Envoi d'invitation pour: {email}")
+        
+        # Créer un lien d'invitation sécurisé
+        invitation_link = f"{request.base_url}set-password?email={email}&invite=true&timestamp={int(time.time())}"
+        
+        # Envoyer un email d'invitation personnalisé
+        try:
+            # Utiliser l'API Supabase pour envoyer un email personnalisé
+            # Note: Supabase ne permet pas d'envoyer des emails personnalisés directement
+            # On va utiliser une approche alternative
+            
+            # Option 1: Envoyer un email de reset avec un lien personnalisé
+            reset_result = supabase.auth.reset_password_for_email(
+                email,
+                {
+                    "redirectTo": f"{request.base_url}set-password?invite=true"
+                }
+            )
+            
+            print(f"✅ Email d'invitation envoyé pour {email}")
+            
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Email d'invitation envoyé !",
+                    "type": "invitation_sent",
+                    "note": "L'utilisateur peut maintenant créer son mot de passe en cliquant sur le lien dans l'email."
+                }
+            )
+            
+        except Exception as e:
+            print(f"❌ Erreur envoi invitation: {e}")
+            
+            # Option 2: Fallback - retourner le lien d'invitation
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Lien d'invitation généré",
+                    "type": "invitation_link",
+                    "invitation_link": invitation_link,
+                    "note": "Copiez ce lien et envoyez-le manuellement à l'utilisateur."
+                }
+            )
+                    
+    except Exception as e:
+        print(f"❌ Erreur serveur: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erreur serveur: {str(e)}"}
+        )
 
 @app.post("/api/auth/reset-password-manual")
 async def reset_password_manual(request: Request):

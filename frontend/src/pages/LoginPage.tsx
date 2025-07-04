@@ -105,6 +105,9 @@ const LoginPage: React.FC = () => {
             <Link to="/manual-password-reset" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
               Reset manuel (si le lien email ne fonctionne pas)
             </Link>
+            <Link to="/invitation" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
+              Envoyer une invitation (utilisateurs créés manuellement)
+            </Link>
             <Link to="/set-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
               Définir un mot de passe (OAuth)
             </Link>
