@@ -79,10 +79,13 @@ const ProLoginPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="text-center mt-4">
+          <div className="text-center mt-4 space-y-2">
             <Link to="/forgot-password"
-               className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors">
+               className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
                 Mot de passe oublié ?
+            </Link>
+            <Link to="/set-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
+              Définir un mot de passe (compte OAuth)
             </Link>
           </div>
 
