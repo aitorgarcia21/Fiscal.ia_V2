@@ -961,7 +961,6 @@ export function Dashboard() {
             <h1 className="text-lg font-semibold text-white">Francis</h1>
           </div>
           <div className="flex items-center gap-4">
-            <a href="/mes-donnees" className="text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors">RGPD</a>
             <button
               onClick={handleLogout}
               className="text-gray-400 hover:text-white transition-colors"
