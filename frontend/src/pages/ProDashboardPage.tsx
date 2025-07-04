@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, ArrowRight, Calculator } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2 } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -76,98 +76,6 @@ export function ProDashboardPage() {
 
   const professionalName = user?.user_metadata?.full_name || user?.email || 'Professionnel';
 
-  // Simulateurs adaptés au pays
-  const getSimulateursByCountry = () => {
-    switch (country) {
-      case 'CH':
-        return [
-          {
-            id: 'impot-suisse',
-            title: 'Simulateur Impôt Suisse',
-            description: 'Calcul d\'impôt fédéral, cantonal et communal',
-            icon: Calculator,
-            color: 'from-blue-500 to-blue-600',
-            route: '/simulateur-impot-suisse'
-          },
-          {
-            id: 'tva-suisse',
-            title: 'Calculateur TVA Suisse',
-            description: 'TVA 7.7%, 2.5% et 3.7%',
-            icon: TrendingUp,
-            color: 'from-green-500 to-green-600',
-            route: '/simulateur-tva-suisse'
-          }
-        ];
-      case 'AD':
-        return [
-          {
-            id: 'irpf-andorre',
-            title: 'Simulateur IRPF Andorre',
-            description: 'Impôt sur le revenu andorran',
-            icon: Calculator,
-            color: 'from-yellow-500 to-yellow-600',
-            route: '/simulateur-irpf'
-          },
-          {
-            id: 'igi-andorre',
-            title: 'Calculateur IGI Andorre',
-            description: 'Impost General Indirecte',
-            icon: TrendingUp,
-            color: 'from-orange-500 to-orange-600',
-            route: '/simulateur-igi-andorre'
-          }
-        ];
-      case 'LU':
-        return [
-          {
-            id: 'impot-luxembourg',
-            title: 'Simulateur Impôt Luxembourg',
-            description: 'Barème progressif luxembourgeois',
-            icon: Calculator,
-            color: 'from-red-500 to-red-600',
-            route: '/simulateur-impot-luxembourg'
-          },
-          {
-            id: 'tva-luxembourg',
-            title: 'Calculateur TVA Luxembourg',
-            description: 'TVA 17%, 14%, 8% et 3%',
-            icon: TrendingUp,
-            color: 'from-purple-500 to-purple-600',
-            route: '/simulateur-tva-luxembourg'
-          }
-        ];
-      default: // FR
-        return [
-          {
-            id: 'impot-france',
-            title: 'Simulateur Impôt France',
-            description: 'Barème progressif français 2025',
-            icon: Calculator,
-            color: 'from-blue-500 to-blue-600',
-            route: '/simulateur-impot'
-          },
-          {
-            id: 'tmi-calculator',
-            title: 'Calculateur TMI',
-            description: 'Taux Marginal d\'Imposition',
-            icon: TrendingUp,
-            color: 'from-green-500 to-green-600',
-            route: '/simulateur-tmi'
-          },
-          {
-            id: 'optimisation-fiscale',
-            title: 'Optimisation Fiscale',
-            description: 'Stratégies d\'optimisation avancées',
-            icon: Shield,
-            color: 'from-purple-500 to-purple-600',
-            route: '/simulateur-optimisation'
-          }
-        ];
-    }
-  };
-
-  const simulateurs = getSimulateursByCountry();
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
       {/* Header amélioré avec logo */}
@@ -209,45 +117,7 @@ export function ProDashboardPage() {
       <div className="flex-1 p-6">
         <div className="max-w-7xl mx-auto space-y-8">
           
-          {/* Section Simulateurs adaptés au pays */}
-          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">
-                  Simulateurs {country === 'FR' ? 'Français' : 
-                               country === 'CH' ? 'Suisses' : 
-                               country === 'AD' ? 'Andorrans' : 'Luxembourgeois'}
-                </h2>
-                <p className="text-gray-400">
-                  Outils de calcul adaptés à la juridiction sélectionnée
-                </p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {simulateurs.map((simulateur) => (
-                <button
-                  key={simulateur.id}
-                  onClick={() => navigate(simulateur.route)}
-                  className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${simulateur.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                      <simulateur.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{simulateur.title}</h3>
-                      <p className="text-gray-400 text-sm">{simulateur.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#c5a572] text-sm font-medium">Accéder</span>
-                    <ArrowRight className="w-4 h-4 text-[#c5a572] group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+
 
           {/* Section Clients existante */}
           <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">
