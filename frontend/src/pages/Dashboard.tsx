@@ -99,7 +99,7 @@ export function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'discovery'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'profile'>('chat');
   const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
   const [extractionResult, setExtractionResult] = useState<any>(null);
   const [showTmiModal, setShowTmiModal] = useState(false);
@@ -987,16 +987,16 @@ export function Dashboard() {
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('discovery')}
+              onClick={() => setActiveTab('profile')}
               className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'discovery' 
+                activeTab === 'profile' 
                   ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
                   : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
               }`}
             >
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Découverte
+                <User className="w-4 h-4" />
+                Mon Profil
               </div>
             </button>
           </div>
@@ -1128,66 +1128,36 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Onglet Découverte */}
-        {activeTab === 'discovery' && (
+        {/* Onglet Mon Profil */}
+        {activeTab === 'profile' && (
           <div className="max-w-4xl mx-auto w-full space-y-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-2">Découverte Personnalisée</h2>
-              <p className="text-xl text-gray-400 mb-6">Répondez à quelques questions pour des conseils ultra-personnalisés, ou laissez-vous guider par Francis.</p>
-              
-              {isProfessional && (
-                <>
-                  <button
-                    onClick={() => setShowDiscoveryExtraction(true)}
-                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-3 justify-center mx-auto text-lg"
-                  >
-                    <MessageSquare className="w-6 h-6" />
-                    Compléter mon profil avec Francis (Vocal)
-                  </button>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
-                    Francis vous guide vocalement pour une analyse ultra-précise.
-                  </p>
-
-                  <div className="relative my-8">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full border-t border-gray-600" />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="bg-[#1a2332] px-3 text-lg font-medium text-white">OU</span>
-                    </div>
-                  </div>
-                </>
-              )}
+              <h2 className="text-3xl font-bold text-white mb-2">Mon Profil</h2>
+              <p className="text-xl text-gray-400 mb-6">Gérez vos informations personnelles et vos préférences.</p>
             </div>
 
             <div className="bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-8">
-              <h3 className="text-2xl font-bold text-white mb-2 text-center">Questionnaire Manuel</h3>
-              <p className="text-center text-gray-400 mb-6">Remplissez le formulaire à votre rythme.</p>
-              <div className="mb-8">
-                <div className="flex justify-between text-sm text-gray-400 mb-2">
-                  <span>Étape {discoveryStep + 1} sur 3</span>
-                  <span>{Math.round(((discoveryStep + 1) / 3) * 100)}%</span>
-                </div>
-                <div className="w-full bg-[#162238] rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${((discoveryStep + 1) / 3) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="min-h-[300px]">
-                {discoveryStep === 0 && (
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Informations Personnelles</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label id="age-label" className="block text-sm font-medium text-gray-300 mb-2">Quel est votre âge ?</label>
-                        <input type="number" value={discoveryData.age} onChange={e => updateDiscoveryData('age', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="age-label" />
-                      </div>
-                      <div>
-                        <label id="situation-label" className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
-                        <select value={discoveryData.situation_familiale} onChange={e => updateDiscoveryData('situation_familiale', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="situation-label">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Informations personnelles */}
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4">Informations Personnelles</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                      <input 
+                        type="email" 
+                        value={user?.email || ''} 
+                        disabled 
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-gray-400" 
+                      />
+                    </div>
+                                          <div>
+                        <label htmlFor="situation-familiale" className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
+                        <select 
+                          id="situation-familiale"
+                          value={userProfile?.situation_familiale || 'celibataire'} 
+                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg"
+                        >
                           <option value="celibataire">Célibataire</option>
                           <option value="marie">Marié(e) / PACS</option>
                           <option value="veuf">Veuf(ve)</option>
@@ -1195,87 +1165,77 @@ export function Dashboard() {
                         </select>
                       </div>
                       <div>
-                        <label id="enfants-label" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants à charge</label>
-                        <input type="number" value={discoveryData.nombre_enfants} onChange={e => updateDiscoveryData('nombre_enfants', parseInt(e.target.value))} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="enfants-label" />
+                        <label htmlFor="nombre-enfants" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
+                        <input 
+                          id="nombre-enfants"
+                          type="number" 
+                          value={userProfile?.nombre_enfants || 0} 
+                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                          placeholder="0"
+                        />
                       </div>
-                    </div>
                   </div>
-                )}
-                {discoveryStep === 1 && (
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Revenus et Patrimoine</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label id="revenus-label" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels bruts (€)</label>
-                        <input type="number" value={discoveryData.revenus_principaux} onChange={e => updateDiscoveryData('revenus_principaux', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="revenus-label" />
-                      </div>
-                      <div>
-                        <label id="activite-label" className="block text-sm font-medium text-gray-300 mb-2">Activité principale</label>
-                        <select value={discoveryData.activite_principale} onChange={e => updateDiscoveryData('activite_principale', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="activite-label">
-                          <option value="salarie">Salarié</option>
-                          <option value="independant">Indépendant</option>
-                          <option value="retraite">Retraité</option>
-                          <option value="chomeur">Chômeur</option>
-                          <option value="etudiant">Étudiant</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label id="charges-label" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles annuelles (€)</label>
-                        <input type="number" value={discoveryData.charges_deductibles} onChange={e => updateDiscoveryData('charges_deductibles', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="charges-label" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {discoveryStep === 2 && (
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Objectifs et Besoins</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label id="objectifs-label" className="block text-sm font-medium text-gray-300 mb-2">Quels sont vos objectifs fiscaux ?</label>
-                        <textarea 
-                          value={discoveryData.questions_prioritaires} 
-                          onChange={e => updateDiscoveryData('questions_prioritaires', e.target.value)}
-                          placeholder="Ex: Optimiser mes impôts, préparer ma retraite, investir..."
-                          className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg h-24 resize-none"
-                          aria-labelledby="objectifs-label"
+                </div>
+
+                {/* Informations fiscales */}
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-4">Informations Fiscales</h3>
+                  <div className="space-y-4">
+                                          <div>
+                        <label htmlFor="tmi" className="block text-sm font-medium text-gray-300 mb-2">TMI (%)</label>
+                        <input 
+                          id="tmi"
+                          type="number" 
+                          value={userProfile?.tmi || ''} 
+                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                          placeholder="Taux marginal d'imposition"
                         />
                       </div>
                       <div>
-                        <label id="niveau-label" className="block text-sm font-medium text-gray-300 mb-2">Niveau de connaissance fiscale</label>
-                        <select value={discoveryData.niveau_connaissance_fiscale} onChange={e => updateDiscoveryData('niveau_connaissance_fiscale', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="niveau-label">
-                          <option value="debutant">Débutant</option>
-                          <option value="intermediaire">Intermédiaire</option>
-                          <option value="avance">Avancé</option>
-                        </select>
+                        <label htmlFor="revenus-annuels" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels (€)</label>
+                        <input 
+                          id="revenus-annuels"
+                          type="number" 
+                          value={userProfile?.revenus_annuels || ''} 
+                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                          placeholder="0"
+                        />
                       </div>
-                    </div>
+                      <div>
+                        <label htmlFor="charges-deductibles" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles (€)</label>
+                        <input 
+                          id="charges-deductibles"
+                          type="number" 
+                          value={userProfile?.charges_deductibles || ''} 
+                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                          placeholder="0"
+                        />
+                      </div>
                   </div>
-                )}
+                </div>
               </div>
 
-              <div className="flex justify-between mt-8">
-                <button
-                  onClick={prevDiscoveryStep}
-                  disabled={discoveryStep === 0}
-                  className="px-6 py-3 bg-[#162238] text-white rounded-lg hover:bg-[#1a2332] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Précédent
-                </button>
-                {discoveryStep < 2 ? (
-                  <button
-                    onClick={nextDiscoveryStep}
-                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:shadow-lg transition-all"
-                  >
-                    Suivant
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleDiscoveryComplete}
-                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:shadow-lg transition-all"
-                  >
-                    Terminer
-                  </button>
-                )}
+              <div className="mt-8 pt-6 border-t border-[#c5a572]/20">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">Actions</h3>
+                    <p className="text-gray-400 text-sm">Gérez votre compte et vos préférences</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => navigate('/change-password')}
+                      className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:shadow-lg transition-all font-medium"
+                    >
+                      Changer le mot de passe
+                    </button>
+                    <button
+                      onClick={() => setShowOnboarding(true)}
+                      className="px-6 py-3 bg-[#162238] text-white rounded-lg hover:bg-[#1a2332] transition-all"
+                    >
+                      Modifier le profil
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
