@@ -156,10 +156,10 @@ export function ProDashboardPage() {
           {
             id: 'optimisation-fiscale',
             title: 'Optimisation Fiscale',
-            description: 'Stratégies d\'optimisation',
+            description: 'Stratégies d\'optimisation avancées',
             icon: Shield,
             color: 'from-purple-500 to-purple-600',
-            route: '/optimisation-fiscale-ia'
+            route: '/simulateur-optimisation'
           }
         ];
     }

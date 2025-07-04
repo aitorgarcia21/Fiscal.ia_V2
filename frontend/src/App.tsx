@@ -27,6 +27,8 @@ import SimulateurImpotLuxembourg from './pages/SimulateurImpotLuxembourg';
 import { SimulateurTvaSuisse } from './pages/SimulateurTvaSuisse';
 import { SimulateurIgiAndorre } from './pages/SimulateurIgiAndorre';
 import { SimulateurTvaLuxembourg } from './pages/SimulateurTvaLuxembourg';
+import { SimulateurTmi } from './pages/SimulateurTmi';
+import { SimulateurOptimisation } from './pages/SimulateurOptimisation';
 import BlogPage from './pages/BlogPage';
 import MentionsLegales from './pages/MentionsLegales';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
@@ -70,6 +72,8 @@ function App() {
           <Route path="/simulateur-tva-suisse" element={<SimulateurTvaSuisse />} />
           <Route path="/simulateur-igi-andorre" element={<SimulateurIgiAndorre />} />
           <Route path="/simulateur-tva-luxembourg" element={<SimulateurTvaLuxembourg />} />
+          <Route path="/simulateur-tmi" element={<SimulateurTmi />} />
+          <Route path="/simulateur-optimisation" element={<SimulateurOptimisation />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
