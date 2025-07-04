@@ -17,17 +17,41 @@ const UpdatePasswordPage: React.FC = () => {
 
     useEffect(() => {
         const handlePasswordRecovery = async () => {
+            // Vérifier les paramètres d'URL (pour les liens de récupération)
+            const urlParams = new URLSearchParams(location.search);
+            const accessToken = urlParams.get('access_token');
+            const refreshToken = urlParams.get('refresh_token');
+            
+            // Vérifier aussi le hash (ancienne méthode)
             const hashParams = new URLSearchParams(location.hash.substring(1));
-            const accessToken = hashParams.get('access_token');
+            const hashAccessToken = hashParams.get('access_token');
+            const hashRefreshToken = hashParams.get('refresh_token');
 
-            // Pour la récupération de mot de passe, Supabase place le token dans le hash.
-            // Le client JS de Supabase est conçu pour le lire automatiquement.
-            // On a juste besoin de vérifier que le token est là pour afficher le formulaire.
-            if (accessToken) {
-                // Le client Supabase va gérer l'access_token automatiquement pour la prochaine requête `updateUser`.
-                setIsTokenValid(true);
+            // Utiliser le token qui est disponible
+            const finalAccessToken = accessToken || hashAccessToken;
+            const finalRefreshToken = refreshToken || hashRefreshToken;
+
+            if (finalAccessToken && finalRefreshToken) {
+                try {
+                    // Définir la session avec les tokens
+                    const { error } = await supabase.auth.setSession({
+                        access_token: finalAccessToken,
+                        refresh_token: finalRefreshToken
+                    });
+
+                    if (error) {
+                        console.error('Erreur lors de la définition de la session:', error);
+                        setError("Erreur lors de la validation du lien. Veuillez demander un nouveau lien.");
+                    } else {
+                        setIsTokenValid(true);
+                        setDebugInfo(`Session établie avec succès. Token: ${finalAccessToken.substring(0, 20)}...`);
+                    }
+                } catch (err) {
+                    console.error('Erreur lors de la définition de la session:', err);
+                    setError("Erreur lors de la validation du lien. Veuillez demander un nouveau lien.");
+                }
             } else {
-                setError("Lien invalide ou expiré. Il manque le token d'accès. Veuillez demander un nouveau lien.");
+                setError("Lien invalide ou expiré. Il manque les tokens d'accès. Veuillez demander un nouveau lien.");
             }
         };
 
@@ -37,22 +61,28 @@ const UpdatePasswordPage: React.FC = () => {
     const handlePasswordUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Pas besoin de revérifier isTokenValid ici car le formulaire n'est affiché que si c'est bon.
+        if (password.length < 6) {
+            setError('Le mot de passe doit contenir au moins 6 caractères.');
+            return;
+        }
         
         setLoading(true);
         setError(null);
         setMessage(null);
 
-        // Le client Supabase a déjà l'access token de l'URL grâce au useEffect.
-        // Il l'utilisera pour s'authentifier lors de l'appel updateUser.
-        const { error } = await supabase.auth.updateUser({ password });
-        
-        setLoading(false);
-        if (error) {
-            setError(`Erreur: ${error.message}`);
-        } else {
-            setMessage("Votre mot de passe a été mis à jour avec succès ! Vous allez être redirigé vers la page de connexion.");
-            setTimeout(() => navigate('/login'), 4000);
+        try {
+            const { error } = await supabase.auth.updateUser({ password });
+            
+            if (error) {
+                setError(`Erreur: ${error.message}`);
+            } else {
+                setMessage("Votre mot de passe a été mis à jour avec succès ! Vous allez être redirigé vers la page de connexion.");
+                setTimeout(() => navigate('/login'), 4000);
+            }
+        } catch (err: any) {
+            setError('Erreur lors de la mise à jour du mot de passe. Veuillez réessayer.');
+        } finally {
+            setLoading(false);
         }
     };
     
@@ -98,6 +128,7 @@ const UpdatePasswordPage: React.FC = () => {
                                     placeholder="Nouveau mot de passe"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    minLength={6}
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -111,6 +142,12 @@ const UpdatePasswordPage: React.FC = () => {
                                 {loading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
                             </button>
                         </form>
+                    )}
+
+                    {!isTokenValid && !error && (
+                        <div className="text-center">
+                            <p className="text-gray-400">Validation du lien en cours...</p>
+                        </div>
                     )}
                 </div>
             </div>
