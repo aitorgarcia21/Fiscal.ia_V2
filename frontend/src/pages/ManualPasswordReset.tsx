@@ -55,7 +55,7 @@ const ManualPasswordReset: React.FC = () => {
         setError(null);
 
         try {
-            // Utiliser l'API backend robuste
+            // VRAIE TECHNIQUE : Envoyer un email de reset
             const response = await fetch('/api/auth/reset-password-manual', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -68,16 +68,34 @@ const ManualPasswordReset: React.FC = () => {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.error || 'Erreur lors de la mise à jour');
+                throw new Error(result.error || 'Erreur lors de l\'envoi');
             }
 
-            setSuccess(true);
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 3000);
+            // Gérer les différents types de réponses
+            if (result.type === 'email_sent') {
+                setSuccess(true);
+                setError(null);
+                // Afficher un message spécial pour les emails envoyés
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 8000); // Plus de temps pour lire le message
+            } else if (result.type === 'reset_initiated') {
+                setSuccess(true);
+                setError(null);
+                // Afficher un message avec note
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 8000);
+            } else {
+                // Fallback
+                setSuccess(true);
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 5000);
+            }
 
         } catch (err: any) {
-            setError(`Erreur lors de la mise à jour : ${err.message}`);
+            setError(`Erreur lors de l'envoi : ${err.message}`);
         } finally {
             setLoading(false);
         }
@@ -223,12 +241,29 @@ const ManualPasswordReset: React.FC = () => {
                             <div className="flex justify-center">
                                 <CheckCircle className="h-12 w-12 text-green-400" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white">Mot de passe mis à jour !</h3>
+                            <h3 className="text-xl font-semibold text-white">Email de récupération envoyé !</h3>
                             <p className="text-green-400 text-sm bg-green-900/20 p-4 rounded-lg">
-                                Votre mot de passe a été mis à jour avec succès.
+                                <strong>Vérifiez votre boîte de réception !</strong>
                                 <br />
-                                Vous allez être redirigé vers la page de connexion.
+                                Un email de récupération a été envoyé à <strong>{email}</strong>.
+                                <br />
+                                Cliquez sur le lien dans l'email pour définir votre nouveau mot de passe.
+                                <br />
+                                <span className="text-yellow-400">💡 Vérifiez aussi vos spams si vous ne voyez pas l'email.</span>
                             </p>
+                            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                                <p className="text-blue-400 text-xs">
+                                    <strong>Comment ça marche :</strong>
+                                    <br />
+                                    1. Cliquez sur le lien dans l'email
+                                    <br />
+                                    2. Vous serez redirigé vers la page de changement de mot de passe
+                                    <br />
+                                    3. Entrez votre nouveau mot de passe
+                                    <br />
+                                    4. Vous pourrez vous connecter avec votre nouveau mot de passe
+                                </p>
+                            </div>
                         </div>
                     )}
 

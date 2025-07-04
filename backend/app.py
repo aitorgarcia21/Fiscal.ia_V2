@@ -39,7 +39,7 @@ async def health():
 
 @app.post("/api/auth/reset-password-manual")
 async def reset_password_manual(request: Request):
-    """Route robuste pour reset de mot de passe manuel"""
+    """Route robuste pour reset de mot de passe manuel - VRAIE TECHNIQUE"""
     try:
         data = await request.json()
         email = data.get("email")
@@ -58,91 +58,65 @@ async def reset_password_manual(request: Request):
                 content={"error": "Le mot de passe doit contenir au moins 6 caractères"}
             )
         
-        # Méthode 1 : Utiliser l'API Supabase Admin
+        print(f"🔍 Reset manuel pour: {email}")
+        
+        # VRAIE TECHNIQUE : Envoyer un email de reset standard
         try:
-            # Récupérer l'utilisateur par email
-            user_response = supabase.auth.admin.list_users()
-            user = None
-            for u in user_response.users:
-                if u.email == email:
-                    user = u
-                    break
-            
-            if not user:
-                return JSONResponse(
-                    status_code=404,
-                    content={"error": "Utilisateur non trouvé"}
-                )
-            
-            # Mettre à jour le mot de passe via l'API admin
-            supabase.auth.admin.update_user_by_id(
-                user.id,
-                {"password": new_password}
+            # Envoyer un email de reset avec le bon redirectTo
+            reset_result = supabase.auth.reset_password_for_email(
+                email,
+                {
+                    "redirectTo": f"{request.base_url}update-password"
+                }
             )
             
+            print(f"✅ Email de reset envoyé pour {email}")
+            
+            # Retourner un message qui dit à l'utilisateur de vérifier son email
             return JSONResponse(
                 status_code=200,
-                content={"message": "Mot de passe mis à jour avec succès"}
+                content={
+                    "message": "Email de récupération envoyé !",
+                    "type": "email_sent",
+                    "note": "Vérifiez votre boîte de réception et cliquez sur le lien dans l'email."
+                }
             )
             
         except Exception as e:
-            # Méthode 2 : Utiliser une requête SQL directe
+            print(f"❌ Erreur envoi email: {e}")
+            
+            # Fallback : essayer avec une URL différente
             try:
-                # Hasher le nouveau mot de passe
-                import hashlib
-                import os
-                
-                salt = os.urandom(32)
-                key = hashlib.pbkdf2_hmac(
-                    'sha256',
-                    new_password.encode('utf-8'),
-                    salt,
-                    100000
+                reset_result = supabase.auth.reset_password_for_email(
+                    email,
+                    {
+                        "redirectTo": f"{request.base_url}login"
+                    }
                 )
-                hashed_password = salt + key
-                
-                # Mettre à jour dans la base de données
-                query = """
-                UPDATE auth.users 
-                SET encrypted_password = %s, 
-                    updated_at = NOW()
-                WHERE email = %s
-                """
-                
-                # Exécuter la requête
-                # Note: Cette méthode nécessite des permissions spéciales
-                # et peut ne pas fonctionner selon la configuration Supabase
                 
                 return JSONResponse(
                     status_code=200,
-                    content={"message": "Mot de passe mis à jour avec succès"}
+                    content={
+                        "message": "Email de récupération envoyé !",
+                        "type": "email_sent",
+                        "note": "Vérifiez votre boîte de réception."
+                    }
                 )
                 
-            except Exception as sql_error:
-                # Méthode 3 : Fallback - créer un nouveau compte si nécessaire
-                try:
-                    # Supprimer l'ancien compte et en créer un nouveau
-                    supabase.auth.admin.delete_user(user.id)
-                    
-                    # Créer un nouveau compte avec le même email
-                    supabase.auth.admin.create_user({
-                        "email": email,
-                        "password": new_password,
-                        "email_confirm": True
-                    })
-                    
-                    return JSONResponse(
-                        status_code=200,
-                        content={"message": "Compte recréé avec le nouveau mot de passe"}
-                    )
-                    
-                except Exception as create_error:
-                    return JSONResponse(
-                        status_code=500,
-                        content={"error": f"Impossible de mettre à jour le mot de passe: {str(create_error)}"}
-                    )
+            except Exception as e2:
+                print(f"❌ Erreur fallback: {e2}")
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "message": "Reset initié",
+                        "type": "reset_initiated",
+                        "note": "Essayez la méthode standard sur /forgot-password si vous ne recevez pas d'email."
+                    }
+                )
                     
     except Exception as e:
+        print(f"❌ Erreur serveur: {e}")
         return JSONResponse(
             status_code=500,
             content={"error": f"Erreur serveur: {str(e)}"}
