@@ -221,20 +221,21 @@ export function ChatPage() {
               </button>
               {/* Sélecteur de juridiction - visible uniquement pour les pros */}
               {isProfessional && (
-                <div className="flex items-center gap-1 text-gray-300 text-sm">
-                  <Globe2 className="w-4 h-4" />
+                <div className="flex items-center gap-2 text-gray-300 text-sm">
+                  <Globe2 className="w-4 h-4 text-[#c5a572]" />
                   <select
                     value={jurisdiction}
                     onChange={(e) => {
                       const value = e.target.value as Country;
                       setJurisdiction(value);
                     }}
-                    className="bg-transparent border border-gray-600 rounded px-2 py-1 text-sm focus:outline-none focus:border-[#c5a572]"
+                    className="bg-transparent border border-[#c5a572]/30 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[#c5a572] text-white hover:border-[#c5a572]/50 transition-colors"
                     aria-label="Sélection du pays"
                   >
-                    <option value="FR">France</option>
-                    <option value="AD">Andorre</option>
-                    <option value="LU">Luxembourg</option>
+                    <option value="FR">🇫🇷 France</option>
+                    <option value="CH">🇨🇭 Suisse</option>
+                    <option value="AD">🇦🇩 Andorre</option>
+                    <option value="LU">🇱🇺 Luxembourg</option>
                   </select>
                 </div>
               )}

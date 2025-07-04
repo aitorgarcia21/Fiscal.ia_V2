@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, ArrowRight, Calculator } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { useCountry } from '../contexts/CountryContext';
 
 const ITEMS_PER_PAGE = 8;
 
 export function ProDashboardPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { country } = useCountry();
   const [clients, setClients] = useState<ClientProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,19 +20,23 @@ export function ProDashboardPage() {
 
   useEffect(() => {
     const fetchClients = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await apiClient<ClientProfile[]>('/api/pro/clients/', { method: 'GET' });
-        setClients(response);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération des clients:", err);
-        setError(err.data?.detail || err.message || 'Une erreur est survenue lors de la récupération des clients.');
+      if (isAuthenticated) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await apiClient<ClientProfile[]>('/api/pro/clients/');
+          setClients(response || []);
+        } catch (err: any) {
+          console.error("Erreur lors du chargement des clients:", err);
+          setError(err.data?.detail || err.message || 'Erreur lors du chargement des clients.');
+        } finally {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
     };
+
     fetchClients();
-  }, []);
+  }, [isAuthenticated]);
 
   const filteredClients = clients.filter(client => 
     `${client.prenom_client} ${client.nom_client}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,6 +75,98 @@ export function ProDashboardPage() {
 
   const professionalName = user?.user_metadata?.full_name || user?.email || 'Professionnel';
 
+  // Simulateurs adaptés au pays
+  const getSimulateursByCountry = () => {
+    switch (country) {
+      case 'CH':
+        return [
+          {
+            id: 'impot-suisse',
+            title: 'Simulateur Impôt Suisse',
+            description: 'Calcul d\'impôt fédéral, cantonal et communal',
+            icon: Calculator,
+            color: 'from-blue-500 to-blue-600',
+            route: '/simulateur-impot-suisse'
+          },
+          {
+            id: 'tva-suisse',
+            title: 'Calculateur TVA Suisse',
+            description: 'TVA 7.7%, 2.5% et 3.7%',
+            icon: TrendingUp,
+            color: 'from-green-500 to-green-600',
+            route: '/simulateur-tva-suisse'
+          }
+        ];
+      case 'AD':
+        return [
+          {
+            id: 'irpf-andorre',
+            title: 'Simulateur IRPF Andorre',
+            description: 'Impôt sur le revenu andorran',
+            icon: Calculator,
+            color: 'from-yellow-500 to-yellow-600',
+            route: '/simulateur-irpf'
+          },
+          {
+            id: 'igi-andorre',
+            title: 'Calculateur IGI Andorre',
+            description: 'Impost General Indirecte',
+            icon: TrendingUp,
+            color: 'from-orange-500 to-orange-600',
+            route: '/simulateur-igi-andorre'
+          }
+        ];
+      case 'LU':
+        return [
+          {
+            id: 'impot-luxembourg',
+            title: 'Simulateur Impôt Luxembourg',
+            description: 'Barème progressif luxembourgeois',
+            icon: Calculator,
+            color: 'from-red-500 to-red-600',
+            route: '/simulateur-impot-luxembourg'
+          },
+          {
+            id: 'tva-luxembourg',
+            title: 'Calculateur TVA Luxembourg',
+            description: 'TVA 17%, 14%, 8% et 3%',
+            icon: TrendingUp,
+            color: 'from-purple-500 to-purple-600',
+            route: '/simulateur-tva-luxembourg'
+          }
+        ];
+      default: // FR
+        return [
+          {
+            id: 'impot-france',
+            title: 'Simulateur Impôt France',
+            description: 'Barème progressif français 2025',
+            icon: Calculator,
+            color: 'from-blue-500 to-blue-600',
+            route: '/simulateur-impot'
+          },
+          {
+            id: 'tmi-calculator',
+            title: 'Calculateur TMI',
+            description: 'Taux Marginal d\'Imposition',
+            icon: TrendingUp,
+            color: 'from-green-500 to-green-600',
+            route: '/simulateur-tmi'
+          },
+          {
+            id: 'optimisation-fiscale',
+            title: 'Optimisation Fiscale',
+            description: 'Stratégies d\'optimisation',
+            icon: Shield,
+            color: 'from-purple-500 to-purple-600',
+            route: '/optimisation-fiscale-ia'
+          }
+        ];
+    }
+  };
+
+  const simulateurs = getSimulateursByCountry();
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
       {/* Header amélioré avec logo */}
@@ -89,6 +187,15 @@ export function ProDashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-gray-300 text-sm">
+              <Globe2 className="w-4 h-4 text-[#c5a572]" />
+              <span className="text-white font-medium">
+                {country === 'FR' && '🇫🇷 France'}
+                {country === 'CH' && '🇨🇭 Suisse'}
+                {country === 'AD' && '🇦🇩 Andorre'}
+                {country === 'LU' && '🇱🇺 Luxembourg'}
+              </span>
+            </div>
             <button
               onClick={() => navigate('/pro/extension')}
               className="px-4 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-gray-300 hover:text-white hover:border-[#c5a572]/50 transition-colors text-sm"
@@ -103,187 +210,216 @@ export function ProDashboardPage() {
       </div>
 
       {/* Contenu principal amélioré */}
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Header avec actions améliorées */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Mes Clients ({clients.length})</h2>
-            <p className="text-gray-400 text-lg">Gérez votre portefeuille client avec l'IA</p>
-          </div>
+      <div className="flex-1 p-6">
+        <div className="max-w-7xl mx-auto space-y-8">
           
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/pro/chat')}
-              className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
-            >
-              <MessageSquareIcon className="w-5 h-5" />
-              <span className="font-semibold">Francis Pro</span>
-            </button>
+          {/* Section Simulateurs adaptés au pays */}
+          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  Simulateurs {country === 'FR' ? 'Français' : 
+                               country === 'CH' ? 'Suisses' : 
+                               country === 'AD' ? 'Andorrans' : 'Luxembourgeois'}
+                </h2>
+                <p className="text-gray-400">
+                  Outils de calcul adaptés à la juridiction sélectionnée
+                </p>
+              </div>
+            </div>
             
-            <button
-              onClick={handleAddNewClient}
-              className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all flex items-center gap-3 shadow-lg"
-            >
-              <PlusCircle className="w-5 h-5" />
-              Nouveau Client
-            </button>
-          </div>
-        </div>
-
-        {/* Section fonctionnalités avancées supprimée pour épurer l'interface */}
-
-        {/* Recherche améliorée */}
-        <div className="mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Rechercher un client par nom ou email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#162238]/80 border border-[#c5a572]/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/20 transition-all text-lg"
-            />
-          </div>
-        </div>
-
-        {/* Messages d'état */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
-            <p className="text-red-300">{error}</p>
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="text-center py-16">
-            <div className="inline-flex items-center gap-4 text-[#c5a572]">
-              <div className="w-8 h-8 border-3 border-[#c5a572] border-t-transparent rounded-full animate-spin" />
-              <span className="text-lg">Chargement de vos clients...</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {simulateurs.map((simulateur) => (
+                <button
+                  key={simulateur.id}
+                  onClick={() => navigate(simulateur.route)}
+                  className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-14 h-14 bg-gradient-to-br ${simulateur.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <simulateur.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{simulateur.title}</h3>
+                      <p className="text-gray-400 text-sm">{simulateur.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#c5a572] text-sm font-medium">Accéder</span>
+                    <ArrowRight className="w-4 h-4 text-[#c5a572] group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Liste des clients améliorée */}
-        {!isLoading && !error && (
-          <>
-            {filteredClients.length === 0 ? (
-              <div className="text-center py-20 bg-[#162238]/60 rounded-2xl border border-[#c5a572]/20">
-                <div className="w-24 h-24 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-12 h-12 text-[#162238]" />
-                </div>
-                <h3 className="text-2xl text-white mb-3">Aucun client</h3>
-                <p className="text-gray-400 mb-8 text-lg">Commencez par ajouter votre premier client avec l'aide de l'IA</p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button 
-                    onClick={handleAddNewClient}
-                    className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all"
-                  >
-                    Ajout Manuel
-                  </button>
-                </div>
+          {/* Section Clients existante */}
+          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Mes Clients</h2>
+                <p className="text-gray-400">
+                  {clients.length} client{clients.length > 1 ? 's' : ''} enregistré{clients.length > 1 ? 's' : ''}
+                </p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {currentClients.map((client) => (
-                  <div key={client.id} className="bg-[#162238]/60 rounded-xl border border-[#c5a572]/20 p-6 hover:bg-[#162238]/80 hover:border-[#c5a572]/40 transition-all duration-300 hover:shadow-lg">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
-                        {client.prenom_client?.charAt(0) || ''}{client.nom_client?.charAt(0) || ''}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-1">
-                          {client.prenom_client} {client.nom_client}
-                        </h3>
-                        <p className="text-sm text-gray-400">{client.email_client || 'Pas d\'email'}</p>
+              <button
+                onClick={() => navigate('/pro/clients/new')}
+                className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Nouveau Client
+              </button>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+                {error}
+              </div>
+            )}
+
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#c5a572]"></div>
+                <p className="mt-2 text-gray-400">Chargement des clients...</p>
+              </div>
+            ) : clients.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {clients.map((client) => (
+                  <div
+                    key={client.id}
+                    className="bg-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                          <Users className="w-6 h-6 text-[#162238]" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-white">
+                            {client.prenom_client} {client.nom_client}
+                          </h3>
+                          <p className="text-sm text-gray-400">{client.email_client}</p>
+                        </div>
                       </div>
                     </div>
-                    
-                    {client.statut_dossier_pro && (
-                      <div className="mb-4">
-                        <span className={`px-3 py-1 text-xs rounded-full font-medium ${
-                          client.statut_dossier_pro === 'Actif' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 
-                          client.statut_dossier_pro === 'Prospect' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 
-                          'bg-gray-500/20 text-gray-300 border border-gray-500/30'
-                        }`}>
-                          {client.statut_dossier_pro}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="flex justify-end gap-2">
+
+                    <div className="space-y-2 mb-4">
+                      {client.situation_maritale_client && (
+                        <p className="text-sm text-gray-300">
+                          <span className="text-gray-400">Situation:</span> {client.situation_maritale_client}
+                        </p>
+                      )}
+                      {client.revenu_net_annuel_client1 && (
+                        <p className="text-sm text-gray-300">
+                          <span className="text-gray-400">Revenus:</span> {Number(client.revenu_net_annuel_client1).toLocaleString('fr-FR')}€
+                        </p>
+                      )}
+                      {client.tranche_marginale_imposition_estimee && (
+                        <p className="text-sm text-gray-300">
+                          <span className="text-gray-400">TMI:</span> {client.tranche_marginale_imposition_estimee}%
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleViewClient(client.id)}
-                        className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
-                        title="Voir le profil"
+                        className="flex-1 bg-[#1a2332] text-[#c5a572] px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
                       >
-                        <Eye className="w-4 h-4" />
+                        Voir
                       </button>
-                      <button
-                        onClick={() => handleEditClient(client.id)}
-                        className="p-2 text-[#c5a572] hover:bg-[#c5a572]/20 rounded-lg transition-colors"
-                        title="Modifier"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClient(client.id)}
-                        className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                                              <button
+                          onClick={() => handleEditClient(client.id)}
+                          className="bg-[#1a2332] text-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
+                          title="Modifier le client"
+                          aria-label="Modifier le client"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClient(client.id)}
+                          className="bg-[#1a2332] text-red-400 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
+                          title="Supprimer le client"
+                          aria-label="Supprimer le client"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-
-            {/* Pagination améliorée */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-12">
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-white mb-2">Aucun client</h3>
+                <p className="text-gray-400 mb-4">
+                  Commencez par ajouter votre premier client pour utiliser Francis Pro.
+                </p>
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="px-6 py-3 text-sm bg-[#162238]/80 border border-[#c5a572]/30 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#c5a572]/20 transition-all font-medium"
+                  onClick={() => navigate('/pro/clients/new')}
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
                 >
-                  Précédent
-                </button>
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                        currentPage === page
-                          ? 'bg-[#c5a572] text-[#162238]'
-                          : 'bg-[#162238]/60 text-gray-300 hover:bg-[#162238]/80'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-6 py-3 text-sm bg-[#162238]/80 border border-[#c5a572]/30 rounded-xl text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#c5a572]/20 transition-all font-medium"
-                >
-                  Suivant
+                  Ajouter mon premier client
                 </button>
               </div>
             )}
-          </>
-        )}
+          </div>
+
+          {/* Actions rapides */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button
+              onClick={() => navigate('/pro/chat')}
+              className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
+                  <MessageSquareIcon className="w-6 h-6 text-[#162238]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
+                    Chat Francis
+                  </h3>
+                  <p className="text-sm text-gray-400">Posez vos questions</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/pro/agenda')}
+              className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-[#162238]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
+                    Agenda
+                  </h3>
+                  <p className="text-sm text-gray-400">Gérez vos rendez-vous</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/pro/settings')}
+              className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-[#162238]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
+                    Paramètres
+                  </h3>
+                  <p className="text-sm text-gray-400">Configurez votre compte</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
-      {/* Footer */}
-      <footer className="mt-auto bg-[#162238] border-t border-[#c5a572]/20 p-4 text-center">
-        <button
-          onClick={() => navigate('/pro/settings')}
-          className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-        >
-          <Settings className="w-5 h-5" />
-          Paramètres
-        </button>
-      </footer>
     </div>
   );
 } 
