@@ -978,19 +978,21 @@ export function Dashboard() {
                 Chat Francis
               </div>
             </button>
-            <button
-              onClick={() => setActiveTab('discovery')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'discovery' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Découverte
-              </div>
-            </button>
+            {isProfessional && (
+              <button
+                onClick={() => setActiveTab('discovery')}
+                className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === 'discovery' 
+                    ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
+                    : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Découverte
+                </div>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1120,8 +1122,8 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Onglet Découverte */}
-        {activeTab === 'discovery' && (
+        {/* Onglet Découverte - réservé aux pros */}
+        {isProfessional && activeTab === 'discovery' && (
           <div className="max-w-4xl mx-auto w-full space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-white mb-2">Découverte Personnalisée</h2>
@@ -1198,22 +1200,43 @@ export function Dashboard() {
                         <input type="number" value={discoveryData.revenus_principaux} onChange={e => updateDiscoveryData('revenus_principaux', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="revenus-label" />
                       </div>
                       <div>
-                        <label id="residence-label" className="block text-sm font-medium text-gray-300 mb-2">Propriétaire de votre résidence principale ?</label>
-                        <select value={discoveryData.residence_principale.toString()} onChange={e => updateDiscoveryData('residence_principale', e.target.value === 'true')} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="residence-label">
-                          <option value="false">Non</option>
-                          <option value="true">Oui</option>
+                        <label id="activite-label" className="block text-sm font-medium text-gray-300 mb-2">Activité principale</label>
+                        <select value={discoveryData.activite_principale} onChange={e => updateDiscoveryData('activite_principale', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="activite-label">
+                          <option value="salarie">Salarié</option>
+                          <option value="independant">Indépendant</option>
+                          <option value="retraite">Retraité</option>
+                          <option value="chomeur">Chômeur</option>
+                          <option value="etudiant">Étudiant</option>
                         </select>
+                      </div>
+                      <div>
+                        <label id="charges-label" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles annuelles (€)</label>
+                        <input type="number" value={discoveryData.charges_deductibles} onChange={e => updateDiscoveryData('charges_deductibles', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="charges-label" />
                       </div>
                     </div>
                   </div>
                 )}
                 {discoveryStep === 2 && (
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Objectifs et Projets</h3>
+                    <h3 className="text-xl font-semibold text-white mb-4">Objectifs et Besoins</h3>
                     <div className="space-y-4">
                       <div>
-                        <label id="objectifs-label" className="block text-sm font-medium text-gray-300 mb-2">Quels sont vos principaux objectifs ?</label>
-                        <textarea value={discoveryData.questions_prioritaires} onChange={e => updateDiscoveryData('questions_prioritaires', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="objectifs-label" />
+                        <label id="objectifs-label" className="block text-sm font-medium text-gray-300 mb-2">Quels sont vos objectifs fiscaux ?</label>
+                        <textarea 
+                          value={discoveryData.questions_prioritaires} 
+                          onChange={e => updateDiscoveryData('questions_prioritaires', e.target.value)}
+                          placeholder="Ex: Optimiser mes impôts, préparer ma retraite, investir..."
+                          className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg h-24 resize-none"
+                          aria-labelledby="objectifs-label"
+                        />
+                      </div>
+                      <div>
+                        <label id="niveau-label" className="block text-sm font-medium text-gray-300 mb-2">Niveau de connaissance fiscale</label>
+                        <select value={discoveryData.niveau_connaissance_fiscale} onChange={e => updateDiscoveryData('niveau_connaissance_fiscale', e.target.value)} className="w-full p-2 bg-[#162238] border border-[#c5a572]/20 rounded-lg" aria-labelledby="niveau-label">
+                          <option value="debutant">Débutant</option>
+                          <option value="intermediaire">Intermédiaire</option>
+                          <option value="avance">Avancé</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -1224,17 +1247,25 @@ export function Dashboard() {
                 <button
                   onClick={prevDiscoveryStep}
                   disabled={discoveryStep === 0}
-                  className="px-6 py-2 border border-[#c5a572]/20 text-[#c5a572] rounded-lg hover:bg-[#c5a572]/10 transition-colors disabled:opacity-50"
+                  className="px-6 py-3 bg-[#162238] text-white rounded-lg hover:bg-[#1a2332] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Précédent
                 </button>
-                <button
-                  onClick={nextDiscoveryStep}
-                  disabled={discoveryStep === 2}
-                  className="px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Suivant
-                </button>
+                {discoveryStep < 2 ? (
+                  <button
+                    onClick={nextDiscoveryStep}
+                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:shadow-lg transition-all"
+                  >
+                    Suivant
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleDiscoveryComplete}
+                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:shadow-lg transition-all"
+                  >
+                    Terminer
+                  </button>
+                )}
               </div>
             </div>
           </div>
