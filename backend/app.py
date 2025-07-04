@@ -186,4 +186,57 @@ async def reset_password_manual(request: Request):
         return JSONResponse(
             status_code=500,
             content={"error": f"Erreur serveur: {str(e)}"}
+        )
+
+@app.post("/api/auth/send-reset-email")
+async def send_reset_email(request: Request):
+    """Route simple pour envoyer un email de reset de mot de passe"""
+    try:
+        data = await request.json()
+        email = data.get("email")
+        
+        if not email:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Email requis"}
+            )
+        
+        print(f"📧 Envoi reset pour: {email}")
+        
+        # Envoyer un email de reset standard avec le bon redirectTo
+        try:
+            reset_result = supabase.auth.reset_password_for_email(
+                email,
+                {
+                    "redirectTo": f"{request.base_url}update-password"
+                }
+            )
+            
+            print(f"✅ Email de reset envoyé pour {email}")
+            
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Email de récupération envoyé !",
+                    "type": "email_sent",
+                    "note": "Vérifiez votre boîte de réception et cliquez sur le lien dans l'email."
+                }
+            )
+            
+        except Exception as e:
+            print(f"❌ Erreur envoi email: {e}")
+            
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "error": f"Erreur lors de l'envoi: {str(e)}",
+                    "note": "Vérifiez que l'email existe dans votre base de données Supabase."
+                }
+            )
+                    
+    except Exception as e:
+        print(f"❌ Erreur serveur: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erreur serveur: {str(e)}"}
         ) 

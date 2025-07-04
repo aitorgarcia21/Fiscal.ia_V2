@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Euro, MessageSquare, Save, ArrowLeft, Target, Building2, Home, TrendingUp, Calculator, FileText } from 'lucide-react';
+import { User, Euro, MessageSquare, Save, ArrowLeft, Target, Building2, Home, TrendingUp, Calculator, FileText, Mail, Send } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface UserProfile {
@@ -47,6 +47,10 @@ export function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -97,6 +101,38 @@ export function ProfilePage() {
     }
   };
 
+  const handleSendReset = async () => {
+    if (!resetEmail) return;
+    
+    setIsSendingReset(true);
+    setResetMessage(null);
+    
+    try {
+      const response = await fetch('/api/auth/send-reset-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setResetMessage('✅ Email de reset envoyé avec succès !');
+        setResetEmail('');
+        setTimeout(() => {
+          setShowResetModal(false);
+          setResetMessage(null);
+        }, 2000);
+      } else {
+        setResetMessage(`❌ Erreur: ${result.error || 'Erreur lors de l\'envoi'}`);
+      }
+    } catch (error) {
+      setResetMessage('❌ Erreur de connexion au serveur');
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] flex items-center justify-center">
@@ -136,15 +172,25 @@ export function ProfilePage() {
             </div>
           </div>
           
-          <button
-            id="save-button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              id="save-button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+            </button>
+            
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+            >
+              <Mail className="w-4 h-4" />
+              Reset MDP
+            </button>
+          </div>
         </div>
       </header>
 
@@ -634,6 +680,75 @@ export function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Modal Reset Password */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#1a2332] rounded-xl border border-[#c5a572]/20 p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Mail className="w-5 h-5 text-[#c5a572]" />
+                Envoyer un reset de mot de passe
+              </h3>
+              <button
+                onClick={() => setShowResetModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            {resetMessage && (
+              <div className={`p-3 rounded-lg mb-4 ${
+                resetMessage.includes('✅') 
+                  ? 'bg-green-900/20 border border-green-500/30 text-green-400' 
+                  : 'bg-red-900/20 border border-red-500/30 text-red-400'
+              }`}>
+                {resetMessage}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Email de l'utilisateur
+                </label>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="exemple@email.com"
+                  className="w-full px-3 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSendReset}
+                  disabled={isSendingReset || !resetEmail}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold rounded-lg transition-all"
+                >
+                  <Send className="w-4 h-4" />
+                  {isSendingReset ? 'Envoi...' : 'Envoyer'}
+                </button>
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="px-4 py-2 text-gray-400 hover:text-white border border-gray-600 rounded-lg transition-all"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-blue-900/20 rounded-lg border border-blue-500/30">
+              <p className="text-blue-400 text-sm">
+                <strong>Info :</strong> L'utilisateur recevra un email avec un lien pour changer son mot de passe.
+                Aucune connexion requise de sa part.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
