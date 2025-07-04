@@ -43,7 +43,10 @@ import io
 from pathlib import Path
 
 # Import outils Andorre
-from backend.calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
+try:
+    from calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
+except ImportError:
+    from backend.calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
 
 # ------------------------------------------------------------------
 # Fallback : assurer l'existence des indicateurs d'embeddings
@@ -66,6 +69,8 @@ try:
     from models import UserProfile
     from models_pro import BasePro
     from routers import pro_clients as pro_clients_router
+    from routers import swiss_tax as swiss_tax_router
+    from routers import francis_swiss as francis_swiss_router
     from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from whisper_service import get_whisper_service
 except ImportError:
@@ -75,6 +80,8 @@ except ImportError:
     from backend.models import UserProfile
     from backend.models_pro import BasePro
     from backend.routers import pro_clients as pro_clients_router
+    from backend.routers import swiss_tax as swiss_tax_router
+    from backend.routers import francis_swiss as francis_swiss_router
     from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from backend.whisper_service import get_whisper_service
 # --- Fin des imports relatifs corrigés ---
@@ -278,7 +285,7 @@ class QuestionRequest(BaseModel):
     question: str
     conversation_history: Optional[List[ChatMessage]] = None
     user_profile_context: Optional[Dict[str, Any]] = None
-    jurisdiction: Literal["FR", "AD"] = "FR"
+    jurisdiction: Literal["FR", "AD", "CH"] = "FR"
 
 class QuestionResponse(BaseModel):
     answer: str
@@ -2248,6 +2255,8 @@ initialize_embeddings()
 
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)
+app.include_router(swiss_tax_router.router)
+app.include_router(francis_swiss_router.router)
 
 # -----------------------
 #  Endpoints Andorre

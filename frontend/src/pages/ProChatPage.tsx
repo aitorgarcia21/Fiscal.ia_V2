@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile'; // Pour la sélection client future
+import { useCountry, Country } from '../contexts/CountryContext';
 
 interface ProMessage {
   role: 'user' | 'assistant';
@@ -43,7 +44,7 @@ export function ProChatPage() {
   const [selectedClientProfile, setSelectedClientProfile] = useState<ClientProfile | null>(null);
   const [isLoadingClientProfile, setIsLoadingClientProfile] = useState(false);
 
-  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>((localStorage.getItem('jurisdiction') as 'FR' | 'AD') || 'FR');
+  const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
 
   // Charger la liste des clients du professionnel au montage
   useEffect(() => {
@@ -171,14 +172,14 @@ export function ProChatPage() {
                 <select
                   value={jurisdiction}
                   onChange={(e) => {
-                    const value = e.target.value as 'FR' | 'AD';
+                    const value = e.target.value as Country;
                     setJurisdiction(value);
-                    localStorage.setItem('jurisdiction', value);
                   }}
                   className="bg-transparent border-none focus:outline-none text-sm"
                   aria-label="Juridiction"
                 >
                   <option className="text-black" value="FR">France</option>
+                  <option className="text-black" value="CH">Suisse</option>
                   <option className="text-black" value="AD">Andorre</option>
                 </select>
               </div>

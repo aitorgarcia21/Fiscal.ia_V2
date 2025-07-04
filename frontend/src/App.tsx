@@ -28,7 +28,9 @@ import { SuccessPage } from './pages/SuccessPage';
 // import { AccountPage } from './pages/AccountPage';
 import { OptimisationFiscaleIA } from './pages/OptimisationFiscaleIA';
 import { SimulateurImpot } from './pages/SimulateurImpot';
+import { Simulateur } from './pages/Simulateur';
 import { SimulateurIRPF } from './pages/SimulateurIRPF';
+import SimulateurImpotSuisse from './pages/SimulateurImpotSuisse';
 import BlogPage from './pages/BlogPage';
 import MentionsLegales from './pages/MentionsLegales';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
@@ -59,8 +61,10 @@ function App() {
           
           {/* Pages SEO */}
           <Route path="/optimisation-fiscale-ia" element={<OptimisationFiscaleIA />} />
+          <Route path="/simulateur" element={<Simulateur />} />
           <Route path="/simulateur-impot" element={<SimulateurImpot />} />
           <Route path="/simulateur-irpf" element={<SimulateurIRPF />} />
+          <Route path="/simulateur-impot-suisse" element={<SimulateurImpotSuisse />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />

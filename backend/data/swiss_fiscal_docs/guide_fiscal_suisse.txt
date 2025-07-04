@@ -1,0 +1,313 @@
+GUIDE FISCAL SUISSE 2025 - FRANCIS SUISSE
+=====================================================
+
+SYSTÈME FISCAL SUISSE - STRUCTURE GÉNÉRALE
+==========================================
+
+La Suisse a un système fiscal fédéraliste unique au monde avec trois niveaux d'imposition :
+- Impôt fédéral direct (IFD)
+- Impôts cantonaux 
+- Impôts communaux
+
+IMPÔT FÉDÉRAL DIRECT (IFD)
+==========================
+
+L'impôt fédéral direct est perçu par la Confédération sur les revenus des personnes physiques.
+
+Barèmes 2025 :
+- Revenu imposable 0 à 14'500 CHF : 0%
+- Revenu imposable 14'500 à 31'600 CHF : 0.77%
+- Revenu imposable 31'600 à 41'400 CHF : 0.88%
+- Revenu imposable 41'400 à 55'200 CHF : 2.64%
+- Revenu imposable 55'200 à 72'500 CHF : 2.97%
+- Revenu imposable 72'500 à 78'100 CHF : 5.94%
+- Revenu imposable 78'100 à 103'600 CHF : 6.60%
+- Revenu imposable 103'600 à 134'600 CHF : 8.25%
+- Revenu imposable 134'600 à 176'000 CHF : 9.90%
+- Revenu imposable 176'000 à 755'200 CHF : 11.00%
+- Revenu imposable supérieur à 755'200 CHF : 11.50%
+
+IMPÔTS CANTONAUX ET COMMUNAUX
+=============================
+
+Chaque canton a son propre système fiscal. Les multiplicateurs varient selon les communes.
+
+CANTON DE GENÈVE
+----------------
+Multiplicateur cantonal : 45%
+Multiplicateur communal moyen : 45.6%
+
+Barèmes cantonaux de base :
+- 0 à 17'000 CHF : 0%
+- 17'000 à 50'000 CHF : 2.80%
+- 50'000 à 100'000 CHF : 5.20%
+- 100'000 à 200'000 CHF : 6.80%
+- 200'000 à 500'000 CHF : 9.40%
+- Plus de 500'000 CHF : 17.50%
+
+CANTON DE ZURICH
+----------------
+Multiplicateur cantonal : 100%
+Multiplicateur communal moyen : 119%
+
+Barèmes cantonaux de base :
+- 0 à 13'100 CHF : 0%
+- 13'100 à 18'300 CHF : 2.00%
+- 18'300 à 40'200 CHF : 2.50%
+- 40'200 à 73'200 CHF : 3.00%
+- 73'200 à 105'600 CHF : 4.00%
+- 105'600 à 140'000 CHF : 5.00%
+- Plus de 140'000 CHF : 13.00%
+
+CANTON DE VAUD
+--------------
+Multiplicateur cantonal : 64%
+Multiplicateur communal moyen : 73%
+
+Barèmes cantonaux de base :
+- 0 à 15'600 CHF : 0%
+- 15'600 à 22'800 CHF : 1.00%
+- 22'800 à 31'200 CHF : 2.00%
+- 31'200 à 45'600 CHF : 3.00%
+- 45'600 à 78'000 CHF : 4.00%
+- 78'000 à 130'000 CHF : 5.00%
+- Plus de 130'000 CHF : 6.40%
+
+CANTON DU VALAIS
+----------------
+Multiplicateur cantonal : 59%
+Multiplicateur communal moyen : 96%
+
+Barèmes cantonaux de base :
+- 0 à 22'000 CHF : 0%
+- 22'000 à 31'200 CHF : 1.00%
+- 31'200 à 41'600 CHF : 2.00%
+- 41'600 à 54'600 CHF : 3.00%
+- 54'600 à 72'800 CHF : 4.00%
+- 72'800 à 104'000 CHF : 5.00%
+- Plus de 104'000 CHF : 6.40%
+
+CANTON DE BERNE
+---------------
+Multiplicateur cantonal : 306%
+Multiplicateur communal moyen : 154%
+
+Barèmes cantonaux de base :
+- 0 à 15'000 CHF : 0%
+- 15'000 à 28'000 CHF : 1.00%
+- 28'000 à 50'000 CHF : 2.00%
+- 50'000 à 75'000 CHF : 3.00%
+- 75'000 à 120'000 CHF : 4.00%
+- Plus de 120'000 CHF : 6.40%
+
+DÉDUCTIONS FISCALES
+===================
+
+DÉDUCTIONS PERSONNELLES
+-----------------------
+- Célibataire : CHF 2'600
+- Couple marié : CHF 5'200
+- Enfant à charge : CHF 6'500 par enfant
+- Personne âgée (dès 65 ans) : CHF 1'300
+
+DÉDUCTIONS PROFESSIONNELLES
+---------------------------
+- Minimum : CHF 3'000
+- Maximum : CHF 4'000
+- Taux : 3% du revenu brut
+
+PILIER 3A - PRÉVOYANCE LIÉE
+===========================
+
+Le Pilier 3A est un pilier essentiel du système de prévoyance suisse.
+
+Montants maximaux 2025 :
+- Salarié avec LPP : CHF 7'056
+- Indépendant sans LPP : CHF 35'280 (20% du revenu, max)
+
+Avantages fiscaux :
+- Déduction fiscale intégrale du montant versé
+- Exonération d'impôt sur le revenu des placements
+- Imposition privilégiée au moment du retrait
+
+Conditions de retrait anticipé :
+- Acquisition résidence principale
+- Départ définitif de Suisse
+- Début activité indépendante
+- Invalidité
+- 5 ans avant l'âge de la retraite
+
+PILIER 3B - PRÉVOYANCE LIBRE
+============================
+
+Déductions limitées selon les cantons :
+- Primes d'assurance-vie : max CHF 1'700
+- Intérêts d'épargne : max CHF 1'000
+
+COTISATIONS SOCIALES
+===================
+
+AVS/AI/APG (1er pilier)
+-----------------------
+- Taux : 5.30% (employé + employeur : 10.60%)
+- Revenu maximum : CHF 148'200
+- Revenu minimum : CHF 22'050
+
+ASSURANCE CHÔMAGE (AC)
+----------------------
+- Taux normal : 1.10% (employé + employeur : 2.20%)
+- Taux supplémentaire : 0.50% sur revenus > CHF 148'200
+- Plafond : CHF 148'200 pour le taux normal
+
+LPP - PILIER 2
+--------------
+- Seuil d'entrée : CHF 22'050
+- Salaire maximum : CHF 88'200
+- Taux moyen : 8.25% (varie selon l'âge)
+
+Taux par âge :
+- 25-34 ans : 7%
+- 35-44 ans : 10%
+- 45-54 ans : 15%
+- 55-65 ans : 18%
+
+IMPÔT À LA SOURCE
+=================
+
+Applicable aux étrangers sans permis C.
+
+Barèmes simplifiés pour célibataires (mensuel) :
+- 0 à 1'500 CHF : 0%
+- 1'500 à 2'500 CHF : 1%
+- 2'500 à 3'500 CHF : 2%
+- 3'500 à 4'500 CHF : 3%
+- 4'500 à 6'000 CHF : 4%
+- 6'000 à 8'000 CHF : 5%
+- 8'000 à 10'000 CHF : 6%
+- 10'000 à 12'000 CHF : 7%
+- 12'000 à 14'000 CHF : 8%
+- 14'000 à 16'000 CHF : 9%
+- 16'000 à 18'000 CHF : 10%
+- Plus de 18'000 CHF : 11%
+
+TVA SUISSE
+==========
+
+Taux de TVA 2025 :
+- Taux normal : 7.7%
+- Taux réduit (biens de première nécessité) : 2.5%
+- Taux spécial (hôtellerie) : 3.7%
+
+Seuil d'assujettissement : CHF 100'000 de chiffre d'affaires annuel
+
+OPTIMISATIONS FISCALES SUISSES
+==============================
+
+OPTIMISATION INTER-CANTONALE
+----------------------------
+Le choix du canton de résidence peut générer des économies importantes :
+- Différences pouvant atteindre 15-20% de charge fiscale
+- Considérer aussi les services publics et coût de la vie
+- Planifier avant un déménagement
+
+OPTIMISATION PILIER 3A
+----------------------
+- Maximiser les versements annuels
+- Échelonner les retraits pour optimiser l'imposition
+- Utiliser plusieurs comptes 3A pour flexibilité
+
+OPTIMISATION FAMILIALE
+----------------------
+- Mariage : peut être avantageux ou désavantageux selon revenus
+- Partage des revenus entre conjoints
+- Optimisation des déductions pour enfants
+
+OPTIMISATION PATRIMOINE
+-----------------------
+- Impôt sur la fortune : varie selon cantons
+- Déductions dettes : optimiser structure financière
+- Donations et successions : planification anticipée
+
+RÉGIMES SPÉCIAUX
+===============
+
+IMPOSITION FORFAITAIRE
+----------------------
+Pour étrangers fortunés :
+- Dépenses minimales : CHF 400'000
+- Taux d'imposition : environ 5%
+- Conditions strictes d'éligibilité
+
+SOCIÉTÉS HOLDING
+---------------
+- Participation minimale : 10%
+- Taux réduit : 1% sur revenus de participations
+- Exonération partielle ou totale
+
+FRONTALIERS
+-----------
+Accords bilatéraux avec pays voisins :
+- France : imposition selon accord de 1983
+- Allemagne : zone frontalière de 30 km
+- Italie : accords spécifiques
+- Autriche : conventions particulières
+
+PLANIFICATION FISCALE
+=====================
+
+STRATÉGIES COURT TERME
+----------------------
+- Timing des revenus et déductions
+- Optimisation versements Pilier 3A
+- Gestion des plus-values mobilières
+
+STRATÉGIES LONG TERME
+---------------------
+- Planification retraite et prévoyance
+- Optimisation structure patrimoniale
+- Préparation succession
+
+PIÈGES À ÉVITER
+===============
+
+ERREURS COMMUNES
+----------------
+- Sous-estimer l'impôt sur la fortune
+- Négliger les différences cantonales
+- Retrait Pilier 3A non optimisé
+- Mauvaise planification du mariage fiscal
+
+VIGILANCE PARTICULIÈRE
+---------------------
+- Changement de domicile fiscal
+- Revenus étrangers à déclarer
+- Plus-values immobilières
+- Avantages en nature à évaluer
+
+CONTACTS UTILES
+===============
+
+ADMINISTRATION FÉDÉRALE DES CONTRIBUTIONS (AFC)
+-----------------------------------------------
+- Site web : www.estv.admin.ch
+- Téléphone : +41 58 462 65 65
+- Guides et formulaires disponibles
+
+ADMINISTRATIONS CANTONALES
+--------------------------
+Chaque canton a son administration fiscale :
+- Genève : www.ge.ch/impots
+- Zurich : www.zh.ch/steuern
+- Vaud : www.vd.ch/impots
+- Valais : www.vs.ch/impots
+- Berne : www.be.ch/steuern
+
+CONSEILS PROFESSIONNELS
+-----------------------
+Pour situations complexes, consulter :
+- Fiduciaires spécialisées
+- Conseillers fiscaux certifiés
+- Experts-comptables
+- Avocats fiscalistes
+
+Ce guide constitue une base de référence pour Francis Suisse. Il couvre les aspects essentiels de la fiscalité suisse pour particuliers et permet de répondre aux questions courantes sur l'optimisation fiscale en Suisse. 

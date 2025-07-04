@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
+import { CountrySelector } from '../components/CountrySelector';
 
 
 const features = [
@@ -85,8 +86,9 @@ const ProLandingPage = () => {
               <span className="text-xl font-bold text-white">Francis</span>
             </div>
 
-            {/* Auth Buttons */}
+            {/* Sélecteur + Auth Buttons */}
             <div className="flex items-center space-x-4">
+              <CountrySelector className="bg-transparent text-[#c5a572] border-[#c5a572]/40 hover:border-[#c5a572] rounded px-2 py-1" />
               <button
                 onClick={() => handleAuth('login')}
                 className="text-gray-300 hover:text-[#c5a572] transition-colors font-medium"

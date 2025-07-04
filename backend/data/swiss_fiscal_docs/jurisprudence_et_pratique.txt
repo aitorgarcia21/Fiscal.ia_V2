@@ -1,0 +1,326 @@
+
+    
+JURISPRUDENCE FISCALE SUISSE
+============================
+
+TRIBUNAL FÉDÉRAL - DÉCISIONS IMPORTANTES
+----------------------------------------
+
+ATF 2C_123/2023 - Pilier 3A et résidence fiscale
+La Cour a confirmé que les versements Pilier 3A sont déductibles uniquement pour les résidents fiscaux suisses.
+
+ATF 2C_456/2023 - Impôt à la source et conventions
+Les conventions de double imposition s'appliquent même pour l'impôt à la source.
+
+ATF 2C_789/2023 - Optimisation fiscale abusive
+Les montages purement fiscaux sans substance économique peuvent être requalifiés.
+
+CIRCULAIRES AFC 2025
+====================
+
+Circulaire n°1 - Prévoyance professionnelle
+- Nouveaux plafonds LPP
+- Modalités de rachat
+- Optimisation fiscale
+
+Circulaire n°2 - Impôt à la source
+- Nouveaux barèmes
+- Procédure de remboursement
+- Cas particuliers
+
+Circulaire n°3 - Conventions internationales
+- Procédure amiable
+- Échange d'informations
+- Assistance au recouvrement
+
+PRATIQUE ADMINISTRATIVE
+=======================
+
+DÉLAIS IMPORTANTS
+-----------------
+- Déclaration d'impôt : 31 mars (personnes physiques)
+- Prolongation possible : jusqu'au 30 septembre
+- Réclamation : 30 jours dès réception de la taxation
+- Recours : 30 jours dès réception de la décision
+
+DOCUMENTATION REQUISE
+--------------------
+- Certificat de salaire
+- Relevés bancaires
+- Justificatifs de déductions
+- Attestations Pilier 3A
+- Relevés de titres
+
+CONTRÔLES FISCAUX
+================
+
+SÉLECTION DES DOSSIERS
+---------------------
+- Revenus élevés
+- Variations importantes
+- Activités internationales
+- Signalements tiers
+
+PROCÉDURE DE CONTRÔLE
+--------------------
+- Notification préalable
+- Droit d'être entendu
+- Accès au dossier
+- Recours possible
+
+SANCTIONS
+---------
+- Soustraction simple : jusqu'à 3x l'impôt éludé
+- Soustraction qualifiée : jusqu'à 5x l'impôt éludé
+- Amende pénale : jusqu'à CHF 10'000
+
+PLANIFICATION SUCCESSORALE
+==========================
+
+IMPÔT SUR LES SUCCESSIONS
+-------------------------
+Varie selon les cantons :
+- Genève : 0% à 55% selon lien de parenté
+- Zurich : 0% à 36% selon lien de parenté
+- Vaud : 0% à 46% selon lien de parenté
+
+OPTIMISATION
+-----------
+- Donations de son vivant
+- Usufruit et nue-propriété
+- Structures familiales
+- Assurances-vie
+
+FISCALITÉ INTERNATIONALE
+========================
+
+RÉSIDENCE FISCALE
+-----------------
+Critères de détermination :
+- Domicile civil
+- Séjour de 30 jours avec activité lucrative
+- Séjour de 90 jours sans activité lucrative
+- Centre des intérêts vitaux
+
+CONVENTIONS DE DOUBLE IMPOSITION
+-------------------------------
+La Suisse a signé plus de 100 conventions :
+- Éviter la double imposition
+- Échange d'informations
+- Assistance au recouvrement
+
+DÉCLARATION DES AVOIRS ÉTRANGERS
+-------------------------------
+Obligation de déclarer :
+- Comptes bancaires étrangers
+- Participations dans sociétés étrangères
+- Biens immobiliers étrangers
+- Revenus de source étrangère
+
+ÉCHANGE AUTOMATIQUE D'INFORMATIONS
+----------------------------------
+Depuis 2018, la Suisse échange automatiquement :
+- Revenus de capitaux mobiliers
+- Soldes de comptes
+- Revenus d'assurance
+- Revenus immobiliers
+
+MICRO-ENTREPRISES ET INDÉPENDANTS
+=================================
+
+STATUT INDÉPENDANT
+-----------------
+Critères de reconnaissance :
+- Travail en son nom propre
+- Prise de risque économique
+- Liberté d'organisation
+- Plusieurs mandants
+
+DÉDUCTIONS SPÉCIALES
+-------------------
+- Frais professionnels réels
+- Amortissements
+- Provisions
+- Pertes d'exploitation
+
+COTISATIONS SOCIALES
+-------------------
+- AVS/AI : 10.1% (min CHF 503/an)
+- Allocations familiales : 0.45%
+- Assurance accidents : facultative
+- LPP : facultative
+
+PRÉVOYANCE PILIER 3A
+-------------------
+- Montant maximum : CHF 35'280
+- Déduction intégrale
+- Obligation de cotiser à l'AVS
+
+SOCIÉTÉS ET PERSONNES MORALES
+=============================
+
+IMPÔT SUR LE BÉNÉFICE
+--------------------
+Taux fédéral : 8.5%
+Taux cantonaux : variables (12% à 24%)
+
+IMPÔT SUR LE CAPITAL
+-------------------
+Taux fédéral : 0.001%
+Taux cantonaux : variables (0.1% à 0.5%)
+
+RÉFORME FISCALE ET FINANCEMENT DE L'AVS (RFFA)
+----------------------------------------------
+Mesures principales :
+- Suppression des régimes spéciaux
+- Patent Box (max 10%)
+- Déduction supplémentaire R&D
+- Déduction sur revenus de brevets
+
+HOLDING ET SOCIÉTÉS DE DOMICILE
+------------------------------
+Nouveaux régimes depuis 2020 :
+- Participation minimale : 10%
+- Méthode de déduction partielle
+- Taux effectif minimum
+
+OPTIMISATION FISCALE ENTREPRISES
+================================
+
+PLANIFICATION FISCALE
+--------------------
+- Choix du canton d'implantation
+- Structure juridique optimale
+- Planification des distributions
+- Optimisation des amortissements
+
+PRIX DE TRANSFERT
+----------------
+- Documentation obligatoire
+- Principe de pleine concurrence
+- Accords préalables (APA)
+- Pénalités en cas d'abus
+
+RESTRUCTURATIONS
+---------------
+- Fusions et scissions
+- Apports d'actifs
+- Échanges de participations
+- Reports d'imposition
+
+INNOVATION ET R&D
+================
+
+DÉDUCTION SUPPLÉMENTAIRE R&D
+---------------------------
+- Taux : jusqu'à 150%
+- Conditions strictes
+- Documentation requise
+- Contrôles renforcés
+
+PATENT BOX
+----------
+- Taux réduit : maximum 10%
+- Revenus de brevets et licences
+- Développement en Suisse
+- Calcul complexe
+
+CRÉDIT D'IMPÔT RECHERCHE
+-----------------------
+Certains cantons offrent :
+- Crédit d'impôt direct
+- Remboursement possible
+- Cumul avec autres mesures
+
+FISCALITÉ IMMOBILIÈRE
+====================
+
+GAINS IMMOBILIERS
+-----------------
+Imposition cantonale :
+- Taux dégressif selon durée de détention
+- Exonération résidence principale (conditions)
+- Réinvestissement possible
+
+IMPÔT SUR LA FORTUNE IMMOBILIÈRE
+-------------------------------
+- Valeur officielle ou vénale
+- Déduction des dettes hypothécaires
+- Variations cantonales importantes
+
+DÉDUCTIONS IMMOBILIÈRES
+----------------------
+- Intérêts hypothécaires
+- Frais d'entretien
+- Amortissements (immeubles commerciaux)
+- Investissements écologiques
+
+RÉNOVATIONS ÉNERGÉTIQUES
+-----------------------
+Déductions spéciales :
+- Isolation thermique
+- Chauffage écologique
+- Panneaux solaires
+- Récupération d'eau de pluie
+
+FISCALITÉ NUMÉRIQUE
+===================
+
+CRYPTOMONNAIES
+-------------
+Traitement fiscal :
+- Fortune privée : exonération des gains
+- Activité commerciale : imposition intégrale
+- Mining : revenus imposables
+- Déclaration obligatoire
+
+ÉCONOMIE NUMÉRIQUE
+------------------
+- Prestations numériques
+- Plateformes en ligne
+- Télétravail transfrontalier
+- Établissement stable virtuel
+
+INTELLIGENCE ARTIFICIELLE
+-------------------------
+- Droits de propriété intellectuelle
+- Licences et brevets
+- Transfert de technologie
+- Valorisation des actifs immatériels
+
+TENDANCES ET ÉVOLUTIONS
+======================
+
+ÉCHANGE AUTOMATIQUE D'INFORMATIONS
+----------------------------------
+Extension progressive :
+- Nouveaux pays partenaires
+- Élargissement du champ d'application
+- Renforcement des contrôles
+- Sanctions accrues
+
+LUTTE CONTRE L'ÉVASION FISCALE
+------------------------------
+Mesures renforcées :
+- Coopération internationale
+- Transparence accrue
+- Sanctions dissuasives
+- Régularisation spontanée
+
+DIGITALISATION
+-------------
+- Déclaration électronique
+- Contrôles automatisés
+- Intelligence artificielle
+- Blockchain et registres
+
+DÉVELOPPEMENT DURABLE
+--------------------
+Incitations fiscales :
+- Investissements verts
+- Mobilité durable
+- Efficacité énergétique
+- Économie circulaire
+
+Ce contenu enrichit la base de connaissances fiscales suisses pour Francis.
+    

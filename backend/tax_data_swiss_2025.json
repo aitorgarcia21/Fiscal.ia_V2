@@ -1,0 +1,176 @@
+{
+  "year": 2025,
+  "country": "CH",
+  "currency": "CHF",
+  "federal_tax": {
+    "name": "Impôt fédéral direct",
+    "brackets": [
+      {"min": 0, "max": 14500, "rate": 0.0},
+      {"min": 14500, "max": 31600, "rate": 0.0077},
+      {"min": 31600, "max": 41400, "rate": 0.0088},
+      {"min": 41400, "max": 55200, "rate": 0.0264},
+      {"min": 55200, "max": 72500, "rate": 0.0297},
+      {"min": 72500, "max": 78100, "rate": 0.0594},
+      {"min": 78100, "max": 103600, "rate": 0.0660},
+      {"min": 103600, "max": 134600, "rate": 0.0825},
+      {"min": 134600, "max": 176000, "rate": 0.0990},
+      {"min": 176000, "max": 755200, "rate": 0.1100},
+      {"min": 755200, "max": null, "rate": 0.1150}
+    ]
+  },
+  "cantonal_tax": {
+    "geneva": {
+      "name": "Canton de Genève",
+      "cantonal_rate": 0.45,
+      "communal_rate": 0.456,
+      "brackets": [
+        {"min": 0, "max": 17000, "rate": 0.0},
+        {"min": 17000, "max": 50000, "rate": 0.0280},
+        {"min": 50000, "max": 100000, "rate": 0.0520},
+        {"min": 100000, "max": 200000, "rate": 0.0680},
+        {"min": 200000, "max": 500000, "rate": 0.0940},
+        {"min": 500000, "max": null, "rate": 0.1750}
+      ]
+    },
+    "zurich": {
+      "name": "Canton de Zurich",
+      "cantonal_rate": 1.0,
+      "communal_rate": 1.19,
+      "brackets": [
+        {"min": 0, "max": 13100, "rate": 0.0},
+        {"min": 13100, "max": 18300, "rate": 0.0200},
+        {"min": 18300, "max": 40200, "rate": 0.0250},
+        {"min": 40200, "max": 73200, "rate": 0.0300},
+        {"min": 73200, "max": 105600, "rate": 0.0400},
+        {"min": 105600, "max": 140000, "rate": 0.0500},
+        {"min": 140000, "max": null, "rate": 0.1300}
+      ]
+    },
+    "vaud": {
+      "name": "Canton de Vaud",
+      "cantonal_rate": 0.64,
+      "communal_rate": 0.73,
+      "brackets": [
+        {"min": 0, "max": 15600, "rate": 0.0},
+        {"min": 15600, "max": 22800, "rate": 0.0100},
+        {"min": 22800, "max": 31200, "rate": 0.0200},
+        {"min": 31200, "max": 45600, "rate": 0.0300},
+        {"min": 45600, "max": 78000, "rate": 0.0400},
+        {"min": 78000, "max": 130000, "rate": 0.0500},
+        {"min": 130000, "max": null, "rate": 0.0640}
+      ]
+    },
+    "valais": {
+      "name": "Canton du Valais",
+      "cantonal_rate": 0.59,
+      "communal_rate": 0.96,
+      "brackets": [
+        {"min": 0, "max": 22000, "rate": 0.0},
+        {"min": 22000, "max": 31200, "rate": 0.0100},
+        {"min": 31200, "max": 41600, "rate": 0.0200},
+        {"min": 41600, "max": 54600, "rate": 0.0300},
+        {"min": 54600, "max": 72800, "rate": 0.0400},
+        {"min": 72800, "max": 104000, "rate": 0.0500},
+        {"min": 104000, "max": null, "rate": 0.0640}
+      ]
+    },
+    "bern": {
+      "name": "Canton de Berne",
+      "cantonal_rate": 3.06,
+      "communal_rate": 1.54,
+      "brackets": [
+        {"min": 0, "max": 15000, "rate": 0.0},
+        {"min": 15000, "max": 28000, "rate": 0.0100},
+        {"min": 28000, "max": 50000, "rate": 0.0200},
+        {"min": 50000, "max": 75000, "rate": 0.0300},
+        {"min": 75000, "max": 120000, "rate": 0.0400},
+        {"min": 120000, "max": null, "rate": 0.0640}
+      ]
+    }
+  },
+  "deductions": {
+    "personal": {
+      "single": 2600,
+      "married": 5200,
+      "child": 6500,
+      "elderly": 1300
+    },
+    "professional": {
+      "min": 3000,
+      "max": 4000,
+      "rate": 0.03
+    },
+    "pillar_3a": {
+      "max_employed": 7056,
+      "max_self_employed": 35280,
+      "description": "Prévoyance liée - Pilier 3A"
+    },
+    "insurance": {
+      "max_premium": 1700,
+      "max_interest": 1000,
+      "description": "Primes d'assurance et intérêts"
+    },
+    "donations": {
+      "min": 100,
+      "max_rate": 0.20,
+      "description": "Dons à des institutions d'utilité publique"
+    }
+  },
+  "social_contributions": {
+    "avs_ai_apg": {
+      "rate": 0.0530,
+      "max_income": 148200,
+      "description": "AVS/AI/APG"
+    },
+    "ac": {
+      "rate": 0.0110,
+      "max_income": 148200,
+      "rate_high": 0.005,
+      "threshold_high": 148200,
+      "description": "Assurance chômage"
+    },
+    "lpp": {
+      "min_income": 22050,
+      "max_income": 88200,
+      "rate": 0.0825,
+      "description": "LPP - Pilier 2"
+    }
+  },
+  "vat": {
+    "standard_rate": 0.077,
+    "reduced_rate": 0.025,
+    "special_rate": 0.037,
+    "description": "TVA Suisse"
+  },
+  "withholding_tax": {
+    "description": "Impôt à la source pour étrangers",
+    "rates": {
+      "single": [
+        {"min": 0, "max": 1500, "rate": 0.0},
+        {"min": 1500, "max": 2500, "rate": 0.01},
+        {"min": 2500, "max": 3500, "rate": 0.02},
+        {"min": 3500, "max": 4500, "rate": 0.03},
+        {"min": 4500, "max": 6000, "rate": 0.04},
+        {"min": 6000, "max": 8000, "rate": 0.05},
+        {"min": 8000, "max": 10000, "rate": 0.06},
+        {"min": 10000, "max": 12000, "rate": 0.07},
+        {"min": 12000, "max": 14000, "rate": 0.08},
+        {"min": 14000, "max": 16000, "rate": 0.09},
+        {"min": 16000, "max": 18000, "rate": 0.10},
+        {"min": 18000, "max": null, "rate": 0.11}
+      ]
+    }
+  },
+  "special_regimes": {
+    "lump_sum_taxation": {
+      "description": "Imposition forfaitaire",
+      "min_expenditure": 400000,
+      "rate": 0.05
+    },
+    "holding_companies": {
+      "description": "Sociétés holding",
+      "min_participation": 0.10,
+      "reduced_rate": 0.01
+    }
+  }
+} 

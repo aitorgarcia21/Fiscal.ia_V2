@@ -10,11 +10,14 @@ from mistralai.models.chat_completion import ChatMessage
 try:
     from mistral_cgi_embeddings import load_embeddings, search_similar_articles  # type: ignore
     from mistral_embeddings import search_similar_bofip_chunks  # type: ignore
+    from rag_swiss import SwissRAGSystem  # type: ignore
     CGI_EMBEDDINGS_AVAILABLE = True
     BOFIP_EMBEDDINGS_AVAILABLE = True
+    SWISS_RAG_AVAILABLE = True
 except ImportError:
     CGI_EMBEDDINGS_AVAILABLE = False
     BOFIP_EMBEDDINGS_AVAILABLE = False
+    SWISS_RAG_AVAILABLE = False
 
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -23,11 +26,21 @@ client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 # Sources officielles autorisées UNIQUEMENT
 OFFICIAL_SOURCES = {
     'CGI': ['cgi_chunks', 'CGI'],
-    'BOFIP': ['bofip_chunks_text', 'bofip_embeddings', 'BOFIP']
+    'BOFIP': ['bofip_chunks_text', 'bofip_embeddings', 'BOFIP'],
+    'SWISS': ['swiss_chunks_text', 'swiss_embeddings', 'SWISS']
 }
 
+# Initialisation du système RAG suisse
+swiss_rag = None
+if SWISS_RAG_AVAILABLE:
+    try:
+        swiss_rag = SwissRAGSystem()
+    except Exception as e:
+        print(f"Erreur initialisation RAG suisse: {e}")
+        SWISS_RAG_AVAILABLE = False
+
 def validate_official_source(source_info: Dict) -> bool:
-    """Valide qu'une source est officielle (CGI ou BOFiP uniquement)."""
+    """Valide qu'une source est officielle (CGI, BOFiP ou fiscalité suisse)."""
     if not source_info:
         return False
     
@@ -40,6 +53,10 @@ def validate_official_source(source_info: Dict) -> bool:
     
     # Vérifier si c'est une source BOFiP
     if source_type == 'BOFIP' or any(bofip_marker in source_path for bofip_marker in OFFICIAL_SOURCES['BOFIP']):
+        return True
+    
+    # Vérifier si c'est une source fiscalité suisse
+    if source_type == 'SWISS' or any(swiss_marker in source_path for swiss_marker in OFFICIAL_SOURCES['SWISS']):
         return True
     
     return False
@@ -112,7 +129,42 @@ def search_similar_bofip_chunks_filtered(query: str, top_k: int = 3) -> List[Dic
         print(f"Erreur recherche BOFiP: {e}")
         return []
 
-def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict], conversation_history: List[Dict] = None) -> str:
+def search_swiss_fiscal_knowledge(query: str, top_k: int = 3) -> Dict:
+    """Recherche dans la base de connaissances fiscales suisses."""
+    try:
+        if not SWISS_RAG_AVAILABLE or not swiss_rag:
+            return {}
+        
+        # Vérifier si c'est une question fiscale suisse
+        if not swiss_rag.is_swiss_fiscal_question(query):
+            return {}
+        
+        # Rechercher dans la base de connaissances suisse
+        result = swiss_rag.answer_swiss_fiscal_question(query, top_k=top_k)
+        
+        # Valider la qualité de la réponse
+        if result.get('confidence', 0) >= 0.3:
+            return result
+        
+        return {}
+    except Exception as e:
+        print(f"Erreur recherche fiscalité suisse: {e}")
+        return {}
+
+def is_swiss_fiscal_question(query: str) -> bool:
+    """Détermine si une question concerne la fiscalité suisse."""
+    swiss_keywords = [
+        'suisse', 'swiss', 'canton', 'cantonal', 'communal',
+        'pilier 3a', 'lpp', 'avs', 'ai', 'afc', 'chf',
+        'genève', 'zurich', 'vaud', 'valais', 'berne',
+        'fédéral', 'confédération', 'impôt à la source',
+        'prévoyance', 'cotisations sociales', 'frontalier'
+    ]
+    
+    query_lower = query.lower()
+    return any(keyword in query_lower for keyword in swiss_keywords)
+
+def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict], swiss_result: Dict = None, conversation_history: List[Dict] = None) -> str:
     """Crée un prompt basé EXCLUSIVEMENT sur les sources officielles."""
     
     # Construction du contexte officiel UNIQUEMENT
@@ -130,11 +182,34 @@ def create_prompt(query: str, cgi_articles: List[Dict], bofip_chunks: List[Dict]
             context += f"{chunk['reference']}:\n{chunk['text'][:1500]}\n\n"
         context += "="*60 + "\n\n"
     
+    if swiss_result and swiss_result.get('answer'):
+        context += "=== FISCALITÉ SUISSE - SOURCES OFFICIELLES ===\n\n"
+        context += f"Réponse spécialisée fiscalité suisse:\n{swiss_result['answer']}\n\n"
+        if swiss_result.get('sources'):
+            context += "Sources consultées:\n"
+            for source in swiss_result['sources']:
+                context += f"- {source.get('chunk_id', 'N/A')} (similarité: {source.get('similarity', 0):.3f})\n"
+        context += "="*60 + "\n\n"
+    
     if not context:
         context = "AUCUNE SOURCE OFFICIELLE TROUVÉE pour cette question.\n\n"
     
-    # Système de prompt strict
-    system_prompt = """Tu es Francis, assistant fiscal expert qui se base EXCLUSIVEMENT sur le Code Général des Impôts (CGI) et le Bulletin Officiel des Finances Publiques (BOFiP).
+    # Système de prompt adapté
+    if swiss_result and swiss_result.get('answer'):
+        system_prompt = """Tu es Francis, assistant fiscal expert spécialisé en fiscalité française ET suisse.
+
+RÈGLES IMPÉRATIVES :
+1. Tu te bases EXCLUSIVEMENT sur le CGI, le BOFiP et les sources officielles fiscales suisses
+2. Pour la fiscalité française : cite l'article du CGI ou la référence BOFiP exacte
+3. Pour la fiscalité suisse : utilise les informations spécialisées fournies
+4. Si l'information n'est pas dans les sources fournies, dis clairement : "Cette information n'est pas disponible dans les sources officielles consultées"
+5. INTERDICTION ABSOLUE d'utiliser d'autres sources ou tes connaissances générales
+6. Réponds en français, de manière claire et précise
+
+SOURCES OFFICIELLES DISPONIBLES :
+"""
+    else:
+        system_prompt = """Tu es Francis, assistant fiscal expert qui se base EXCLUSIVEMENT sur le Code Général des Impôts (CGI) et le Bulletin Officiel des Finances Publiques (BOFiP).
 
 RÈGLES IMPÉRATIVES :
 1. Tu ne peux répondre qu'en te basant sur le CGI et le BOFiP fournis ci-dessous
@@ -180,6 +255,17 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         if not client:
             return "Erreur: Client Mistral non configuré", [], 0.0
         
+        # Vérifier si c'est une question fiscale suisse
+        swiss_result = {}
+        if is_swiss_fiscal_question(query):
+            swiss_result = search_swiss_fiscal_knowledge(query, top_k=3)
+            
+            # Si on a une réponse suisse de bonne qualité, on peut l'utiliser directement
+            if swiss_result and swiss_result.get('confidence', 0) >= 0.7:
+                sources = [f"Fiscalité Suisse - {source.get('chunk_id', 'N/A')}" 
+                          for source in swiss_result.get('sources', [])]
+                return swiss_result['answer'], sources, swiss_result['confidence']
+        
         # Recherche STRICTE des articles CGI officiels
         similar_cgi_articles = search_similar_cgi_articles(query, top_k=3)
         
@@ -187,12 +273,12 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         similar_bofip_chunks = search_similar_bofip_chunks_filtered(query, top_k=3)
         
         # Vérification qu'on a au moins une source officielle
-        if not similar_cgi_articles and not similar_bofip_chunks:
-            return ("Je ne trouve aucune information dans les sources officielles (CGI et BOFiP) "
+        if not similar_cgi_articles and not similar_bofip_chunks and not swiss_result:
+            return ("Je ne trouve aucune information dans les sources officielles (CGI, BOFiP et fiscalité suisse) "
                    "pour répondre à votre question. Pourriez-vous reformuler ou être plus spécifique ?"), [], 0.3
         
         # Création du prompt avec le contexte RAG officiel UNIQUEMENT
-        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, conversation_history)
+        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, swiss_result, conversation_history)
         
         # Appel à Mistral avec le prompt complet
         messages = [ChatMessage(role="user", content=prompt)]
@@ -237,7 +323,7 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
         # Envoyer le statut initial
         yield json.dumps({
             "type": "status",
-            "message": "🔍 Recherche dans les sources officielles (CGI et BOFiP)...",
+            "message": "🔍 Recherche dans les sources officielles (CGI, BOFiP et fiscalité suisse)...",
             "progress": 10
         }) + "\n"
         
@@ -251,8 +337,37 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
         # Variables pour les sources OFFICIELLES uniquement
         similar_cgi_articles = []
         similar_bofip_chunks = []
+        swiss_result = {}
         all_sources = []
         confidence_score = 0.5
+        
+        # === RECHERCHE FISCALITÉ SUISSE ===
+        if is_swiss_fiscal_question(query):
+            yield json.dumps({
+                "type": "status",
+                "message": "🇨🇭 Consultation de la base fiscale suisse...",
+                "progress": 15
+            }) + "\n"
+            
+            try:
+                swiss_result = search_swiss_fiscal_knowledge(query, top_k=3)
+                
+                # Si on a une réponse suisse de très bonne qualité, on peut l'utiliser directement
+                if swiss_result and swiss_result.get('confidence', 0) >= 0.8:
+                    sources = [f"Fiscalité Suisse - {source.get('chunk_id', 'N/A')}" 
+                              for source in swiss_result.get('sources', [])]
+                    
+                    yield json.dumps({
+                        "type": "complete",
+                        "content": swiss_result['answer'],
+                        "sources": sources,
+                        "confidence": swiss_result['confidence'],
+                        "progress": 100
+                    }) + "\n"
+                    return
+                    
+            except Exception as e:
+                print(f"Erreur fiscalité suisse: {e}")
 
         # === RECHERCHE CGI AVEC TIMEOUT ===
         yield json.dumps({
@@ -300,10 +415,10 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
             print(f"Timeout/Erreur BOFiP: {e}")
 
         # Vérification qu'on a des sources officielles
-        if not similar_cgi_articles and not similar_bofip_chunks:
+        if not similar_cgi_articles and not similar_bofip_chunks and not swiss_result:
             yield json.dumps({
                 "type": "complete",
-                "content": "Je ne trouve aucune information dans les sources officielles (CGI et BOFiP) pour répondre à votre question. Pourriez-vous reformuler ou être plus spécifique ?",
+                "content": "Je ne trouve aucune information dans les sources officielles (CGI, BOFiP et fiscalité suisse) pour répondre à votre question. Pourriez-vous reformuler ou être plus spécifique ?",
                 "sources": ["Sources officielles consultées mais aucun résultat pertinent"],
                 "confidence": 0.3,
                 "progress": 100
@@ -318,7 +433,7 @@ def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = No
         }) + "\n"
 
         # Prompt basé UNIQUEMENT sur les sources officielles
-        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, conversation_history)
+        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, swiss_result, conversation_history)
 
         yield json.dumps({
             "type": "status",

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
 import { VoiceRecorder } from '../components/VoiceRecorder';
+import { useCountry, Country } from '../contexts/CountryContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -30,7 +31,7 @@ export function ChatPage() {
   const [voiceInput, setVoiceInput] = useState("");
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
-  const [jurisdiction, setJurisdiction] = useState<'FR' | 'AD'>((localStorage.getItem('jurisdiction') as 'FR' | 'AD') || 'FR');
+  const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -224,14 +225,14 @@ export function ChatPage() {
                 <select
                   value={jurisdiction}
                   onChange={(e) => {
-                    const value = e.target.value as 'FR' | 'AD';
+                    const value = e.target.value as Country;
                     setJurisdiction(value);
-                    localStorage.setItem('jurisdiction', value);
                   }}
                   className="bg-transparent border-none focus:outline-none text-sm"
                   aria-label="Juridiction"
                 >
                   <option className="text-black" value="FR">France</option>
+                  <option className="text-black" value="CH">Suisse</option>
                   <option className="text-black" value="AD">Andorre</option>
                 </select>
               </div>
