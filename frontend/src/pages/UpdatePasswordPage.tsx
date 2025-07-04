@@ -17,37 +17,43 @@ const UpdatePasswordPage: React.FC = () => {
 
     useEffect(() => {
         const handlePasswordRecovery = async () => {
-            // Vérifier les paramètres d'URL (pour les liens de récupération)
-            const urlParams = new URLSearchParams(location.search);
-            const accessToken = urlParams.get('access_token');
-            const refreshToken = urlParams.get('refresh_token');
-            
-            // Vérifier aussi le hash (ancienne méthode)
-            const hashParams = new URLSearchParams(location.hash.substring(1));
-            const hashAccessToken = hashParams.get('access_token');
-            const hashRefreshToken = hashParams.get('refresh_token');
+            // 1. Récupérer les tokens dans le hash (prioritaire)
+            let hash = location.hash.startsWith('#/') ? location.hash.slice(2) : location.hash.slice(1);
+            const hashParams = new URLSearchParams(hash);
+            let accessToken = hashParams.get('access_token');
+            let refreshToken = hashParams.get('refresh_token');
 
-            // Utiliser le token qui est disponible
-            const finalAccessToken = accessToken || hashAccessToken;
-            const finalRefreshToken = refreshToken || hashRefreshToken;
+            // 2. Si pas trouvé, regarder dans les query params
+            if (!accessToken || !refreshToken) {
+                const urlParams = new URLSearchParams(location.search);
+                accessToken = accessToken || urlParams.get('access_token');
+                refreshToken = refreshToken || urlParams.get('refresh_token');
+            }
 
-            if (finalAccessToken && finalRefreshToken) {
+            // 3. Fallback : certains clients mettent le hash sous forme #/update-password?access_token=...
+            if ((!accessToken || !refreshToken) && hash.includes('?')) {
+                const afterQ = hash.split('?')[1];
+                if (afterQ) {
+                    const weirdParams = new URLSearchParams(afterQ);
+                    accessToken = accessToken || weirdParams.get('access_token');
+                    refreshToken = refreshToken || weirdParams.get('refresh_token');
+                }
+            }
+
+            if (accessToken && refreshToken) {
                 try {
-                    // Définir la session avec les tokens
                     const { error } = await supabase.auth.setSession({
-                        access_token: finalAccessToken,
-                        refresh_token: finalRefreshToken
+                        access_token: accessToken,
+                        refresh_token: refreshToken
                     });
 
                     if (error) {
-                        console.error('Erreur lors de la définition de la session:', error);
                         setError("Erreur lors de la validation du lien. Veuillez demander un nouveau lien.");
                     } else {
                         setIsTokenValid(true);
-                        setDebugInfo(`Session établie avec succès. Token: ${finalAccessToken.substring(0, 20)}...`);
+                        setDebugInfo(`Session établie avec succès. Token: ${accessToken.substring(0, 20)}...`);
                     }
                 } catch (err) {
-                    console.error('Erreur lors de la définition de la session:', err);
                     setError("Erreur lors de la validation du lien. Veuillez demander un nouveau lien.");
                 }
             } else {
