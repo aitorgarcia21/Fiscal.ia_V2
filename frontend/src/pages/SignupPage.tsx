@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft } from 'lucide-react';
 
 const SignupPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -31,6 +31,16 @@ const SignupPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="mb-6">
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Retour à l'accueil
+          </Link>
+        </div>
+        
         <h1 className="text-3xl font-bold text-white text-center mb-8">Créer un compte Particulier</h1>
         <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(197,165,114,0.4)]">
           <form onSubmit={handleSignup} className="space-y-6">

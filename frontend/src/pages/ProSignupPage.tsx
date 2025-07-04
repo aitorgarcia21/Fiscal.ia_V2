@@ -77,9 +77,9 @@ export function ProSignupPage() {
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
         {/* En-tête */}
         <div className="text-center mb-12">
-          <Link to="/pro" className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors mb-8">
+          <Link to="/" className="inline-flex items-center text-[#e8cfa0] hover:text-white transition-colors mb-8">
             <ArrowRight className="h-5 w-5 rotate-180 mr-2" />
-            Retour à Pro
+            Retour à l'accueil
           </Link>
           
           <div className="flex items-center justify-center gap-3 mb-6">
