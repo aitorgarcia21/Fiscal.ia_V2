@@ -90,7 +90,7 @@ interface UserProfile {
 }
 
 export function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, isProfessional } = useAuth();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -99,7 +99,7 @@ export function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'tools' | 'discovery'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'discovery'>('chat');
   const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
   const [extractionResult, setExtractionResult] = useState<any>(null);
   const [showTmiModal, setShowTmiModal] = useState(false);
@@ -194,18 +194,6 @@ export function Dashboard() {
   const [isFrancisSpeaking, setIsFrancisSpeaking] = useState(false);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
   const [voiceMode, setVoiceMode] = useState(false);
-
-  // Données factices pour les outils
-  const tools = [
-    {
-      id: 'alerts',
-      title: 'Alertes Fiscales',
-      description: 'Soyez averti des opportunités',
-      icon: Bell,
-      color: 'from-[#c5a572] to-[#e8cfa0]',
-      action: () => setShowAlertsModal(true)
-    }
-  ];
 
   // Charger le profil utilisateur au montage
   useEffect(() => {
@@ -832,7 +820,7 @@ export function Dashboard() {
       "Combien d'enfants avez-vous à charge ?",
       "Quel est votre revenu annuel brut ?",
       "Êtes-vous propriétaire de votre résidence principale ?",
-      "Quels sont vos objectifs fiscaux principaux ?"
+      "Quels sont vos principaux objectifs fiscaux ?"
     ];
 
     if (discoveryStep < questions.length - 1) {
@@ -974,9 +962,9 @@ export function Dashboard() {
 
       {/* Contenu principal */}
       <div className="flex-1 flex flex-col max-w-6xl mx-auto p-4">
-        {/* Navigation des onglets améliorée */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-2 flex gap-2">
+        {/* Navigation onglets */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('chat')}
               className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
@@ -988,19 +976,6 @@ export function Dashboard() {
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Chat Francis
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('tools')}
-              className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                activeTab === 'tools' 
-                  ? 'bg-[#c5a572] text-[#162238] shadow-lg' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1a2332]/80'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Calculator className="w-4 h-4" />
-                Outils
               </div>
             </button>
             <button
@@ -1141,36 +1116,6 @@ export function Dashboard() {
                   )}
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Onglet Outils */}
-        {activeTab === 'tools' && (
-          <div className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-white mb-2">Outils Fiscaux Intelligents</h2>
-              <p className="text-xl text-gray-400">Optimisez votre fiscalité en quelques clics</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tools.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={tool.action}
-                  className="group bg-gradient-to-br from-[#1a2332] to-[#162238] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 hover:shadow-lg hover:shadow-[#c5a572]/10 transition-all duration-300 text-left"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${tool.color}/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                      <tool.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{tool.title}</h3>
-                      <p className="text-gray-400 text-sm">{tool.description}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
             </div>
           </div>
         )}
