@@ -158,7 +158,7 @@ def get_quick_answer(query: str) -> tuple[str, bool]:
     """Retourne toujours une réponse vide pour forcer une recherche approfondie dans les sources officielles."""
     return "", False
 
-def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None, jurisdiction: Literal["FR", "AD"] = "FR"):
+def get_fiscal_response(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None, jurisdiction: Literal["FR", "AD", "CH", "LU"] = "FR"):
     """
     Génère une réponse fiscale en utilisant RAG avec les sources officielles.
     """
@@ -170,7 +170,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
     if user_profile_context:
         user_context_str = f"\n\nContexte utilisateur:\n{json.dumps(user_profile_context, indent=2, ensure_ascii=False)}"
     
-    # Si juridiction = AD (Andorre), on utilise les embeddings andorrans et on ignore CGI/BOFIP
+    # Si juridiction = AD (Andorre), on utilise les embeddings andorrans
     if jurisdiction == "AD":
         context_from_sources = ""
         official_sources = []
@@ -196,10 +196,98 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
         except Exception as e:
             print(f"❌ Erreur lors de la recherche Andorre: {e}")
 
-        # Fallback commun si aucune source trouvée (réutilise la logique plus bas)
+    # Si juridiction = LU (Luxembourg), on utilise les embeddings de base Luxembourg
+    elif jurisdiction == "LU":
+        context_from_sources = ""
+        official_sources = []
+        
+        # Embeddings de base pour Luxembourg
+        BASE_EMBEDDINGS_LU = {
+            "ir": {
+                "content": """Impôt sur le revenu Luxembourg 2025
+
+Le barème progressif appliqué au revenu net imposable :
+• 0 % jusqu'à 11 294 €
+• 8 % de 11 295 € à 19 932 €  
+• 9 % de 19 933 € à 28 032 €
+• 10 % de 28 033 € à 46 484 €
+• 11 % de 46 485 € à 100 002 €
+• 12 % au-delà de 100 002 €
+
+Le taux marginal d'imposition (TMI) correspond au taux de la tranche la plus élevée.""",
+                "source": "Code fiscal luxembourgeois 2025"
+            },
+            "tva": {
+                "content": """TVA Luxembourg 2025
+
+Taux applicables :
+• 17 % taux normal (majorité des biens et services)
+• 14 % taux réduit (restauration, transports)
+• 8 % taux super-réduit (produits alimentaires, livres)
+• 3 % taux spécial (médicaments, presse)
+
+La TVA est collectée par les entreprises et reversée à l'État.""",
+                "source": "Code TVA luxembourgeois 2025"
+            }
+        }
+        
+        query_lower = query.lower()
+        if any(term in query_lower for term in ['impôt', 'impot', 'revenu', 'ir', 'barème', 'tranche']):
+            base = BASE_EMBEDDINGS_LU['ir']
+            context_from_sources += "=== FISCALITÉ LUXEMBOURGEOISE – IR ===\n\n" + f"{base['source']}:\n{base['content']}\n\n"
+            official_sources.append(base['source'])
+        elif any(term in query_lower for term in ['tva', 'taxe', 'consommation']):
+            base = BASE_EMBEDDINGS_LU['tva']
+            context_from_sources += "=== FISCALITÉ LUXEMBOURGEOISE – TVA ===\n\n" + f"{base['source']}:\n{base['content']}\n\n"
+            official_sources.append(base['source'])
+
+    # Si juridiction = CH (Suisse), on utilise les embeddings suisses
+    elif jurisdiction == "CH":
+        context_from_sources = ""
+        official_sources = []
+        
+        # Embeddings de base pour Suisse
+        BASE_EMBEDDINGS_CH = {
+            "ir": {
+                "content": """Impôt fédéral direct Suisse 2025
+
+Le barème progressif appliqué au revenu imposable :
+• 0 % jusqu'à 14 500 CHF
+• 0,77 % de 14 501 CHF à 31 600 CHF
+• 0,88 % de 31 601 CHF à 41 400 CHF
+• 2,64 % de 41 401 CHF à 55 200 CHF
+• 2,97 % de 55 201 CHF à 267 600 CHF
+• 3,5 % de 267 601 CHF à 725 400 CHF
+• 11,5 % au-delà de 725 400 CHF
+
+S'ajoutent les impôts cantonaux et communaux.""",
+                "source": "Loi fédérale sur l'impôt fédéral direct 2025"
+            },
+            "tva": {
+                "content": """TVA Suisse 2025
+
+Taux applicables :
+• 7,7 % taux normal (majorité des biens et services)
+• 2,5 % taux réduit (produits alimentaires, livres, médicaments)
+• 3,7 % taux spécial (hébergement touristique)
+
+La TVA est collectée par les entreprises et reversée à la Confédération.""",
+                "source": "Loi fédérale sur la TVA 2025"
+            }
+        }
+        
+        query_lower = query.lower()
+        if any(term in query_lower for term in ['impôt', 'impot', 'revenu', 'fédéral', 'cantonal']):
+            base = BASE_EMBEDDINGS_CH['ir']
+            context_from_sources += "=== FISCALITÉ SUISSE – IR ===\n\n" + f"{base['source']}:\n{base['content']}\n\n"
+            official_sources.append(base['source'])
+        elif any(term in query_lower for term in ['tva', 'taxe', 'consommation']):
+            base = BASE_EMBEDDINGS_CH['tva']
+            context_from_sources += "=== FISCALITÉ SUISSE – TVA ===\n\n" + f"{base['source']}:\n{base['content']}\n\n"
+            official_sources.append(base['source'])
 
     else:
-        # 1. Recherche dans le CGI (source principale)
+        # France (FR) - logique existante
         context_from_sources = ""
         official_sources = []
 
@@ -301,6 +389,42 @@ RÈGLES DE RÉPONSE :
 8. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
 9. Vérifie tes calculs avant de répondre.
 10. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+
+SOURCES OFFICIELLES DISPONIBLES :
+"""
+    elif jurisdiction == "LU":
+        system_message = """Tu es Francis, expert fiscal spécialiste du droit fiscal luxembourgeois.
+
+RÈGLES DE RÉPONSE :
+1. Base-toi PRIORITAIREMENT sur les textes officiels luxembourgeois fournis ci-dessous.
+2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux luxembourgeois.
+3. Pour les questions transfrontalières (France ↔ Luxembourg), explique les principes et conventions applicables.
+4. Cite les articles de loi ou décrets luxembourgeois quand c'est pertinent et précis.
+5. Si l'information exacte n'est pas disponible, recommande de consulter un professionnel local.
+6. Sois toujours utile et informatif, même avec des informations partielles.
+7. Réponds en français de manière claire, structurée et professionnelle.
+8. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
+9. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
+10. Vérifie tes calculs avant de répondre.
+11. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+
+SOURCES OFFICIELLES DISPONIBLES :
+"""
+    elif jurisdiction == "CH":
+        system_message = """Tu es Francis, expert fiscal spécialiste du droit fiscal suisse.
+
+RÈGLES DE RÉPONSE :
+1. Base-toi PRIORITAIREMENT sur les textes officiels suisses fournis ci-dessous.
+2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux suisses.
+3. Pour les questions transfrontalières (France ↔ Suisse), explique les principes et conventions applicables.
+4. Cite les articles de loi ou décrets suisses quand c'est pertinent et précis.
+5. Si l'information exacte n'est pas disponible, recommande de consulter un professionnel local.
+6. Sois toujours utile et informatif, même avec des informations partielles.
+7. Réponds en français de manière claire, structurée et professionnelle.
+8. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
+9. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
+10. Vérifie tes calculs avant de répondre.
+11. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
 
 SOURCES OFFICIELLES DISPONIBLES :
 """

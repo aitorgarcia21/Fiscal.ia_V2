@@ -18,6 +18,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ className }) =
       <option value="FR">France 🇫🇷</option>
       <option value="CH">Suisse 🇨🇭</option>
       <option value="AD">Andorre 🇦🇩</option>
+      <option value="LU">Luxembourg 🇱🇺</option>
     </select>
   );
 }; 

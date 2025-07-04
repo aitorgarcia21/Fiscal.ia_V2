@@ -181,6 +181,7 @@ export function ProChatPage() {
                   <option className="text-black" value="FR">France</option>
                   <option className="text-black" value="CH">Suisse</option>
                   <option className="text-black" value="AD">Andorre</option>
+                  <option className="text-black" value="LU">Luxembourg</option>
                 </select>
               </div>
             </div>

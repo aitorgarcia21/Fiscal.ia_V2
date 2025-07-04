@@ -285,7 +285,7 @@ class QuestionRequest(BaseModel):
     question: str
     conversation_history: Optional[List[ChatMessage]] = None
     user_profile_context: Optional[Dict[str, Any]] = None
-    jurisdiction: Literal["FR", "AD", "CH"] = "FR"
+    jurisdiction: Literal["FR", "AD", "CH", "LU"] = "FR"
 
 class QuestionResponse(BaseModel):
     answer: str

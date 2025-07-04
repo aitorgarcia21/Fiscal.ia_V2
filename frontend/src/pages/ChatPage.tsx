@@ -34,7 +34,7 @@ export function ChatPage() {
   const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isProfessional } = useAuth();
   const [initDone, setInitDone] = useState(false);
 
   const handleSend = async (e: React.FormEvent) => {
@@ -219,23 +219,25 @@ export function ChatPage() {
               >
                 Découvrir <ArrowRight className="ml-1 w-4 h-4" />
               </button>
-              {/* Sélecteur de juridiction */}
-              <div className="flex items-center gap-1 text-gray-300 text-sm">
-                <Globe2 className="w-4 h-4" />
-                <select
-                  value={jurisdiction}
-                  onChange={(e) => {
-                    const value = e.target.value as Country;
-                    setJurisdiction(value);
-                  }}
-                  className="bg-transparent border-none focus:outline-none text-sm"
-                  aria-label="Juridiction"
-                >
-                  <option className="text-black" value="FR">France</option>
-                  <option className="text-black" value="CH">Suisse</option>
-                  <option className="text-black" value="AD">Andorre</option>
-                </select>
-              </div>
+              {/* Sélecteur de juridiction - visible uniquement pour les pros */}
+              {isProfessional && (
+                <div className="flex items-center gap-1 text-gray-300 text-sm">
+                  <Globe2 className="w-4 h-4" />
+                  <select
+                    value={jurisdiction}
+                    onChange={(e) => {
+                      const value = e.target.value as Country;
+                      setJurisdiction(value);
+                    }}
+                    className="bg-transparent border border-gray-600 rounded px-2 py-1 text-sm focus:outline-none focus:border-[#c5a572]"
+                    aria-label="Sélection du pays"
+                  >
+                    <option value="FR">France</option>
+                    <option value="AD">Andorre</option>
+                    <option value="LU">Luxembourg</option>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         </div>

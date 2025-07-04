@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-export type Country = 'FR' | 'CH' | 'AD';
+export type Country = 'FR' | 'CH' | 'AD' | 'LU';
 
 interface CountryContextType {
   country: Country;
@@ -14,7 +14,7 @@ const STORAGE_KEY = 'jurisdiction';
 export const CountryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [country, setCountryState] = useState<Country>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'CH' || stored === 'AD') return stored;
+    if (stored === 'CH' || stored === 'AD' || stored === 'LU') return stored;
     return 'FR';
   });
 
