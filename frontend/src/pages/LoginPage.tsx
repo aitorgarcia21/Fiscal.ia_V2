@@ -102,31 +102,11 @@ const LoginPage: React.FC = () => {
             <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
               Mot de passe oublié ?
             </Link>
-            <Link to="/manual-password-reset" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
-              Reset manuel (si le lien email ne fonctionne pas)
-            </Link>
-            <Link to="/invitation" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
-              Envoyer une invitation (utilisateurs créés manuellement)
-            </Link>
             <Link to="/set-password" className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors block">
               Définir un mot de passe (OAuth)
             </Link>
           </div>
           
-          {/* Section spéciale pour les utilisateurs OAuth */}
-          <div className="mt-6 p-4 bg-[#1E3253]/30 rounded-lg border border-[#2A3F6C]/30">
-            <h3 className="text-sm font-semibold text-[#c5a572] mb-2">Problème avec un compte OAuth ?</h3>
-            <p className="text-xs text-gray-400 mb-3">
-              Si vous vous êtes inscrit avec Google ou GitHub et que vous ne pouvez pas vous connecter, 
-              vous pouvez définir un mot de passe pour votre compte.
-            </p>
-            <Link 
-              to="/set-password" 
-              className="text-xs bg-[#c5a572]/20 text-[#c5a572] px-3 py-1 rounded hover:bg-[#c5a572]/30 transition-colors inline-block"
-            >
-              Définir un mot de passe
-            </Link>
-          </div>
           <p className="text-center text-sm text-gray-400 mt-8">
             Pas encore de compte ?{' '}
             <Link 
