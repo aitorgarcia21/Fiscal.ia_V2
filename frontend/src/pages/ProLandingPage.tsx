@@ -9,22 +9,30 @@ const features = [
   {
     icon: BrainCircuit,
     title: "Analyse fiscale instantanée",
-    description: "Francis analyse vos entretiens et identifie automatiquement les optimisations possibles."
+    description: "Francis analyse vos entretiens et identifie automatiquement les optimisations possibles.",
+    color: "from-blue-500 to-cyan-500",
+    bgColor: "bg-blue-500/10"
   },
   {
     icon: Clock,
     title: "Gain de temps",
-    description: "Automatisez la prise de notes et la génération de rapports. Plus de saisie manuelle."
+    description: "Automatisez la prise de notes et la génération de rapports. Plus de saisie manuelle.",
+    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-500/10"
   },
   {
     icon: Users,
     title: "Suivi client simplifié",
-    description: "Tous vos clients et leurs données fiscales centralisés dans un seul outil."
+    description: "Tous vos clients et leurs données fiscales centralisés dans un seul outil.",
+    color: "from-purple-500 to-pink-500",
+    bgColor: "bg-purple-500/10"
   },
   {
     icon: Shield,
     title: "Sécurité maximale",
-    description: "Vos données sont chiffrées et hébergées en France. Conformité RGPD garantie."
+    description: "Vos données sont chiffrées et hébergées en France. Conformité RGPD garantie.",
+    color: "from-orange-500 to-red-500",
+    bgColor: "bg-orange-500/10"
   }
 ];
 
@@ -181,9 +189,9 @@ const ProLandingPage = () => {
           <ProDemoSection />
         </section>
 
-        {/* Features simples */}
+        {/* Features modernes */}
         <section id="features" className="container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Un outil simple et efficace
             </h2>
@@ -196,11 +204,28 @@ const ProLandingPage = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-[#1E3253]/60 backdrop-blur-sm p-6 rounded-xl border border-[#2A3F6C]/50 hover:border-[#c5a572]/50 transition-all duration-300"
+                className="group relative bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30 hover:border-[#c5a572]/40 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20"
               >
-                <feature.icon className="h-10 w-10 text-[#c5a572] mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-300 text-sm">{feature.description}</p>
+                {/* Fond coloré au hover */}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                
+                {/* Icône avec fond coloré */}
+                <div className={`relative mb-6 w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}>
+                  <feature.icon className="h-8 w-8 text-white" />
+                </div>
+                
+                {/* Contenu */}
+                <div className="relative">
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-[#c5a572] transition-colors duration-300">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-300 text-sm leading-relaxed group-hover:text-gray-200 transition-colors duration-300">
+                    {feature.description}
+                  </p>
+                </div>
+                
+                {/* Effet de brillance au hover */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             ))}
           </div>
