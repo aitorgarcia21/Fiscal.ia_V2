@@ -35,40 +35,28 @@ const processSteps = [
     title: "Activez Francis",
     subtitle: "Un clic, c'est parti",
     description: "Francis écoute discrètement votre conversation sans vous interrompre",
-    icon: Mic,
-    color: "from-blue-500 to-cyan-500",
-    bgColor: "bg-blue-500/10",
-    borderColor: "border-blue-500/30"
+    icon: Mic
   },
   {
     step: "02", 
     title: "Parlez naturellement",
     subtitle: "Comme d'habitude",
     description: "Francis transcrit et analyse en temps réel pendant votre échange",
-    icon: Users,
-    color: "from-purple-500 to-pink-500",
-    bgColor: "bg-purple-500/10",
-    borderColor: "border-purple-500/30"
+    icon: Users
   },
   {
     step: "03",
     title: "Recevez votre synthèse",
     subtitle: "En quelques secondes",
     description: "Profil fiscal complet, opportunités identifiées, todo list générée",
-    icon: Sparkles,
-    color: "from-orange-500 to-red-500",
-    bgColor: "bg-orange-500/10",
-    borderColor: "border-orange-500/30"
+    icon: Sparkles
   },
   {
     step: "04",
     title: "Exportez en 1 clic",
     subtitle: "Format de votre choix",
     description: "PDF pour le client, Excel pour vous, CSV pour votre logiciel",
-    icon: Download,
-    color: "from-green-500 to-emerald-500",
-    bgColor: "bg-green-500/10",
-    borderColor: "border-green-500/30"
+    icon: Download
   }
 ];
 
@@ -148,8 +136,8 @@ const ProLandingPage = () => {
 
         {/* Comment ça marche - Étapes concrètes */}
         <section className="pb-20 relative overflow-hidden">
-          {/* Effet de fond animé */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a2942]/20 via-[#223c63]/10 to-[#234876]/20"></div>
+          {/* Effet de fond subtil */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a2942]/10 via-[#223c63]/5 to-[#234876]/10"></div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16">
@@ -171,18 +159,18 @@ const ProLandingPage = () => {
                 <div key={index} className="relative group">
                   {/* Ligne de connexion */}
                   {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[#c5a572]/40 to-transparent z-0"></div>
+                    <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[#c5a572]/30 to-transparent z-0"></div>
                   )}
                   
-                  <div className={`relative bg-gradient-to-br from-[#1E3253]/80 to-[#1E3253]/60 backdrop-blur-xl p-8 rounded-3xl border ${step.borderColor} hover:border-[#c5a572]/60 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20 group-hover:scale-105`}>
+                  <div className="relative bg-gradient-to-br from-[#1E3253]/80 to-[#1E3253]/60 backdrop-blur-xl p-8 rounded-3xl border border-[#2A3F6C]/40 hover:border-[#c5a572]/60 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20 group-hover:scale-105">
                     {/* Badge étape */}
-                    <div className={`absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-bold text-sm shadow-lg">
                       {step.step}
                     </div>
                     
                     {/* Icône principale */}
-                    <div className={`w-16 h-16 bg-gradient-to-r ${step.color} rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300`}>
-                      <step.icon className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300">
+                      <step.icon className="w-8 h-8 text-[#162238]" />
                     </div>
                     
                     {/* Contenu */}
@@ -199,7 +187,7 @@ const ProLandingPage = () => {
                     </div>
                     
                     {/* Effet de brillance au hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c5a572]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
                   </div>
                 </div>
               ))}
