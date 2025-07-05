@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight } from 'lucide-react';
+import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Zap, Sparkles, Play, Download, TrendingUp, Timer } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ProDemoSection } from '../components/demo/ProDemoSection';
 
@@ -28,31 +28,47 @@ const features = [
   }
 ];
 
-// Étapes du processus
+// Étapes du processus améliorées
 const processSteps = [
   {
-    step: "1",
-    title: "Activez Francis pendant votre entretien",
-    description: "Un simple clic et Francis écoute discrètement votre conversation",
-    icon: Mic
+    step: "01",
+    title: "Activez Francis",
+    subtitle: "Un clic, c'est parti",
+    description: "Francis écoute discrètement votre conversation sans vous interrompre",
+    icon: Mic,
+    color: "from-blue-500 to-cyan-500",
+    bgColor: "bg-blue-500/10",
+    borderColor: "border-blue-500/30"
   },
   {
-    step: "2", 
-    title: "Parlez naturellement avec votre client",
-    description: "Francis transcrit et analyse en temps réel sans vous interrompre",
-    icon: Users
+    step: "02", 
+    title: "Parlez naturellement",
+    subtitle: "Comme d'habitude",
+    description: "Francis transcrit et analyse en temps réel pendant votre échange",
+    icon: Users,
+    color: "from-purple-500 to-pink-500",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/30"
   },
   {
-    step: "3",
-    title: "Recevez votre synthèse structurée",
+    step: "03",
+    title: "Recevez votre synthèse",
+    subtitle: "En quelques secondes",
     description: "Profil fiscal complet, opportunités identifiées, todo list générée",
-    icon: FileText
+    icon: Sparkles,
+    color: "from-orange-500 to-red-500",
+    bgColor: "bg-orange-500/10",
+    borderColor: "border-orange-500/30"
   },
   {
-    step: "4",
+    step: "04",
     title: "Exportez en 1 clic",
+    subtitle: "Format de votre choix",
     description: "PDF pour le client, Excel pour vous, CSV pour votre logiciel",
-    icon: BarChart3
+    icon: Download,
+    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-green-500/10",
+    borderColor: "border-green-500/30"
   }
 ];
 
@@ -131,43 +147,74 @@ const ProLandingPage = () => {
         </main>
 
         {/* Comment ça marche - Étapes concrètes */}
-        <section className="pb-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Comment ça marche concrètement
+        <section className="pb-20 relative overflow-hidden">
+          {/* Effet de fond animé */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a2942]/20 via-[#223c63]/10 to-[#234876]/20"></div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 text-[#c5a572] px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Zap className="w-4 h-4" />
+                Processus ultra-rapide
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                Comment ça marche
               </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Francis s'intègre naturellement dans votre flux de travail
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Francis s'intègre <span className="text-[#c5a572] font-semibold">naturellement</span> dans votre flux de travail. 
+                Plus de paperasse, plus de temps perdu.
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {processSteps.map((step, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="relative group">
+                  {/* Ligne de connexion */}
                   {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-12 left-full w-full">
-                      <ChevronRight className="w-8 h-8 text-[#c5a572]/40 -ml-3" />
-                    </div>
+                    <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[#c5a572]/40 to-transparent z-0"></div>
                   )}
-                  <div className="bg-[#1E3253]/70 hover:bg-[#1E3253]/90 backdrop-blur-lg p-10 rounded-2xl border border-[#2A3F6C]/40 hover:border-[#c5a572]/60 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl flex flex-col items-center text-center h-full">
-                    <div className="flex flex-col items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-gradient-to-tr from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-extrabold text-xl shadow-xl">
-                        {step.step}
-                      </div>
-                      <step.icon className="w-8 h-8 text-[#c5a572]" />
+                  
+                  <div className={`relative bg-gradient-to-br from-[#1E3253]/80 to-[#1E3253]/60 backdrop-blur-xl p-8 rounded-3xl border ${step.borderColor} hover:border-[#c5a572]/60 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20 group-hover:scale-105`}>
+                    {/* Badge étape */}
+                    <div className={`absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                      {step.step}
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-3">{step.title}</h3>
-                    <p className="text-sm text-gray-400 leading-relaxed">{step.description}</p>
+                    
+                    {/* Icône principale */}
+                    <div className={`w-16 h-16 bg-gradient-to-r ${step.color} rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300`}>
+                      <step.icon className="w-8 h-8 text-white" />
+                    </div>
+                    
+                    {/* Contenu */}
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-bold text-white group-hover:text-[#c5a572] transition-colors duration-300">
+                        {step.title}
+                      </h3>
+                      <p className="text-[#c5a572] text-sm font-medium">
+                        {step.subtitle}
+                      </p>
+                      <p className="text-gray-400 text-sm leading-relaxed">
+                        {step.description}
+                      </p>
+                    </div>
+                    
+                    {/* Effet de brillance au hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-12 text-center">
-              <p className="text-gray-300 mb-4">
-                Temps total : <span className="text-[#c5a572] font-semibold">moins de 5 minutes</span> après votre entretien
-              </p>
+            {/* Métrique de temps */}
+            <div className="mt-16 text-center">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 px-6 py-4 rounded-2xl border border-[#c5a572]/30">
+                <Timer className="w-6 h-6 text-[#c5a572]" />
+                <div>
+                  <p className="text-gray-300 text-sm">Temps total</p>
+                  <p className="text-[#c5a572] font-bold text-xl">Moins de 5 minutes</p>
+                  <p className="text-gray-400 text-xs">après votre entretien</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
