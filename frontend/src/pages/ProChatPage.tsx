@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile'; // Pour la sélection client future
 import { useCountry, Country } from '../contexts/CountryContext';
+import { CountrySelector } from '../components/CountrySelector';
 
 interface ProMessage {
   role: 'user' | 'assistant';
@@ -167,23 +168,7 @@ export function ProChatPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-gray-300 text-sm">
-                <Globe2 className="w-4 h-4 text-[#c5a572]" />
-                <select
-                  value={jurisdiction}
-                  onChange={(e) => {
-                    const value = e.target.value as Country;
-                    setJurisdiction(value);
-                  }}
-                  className="bg-transparent border border-[#c5a572]/30 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[#c5a572] text-white hover:border-[#c5a572]/50 transition-colors"
-                  aria-label="Juridiction"
-                >
-                  <option value="FR">🇫🇷 France</option>
-                  <option value="CH">🇨🇭 Suisse</option>
-                  <option value="AD">🇦🇩 Andorre</option>
-                  <option value="LU">🇱🇺 Luxembourg</option>
-                </select>
-              </div>
+              <CountrySelector showIcon={false} />
             </div>
             <button
               onClick={() => navigate(-1)}
