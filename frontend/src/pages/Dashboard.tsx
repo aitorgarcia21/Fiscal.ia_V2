@@ -938,14 +938,6 @@ export function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/profile')}
-              className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-              aria-label="Mon Profil"
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden sm:block">Mon Profil</span>
-            </button>
-            <button
               onClick={handleLogout}
               className="text-gray-400 hover:text-white transition-colors"
               aria-label="Déconnexion"
