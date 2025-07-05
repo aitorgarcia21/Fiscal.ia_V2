@@ -16,6 +16,11 @@ export function ProSettingsPage() {
     });
   };
 
+  const handleEditProfile = () => {
+    // Rediriger vers une page d'édition du profil ou ouvrir un modal
+    navigate('/pro/edit-profile');
+  };
+
   // Récupérer les informations de l'utilisateur
   const userEmail = user?.email || 'Non renseigné';
   const userFirstName = user?.user_metadata?.first_name || user?.user_metadata?.prenom || 'Non renseigné';
@@ -139,7 +144,10 @@ export function ProSettingsPage() {
                     <Lock className="w-4 h-4" />
                     Changer le mot de passe
                   </Link>
-                  <button className="px-6 py-3 bg-[#c5a572] text-[#162238] font-semibold rounded-lg hover:bg-[#e8cfa0] transition-colors">
+                  <button
+                    onClick={handleEditProfile}
+                    className="px-6 py-3 bg-[#c5a572] text-[#162238] font-semibold rounded-lg hover:bg-[#e8cfa0] transition-colors"
+                  >
                     Modifier le profil
                   </button>
                 </div>
@@ -155,7 +163,7 @@ export function ProSettingsPage() {
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <p className="text-white font-medium">Plan Francis Pro</p>
-                    <p className="text-gray-400">29,99€ / mois</p>
+                    <p className="text-gray-400">99€ / mois</p>
                   </div>
                   <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">Actif</span>
                 </div>

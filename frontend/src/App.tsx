@@ -16,6 +16,7 @@ import ProLandingPage from './pages/ProLandingPage';
 import { ProChatPage } from './pages/ProChatPage';
 
 import { ProSettingsPage } from './pages/ProSettingsPage';
+import { ProEditProfilePage } from './pages/ProEditProfilePage';
 import { ProExtensionPage } from './pages/ProExtensionPage';
 import { SuccessPage } from './pages/SuccessPage';
 import { OptimisationFiscaleIA } from './pages/OptimisationFiscaleIA';
@@ -101,6 +102,7 @@ function App() {
             <Route path="/pro/chat" element={<ProChatPage />} />
 
             <Route path="/pro/settings" element={<ProSettingsPage />} />
+            <Route path="/pro/edit-profile" element={<ProEditProfilePage />} />
             <Route path="/pro/extension" element={<ProExtensionPage />} />
             <Route path="/change-password" element={<ChangePasswordPage />} />
           </Route>
