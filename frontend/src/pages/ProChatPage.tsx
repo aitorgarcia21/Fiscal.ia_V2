@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft, Globe2 } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -168,7 +168,7 @@ export function ProChatPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <CountrySelector showIcon={false} />
+              <CountrySelector />
             </div>
             <button
               onClick={() => navigate(-1)}

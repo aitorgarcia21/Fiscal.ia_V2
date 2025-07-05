@@ -223,7 +223,7 @@ export function ChatPage() {
               {/* Sélecteur de juridiction - visible uniquement pour les pros */}
               {isProfessional && (
                 <div className="flex items-center gap-2 text-gray-300 text-sm">
-                  <CountrySelector showIcon={false} />
+                  <CountrySelector />
                 </div>
               )}
             </div>
