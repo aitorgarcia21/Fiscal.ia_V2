@@ -42,29 +42,33 @@ const processSteps = [
     step: "01",
     title: "Activez Francis",
     subtitle: "Un clic, c'est parti",
-    description: "Francis écoute discrètement votre conversation sans vous interrompre",
-    icon: Mic
+    description: "Francis écoute discrètement votre conversation sans vous interrompre. Plus besoin de prendre des notes manuellement !",
+    icon: Mic,
+    benefit: "Gain de temps immédiat"
   },
   {
     step: "02", 
     title: "Parlez naturellement",
     subtitle: "Comme d'habitude",
-    description: "Francis transcrit et analyse en temps réel pendant votre échange",
-    icon: Users
+    description: "Francis transcrit et analyse en temps réel pendant votre échange. Il identifie automatiquement les opportunités fiscales.",
+    icon: Users,
+    benefit: "Analyse intelligente en temps réel"
   },
   {
     step: "03",
     title: "Recevez votre synthèse",
     subtitle: "En quelques secondes",
-    description: "Profil fiscal complet, opportunités identifiées, todo list générée",
-    icon: Sparkles
+    description: "Profil fiscal complet, opportunités d'optimisation identifiées, todo list générée automatiquement. Tout est prêt pour votre client.",
+    icon: Sparkles,
+    benefit: "Rapport professionnel instantané"
   },
   {
     step: "04",
     title: "Exportez en 1 clic",
     subtitle: "Format de votre choix",
-    description: "PDF pour le client, Excel pour vous, CSV pour votre logiciel",
-    icon: Download
+    description: "PDF pour le client, Excel pour vos calculs, CSV pour votre logiciel. Plus de saisie manuelle !",
+    icon: Download,
+    benefit: "Export multi-format automatique"
   }
 ];
 
@@ -149,8 +153,8 @@ const ProLandingPage = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Comment ça marche
               </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Francis s'intègre naturellement dans votre flux de travail
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Francis s'intègre naturellement dans votre flux de travail et vous fait gagner <span className="text-[#c5a572] font-semibold">plusieurs heures par semaine</span>
               </p>
             </div>
 
@@ -169,16 +173,29 @@ const ProLandingPage = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
                     <p className="text-[#c5a572] text-sm font-medium mb-2">{step.subtitle}</p>
-                    <p className="text-gray-400 text-sm leading-relaxed">{step.description}</p>
+                    <p className="text-gray-400 text-sm leading-relaxed mb-3">{step.description}</p>
+                    <div className="bg-[#c5a572]/10 border border-[#c5a572]/20 rounded-lg p-2">
+                      <p className="text-[#c5a572] text-xs font-semibold uppercase tracking-wide">
+                        {step.benefit}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="mt-12 text-center">
-              <div className="inline-flex items-center gap-2 text-gray-300">
-                <Timer className="w-4 h-4 text-[#c5a572]" />
+              <div className="inline-flex items-center gap-2 text-gray-300 bg-[#1E3253]/60 backdrop-blur-sm p-4 rounded-xl border border-[#2A3F6C]/30">
+                <Timer className="w-5 h-5 text-[#c5a572]" />
                 <span>Temps total : <span className="text-[#c5a572] font-semibold">moins de 5 minutes</span> après votre entretien</span>
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-gray-400 text-sm">
+                  <span className="text-[#c5a572] font-semibold">Avant Francis :</span> 2-3 heures de saisie et d'analyse manuelle
+                </p>
+                <p className="text-gray-400 text-sm">
+                  <span className="text-[#c5a572] font-semibold">Avec Francis :</span> 5 minutes d'export automatique
+                </p>
               </div>
             </div>
           </div>
