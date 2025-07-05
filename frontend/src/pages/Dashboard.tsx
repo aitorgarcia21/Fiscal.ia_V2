@@ -920,6 +920,41 @@ export function Dashboard() {
     }
   };
 
+  // Fonction pour mettre à jour le profil utilisateur
+  const updateUserProfile = async (field: string, value: any) => {
+    if (!user?.id) {
+      console.error('Utilisateur non authentifié');
+      return;
+    }
+
+    try {
+      // Mise à jour locale immédiate pour l'UI
+      setUserProfile(prev => prev ? { ...prev, [field]: value } : null);
+
+      // Sauvegarde sur Supabase
+      const response = await fetch(`/user-profile/${user.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({
+          [field]: value
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Erreur lors de la sauvegarde du profil');
+        // Revenir à l'état précédent en cas d'erreur
+        setUserProfile(prev => prev ? { ...prev, [field]: userProfile?.[field as keyof UserProfile] } : null);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du profil:', error);
+      // Revenir à l'état précédent en cas d'erreur
+      setUserProfile(prev => prev ? { ...prev, [field]: userProfile?.[field as keyof UserProfile] } : null);
+    }
+  };
+
   if (showOnboarding) {
     return <InitialProfileQuestions onComplete={handleOnboardingComplete} />;
   }
@@ -1137,6 +1172,7 @@ export function Dashboard() {
                       <select 
                         id="situation-familiale"
                         value={userProfile?.situation_familiale || 'celibataire'} 
+                        onChange={(e) => updateUserProfile('situation_familiale', e.target.value)}
                         className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg"
                         aria-label="Sélectionner la situation familiale"
                       >
@@ -1152,6 +1188,7 @@ export function Dashboard() {
                         id="nombre-enfants"
                         type="number" 
                         value={userProfile?.nombre_enfants || 0} 
+                        onChange={(e) => updateUserProfile('nombre_enfants', parseInt(e.target.value) || 0)}
                         className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
                         placeholder="0"
                         aria-label="Nombre d'enfants à charge"
@@ -1170,6 +1207,7 @@ export function Dashboard() {
                         id="tmi"
                         type="number" 
                         value={userProfile?.tmi || ''} 
+                        onChange={(e) => updateUserProfile('tmi', parseFloat(e.target.value) || null)}
                         className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
                         placeholder="Taux marginal d'imposition"
                         aria-label="Taux marginal d'imposition"
@@ -1181,6 +1219,7 @@ export function Dashboard() {
                         id="revenus-annuels"
                         type="number" 
                         value={userProfile?.revenus_annuels || ''} 
+                        onChange={(e) => updateUserProfile('revenus_annuels', parseFloat(e.target.value) || null)}
                         className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
                         placeholder="0"
                         aria-label="Revenus annuels"
@@ -1192,6 +1231,7 @@ export function Dashboard() {
                         id="charges-deductibles"
                         type="number" 
                         value={userProfile?.charges_deductibles || ''} 
+                        onChange={(e) => updateUserProfile('charges_deductibles', parseFloat(e.target.value) || null)}
                         className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
                         placeholder="0"
                         aria-label="Charges déductibles"
