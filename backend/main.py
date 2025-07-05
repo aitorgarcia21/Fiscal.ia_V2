@@ -2352,6 +2352,42 @@ async def calc_cass_endpoint(request: CASSCalcRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@api_router.get("/questions/quota")
+async def get_questions_quota(user_id: str = Depends(verify_token)):
+    """Récupère le nombre de questions restantes pour le mois"""
+    try:
+        if not supabase:
+            return {"questions_used": 0, "questions_remaining": 50, "quota_limit": 50}
+        
+        # Vérifier le type d'utilisateur
+        profile_resp = supabase.table("profils_utilisateurs").select("taper").eq("user_id", user_id).single().execute()
+        taper = (profile_resp.data or {}).get("taper", "particulier")
+        
+        if taper == "professionnel":
+            # Les pros ont un accès illimité
+            return {"questions_used": 0, "questions_remaining": -1, "quota_limit": -1, "unlimited": True}
+        
+        # Pour les particuliers, compter les questions du mois
+        now = datetime.utcnow().replace(tzinfo=timezone.utc)
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+        
+        count_resp = supabase.table("questions").select("id", count='exact').eq("user_id", user_id).gte("created_at", month_start).execute()
+        questions_used = count_resp.count or 0
+        
+        quota_limit = 50  # Limite mensuelle pour les particuliers
+        questions_remaining = max(0, quota_limit - questions_used)
+        
+        return {
+            "questions_used": questions_used,
+            "questions_remaining": questions_remaining,
+            "quota_limit": quota_limit,
+            "unlimited": False
+        }
+        
+    except Exception as e:
+        print(f"[Erreur Quota] Impossible de récupérer le quota pour {user_id}: {e}")
+        return {"questions_used": 0, "questions_remaining": 50, "quota_limit": 50}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8080))) 

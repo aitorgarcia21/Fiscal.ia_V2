@@ -117,45 +117,21 @@ export function Dashboard() {
   const [testResult, setTestResult] = useState<any>(null);
   const [showTestResults, setShowTestResults] = useState(false);
   const [discoveryStep, setDiscoveryStep] = useState(0);
-  const [discoveryData, setDiscoveryData] = useState({
-    // Informations personnelles
-    age: '',
-    situation_familiale: 'celibataire',
-    nombre_enfants: 0,
-    residence_fiscale: 'france',
-    
-    // Revenus et activité
-    revenus_principaux: '',
-    activite_principale: 'salarie',
-    revenus_complementaires: [] as string[],
-    charges_deductibles: '',
-    
-    // Patrimoine
-    residence_principale: false,
-    residence_secondaire: false,
-    epargne_totale: '',
-    investissements: [] as string[],
-    
-    // Objectifs et projets
-    objectifs_court_terme: [] as string[],
-    objectifs_moyen_terme: [] as string[],
-    objectifs_long_terme: [] as string[],
-    
-    // Niveau de connaissance
-    niveau_connaissance_fiscale: 'debutant',
-    experience_investissement: 'aucune',
-    tolerance_risque: 'modere',
-    
-    // Besoins spécifiques
-    besoins_specifiques: [] as string[],
-    questions_prioritaires: '',
-    
-    // Optimisations souhaitées
-    optimisations_souhaitees: [] as string[]
-  });
+  const [discoveryData, setDiscoveryData] = useState<any>({});
+  const [questionsQuota, setQuestionsQuota] = useState<{
+    questions_used: number;
+    questions_remaining: number;
+    quota_limit: number;
+    unlimited?: boolean;
+  } | null>(null);
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isFrancisSpeaking, setIsFrancisSpeaking] = useState(false);
   const [discoveryProgress, setDiscoveryProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
 
   // États pour les formulaires
   const [tmiForm, setTmiForm] = useState({
@@ -185,15 +161,8 @@ export function Dashboard() {
   });
 
   // États pour l'enregistrement vocal
-  const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-
-  // États pour la synthèse vocale de Francis
-  const [isFrancisSpeaking, setIsFrancisSpeaking] = useState(false);
-  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
-  const [voiceMode, setVoiceMode] = useState(false);
 
   // Charger le profil utilisateur au montage
   useEffect(() => {
@@ -223,6 +192,7 @@ export function Dashboard() {
     };
 
     checkUserProfile();
+    loadQuestionsQuota();
   }, [user, navigate]);
 
   useEffect(() => {
@@ -932,6 +902,24 @@ export function Dashboard() {
     }
   };
 
+  // Fonction pour récupérer le quota de questions
+  const loadQuestionsQuota = async () => {
+    try {
+      const response = await fetch('/api/questions/quota', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+      });
+      
+      if (response.ok) {
+        const quotaData = await response.json();
+        setQuestionsQuota(quotaData);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du quota:', error);
+    }
+  };
+
   if (showOnboarding) {
     return <InitialProfileQuestions onComplete={handleOnboardingComplete} />;
   }
@@ -1149,31 +1137,34 @@ export function Dashboard() {
                         value={user?.email || ''} 
                         disabled 
                         className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg text-gray-400" 
+                        aria-label="Email de l'utilisateur"
                       />
                     </div>
-                                          <div>
-                        <label htmlFor="situation-familiale" className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
-                        <select 
-                          id="situation-familiale"
-                          value={userProfile?.situation_familiale || 'celibataire'} 
-                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg"
-                        >
-                          <option value="celibataire">Célibataire</option>
-                          <option value="marie">Marié(e) / PACS</option>
-                          <option value="veuf">Veuf(ve)</option>
-                          <option value="divorce">Divorcé(e)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label htmlFor="nombre-enfants" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
-                        <input 
-                          id="nombre-enfants"
-                          type="number" 
-                          value={userProfile?.nombre_enfants || 0} 
-                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
-                          placeholder="0"
-                        />
-                      </div>
+                    <div>
+                      <label htmlFor="situation-familiale" className="block text-sm font-medium text-gray-300 mb-2">Situation familiale</label>
+                      <select 
+                        id="situation-familiale"
+                        value={userProfile?.situation_familiale || 'celibataire'} 
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg"
+                        aria-label="Sélectionner la situation familiale"
+                      >
+                        <option value="celibataire">Célibataire</option>
+                        <option value="marie">Marié(e) / PACS</option>
+                        <option value="veuf">Veuf(ve)</option>
+                        <option value="divorce">Divorcé(e)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="nombre-enfants" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
+                      <input 
+                        id="nombre-enfants"
+                        type="number" 
+                        value={userProfile?.nombre_enfants || 0} 
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                        placeholder="0"
+                        aria-label="Nombre d'enfants à charge"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1181,39 +1172,98 @@ export function Dashboard() {
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-4">Informations Fiscales</h3>
                   <div className="space-y-4">
-                                          <div>
-                        <label htmlFor="tmi" className="block text-sm font-medium text-gray-300 mb-2">TMI (%)</label>
-                        <input 
-                          id="tmi"
-                          type="number" 
-                          value={userProfile?.tmi || ''} 
-                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
-                          placeholder="Taux marginal d'imposition"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="revenus-annuels" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels (€)</label>
-                        <input 
-                          id="revenus-annuels"
-                          type="number" 
-                          value={userProfile?.revenus_annuels || ''} 
-                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="charges-deductibles" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles (€)</label>
-                        <input 
-                          id="charges-deductibles"
-                          type="number" 
-                          value={userProfile?.charges_deductibles || ''} 
-                          className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
-                          placeholder="0"
-                        />
-                      </div>
+                    <div>
+                      <label htmlFor="tmi" className="block text-sm font-medium text-gray-300 mb-2">TMI (%)</label>
+                      <input 
+                        id="tmi"
+                        type="number" 
+                        value={userProfile?.tmi || ''} 
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                        placeholder="Taux marginal d'imposition"
+                        aria-label="Taux marginal d'imposition"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="revenus-annuels" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels (€)</label>
+                      <input 
+                        id="revenus-annuels"
+                        type="number" 
+                        value={userProfile?.revenus_annuels || ''} 
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                        placeholder="0"
+                        aria-label="Revenus annuels"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="charges-deductibles" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles (€)</label>
+                      <input 
+                        id="charges-deductibles"
+                        type="number" 
+                        value={userProfile?.charges_deductibles || ''} 
+                        className="w-full p-3 bg-[#162238] border border-[#c5a572]/20 rounded-lg" 
+                        placeholder="0"
+                        aria-label="Charges déductibles"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* Section Quota de Questions */}
+              {questionsQuota && (
+                <div className="mt-6 pt-6 border-t border-[#c5a572]/20">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-[#c5a572]" />
+                    Quota de Questions
+                  </h3>
+                  <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
+                    {questionsQuota.unlimited ? (
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-white font-medium">Accès illimité (Compte Pro)</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-300">Questions utilisées ce mois</span>
+                          <span className="text-white font-medium">{questionsQuota.questions_used} / {questionsQuota.quota_limit}</span>
+                        </div>
+                        <div className="w-full bg-[#1a2332] rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all ${
+                              questionsQuota.questions_remaining > 10 
+                                ? 'bg-gradient-to-r from-green-500 to-green-400' 
+                                : questionsQuota.questions_remaining > 5 
+                                ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                                : 'bg-gradient-to-r from-red-500 to-red-400'
+                            }`}
+                            style={{ width: `${(questionsQuota.questions_used / questionsQuota.quota_limit) * 100}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Restantes</span>
+                          <span className={`font-medium ${
+                            questionsQuota.questions_remaining > 10 
+                              ? 'text-green-400' 
+                              : questionsQuota.questions_remaining > 5 
+                              ? 'text-yellow-400'
+                              : 'text-red-400'
+                          }`}>
+                            {questionsQuota.questions_remaining} questions
+                          </span>
+                        </div>
+                        {questionsQuota.questions_remaining <= 5 && (
+                          <div className="mt-3 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                            <p className="text-yellow-300 text-sm">
+                              ⚠️ Attention : Il ne vous reste que {questionsQuota.questions_remaining} questions ce mois-ci.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-8 pt-6 border-t border-[#c5a572]/20">
                 <div className="flex justify-between items-center">
