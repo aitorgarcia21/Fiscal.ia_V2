@@ -135,73 +135,42 @@ const ProLandingPage = () => {
         </main>
 
         {/* Comment ça marche - Étapes concrètes */}
-        <section className="pb-20 relative overflow-hidden">
-          {/* Effet de fond subtil */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a2942]/10 via-[#223c63]/5 to-[#234876]/10"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <section className="pb-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 text-[#c5a572] px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <Zap className="w-4 h-4" />
-                Processus ultra-rapide
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Comment ça marche
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                Francis s'intègre <span className="text-[#c5a572] font-semibold">naturellement</span> dans votre flux de travail. 
-                Plus de paperasse, plus de temps perdu.
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+                Francis s'intègre naturellement dans votre flux de travail
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {processSteps.map((step, index) => (
-                <div key={index} className="relative group">
-                  {/* Ligne de connexion */}
+                <div key={index} className="relative">
                   {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[#c5a572]/30 to-transparent z-0"></div>
+                    <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-gradient-to-r from-[#c5a572]/20 to-transparent z-0"></div>
                   )}
-                  
-                  <div className="relative bg-gradient-to-br from-[#1E3253]/80 to-[#1E3253]/60 backdrop-blur-xl p-8 rounded-3xl border border-[#2A3F6C]/40 hover:border-[#c5a572]/60 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20 group-hover:scale-105">
-                    {/* Badge étape */}
-                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center text-[#162238] font-bold text-sm shadow-lg">
-                      {step.step}
+                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-6 rounded-xl border border-[#2A3F6C]/30 hover:border-[#c5a572]/40 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-[#c5a572]/10">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center text-[#162238] font-semibold text-sm">
+                        {step.step}
+                      </div>
+                      <step.icon className="w-6 h-6 text-[#c5a572]" />
                     </div>
-                    
-                    {/* Icône principale */}
-                    <div className="w-16 h-16 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300">
-                      <step.icon className="w-8 h-8 text-[#162238]" />
-                    </div>
-                    
-                    {/* Contenu */}
-                    <div className="space-y-3">
-                      <h3 className="text-xl font-bold text-white group-hover:text-[#c5a572] transition-colors duration-300">
-                        {step.title}
-                      </h3>
-                      <p className="text-[#c5a572] text-sm font-medium">
-                        {step.subtitle}
-                      </p>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        {step.description}
-                      </p>
-                    </div>
-                    
-                    {/* Effet de brillance au hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c5a572]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
+                    <p className="text-[#c5a572] text-sm font-medium mb-2">{step.subtitle}</p>
+                    <p className="text-gray-400 text-sm leading-relaxed">{step.description}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Métrique de temps */}
-            <div className="mt-16 text-center">
-              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 px-6 py-4 rounded-2xl border border-[#c5a572]/30">
-                <Timer className="w-6 h-6 text-[#c5a572]" />
-                <div>
-                  <p className="text-gray-300 text-sm">Temps total</p>
-                  <p className="text-[#c5a572] font-bold text-xl">Moins de 5 minutes</p>
-                  <p className="text-gray-400 text-xs">après votre entretien</p>
-                </div>
+            <div className="mt-12 text-center">
+              <div className="inline-flex items-center gap-2 text-gray-300">
+                <Timer className="w-4 h-4 text-[#c5a572]" />
+                <span>Temps total : <span className="text-[#c5a572] font-semibold">moins de 5 minutes</span> après votre entretien</span>
               </div>
             </div>
           </div>
