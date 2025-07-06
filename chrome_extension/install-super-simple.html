@@ -62,10 +62,6 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
         }
-        .btn.secondary {
-            background: linear-gradient(135deg, #c5a572, #e8cfa0);
-            color: #162238;
-        }
         .auto-badge {
             background: linear-gradient(135deg, #10B981, #059669);
             color: white;
@@ -138,10 +134,6 @@
             ⚡ Installer Francis Automatiquement
         </button>
         
-        <button class="btn secondary" onclick="showManual()">
-            🔧 Installation manuelle
-        </button>
-        
         <div class="features">
             <div class="feature">
                 <div class="feature-icon">🎯</div>
@@ -181,10 +173,6 @@
             setTimeout(() => {
                 status.innerHTML = '<h3>✅ Francis installé avec succès !</h3><p>Francis est maintenant prêt à vous aider sur Microsoft Teams !</p><p><strong>Prochaines étapes :</strong></p><ol style="text-align: left; max-width: 400px; margin: 0 auto;"><li>Aller sur Microsoft Teams</li><li>Francis apparaîtra automatiquement</li><li>Cliquer sur Francis pour commencer</li></ol>';
             }, 3000);
-        }
-        
-        function showManual() {
-            window.open('install-standalone.html', '_blank');
         }
         
         // Démarrer automatiquement après 2 secondes
