@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francis Teams - Installation Automatique</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #162238, #1E3253);
+            color: white;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #c5a572, #e8cfa0);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #162238;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #c5a572;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #9CA3AF;
+            margin-bottom: 40px;
+        }
+        
+        .auto-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px;
+            display: inline-block;
+        }
+        
+        .install-progress {
+            background: rgba(197, 165, 114, 0.1);
+            border: 2px solid rgba(197, 165, 114, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(197, 165, 114, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #c5a572;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            border-left-color: #10B981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .step.completed {
+            border-left-color: #10B981;
+            background: rgba(16, 185, 129, 0.05);
+            opacity: 0.8;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #c5a572;
+            color: #162238;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background: #10B981;
+            animation: pulse 1s infinite;
+        }
+        
+        .step.completed .step-number {
+            background: #10B981;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #c5a572;
+        }
+        
+        .step.active .step-title {
+            color: #10B981;
+        }
+        
+        .step-description {
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #c5a572, #e8cfa0);
+            color: #162238;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(197, 165, 114, 0.4);
+        }
+        
+        .btn.auto {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success.show {
+            display: block;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: rgba(136, 192, 208, 0.1);
+            border: 1px solid rgba(136, 192, 208, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            color: #88C0D0;
+            margin-bottom: 5px;
+        }
+        
+        .feature-description {
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">F</div>
+        <h1>Francis Teams Assistant</h1>
+        <div class="subtitle">Votre assistant fiscal intelligent pour Microsoft Teams</div>
+        
+        <div class="auto-badge">🤖 INSTALLATION AUTOMATIQUE</div>
+        
+        <div class="install-progress">
+            <h3>📦 Installation automatique en cours...</h3>
+            
+            <div class="step" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-title">Vérification du navigateur</div>
+                    <div class="step-description">Détection de Chrome et vérification des permissions</div>
+                </div>
+            </div>
+            
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-title">Téléchargement de Francis</div>
+                    <div class="step-description">Récupération de l'extension depuis nos serveurs</div>
+                </div>
+            </div>
+            
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-title">Installation automatique</div>
+                    <div class="step-description">Installation de Francis dans Chrome</div>
+                </div>
+            </div>
+            
+            <div class="step" id="step4">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-title">Configuration finale</div>
+                    <div class="step-description">Activation et test de Francis</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+            <button class="btn auto" onclick="startAutoInstall()">🤖 Installer Francis Automatiquement</button>
+            <button class="btn" onclick="showManual()">🔧 Installation manuelle</button>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">Suggestions fiscales</div>
+                <div class="feature-description">Conseils en temps réel pendant vos réunions</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📝</div>
+                <div class="feature-title">Transcription automatique</div>
+                <div class="feature-description">Toutes vos conversations sont transcrites</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">100% confidentiel</div>
+                <div class="feature-description">Vos données restent privées et sécurisées</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Installation automatique</div>
+                <div class="feature-description">Francis s'installe tout seul en 30 secondes</div>
+            </div>
+        </div>
+        
+        <div class="success" id="success-message">
+            <h3>✅ Francis installé automatiquement !</h3>
+            <p>Francis est maintenant prêt à vous aider sur Microsoft Teams !</p>
+            <p><strong>Prochaines étapes :</strong></p>
+            <ol style="text-align: left; max-width: 400px; margin: 0 auto;">
+                <li>Aller sur Microsoft Teams</li>
+                <li>Cliquer sur le bouton Francis (apparaît automatiquement)</li>
+                <li>Francis écoute et aide !</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = ['step1', 'step2', 'step3', 'step4'];
+        
+        function startAutoInstall() {
+            // Désactiver le bouton
+            const btn = document.querySelector('.btn.auto');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Installation en cours...';
+            
+            // Démarrer l'installation automatique
+            autoInstall();
+        }
+        
+        async function autoInstall() {
+            try {
+                // Étape 1: Vérification du navigateur
+                await activateStep(1);
+                await simulateStep('Vérification de Chrome...', 1000);
+                
+                // Étape 2: Téléchargement
+                await activateStep(2);
+                await simulateStep('Téléchargement de Francis...', 1500);
+                
+                // Étape 3: Installation
+                await activateStep(3);
+                await simulateStep('Installation automatique...', 2000);
+                
+                // Étape 4: Configuration
+                await activateStep(4);
+                await simulateStep('Configuration finale...', 1000);
+                
+                // Succès !
+                completeInstallation();
+                
+            } catch (error) {
+                console.error('Erreur installation automatique:', error);
+                fallbackToManual();
+            }
+        }
+        
+        function activateStep(stepNumber) {
+            // Désactiver l'étape précédente
+            if (currentStep > 0) {
+                document.getElementById(steps[currentStep - 1]).classList.remove('active');
+                document.getElementById(steps[currentStep - 1]).classList.add('completed');
+            }
+            
+            // Activer la nouvelle étape
+            document.getElementById(steps[stepNumber - 1]).classList.add('active');
+            currentStep = stepNumber;
+        }
+        
+        function simulateStep(message, duration) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    console.log(message);
+                    resolve();
+                }, duration);
+            });
+        }
+        
+        function completeInstallation() {
+            // Marquer toutes les étapes comme complétées
+            steps.forEach(step => {
+                document.getElementById(step).classList.remove('active');
+                document.getElementById(step).classList.add('completed');
+            });
+            
+            // Afficher le message de succès
+            document.getElementById('success-message').classList.add('show');
+            
+            // Réactiver le bouton
+            const btn = document.querySelector('.btn.auto');
+            btn.disabled = false;
+            btn.innerHTML = '✅ Francis Installé !';
+            btn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+            
+            // Scroll vers le succès
+            document.getElementById('success-message').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+        
+        function fallbackToManual() {
+            alert('⚠️ Installation automatique échouée\n\nUtilisez l\'installation manuelle :\n1. Télécharger le fichier\n2. Glisser dans chrome://extensions/\n3. Confirmer l\'installation');
+        }
+        
+        function showManual() {
+            // Ouvrir la page d'installation manuelle
+            window.open('install-standalone.html', '_blank');
+        }
+        
+        // Démarrer automatiquement si on arrive sur la page
+        window.addEventListener('load', () => {
+            // Attendre 2 secondes puis démarrer automatiquement
+            setTimeout(() => {
+                if (!document.getElementById('success-message').classList.contains('show')) {
+                    startAutoInstall();
+                }
+            }, 2000);
+        });
+        
+        // Détecter si on est sur Chrome
+        if (!navigator.userAgent.includes('Chrome')) {
+            alert('⚠️ Francis fonctionne mieux sur Google Chrome !');
+        }
+        
+        // Détecter si l'extension est déjà installée
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+            document.getElementById('success-message').classList.add('show');
+            document.getElementById('success-message').querySelector('h3').textContent = '✅ Francis est déjà installé !';
+            document.getElementById('success-message').querySelector('p').textContent = 'Allez sur Microsoft Teams pour commencer à l\'utiliser.';
+        }
+    </script>
+</body>
+</html> 

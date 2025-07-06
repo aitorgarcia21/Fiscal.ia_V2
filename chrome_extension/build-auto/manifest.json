@@ -1,0 +1,54 @@
+{
+  "name": "Francis - Assistant Teams Pro",
+  "description": "Francis écoute vos réunions Microsoft Teams et vous aide en temps réel avec des suggestions fiscales.",
+  "version": "1.0.0",
+  "manifest_version": 3,
+
+  "host_permissions": [
+    "https://api.francis.ai/*",
+    "https://teams.microsoft.com/*",
+    "https://*.teams.microsoft.com/*"
+  ],
+  "permissions": [
+    "activeTab", 
+    "storage",
+    "tabs",
+    "tabCapture",
+    "desktopCapture"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://teams.microsoft.com/*",
+        "https://*.teams.microsoft.com/*"
+      ],
+      "js": ["teamsListener.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Francis Teams Assistant",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+} 

@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Francis Teams Assistant - Auto Installer",
+  "version": "1.0.0",
+  "description": "Installation automatique de Francis Teams Assistant",
+  "permissions": [
+    "management",
+    "tabs",
+    "activeTab",
+    "storage",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://teams.microsoft.com/*",
+    "https://fiscal.ia/*",
+    "https://*.microsoft.com/*"
+  ],
+  "background": {
+    "service_worker": "auto-installer.js"
+  },
+  "action": {
+    "default_popup": "install-auto.html",
+    "default_title": "Francis Auto Installer"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["install-auto.html", "auto-installer.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["https://fiscal.ia/*"]
+  }
+}

@@ -1,0 +1,5 @@
+body { font-family: sans-serif; width: 230px; padding: 12px; }
+h1 { font-size: 16px; margin: 0 0 8px; }
+input, button { width: 100%; padding: 6px; margin-bottom: 6px; box-sizing: border-box; }
+button { background:#c5a572; border:none; color:#162238; cursor:pointer; border-radius:4px; }
+#status { font-size:12px; color:green; text-align:center; } 

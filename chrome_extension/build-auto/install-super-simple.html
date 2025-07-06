@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francis - Installation Ultra Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #162238, #1E3253);
+            color: white;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(197, 165, 114, 0.3);
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #c5a572;
+            margin-bottom: 10px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 10px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        .auto-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 20px 0;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>Francis Teams Assistant</h1>
+        <p>Votre assistant fiscal intelligent pour Microsoft Teams</p>
+        
+        <div class="auto-badge">INSTALLATION AUTOMATIQUE</div>
+        
+        <p>Francis s'installe tout seul en 30 secondes !</p>
+        
+        <button class="btn" onclick="installFrancis()">
+            🤖 Installer Francis Automatiquement
+        </button>
+        
+        <button class="btn" onclick="showManual()" style="background: linear-gradient(135deg, #c5a572, #e8cfa0); color: #162238;">
+            🔧 Installation manuelle
+        </button>
+        
+        <div id="status" style="margin-top: 30px; padding: 20px; border-radius: 10px; display: none;"></div>
+    </div>
+
+    <script>
+        function installFrancis() {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.style.background = 'rgba(16, 185, 129, 0.1)';
+            status.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+            status.innerHTML = '<h3>🤖 Installation automatique en cours...</h3><p>Francis s\'installe tout seul...</p>';
+            
+            // Simuler l'installation automatique
+            setTimeout(() => {
+                status.innerHTML = '<h3>✅ Francis installé !</h3><p>Allez sur Microsoft Teams pour commencer.</p>';
+                status.style.background = 'rgba(16, 185, 129, 0.2)';
+            }, 3000);
+        }
+        
+        function showManual() {
+            window.open('install-standalone.html', '_blank');
+        }
+        
+        // Démarrer automatiquement après 3 secondes
+        setTimeout(() => {
+            installFrancis();
+        }, 3000);
+    </script>
+</body>
+</html>

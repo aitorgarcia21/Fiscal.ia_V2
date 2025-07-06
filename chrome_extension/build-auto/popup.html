@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Francis Teams Assistant</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #162238, #1E3253);
+      color: white;
+      margin: 0;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #c5a572, #e8cfa0);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #162238;
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    
+    .subtitle {
+      font-size: 12px;
+      color: #c5a572;
+      opacity: 0.8;
+    }
+    
+    .status {
+      background: rgba(197, 165, 114, 0.1);
+      border: 1px solid rgba(197, 165, 114, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+    }
+    
+    .status-dot.inactive {
+      background: #6B7280;
+    }
+    
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, #c5a572, #e8cfa0);
+      color: #162238;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 8px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(197, 165, 114, 0.4);
+    }
+    
+    .btn.secondary {
+      background: rgba(197, 165, 114, 0.1);
+      color: #c5a572;
+      border: 1px solid rgba(197, 165, 114, 0.3);
+    }
+    
+    .btn.secondary:hover {
+      background: rgba(197, 165, 114, 0.2);
+    }
+    
+    .features {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+    
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    
+    .feature-icon {
+      color: #c5a572;
+      font-size: 14px;
+    }
+    
+    .quick-start {
+      background: rgba(136, 192, 208, 0.1);
+      border: 1px solid rgba(136, 192, 208, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+    }
+    
+    .quick-start-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #88C0D0;
+      margin-bottom: 8px;
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    
+    .step-number {
+      width: 16px;
+      height: 16px;
+      background: #88C0D0;
+      color: #162238;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">F</div>
+    <div class="title">Francis Teams</div>
+    <div class="subtitle">Assistant fiscal intelligent</div>
+  </div>
+  
+  <div class="status">
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Prêt à écouter</span>
+    </div>
+  </div>
+  
+  <button class="btn" id="teams-btn">
+    🎤 Activer Francis sur Teams
+  </button>
+  
+  <button class="btn secondary" id="settings-btn">
+    ⚙️ Paramètres
+  </button>
+  
+  <div class="quick-start">
+    <div class="quick-start-title">🚀 Installation rapide</div>
+    <div class="step">
+      <div class="step-number">1</div>
+      <span>Aller sur Microsoft Teams</span>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <span>Cliquer sur "Activer Francis"</span>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <span>Francis écoute et aide !</span>
+    </div>
+  </div>
+  
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">🎯</span>
+      <span>Suggestions fiscales en temps réel</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">📝</span>
+      <span>Transcription automatique</span>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🔒</span>
+      <span>100% confidentiel</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html> 
