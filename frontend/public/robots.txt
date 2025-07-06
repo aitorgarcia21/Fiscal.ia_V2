@@ -6,6 +6,11 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /_next/
 Disallow: /private/
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /.*\.json$
+Disallow: /.*\.js$
+Disallow: /.*\.css$
 
 # Pages importantes à crawler en priorité
 Allow: /
@@ -17,9 +22,57 @@ Allow: /politique-confidentialite
 Allow: /optimisation-fiscale-ia
 Allow: /simulateur-impot
 Allow: /blog/
+Allow: /pro/
+
+# Pages SEO spécialisées
+Allow: /optimisation-fiscale-per
+Allow: /optimisation-fiscale-lmnp
+Allow: /optimisation-fiscale-sci
+Allow: /optimisation-fiscale-assurance-vie
+Allow: /optimisation-fiscale-suisse
+Allow: /optimisation-fiscale-andorre
+Allow: /calcul-optimisation-fiscale
+Allow: /conseils-optimisation-fiscale
+
+# Articles de blog SEO
+Allow: /blog/optimisation-fiscale-2025
+Allow: /blog/per-optimisation-2025
+Allow: /blog/lmnp-optimisation-fiscale
+Allow: /blog/sci-optimisation-fiscale-2025
+Allow: /blog/assurance-vie-optimisation-2025
+Allow: /blog/transformer-cabinet-conseil
+Allow: /blog/optimisation-fiscale-suisse-2025
+Allow: /blog/optimisation-fiscale-andorre-2025
 
 # Sitemap
 Sitemap: https://fiscal-ia.net/sitemap.xml
 
 # Délai entre les crawls (optionnel)
-Crawl-delay: 1 
+Crawl-delay: 1
+
+# Directives spécifiques pour Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Directives spécifiques pour Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Directives pour les images
+User-agent: Googlebot-Image
+Allow: /
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.png$
+Allow: /*.webp$
+Allow: /*.svg$
+
+# Directives pour les vidéos
+User-agent: Googlebot-Video
+Allow: /
+Allow: /*.mp4$
+Allow: /*.webm$
+Allow: /*.avi$ 

@@ -1,0 +1,215 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://fiscal-ia.net/#organization",
+      "name": "Francis - Assistant Fiscal Intelligent",
+      "url": "https://fiscal-ia.net",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://fiscal-ia.net/fiscalia-logo.svg",
+        "width": 200,
+        "height": 60
+      },
+      "description": "Assistant fiscal intelligent powered by IA pour l'optimisation fiscale et la réduction d'impôts",
+      "foundingDate": "2024",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": "French"
+      },
+      "sameAs": [
+        "https://linkedin.com/company/fiscal-ia",
+        "https://twitter.com/fiscal_ia"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://fiscal-ia.net/#website",
+      "url": "https://fiscal-ia.net",
+      "name": "Francis - Assistant Fiscal Intelligent",
+      "description": "Optimisez vos impôts avec Francis, l'assistant fiscal IA. Économie moyenne: 1 847€/an.",
+      "publisher": {
+        "@id": "https://fiscal-ia.net/#organization"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://fiscal-ia.net/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Blog",
+      "@id": "https://fiscal-ia.net/blog/#blog",
+      "name": "Blog Optimisation Fiscale Francis",
+      "description": "Blog spécialisé en optimisation fiscale avec conseils d'experts et stratégies fiscales pour 2025",
+      "url": "https://fiscal-ia.net/blog",
+      "publisher": {
+        "@id": "https://fiscal-ia.net/#organization"
+      },
+      "blogPost": [
+        {
+          "@type": "BlogPosting",
+          "headline": "Optimisation Fiscale 2025 : Les 15 Stratégies les Plus Efficaces pour Réduire vos Impôts",
+          "description": "Découvrez les techniques d'optimisation fiscale les plus performantes pour 2025. Guide complet avec calculs et exemples concrets pour maximiser vos économies d'impôts.",
+          "author": {
+            "@type": "Person",
+            "name": "Équipe Francis"
+          },
+          "datePublished": "2024-12-19",
+          "dateModified": "2024-12-19",
+          "publisher": {
+            "@id": "https://fiscal-ia.net/#organization"
+          },
+          "mainEntityOfPage": {
+            "@id": "https://fiscal-ia.net/blog/optimisation-fiscale-2025"
+          },
+          "keywords": "optimisation fiscale 2025, réduire impôts, économie impôt, stratégie fiscale, optimisation fiscale légale",
+          "articleSection": "Optimisation Fiscale",
+          "wordCount": 2500
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "PER 2025 : Optimisation Fiscale Maximale avec le Plan Épargne Retraite",
+          "description": "Guide complet du PER 2025 : calculs d'optimisation fiscale, montants optimaux, avantages et inconvénients. Maximisez vos économies d'impôts avec le PER.",
+          "author": {
+            "@type": "Person",
+            "name": "Équipe Francis"
+          },
+          "datePublished": "2024-12-18",
+          "dateModified": "2024-12-18",
+          "publisher": {
+            "@id": "https://fiscal-ia.net/#organization"
+          },
+          "mainEntityOfPage": {
+            "@id": "https://fiscal-ia.net/blog/per-optimisation-2025"
+          },
+          "keywords": "PER 2025, plan épargne retraite, optimisation fiscale PER, économie impôt retraite",
+          "articleSection": "Plan Épargne Retraite",
+          "wordCount": 1800
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "LMNP 2025 : Optimisation Fiscale Immobilière Complète",
+          "description": "Guide LMNP 2025 : optimisation fiscale immobilière, calculs de rentabilité, déductions fiscales. Maximisez vos économies d'impôts avec l'investissement LMNP.",
+          "author": {
+            "@type": "Person",
+            "name": "Équipe Francis"
+          },
+          "datePublished": "2024-12-17",
+          "dateModified": "2024-12-17",
+          "publisher": {
+            "@id": "https://fiscal-ia.net/#organization"
+          },
+          "mainEntityOfPage": {
+            "@id": "https://fiscal-ia.net/blog/lmnp-optimisation-fiscale"
+          },
+          "keywords": "LMNP 2025, optimisation fiscale immobilière, investissement locatif, déduction fiscale",
+          "articleSection": "Investissement Immobilier",
+          "wordCount": 2100
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "SCI 2025 : Optimisation Fiscale et Transmission du Patrimoine",
+          "description": "Guide complet SCI 2025 : optimisation fiscale, transmission patrimoniale, avantages fiscaux. Maximisez vos économies avec la Société Civile Immobilière.",
+          "author": {
+            "@type": "Person",
+            "name": "Équipe Francis"
+          },
+          "datePublished": "2024-12-16",
+          "dateModified": "2024-12-16",
+          "publisher": {
+            "@id": "https://fiscal-ia.net/#organization"
+          },
+          "mainEntityOfPage": {
+            "@id": "https://fiscal-ia.net/blog/sci-optimisation-fiscale-2025"
+          },
+          "keywords": "SCI 2025, société civile immobilière, optimisation fiscale transmission, patrimoine immobilier",
+          "articleSection": "Transmission Patrimoniale",
+          "wordCount": 1600
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "Assurance-Vie 2025 : Optimisation Fiscale et Transmission",
+          "description": "Guide assurance-vie 2025 : optimisation fiscale, transmission, plus-values. Maximisez vos avantages fiscaux avec l'assurance-vie.",
+          "author": {
+            "@type": "Person",
+            "name": "Équipe Francis"
+          },
+          "datePublished": "2024-12-15",
+          "dateModified": "2024-12-15",
+          "publisher": {
+            "@id": "https://fiscal-ia.net/#organization"
+          },
+          "mainEntityOfPage": {
+            "@id": "https://fiscal-ia.net/blog/assurance-vie-optimisation-2025"
+          },
+          "keywords": "assurance-vie 2025, optimisation fiscale assurance-vie, transmission assurance-vie, plus-values fiscales",
+          "articleSection": "Assurance-Vie",
+          "wordCount": 1900
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://fiscal-ia.net/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "L'IA Francis respecte-t-elle les règles fiscales françaises ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui, Francis est entraîné sur la législation fiscale française officielle (CGI, BOFIP) et respecte strictement les règles en vigueur."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Combien puis-je économiser avec Francis ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nos clients économisent en moyenne 1 847€ par an grâce aux optimisations fiscales personnalisées de Francis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Francis remplace-t-il un expert-comptable ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Francis complète votre expert-comptable en vous aidant à identifier des optimisations fiscales que vous pouvez ensuite valider avec votre professionnel."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qu'est-ce que l'optimisation fiscale légale ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "L'optimisation fiscale légale consiste à utiliser les dispositifs fiscaux mis en place par l'État pour réduire sa charge fiscale tout en respectant la loi."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Francis Assistant Fiscal",
+      "description": "Assistant fiscal intelligent powered by IA pour optimiser vos impôts",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "29",
+        "priceCurrency": "EUR",
+        "priceValidUntil": "2025-12-31"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "247",
+        "bestRating": "5"
+      },
+      "publisher": {
+        "@id": "https://fiscal-ia.net/#organization"
+      }
+    }
+  ]
+} 
