@@ -42,6 +42,22 @@ async def health():
     return {"status": "ok"}
 
 # Routes pour l'extension Chrome
+@app.get("/francis/install")
+async def serve_francis_install():
+    """Nouvelle route pour l'installation de Francis - évite le cache"""
+    file_path = "chrome_extension/install-super-simple.html"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html")
+    else:
+        return HTMLResponse("""
+        <html>
+        <body>
+            <h1>Francis Teams Assistant</h1>
+            <p>Page d'installation non trouvée. Veuillez télécharger l'extension manuellement.</p>
+        </body>
+        </html>
+        """)
+
 @app.get("/chrome-extension/install-super-simple.html")
 async def serve_install_super_simple():
     """Servir la page d'installation ultra-simple de Francis"""
