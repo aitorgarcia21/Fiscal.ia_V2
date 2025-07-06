@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francis Teams - Installation Indépendante</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #162238, #1E3253);
+            color: white;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(15px);
+        }
+        .btn {
+            background: linear-gradient(135deg, #c5a572, #e8cfa0);
+            color: #162238;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .independence-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Francis Teams Assistant</h1>
+        <div class="independence-badge">🚀 100% INDÉPENDANT</div>
+        <p>Installation ultra-simple sans Chrome Web Store</p>
+        <button class="btn" onclick="install()">📦 Installer Francis</button>
+    </div>
+    
+    <script>
+        function install() {
+            // Télécharger l'extension
+            const link = document.createElement('a');
+            link.href = 'francis-teams-standalone.zip';
+            link.download = 'francis-teams-standalone.zip';
+            link.click();
+            
+            // Instructions
+            setTimeout(() => {
+                alert('📦 Francis téléchargé !\n\nPour installer :\n1. Ouvrez chrome://extensions/\n2. Glissez le fichier ZIP dans la fenêtre\n3. Confirmez l\'installation\n\nC\'est tout ! 🎉\n\n🚀 100% INDÉPENDANT - SANS CHROME WEB STORE');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
