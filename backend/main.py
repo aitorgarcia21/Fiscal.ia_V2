@@ -71,6 +71,7 @@ try:
     from routers import pro_clients as pro_clients_router
     from routers import swiss_tax as swiss_tax_router
     from routers import francis_swiss as francis_swiss_router
+    from routers import teams_assistant as teams_assistant_router
     from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from whisper_service import get_whisper_service
 except ImportError:
@@ -83,6 +84,7 @@ except ImportError:
         from backend.routers import pro_clients as pro_clients_router
         from backend.routers import swiss_tax as swiss_tax_router
         from backend.routers import francis_swiss as francis_swiss_router
+        from backend.routers import teams_assistant as teams_assistant_router
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
     except ImportError:
@@ -98,6 +100,7 @@ except ImportError:
         from routers import pro_clients as pro_clients_router
         from routers import swiss_tax as swiss_tax_router
         from routers import francis_swiss as francis_swiss_router
+        from routers import teams_assistant as teams_assistant_router
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
 # --- Fin des imports relatifs corrigés ---
@@ -2273,6 +2276,7 @@ app.include_router(api_router)
 app.include_router(pro_clients_router.router)
 app.include_router(swiss_tax_router.router)
 app.include_router(francis_swiss_router.router)
+app.include_router(teams_assistant_router.router)
 
 # -----------------------
 #  Endpoints Andorre

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2 } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,6 +18,7 @@ export function ProDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -71,6 +72,153 @@ export function ProDashboardPage() {
         console.error("Erreur lors de la suppression du client:", err);
         setError(err.data?.detail || err.message || 'Une erreur est survenue lors de la suppression du client.');
       }
+    }
+  };
+
+  // Fonctions d'export
+  const handleExportPDF = async (clientId: number | string) => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fiche_client_${clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export PDF:', error);
+      setError('Erreur lors de l\'export PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportExcel = async (clientId: number | string) => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-excel`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export Excel');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fiche_client_${clientId}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export Excel:', error);
+      setError('Erreur lors de l\'export Excel');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportCSV = async (clientId: number | string) => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-csv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export CSV');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fiche_client_${clientId}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export CSV:', error);
+      setError('Erreur lors de l\'export CSV');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Fonctions d'export pour les analyses
+  const handleExportAnalysisPDF = async (clientId: number | string) => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-analysis-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export de l\'analyse PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analyse_client_${clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export analyse PDF:', error);
+      setError('Erreur lors de l\'export de l\'analyse PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportIrppPDF = async (clientId: number | string) => {
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-irpp-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export IRPP PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analyse_irpp_client_${clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export IRPP PDF:', error);
+      setError('Erreur lors de l\'export IRPP PDF');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -194,22 +342,87 @@ export function ProDashboardPage() {
                       >
                         Voir
                       </button>
-                                              <button
-                          onClick={() => handleEditClient(client.id)}
-                          className="bg-[#1a2332] text-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
-                          title="Modifier le client"
-                          aria-label="Modifier le client"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
+                      <button
+                        onClick={() => handleEditClient(client.id)}
+                        className="bg-[#1a2332] text-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
+                        title="Modifier le client"
+                        aria-label="Modifier le client"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      
+                      {/* Menu d'export */}
+                      <div className="relative group">
                         <button
-                          onClick={() => handleDeleteClient(client.id)}
-                          className="bg-[#1a2332] text-red-400 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
-                          title="Supprimer le client"
-                          aria-label="Supprimer le client"
+                          className="bg-[#1a2332] text-blue-400 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
+                          title="Exporter"
+                          aria-label="Exporter"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Download className="w-4 h-4" />
                         </button>
+                        <div className="absolute right-0 top-full mt-1 bg-[#162238] border border-[#c5a572]/20 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[140px]">
+                          <div className="px-3 py-2 text-xs text-gray-400 border-b border-[#c5a572]/20">
+                            Fiche client
+                          </div>
+                          <button
+                            onClick={() => handleExportPDF(client.id)}
+                            disabled={isExporting}
+                            className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#223c63] transition-colors flex items-center gap-2 disabled:opacity-50"
+                            title="Exporter en PDF"
+                          >
+                            <FileText className="w-3 h-3" />
+                            PDF
+                          </button>
+                          <button
+                            onClick={() => handleExportExcel(client.id)}
+                            disabled={isExporting}
+                            className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#223c63] transition-colors flex items-center gap-2 disabled:opacity-50"
+                            title="Exporter en Excel"
+                          >
+                            <FileSpreadsheet className="w-3 h-3" />
+                            Excel
+                          </button>
+                          <button
+                            onClick={() => handleExportCSV(client.id)}
+                            disabled={isExporting}
+                            className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#223c63] transition-colors flex items-center gap-2 disabled:opacity-50"
+                            title="Exporter en CSV"
+                          >
+                            <Download className="w-3 h-3" />
+                            CSV
+                          </button>
+                          <div className="px-3 py-2 text-xs text-gray-400 border-b border-[#c5a572]/20">
+                            Analyses
+                          </div>
+                          <button
+                            onClick={() => handleExportAnalysisPDF(client.id)}
+                            disabled={isExporting}
+                            className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#223c63] transition-colors flex items-center gap-2 disabled:opacity-50"
+                            title="Exporter l'analyse en PDF"
+                          >
+                            <FileText className="w-3 h-3" />
+                            Analyse PDF
+                          </button>
+                          <button
+                            onClick={() => handleExportIrppPDF(client.id)}
+                            disabled={isExporting}
+                            className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#223c63] transition-colors flex items-center gap-2 disabled:opacity-50"
+                            title="Exporter l'analyse IRPP en PDF"
+                          >
+                            <TrendingUp className="w-3 h-3" />
+                            IRPP PDF
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => handleDeleteClient(client.id)}
+                        className="bg-[#1a2332] text-red-400 px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
+                        title="Supprimer le client"
+                        aria-label="Supprimer le client"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}

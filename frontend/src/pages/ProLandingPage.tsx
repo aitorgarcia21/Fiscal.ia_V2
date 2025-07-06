@@ -123,7 +123,7 @@ const ProLandingPage = () => {
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 md:pt-40 text-center">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8">
             Francis, le <span className="text-[#c5a572]">copilote</span>
-            <span className="block mt-2">des conseillers financiers</span>
+            <span className="block mt-2">des conseillers en gestion de patrimoine et fiscalistes</span>
           </h1>
           <p className="text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
             Francis écoute vos entretiens, prend des notes et génère vos rapports automatiquement. 

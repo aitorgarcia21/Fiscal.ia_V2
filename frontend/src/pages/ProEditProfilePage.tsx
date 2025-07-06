@@ -218,6 +218,7 @@ export function ProEditProfilePage() {
                     className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
                     min="0"
                     max="50"
+                    aria-label="Années d'expérience"
                   />
                 </div>
               </div>

@@ -14,6 +14,7 @@ import { ProClientDetailPage } from './pages/ProClientDetailPage';
 import { ProEditClientPage } from './pages/ProEditClientPage';
 import ProLandingPage from './pages/ProLandingPage';
 import { ProChatPage } from './pages/ProChatPage';
+import { ProTeamsAssistantPage } from './pages/ProTeamsAssistantPage';
 
 import { ProSettingsPage } from './pages/ProSettingsPage';
 import { ProEditProfilePage } from './pages/ProEditProfilePage';
@@ -100,6 +101,7 @@ function App() {
             <Route path="/pro/clients/:clientId" element={<ProClientDetailPage />} />
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
             <Route path="/pro/chat" element={<ProChatPage />} />
+            <Route path="/pro/teams-assistant" element={<ProTeamsAssistantPage />} />
 
             <Route path="/pro/settings" element={<ProSettingsPage />} />
             <Route path="/pro/edit-profile" element={<ProEditProfilePage />} />

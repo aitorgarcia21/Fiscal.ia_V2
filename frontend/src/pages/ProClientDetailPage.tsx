@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon, Euro } from 'lucide-react';
+import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon, Euro, Download, FileText, FileSpreadsheet } from 'lucide-react';
 
 // TODO: Déplacer vers un fichier de types partagés si utilisé ailleurs
 interface AnalysisResult {
@@ -55,6 +55,9 @@ export function ProClientDetailPage() {
   const [isFrancisLoading, setIsFrancisLoading] = useState(false);
   const [francisChatError, setFrancisChatError] = useState<string | null>(null);
   const francisMessagesEndRef = useRef<HTMLDivElement>(null); // Pour le défilement automatique
+
+  // États pour les exports
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (!clientId) {
@@ -185,6 +188,158 @@ export function ProClientDetailPage() {
     }
   };
 
+  // Fonctions d'export
+  const handleExportPDF = async () => {
+    if (!clientId) return;
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fiche_client_${clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export PDF:', error);
+      setError('Erreur lors de l\'export PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    if (!clientId) return;
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-excel`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export Excel');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fiche_client_${clientId}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export Excel:', error);
+      setError('Erreur lors de l\'export Excel');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    if (!clientId) return;
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-csv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export CSV');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `fiche_client_${clientId}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export CSV:', error);
+      setError('Erreur lors de l\'export CSV');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Fonctions d'export pour les analyses
+  const handleExportAnalysisPDF = async () => {
+    if (!clientId) return;
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-analysis-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export de l\'analyse PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analyse_client_${clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export analyse PDF:', error);
+      setError('Erreur lors de l\'export de l\'analyse PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportIrppPDF = async () => {
+    if (!clientId) return;
+    setIsExporting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/pro/clients/${clientId}/export-irpp-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de l\'export IRPP PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analyse_irpp_client_${clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur export IRPP PDF:', error);
+      setError('Erreur lors de l\'export IRPP PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const renderDetailSection = (title: string, icon: React.ElementType, details: Record<string, any>) => {
     const filteredDetails = Object.entries(details).filter(([_, value]) => value !== null && value !== undefined && value !== '' && (typeof value !== 'object' || (typeof value ==='object' && Object.keys(value).length > 0) ) );
     if (filteredDetails.length === 0) return null;
@@ -265,6 +420,38 @@ export function ProClientDetailPage() {
                 {isIrppAnalyzing ? <RotateCw className="w-4 h-4 animate-spin" /> : <TrendingUpIcon className="w-4 h-4" />}
                 {isIrppAnalyzing ? 'Calcul IRPP en cours...' : 'Analyser IRPP 2025'}
               </button>
+            
+            {/* Boutons d'export */}
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="px-3 py-2 bg-gradient-to-r from-[#E53E3E] to-[#C53030] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                title="Exporter en PDF"
+              >
+                {isExporting ? <RotateCw className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                PDF
+              </button>
+              <button 
+                onClick={handleExportExcel}
+                disabled={isExporting}
+                className="px-3 py-2 bg-gradient-to-r from-[#38A169] to-[#2F855A] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                title="Exporter en Excel"
+              >
+                {isExporting ? <RotateCw className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+                Excel
+              </button>
+              <button 
+                onClick={handleExportCSV}
+                disabled={isExporting}
+                className="px-3 py-2 bg-gradient-to-r from-[#3182CE] to-[#2C5282] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                title="Exporter en CSV"
+              >
+                {isExporting ? <RotateCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                CSV
+              </button>
+            </div>
+            
             <button 
               onClick={() => navigate(`/pro/clients/${clientId}/edit`)}
               className="px-4 py-2 bg-gradient-to-r from-[#88C0D0] to-[#81A1C1] text-[#0A192F] font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm"
@@ -296,9 +483,20 @@ export function ProClientDetailPage() {
 
           {analysisResult && !isAnalyzing && (
             <section className="mb-8 p-6 bg-gradient-to-br from-[#15305D]/70 to-[#0E2444]/70 rounded-xl shadow-2xl border border-[#88C0D0]/50">
-              <div className="flex items-center mb-5">
-                <FileTextLtr className="w-8 h-8 text-[#A3BE8C] mr-3 flex-shrink-0" />
-                <h2 className="text-2xl font-bold text-white">Résultats de l'Analyse Détaillée</h2>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center">
+                  <FileTextLtr className="w-8 h-8 text-[#A3BE8C] mr-3 flex-shrink-0" />
+                  <h2 className="text-2xl font-bold text-white">Résultats de l'Analyse Détaillée</h2>
+                </div>
+                <button 
+                  onClick={handleExportAnalysisPDF}
+                  disabled={isExporting}
+                  className="px-3 py-2 bg-gradient-to-r from-[#E53E3E] to-[#C53030] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  title="Exporter l'analyse en PDF"
+                >
+                  {isExporting ? <RotateCw className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                  Exporter PDF
+                </button>
               </div>
               <div className="bg-[#0A192F]/50 p-4 rounded-md mb-6">
                 <h3 className="text-lg font-semibold text-[#88C0D0] mb-2">Synthèse Globale :</h3>
@@ -344,9 +542,20 @@ export function ProClientDetailPage() {
           )}
           {irppAnalysisResult && !isIrppAnalyzing && (
             <section className="mb-8 p-6 bg-gradient-to-br from-[#1C3A6D] to-[#122C4A] rounded-xl shadow-2xl border border-[#8FBCBB]/50">
-              <div className="flex items-center mb-5">
-                <TrendingUpIcon className="w-8 h-8 text-[#8FBCBB] mr-3 flex-shrink-0" />
-                <h2 className="text-2xl font-bold text-white">Résultats de l'Analyse IRPP 2025 (Estimation)</h2>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center">
+                  <TrendingUpIcon className="w-8 h-8 text-[#8FBCBB] mr-3 flex-shrink-0" />
+                  <h2 className="text-2xl font-bold text-white">Résultats de l'Analyse IRPP 2025 (Estimation)</h2>
+                </div>
+                <button 
+                  onClick={handleExportIrppPDF}
+                  disabled={isExporting}
+                  className="px-3 py-2 bg-gradient-to-r from-[#E53E3E] to-[#C53030] text-white font-semibold rounded-lg shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  title="Exporter l'analyse IRPP en PDF"
+                >
+                  {isExporting ? <RotateCw className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                  Exporter PDF
+                </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div className="p-3 bg-[#0A192F]/40 rounded-md"><span className="text-gray-400">Revenu Brut Global Estimé :</span> <span className="font-semibold text-white">{irppAnalysisResult.revenu_brut_global?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span></div>

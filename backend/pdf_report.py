@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Any
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -9,6 +9,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.lib import colors
 from backend.questionnaire_schema import QuestionnaireCGP
+from backend.models_pro import ClientProfile
+from backend.schemas_pro import AnalysisResultSchema
 
 # ======================================================
 # Fonction simple : rapport mono-scenario
@@ -290,3 +292,578 @@ def generate_professional_report(
 #     scenarios_list = [scenario_test_1, scenario_test_2]
 #     generate_professional_report("rapport_detaille_test.pdf", client_test_name, scenarios_list)
 #     print("Rapport PDF de test généré : rapport_detaille_test.pdf") 
+
+def generate_client_pdf_report(output_target: Union[str, BytesIO], client: ClientProfile) -> None:
+    """Génère un rapport PDF détaillé pour une fiche client complète."""
+    doc = SimpleDocTemplate(output_target, pagesize=A4,
+                            leftMargin=2*cm, rightMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
+    
+    styles = getSampleStyleSheet()
+
+    # Styles personnalisés
+    styles.add(ParagraphStyle(name='CustomMainTitle', parent=styles['h1'], fontSize=20, alignment=TA_CENTER, spaceAfter=0.8*cm))
+    styles.add(ParagraphStyle(name='CustomSubTitle', parent=styles['Normal'], fontSize=11, alignment=TA_CENTER, spaceAfter=0.4*cm, textColor=colors.HexColor("#555555")))
+    styles.add(ParagraphStyle(name='CustomClientName', parent=styles['Normal'], fontSize=14, alignment=TA_CENTER, spaceAfter=0.4*cm, fontName='Helvetica-Bold'))
+    styles.add(ParagraphStyle(name='CustomReportDate', parent=styles['Normal'], fontSize=10, alignment=TA_CENTER, spaceAfter=1.5*cm))
+    styles.add(ParagraphStyle(name='CustomSectionTitle', parent=styles['h3'], fontSize=12, spaceBefore=0.6*cm, spaceAfter=0.2*cm, alignment=TA_LEFT, textColor=colors.HexColor("#2A3952"), fontName='Helvetica-Bold'))
+    styles.add(ParagraphStyle(name='CustomBodyText', parent=styles['Normal'], fontSize=10, alignment=TA_JUSTIFY, leading=14, spaceAfter=0.2*cm))
+    styles.add(ParagraphStyle(name='CustomListItem', parent=styles['CustomBodyText'], leftIndent=10, bulletIndent=0, spaceBefore=0.1*cm))
+    styles.add(ParagraphStyle(name='TableHeader', parent=styles['Normal'], fontSize=9, alignment=TA_CENTER, textColor=colors.whitesmoke, fontName='Helvetica-Bold'))
+    styles.add(ParagraphStyle(name='TableCell', parent=styles['Normal'], fontSize=9, alignment=TA_LEFT, leading=10))
+    styles.add(ParagraphStyle(name='TableCellNumber', parent=styles['TableCell'], alignment=TA_RIGHT))
+
+    story = []
+
+    # Page de titre
+    story.append(Paragraph("FICHE CLIENT COMPLÈTE", styles['CustomMainTitle']))
+    story.append(Paragraph("Générée par Francis, Expert Fiscal", styles['CustomSubTitle']))
+    story.append(Paragraph(f"Client : {client.prenom_client} {client.nom_client}", styles['CustomClientName']))
+    story.append(Paragraph(f"Date de génération : {datetime.now().strftime('%d %B %Y')}", styles['CustomReportDate']))
+    story.append(PageBreak())
+
+    # Informations d'identité
+    story.append(Paragraph("INFORMATIONS D'IDENTITÉ", styles['CustomSectionTitle']))
+    
+    identite_data = [
+        ["Civilité", client.civilite_client or "Non précisé"],
+        ["Nom", client.nom_client or "Non précisé"],
+        ["Prénom", client.prenom_client or "Non précisé"],
+        ["Nom d'usage", client.nom_usage_client or "Non précisé"],
+        ["Date de naissance", client.date_naissance_client or "Non précisé"],
+        ["Lieu de naissance", client.lieu_naissance_client or "Non précisé"],
+        ["Nationalité", client.nationalite_client or "Non précisé"],
+        ["Numéro fiscal", client.numero_fiscal_client or "Non précisé"],
+    ]
+    
+    identite_table = Table(identite_data, colWidths=[4*cm, 10*cm])
+    identite_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(identite_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    # Adresse
+    if client.adresse_postale_client or client.code_postal_client or client.ville_client:
+        story.append(Paragraph("ADRESSE", styles['CustomSectionTitle']))
+        adresse_text = f"{client.adresse_postale_client or ''} {client.code_postal_client or ''} {client.ville_client or ''}".strip()
+        story.append(Paragraph(adresse_text, styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Contact
+    story.append(Paragraph("INFORMATIONS DE CONTACT", styles['CustomSectionTitle']))
+    contact_data = [
+        ["Email", client.email_client or "Non précisé"],
+        ["Téléphone principal", client.telephone_principal_client or "Non précisé"],
+        ["Téléphone secondaire", client.telephone_secondaire_client or "Non précisé"],
+    ]
+    
+    contact_table = Table(contact_data, colWidths=[4*cm, 10*cm])
+    contact_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(contact_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    # Situation familiale
+    story.append(Paragraph("SITUATION FAMILIALE", styles['CustomSectionTitle']))
+    famille_data = [
+        ["Situation maritale", client.situation_maritale_client or "Non précisé"],
+        ["Date mariage/PACS", client.date_mariage_pacs_client or "Non précisé"],
+        ["Régime matrimonial", client.regime_matrimonial_client or "Non précisé"],
+        ["Nombre d'enfants à charge", str(client.nombre_enfants_a_charge_client or 0)],
+        ["Personnes dépendantes", client.personnes_dependantes_client or "Non précisé"],
+    ]
+    
+    famille_table = Table(famille_data, colWidths=[4*cm, 10*cm])
+    famille_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(famille_table)
+    story.append(PageBreak())
+
+    # Revenus
+    story.append(Paragraph("REVENUS", styles['CustomSectionTitle']))
+    
+    # Client 1
+    if client.profession_client1 or client.revenu_net_annuel_client1:
+        story.append(Paragraph("Client 1", styles['CustomSubTitle']))
+        revenus1_data = [
+            ["Profession", client.profession_client1 or "Non précisé"],
+            ["Statut professionnel", client.statut_professionnel_client1 or "Non précisé"],
+            ["Employeur/Entreprise", client.nom_employeur_entreprise_client1 or "Non précisé"],
+            ["Type de contrat", client.type_contrat_client1 or "Non précisé"],
+            ["Revenu net annuel", f"{client.revenu_net_annuel_client1:,.0f} €" if client.revenu_net_annuel_client1 else "Non précisé"],
+        ]
+        
+        revenus1_table = Table(revenus1_data, colWidths=[4*cm, 10*cm])
+        revenus1_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ]))
+        story.append(revenus1_table)
+        story.append(Spacer(1, 0.3*cm))
+
+    # Client 2
+    if client.profession_client2 or client.revenu_net_annuel_client2:
+        story.append(Paragraph("Client 2", styles['CustomSubTitle']))
+        revenus2_data = [
+            ["Profession", client.profession_client2 or "Non précisé"],
+            ["Statut professionnel", client.statut_professionnel_client2 or "Non précisé"],
+            ["Employeur/Entreprise", client.nom_employeur_entreprise_client2 or "Non précisé"],
+            ["Type de contrat", client.type_contrat_client2 or "Non précisé"],
+            ["Revenu net annuel", f"{client.revenu_net_annuel_client2:,.0f} €" if client.revenu_net_annuel_client2 else "Non précisé"],
+        ]
+        
+        revenus2_table = Table(revenus2_data, colWidths=[4*cm, 10*cm])
+        revenus2_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ]))
+        story.append(revenus2_table)
+        story.append(Spacer(1, 0.3*cm))
+
+    # Revenus du foyer
+    story.append(Paragraph("Revenus du Foyer", styles['CustomSubTitle']))
+    revenus_foyer_data = [
+        ["Revenus fonciers bruts", f"{client.revenus_fonciers_annuels_bruts_foyer:,.0f} €" if client.revenus_fonciers_annuels_bruts_foyer else "Non précisé"],
+        ["Charges foncières déductibles", f"{client.charges_foncieres_deductibles_foyer:,.0f} €" if client.charges_foncieres_deductibles_foyer else "Non précisé"],
+        ["Revenus capitaux mobiliers", f"{client.revenus_capitaux_mobiliers_foyer:,.0f} €" if client.revenus_capitaux_mobiliers_foyer else "Non précisé"],
+        ["Plus-values mobilières", f"{client.plus_values_mobilieres_foyer:,.0f} €" if client.plus_values_mobilieres_foyer else "Non précisé"],
+        ["Plus-values immobilières", f"{client.plus_values_immobilieres_foyer:,.0f} €" if client.plus_values_immobilieres_foyer else "Non précisé"],
+        ["Bénéfices industriels/commerciaux", f"{client.benefices_industriels_commerciaux_foyer:,.0f} €" if client.benefices_industriels_commerciaux_foyer else "Non précisé"],
+        ["Bénéfices non commerciaux", f"{client.benefices_non_commerciaux_foyer:,.0f} €" if client.benefices_non_commerciaux_foyer else "Non précisé"],
+        ["Pensions retraites perçues", f"{client.pensions_retraites_percues_foyer:,.0f} €" if client.pensions_retraites_percues_foyer else "Non précisé"],
+        ["Pensions alimentaires perçues", f"{client.pensions_alimentaires_percues_foyer:,.0f} €" if client.pensions_alimentaires_percues_foyer else "Non précisé"],
+    ]
+    
+    revenus_foyer_table = Table(revenus_foyer_data, colWidths=[4*cm, 10*cm])
+    revenus_foyer_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(revenus_foyer_table)
+    story.append(PageBreak())
+
+    # Patrimoine
+    story.append(Paragraph("PATRIMOINE", styles['CustomSectionTitle']))
+    
+    patrimoine_data = [
+        ["Comptes courants (solde total)", f"{client.comptes_courants_solde_total_estime:,.0f} €" if client.comptes_courants_solde_total_estime else "Non précisé"],
+        ["Compte titres (valeur estimée)", f"{client.compte_titres_valeur_estimee:,.0f} €" if client.compte_titres_valeur_estimee else "Non précisé"],
+        ["Valeur entreprise/parts sociales", f"{client.valeur_entreprise_parts_sociales:,.0f} €" if client.valeur_entreprise_parts_sociales else "Non précisé"],
+        ["Comptes courants associés", f"{client.comptes_courants_associes_solde:,.0f} €" if client.comptes_courants_associes_solde else "Non précisé"],
+        ["Véhicules (valeur estimée)", f"{client.vehicules_valeur_estimee:,.0f} €" if client.vehicules_valeur_estimee else "Non précisé"],
+        ["Objets d'art (valeur estimée)", f"{client.objets_art_valeur_estimee:,.0f} €" if client.objets_art_valeur_estimee else "Non précisé"],
+        ["Crédits consommation (encours)", f"{client.credits_consommation_encours_total:,.0f} €" if client.credits_consommation_encours_total else "Non précisé"],
+    ]
+    
+    patrimoine_table = Table(patrimoine_data, colWidths=[4*cm, 10*cm])
+    patrimoine_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(patrimoine_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    # Objectifs et projets
+    if client.objectifs_fiscaux_client or client.objectifs_patrimoniaux_client:
+        story.append(Paragraph("OBJECTIFS ET PROJETS", styles['CustomSectionTitle']))
+        
+        if client.objectifs_fiscaux_client:
+            story.append(Paragraph("Objectifs fiscaux :", styles['CustomSubTitle']))
+            story.append(Paragraph(client.objectifs_fiscaux_client, styles['CustomBodyText']))
+            story.append(Spacer(1, 0.3*cm))
+        
+        if client.objectifs_patrimoniaux_client:
+            story.append(Paragraph("Objectifs patrimoniaux :", styles['CustomSubTitle']))
+            story.append(Paragraph(client.objectifs_patrimoniaux_client, styles['CustomBodyText']))
+            story.append(Spacer(1, 0.3*cm))
+        
+        if client.horizon_placement_client:
+            story.append(Paragraph(f"Horizon de placement : {client.horizon_placement_client}", styles['CustomBodyText']))
+        
+        if client.profil_risque_investisseur_client:
+            story.append(Paragraph(f"Profil de risque : {client.profil_risque_investisseur_client}", styles['CustomBodyText']))
+        
+        if client.notes_objectifs_projets_client:
+            story.append(Paragraph("Notes sur les objectifs et projets :", styles['CustomSubTitle']))
+            story.append(Paragraph(client.notes_objectifs_projets_client, styles['CustomBodyText']))
+
+    # Informations fiscales
+    story.append(PageBreak())
+    story.append(Paragraph("INFORMATIONS FISCALES", styles['CustomSectionTitle']))
+    
+    fiscal_data = [
+        ["TMI estimée", f"{client.tranche_marginale_imposition_estimee}%" if client.tranche_marginale_imposition_estimee else "Non précisé"],
+        ["Soumis à l'IFI", client.ifi_concerne_client or "Non précisé"],
+        ["Crédits/réductions d'impôt", client.credits_reductions_impot_recurrents or "Non précisé"],
+    ]
+    
+    fiscal_table = Table(fiscal_data, colWidths=[4*cm, 10*cm])
+    fiscal_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(fiscal_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    if client.notes_fiscales_client:
+        story.append(Paragraph("Notes fiscales :", styles['CustomSubTitle']))
+        story.append(Paragraph(client.notes_fiscales_client, styles['CustomBodyText']))
+
+    # Suivi professionnel
+    story.append(PageBreak())
+    story.append(Paragraph("SUIVI PROFESSIONNEL", styles['CustomSectionTitle']))
+    
+    suivi_data = [
+        ["Statut du dossier", client.statut_dossier_pro or "Non précisé"],
+        ["Prochain rendez-vous", client.prochain_rendez_vous_pro or "Non précisé"],
+    ]
+    
+    suivi_table = Table(suivi_data, colWidths=[4*cm, 10*cm])
+    suivi_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1A2942")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+    ]))
+    story.append(suivi_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    if client.notes_internes_pro:
+        story.append(Paragraph("Notes internes :", styles['CustomSubTitle']))
+        story.append(Paragraph(client.notes_internes_pro, styles['CustomBodyText']))
+
+    # Pied de page
+    story.append(PageBreak())
+    story.append(Paragraph("Rapport généré automatiquement par Francis", styles['CustomFooterText']))
+    story.append(Paragraph(f"Date : {datetime.now().strftime('%d/%m/%Y à %H:%M')}", styles['CustomFooterText']))
+
+    doc.build(story, onFirstPage=_add_page_numbers, onLaterPages=_add_page_numbers) 
+
+def generate_analysis_pdf_report(output_target: Union[str, BytesIO], client: ClientProfile, analysis_result: AnalysisResultSchema) -> None:
+    """Génère un rapport PDF pour l'analyse générale d'un client."""
+    
+    # Créer le document
+    doc = BaseDocTemplate(output_target, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name='CustomTitle',
+        parent=styles['Title'],
+        fontSize=18,
+        spaceAfter=30,
+        textColor=colors.HexColor("#1A2942"),
+        alignment=1  # Centré
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomSectionTitle',
+        parent=styles['Heading1'],
+        fontSize=14,
+        spaceAfter=12,
+        spaceBefore=20,
+        textColor=colors.HexColor("#1A2942"),
+        borderWidth=0,
+        borderColor=colors.HexColor("#88C0D0"),
+        borderPadding=5,
+        borderRadius=5,
+        backColor=colors.HexColor("#F8F9FA")
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomSubTitle',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=8,
+        spaceBefore=15,
+        textColor=colors.HexColor("#2A3F6C")
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomBodyText',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=6,
+        textColor=colors.HexColor("#2A3F6C")
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomFooterText',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.HexColor("#6C757D"),
+        alignment=1
+    ))
+
+    def _add_page_numbers(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.HexColor("#6C757D"))
+        page_num = canvas.getPageNumber()
+        text = f"Page {page_num}"
+        canvas.drawRightString(doc.pagesize[0] - 2*cm, 1*cm, text)
+        canvas.restoreState()
+
+    story = []
+    
+    # En-tête
+    story.append(Paragraph("ANALYSE FISCALE FRANCIS", styles['CustomTitle']))
+    story.append(Paragraph(f"Client : {client.nom_client} {client.prenom_client}", styles['CustomSubTitle']))
+    story.append(Paragraph(f"Date d'analyse : {datetime.now().strftime('%d/%m/%Y à %H:%M')}", styles['CustomBodyText']))
+    story.append(Spacer(1, 0.5*cm))
+
+    # Score de risque
+    if hasattr(analysis_result, 'score_risque') and analysis_result.score_risque:
+        story.append(Paragraph("SCORE DE RISQUE", styles['CustomSectionTitle']))
+        story.append(Paragraph(f"Score : {analysis_result.score_risque}/10", styles['CustomBodyText']))
+        if hasattr(analysis_result, 'commentaire_score_risque') and analysis_result.commentaire_score_risque:
+            story.append(Paragraph(analysis_result.commentaire_score_risque, styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Recommandations principales
+    if hasattr(analysis_result, 'recommandations_principales') and analysis_result.recommandations_principales:
+        story.append(Paragraph("RECOMMANDATIONS PRINCIPALES", styles['CustomSectionTitle']))
+        for i, rec in enumerate(analysis_result.recommandations_principales, 1):
+            story.append(Paragraph(f"{i}. {rec}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Optimisations fiscales
+    if hasattr(analysis_result, 'optimisations_fiscales') and analysis_result.optimisations_fiscales:
+        story.append(Paragraph("OPTIMISATIONS FISCALES", styles['CustomSectionTitle']))
+        for i, opt in enumerate(analysis_result.optimisations_fiscales, 1):
+            story.append(Paragraph(f"{i}. {opt}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Stratégies d'investissement
+    if hasattr(analysis_result, 'strategies_investissement') and analysis_result.strategies_investissement:
+        story.append(Paragraph("STRATÉGIES D'INVESTISSEMENT", styles['CustomSectionTitle']))
+        for i, strat in enumerate(analysis_result.strategies_investissement, 1):
+            story.append(Paragraph(f"{i}. {strat}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Planification patrimoniale
+    if hasattr(analysis_result, 'planification_patrimoniale') and analysis_result.planification_patrimoniale:
+        story.append(Paragraph("PLANIFICATION PATRIMONIALE", styles['CustomSectionTitle']))
+        for i, plan in enumerate(analysis_result.planification_patrimoniale, 1):
+            story.append(Paragraph(f"{i}. {plan}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Risques identifiés
+    if hasattr(analysis_result, 'risques_identifies') and analysis_result.risques_identifies:
+        story.append(Paragraph("RISQUES IDENTIFIÉS", styles['CustomSectionTitle']))
+        for i, risque in enumerate(analysis_result.risques_identifies, 1):
+            story.append(Paragraph(f"{i}. {risque}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Actions prioritaires
+    if hasattr(analysis_result, 'actions_prioritaires') and analysis_result.actions_prioritaires:
+        story.append(Paragraph("ACTIONS PRIORITAIRES", styles['CustomSectionTitle']))
+        for i, action in enumerate(analysis_result.actions_prioritaires, 1):
+            story.append(Paragraph(f"{i}. {action}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Notes
+    if hasattr(analysis_result, 'notes') and analysis_result.notes:
+        story.append(Paragraph("NOTES", styles['CustomSectionTitle']))
+        story.append(Paragraph(analysis_result.notes, styles['CustomBodyText']))
+
+    # Pied de page
+    story.append(PageBreak())
+    story.append(Paragraph("Rapport d'analyse généré par Francis", styles['CustomFooterText']))
+    story.append(Paragraph(f"Date : {datetime.now().strftime('%d/%m/%Y à %H:%M')}", styles['CustomFooterText']))
+
+    doc.build(story, onFirstPage=_add_page_numbers, onLaterPages=_add_page_numbers)
+
+def generate_irpp_analysis_pdf_report(output_target: Union[str, BytesIO], client: ClientProfile, irpp_analysis: Any) -> None:
+    """Génère un rapport PDF pour l'analyse IRPP d'un client."""
+    
+    # Créer le document
+    doc = BaseDocTemplate(output_target, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name='CustomTitle',
+        parent=styles['Title'],
+        fontSize=18,
+        spaceAfter=30,
+        textColor=colors.HexColor("#1A2942"),
+        alignment=1  # Centré
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomSectionTitle',
+        parent=styles['Heading1'],
+        fontSize=14,
+        spaceAfter=12,
+        spaceBefore=20,
+        textColor=colors.HexColor("#1A2942"),
+        borderWidth=0,
+        borderColor=colors.HexColor("#88C0D0"),
+        borderPadding=5,
+        borderRadius=5,
+        backColor=colors.HexColor("#F8F9FA")
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomSubTitle',
+        parent=styles['Heading2'],
+        fontSize=12,
+        spaceAfter=8,
+        spaceBefore=15,
+        textColor=colors.HexColor("#2A3F6C")
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomBodyText',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=6,
+        textColor=colors.HexColor("#2A3F6C")
+    ))
+    styles.add(ParagraphStyle(
+        name='CustomFooterText',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.HexColor("#6C757D"),
+        alignment=1
+    ))
+
+    def _add_page_numbers(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.HexColor("#6C757D"))
+        page_num = canvas.getPageNumber()
+        text = f"Page {page_num}"
+        canvas.drawRightString(doc.pagesize[0] - 2*cm, 1*cm, text)
+        canvas.restoreState()
+
+    story = []
+    
+    # En-tête
+    story.append(Paragraph("ANALYSE IRPP 2025", styles['CustomTitle']))
+    story.append(Paragraph(f"Client : {client.nom_client} {client.prenom_client}", styles['CustomSubTitle']))
+    story.append(Paragraph(f"Date d'analyse : {datetime.now().strftime('%d/%m/%Y à %H:%M')}", styles['CustomBodyText']))
+    story.append(Spacer(1, 0.5*cm))
+
+    # Résumé de l'analyse
+    if hasattr(irpp_analysis, 'resume_analyse') and irpp_analysis.resume_analyse:
+        story.append(Paragraph("RÉSUMÉ DE L'ANALYSE", styles['CustomSectionTitle']))
+        story.append(Paragraph(irpp_analysis.resume_analyse, styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Montant d'impôt estimé
+    if hasattr(irpp_analysis, 'montant_impot_estime') and irpp_analysis.montant_impot_estime:
+        story.append(Paragraph("MONTANT D'IMPÔT ESTIMÉ", styles['CustomSectionTitle']))
+        story.append(Paragraph(f"Montant : {irpp_analysis.montant_impot_estime:,.0f} €", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Taux marginal d'imposition
+    if hasattr(irpp_analysis, 'taux_marginal_imposition') and irpp_analysis.taux_marginal_imposition:
+        story.append(Paragraph("TAUX MARGINAL D'IMPOSITION", styles['CustomSectionTitle']))
+        story.append(Paragraph(f"TMI : {irpp_analysis.taux_marginal_imposition}%", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Optimisations possibles
+    if hasattr(irpp_analysis, 'optimisations_possibles') and irpp_analysis.optimisations_possibles:
+        story.append(Paragraph("OPTIMISATIONS POSSIBLES", styles['CustomSectionTitle']))
+        for i, opt in enumerate(irpp_analysis.optimisations_possibles, 1):
+            story.append(Paragraph(f"{i}. {opt}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Recommandations
+    if hasattr(irpp_analysis, 'recommandations') and irpp_analysis.recommandations:
+        story.append(Paragraph("RECOMMANDATIONS", styles['CustomSectionTitle']))
+        for i, rec in enumerate(irpp_analysis.recommandations, 1):
+            story.append(Paragraph(f"{i}. {rec}", styles['CustomBodyText']))
+        story.append(Spacer(1, 0.3*cm))
+
+    # Notes
+    if hasattr(irpp_analysis, 'notes') and irpp_analysis.notes:
+        story.append(Paragraph("NOTES", styles['CustomSectionTitle']))
+        story.append(Paragraph(irpp_analysis.notes, styles['CustomBodyText']))
+
+    # Pied de page
+    story.append(PageBreak())
+    story.append(Paragraph("Rapport IRPP généré par Francis", styles['CustomFooterText']))
+    story.append(Paragraph(f"Date : {datetime.now().strftime('%d/%m/%Y à %H:%M')}", styles['CustomFooterText']))
+
+    doc.build(story, onFirstPage=_add_page_numbers, onLaterPages=_add_page_numbers) 

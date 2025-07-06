@@ -18,6 +18,7 @@ from backend.schemas_pro import (
 )
 from backend.dependencies import supabase, verify_token
 from backend.assistant_fiscal_simple import get_fiscal_response
+from backend.pdf_report import generate_client_pdf_report
 from pydantic import BaseModel
 from decimal import Decimal
 from backend.calculs_fiscaux import simulate_tax_scenario
@@ -1228,6 +1229,98 @@ async def export_client_excel(
     buffer.seek(0)
     filename = f"profil_client_{client_id}.xlsx"
     return StreamingResponse(buffer, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={
+        "Content-Disposition": f"attachment; filename={filename}"
+    })
+
+@router.get("/clients/{client_id}/export-pdf")
+async def export_client_pdf(
+    client_id: int,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    client = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client non trouvé ou accès refusé")
+
+    # Générer le PDF avec les données du client
+    buffer = io.BytesIO()
+    generate_client_pdf_report(buffer, client)
+    buffer.seek(0)
+    
+    filename = f"fiche_client_{client_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(buffer, media_type="application/pdf", headers={
+        "Content-Disposition": f"attachment; filename={filename}"
+    })
+
+@router.get("/clients/{client_id}/export-analysis-pdf")
+async def export_analysis_pdf(
+    client_id: int,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    client = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client non trouvé ou accès refusé")
+
+    # Lancer l'analyse pour obtenir les résultats
+    try:
+        analysis_result = await analyze_client_profile(
+            client_id=client_id,
+            db=db,
+            professional_user_id=professional_user_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse: {str(e)}")
+
+    # Générer le PDF avec l'analyse
+    buffer = io.BytesIO()
+    generate_analysis_pdf_report(buffer, client, analysis_result)
+    buffer.seek(0)
+    
+    filename = f"analyse_client_{client_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(buffer, media_type="application/pdf", headers={
+        "Content-Disposition": f"attachment; filename={filename}"
+    })
+
+@router.get("/clients/{client_id}/export-irpp-pdf")
+async def export_irpp_pdf(
+    client_id: int,
+    db: Session = Depends(get_db),
+    professional_user_id: str = Depends(verify_professional_user)
+):
+    client = (
+        db.query(ClientProfile)
+        .filter(ClientProfile.id == client_id, ClientProfile.id_professionnel == professional_user_id)
+        .first()
+    )
+    if client is None:
+        raise HTTPException(status_code=404, detail="Client non trouvé ou accès refusé")
+
+    # Lancer l'analyse IRPP pour obtenir les résultats
+    try:
+        irpp_result = await analyze_irpp_for_client(
+            client_id=client_id,
+            db=db,
+            professional_user_id=professional_user_id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse IRPP: {str(e)}")
+
+    # Générer le PDF avec l'analyse IRPP
+    buffer = io.BytesIO()
+    generate_irpp_pdf_report(buffer, client, irpp_result)
+    buffer.seek(0)
+    
+    filename = f"analyse_irpp_client_{client_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(buffer, media_type="application/pdf", headers={
         "Content-Disposition": f"attachment; filename={filename}"
     })
 
