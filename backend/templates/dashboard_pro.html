@@ -24,19 +24,20 @@
                 <span class="feature-badge">⚡ Installation automatique</span>
             </div>
             <div class="extension-actions">
-                <a href="/chrome-extension/install-super-simple.html" class="button-link primary" target="_blank">
+                <a href="/chrome-extension/install-super-simple.html" class="button-link primary" target="_blank" onclick="openInstallPage()">
                     ⚡ Installer Francis Automatiquement
                 </a>
                 <a href="/chrome-extension/GUIDE-ULTRA-AUTO.md" class="button-link secondary" target="_blank">
                     📖 Guide d'installation
                 </a>
                 <a href="/chrome-extension/francis-teams-automatic.zip" class="button-link" download>
-                    📦 Télécharger Extension
+                    📦 Télécharger Extension (Manuel)
                 </a>
             </div>
             <div class="extension-status">
                 <p><strong>Status :</strong> <span class="status-available">✅ Disponible</span></p>
                 <p><strong>Compatibilité :</strong> Google Chrome, Microsoft Teams</p>
+                <p><strong>Installation :</strong> <span style="color: #10B981; font-weight: bold;">⚡ Automatique en 30 secondes</span></p>
             </div>
         </div>
     </div>
@@ -68,4 +69,16 @@
 
     <h2>Autres Actions</h2>
     <p class="nav-links"><a href="{{ url_for('serve_react_spa') }}">Retour à l'interface principale de Francis</a></p>
+
+    <script>
+        function openInstallPage() {
+            // Ouvrir la page d'installation dans un nouvel onglet
+            window.open('/chrome-extension/install-super-simple.html', '_blank');
+            
+            // Optionnel : afficher un message de confirmation
+            setTimeout(() => {
+                alert('⚡ Page d\'installation Francis ouverte !\n\nFrancis va s\'installer automatiquement en 30 secondes.');
+            }, 500);
+        }
+    </script>
 {% endblock %} 
