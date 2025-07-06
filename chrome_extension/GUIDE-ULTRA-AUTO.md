@@ -1,6 +1,6 @@
 # 🚀 Francis Teams Assistant - Installation Ultra Automatique
 
-## 🤖 Installation en 1 clic !
+## ⚡ Installation en 1 clic !
 
 ### Option 1: Vraiment automatique (Recommandé)
 1. **Double-cliquer** sur `install-super-simple.html`
@@ -23,7 +23,7 @@
 1. **Aller sur Microsoft Teams**
 2. **Francis apparaît automatiquement** (bouton flottant)
 3. **Cliquer sur Francis**
-4. **Francis écoute et aide !** 🤖
+4. **Francis écoute et aide !** ⚡
 
 ## ✨ Fonctionnalités
 
@@ -66,6 +66,6 @@ install-direct.bat
 
 ---
 
-**Francis Teams Assistant** - Votre assistant fiscal intelligent 🤖
+**Francis Teams Assistant** - Votre assistant fiscal intelligent ⚡
 
 *Installation ultra-simple, utilisation ultra-facile !* 
