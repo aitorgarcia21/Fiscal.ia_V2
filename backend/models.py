@@ -5,6 +5,7 @@ from datetime import datetime
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String, unique=True, index=True, nullable=False)
@@ -22,6 +23,7 @@ class User(Base):
 
 class Question(Base):
     __tablename__ = "questions"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -37,6 +39,7 @@ class Question(Base):
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -54,6 +57,7 @@ class Document(Base):
 
 class Payment(Base):
     __tablename__ = "payments"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -69,6 +73,7 @@ class Payment(Base):
 
 class Settings(Base):
     __tablename__ = "settings"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String, unique=True, nullable=False)
@@ -79,6 +84,7 @@ class Settings(Base):
 
 class UserProfile(Base):
     __tablename__ = 'user_profiles'
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=True, index=True)
@@ -136,6 +142,7 @@ class UserProfile(Base):
 
 class RendezVousProfessionnel(Base):
     __tablename__ = 'rendez_vous_professionnels'
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_professionnel = Column(String(36), nullable=False)  # UUID de l'utilisateur Supabase

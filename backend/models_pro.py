@@ -10,6 +10,7 @@ BasePro = declarative_base()
 
 class ClientProfile(BasePro):
     __tablename__ = "client_profiles"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     # id_professionnel doit correspondre à l'identifiant de l'utilisateur "Pro" dans votre système d'authentification (auth.users.id)
@@ -131,6 +132,10 @@ class ClientProfile(BasePro):
 # --- Nouveaux modèles pour l'agenda --- 
 class RendezVousProfessionnel(BasePro): # Hérite de Base pour être une table SQLAlchemy
     __tablename__ = "rendez_vous_professionnels"
+    __table_args__ = (
+        CheckConstraint('date_heure_fin >= date_heure_debut', name='chk_date_ordre_rdv'),
+        {'extend_existing': True}
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     id_professionnel = Column(UUID(as_uuid=True), ForeignKey("auth.users.id", ondelete="CASCADE"), nullable=False) # ou ForeignKey("profils_utilisateurs.user_id") si profils_utilisateurs est la table principale des pros
@@ -150,8 +155,6 @@ class RendezVousProfessionnel(BasePro): # Hérite de Base pour être une table S
     # Relations SQLAlchemy (optionnel, mais utile)
     # client = relationship("ClientProfile", back_populates="rendez_vous")
     # professionnel = relationship("User", backref="rendez_vous_professionnels") # Si User est votre modèle pour auth.users
-
-    __table_args__ = (CheckConstraint('date_heure_fin >= date_heure_debut', name='chk_date_ordre_rdv'),)
 
 # S'assurer que BasePro (si vous l'utilisez pour d'autres modèles pro) est défini
 # ou que RendezVousProfessionnel est ajouté à la bonne instance de Base.metadata.create_all() 
