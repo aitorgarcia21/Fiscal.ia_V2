@@ -8,9 +8,9 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.lib import colors
-from backend.questionnaire_schema import QuestionnaireCGP
-from backend.models_pro import ClientProfile
-from backend.schemas_pro import AnalysisResultSchema
+from questionnaire_schema import QuestionnaireCGP
+from models_pro import ClientProfile
+from schemas_pro import AnalysisResultSchema
 
 # ======================================================
 # Fonction simple : rapport mono-scenario
