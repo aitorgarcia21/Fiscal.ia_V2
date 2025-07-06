@@ -45,7 +45,7 @@ async def health():
 @app.get("/chrome-extension/install-super-simple.html")
 async def serve_install_super_simple():
     """Servir la page d'installation ultra-simple de Francis"""
-    file_path = "chrome_extension/build-auto/install-super-simple.html"
+    file_path = "chrome_extension/install-super-simple.html"
     if os.path.exists(file_path):
         return FileResponse(file_path, media_type="text/html")
     else:
