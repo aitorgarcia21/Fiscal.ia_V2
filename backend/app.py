@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse
 from main import api_router, pro_clients_router # Importer les routeurs
 from main import startup_event # Importer l'événement startup
 from routers import pro_clients
@@ -8,6 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi import Request
 from supabase_client import supabase
 import time
+import os
 
 # Créer l'instance de l'application principale
 app = FastAPI(
@@ -38,6 +40,79 @@ app.on_event("startup")(startup_event)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+# Routes pour l'extension Chrome
+@app.get("/chrome-extension/install-super-simple.html")
+async def serve_install_super_simple():
+    """Servir la page d'installation ultra-simple de Francis"""
+    file_path = "chrome_extension/build-auto/install-super-simple.html"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html")
+    else:
+        return HTMLResponse("""
+        <html>
+        <body>
+            <h1>Francis Teams Assistant</h1>
+            <p>Page d'installation non trouvée. Veuillez télécharger l'extension manuellement.</p>
+        </body>
+        </html>
+        """)
+
+@app.get("/chrome-extension/GUIDE-ULTRA-AUTO.md")
+async def serve_guide_ultra_auto():
+    """Servir le guide d'installation ultra-automatique"""
+    file_path = "chrome_extension/GUIDE-ULTRA-AUTO.md"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/markdown")
+    else:
+        return HTMLResponse("""
+        <html>
+        <body>
+            <h1>Guide d'installation Francis</h1>
+            <p>Guide non trouvé. Veuillez consulter la documentation.</p>
+        </body>
+        </html>
+        """)
+
+@app.get("/chrome-extension/francis-teams-automatic.zip")
+async def serve_extension_zip():
+    """Servir le fichier ZIP de l'extension Francis"""
+    file_path = "chrome_extension/dist-auto/francis-teams-automatic.zip"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="application/zip", filename="francis-teams-automatic.zip")
+    else:
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Extension Francis non trouvée"}
+        )
+
+@app.get("/chrome-extension/auto-installer.js")
+async def serve_auto_installer():
+    """Servir le script d'installation automatique"""
+    file_path = "chrome_extension/auto-installer.js"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="application/javascript")
+    else:
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Script d'installation non trouvé"}
+        )
+
+@app.get("/chrome-extension/install-auto.html")
+async def serve_install_auto():
+    """Servir la page d'installation automatique"""
+    file_path = "chrome_extension/install-auto.html"
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html")
+    else:
+        return HTMLResponse("""
+        <html>
+        <body>
+            <h1>Francis Teams Assistant</h1>
+            <p>Page d'installation automatique non trouvée.</p>
+        </body>
+        </html>
+        """)
 
 @app.post("/api/auth/send-invitation")
 async def send_invitation_email(request: Request):

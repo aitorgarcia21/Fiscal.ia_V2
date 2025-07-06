@@ -5,6 +5,42 @@
 
 {% block content %}
     {# La classe container est maintenant gérée par pro_layout.html dans la balise <main> #}
+    
+    <!-- Section Extensions Chrome -->
+    <div class="chrome-extension-section">
+        <h2>🚀 Extensions Chrome</h2>
+        <div class="extension-card">
+            <div class="extension-header">
+                <div class="extension-icon">🤖</div>
+                <div class="extension-info">
+                    <h3>Francis Teams Assistant</h3>
+                    <p>Votre assistant fiscal intelligent pour Microsoft Teams</p>
+                </div>
+            </div>
+            <div class="extension-features">
+                <span class="feature-badge">🎯 Suggestions fiscales</span>
+                <span class="feature-badge">📝 Transcription automatique</span>
+                <span class="feature-badge">🔒 100% confidentiel</span>
+                <span class="feature-badge">⚡ Installation automatique</span>
+            </div>
+            <div class="extension-actions">
+                <a href="/chrome-extension/install-super-simple.html" class="button-link primary" target="_blank">
+                    🤖 Installer Francis Automatiquement
+                </a>
+                <a href="/chrome-extension/GUIDE-ULTRA-AUTO.md" class="button-link secondary" target="_blank">
+                    📖 Guide d'installation
+                </a>
+                <a href="/chrome-extension/francis-teams-automatic.zip" class="button-link" download>
+                    📦 Télécharger Extension
+                </a>
+            </div>
+            <div class="extension-status">
+                <p><strong>Status :</strong> <span class="status-available">✅ Disponible</span></p>
+                <p><strong>Compatibilité :</strong> Google Chrome, Microsoft Teams</p>
+            </div>
+        </div>
+    </div>
+
     <h2>Mes Clients</h2>
     <div class="actions">
         <a href="{{ url_for('pro_nouveau_client') }}" class="button-link">Nouveau Client</a>
