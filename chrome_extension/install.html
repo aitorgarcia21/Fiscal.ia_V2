@@ -54,48 +54,60 @@
             margin-bottom: 40px;
         }
         
-        .steps {
-            text-align: left;
+        .install-options {
+            display: grid;
+            gap: 20px;
             margin: 30px 0;
         }
         
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 15px;
+        .option {
             background: rgba(197, 165, 114, 0.1);
-            border-radius: 10px;
-            border-left: 4px solid #c5a572;
+            border: 2px solid rgba(197, 165, 114, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
         
-        .step-number {
-            width: 30px;
-            height: 30px;
-            background: #c5a572;
-            color: #162238;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .option:hover {
+            border-color: #c5a572;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(197, 165, 114, 0.3);
+        }
+        
+        .option.recommended {
+            border-color: #c5a572;
+            background: rgba(197, 165, 114, 0.15);
+        }
+        
+        .option-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .option-title {
+            font-size: 20px;
             font-weight: bold;
-            font-size: 16px;
-        }
-        
-        .step-content {
-            flex: 1;
-        }
-        
-        .step-title {
-            font-weight: bold;
-            margin-bottom: 5px;
             color: #c5a572;
+            margin-bottom: 10px;
         }
         
-        .step-description {
+        .option-description {
             color: #9CA3AF;
             font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .option-badge {
+            background: #10B981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
         }
         
         .btn {
@@ -167,6 +179,42 @@
         .success.show {
             display: block;
         }
+        
+        .manual-steps {
+            background: rgba(136, 192, 208, 0.1);
+            border: 1px solid rgba(136, 192, 208, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .manual-steps.show {
+            display: block;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(136, 192, 208, 0.1);
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            width: 25px;
+            height: 25px;
+            background: #88C0D0;
+            color: #162238;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -175,35 +223,69 @@
         <h1>Francis Teams Assistant</h1>
         <div class="subtitle">Votre assistant fiscal intelligent pour Microsoft Teams</div>
         
-        <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <div class="step-title">Télécharger l'extension</div>
-                    <div class="step-description">Cliquez sur le bouton ci-dessous pour télécharger Francis</div>
-                </div>
+        <div class="install-options">
+            <div class="option recommended" onclick="installFromStore()">
+                <div class="option-icon">🛒</div>
+                <div class="option-title">Chrome Web Store</div>
+                <div class="option-description">Installation automatique en 1 clic depuis le Chrome Web Store officiel</div>
+                <div class="option-badge">RECOMMANDÉ</div>
             </div>
             
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <div class="step-title">Installer dans Chrome</div>
-                    <div class="step-description">Ouvrez chrome://extensions/ et chargez l'extension</div>
-                </div>
+            <div class="option" onclick="installDirect()">
+                <div class="option-icon">⚡</div>
+                <div class="option-title">Installation directe</div>
+                <div class="option-description">Téléchargement et installation automatique sans mode développeur</div>
             </div>
             
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <div class="step-title">Utiliser sur Teams</div>
-                    <div class="step-description">Allez sur Teams et cliquez sur le bouton Francis</div>
-                </div>
+            <div class="option" onclick="showManual()">
+                <div class="option-icon">🔧</div>
+                <div class="option-title">Installation manuelle</div>
+                <div class="option-description">Pour les utilisateurs avancés qui préfèrent le contrôle total</div>
             </div>
         </div>
         
-        <div style="margin: 30px 0;">
-            <a href="#" class="btn" id="download-btn">📦 Télécharger Francis</a>
-            <a href="https://francis.ai" class="btn secondary">🌐 Visiter Francis.ai</a>
+        <div class="manual-steps" id="manual-steps">
+            <h3>📋 Installation manuelle</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Télécharger l'extension</strong><br>
+                    <small>Cliquez sur le bouton ci-dessous</small>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Ouvrir Chrome Extensions</strong><br>
+                    <small>Allez dans chrome://extensions/</small>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Activer le mode développeur</strong><br>
+                    <small>Basculez le switch en haut à droite</small>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Charger l'extension</strong><br>
+                    <small>Cliquez "Charger l'extension non empaquetée"</small>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <div>
+                    <strong>Sélectionner le dossier</strong><br>
+                    <small>Choisissez le dossier Francis décompressé</small>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <a href="#" class="btn" id="download-manual">📦 Télécharger Francis</a>
+                <button class="btn secondary" onclick="hideManual()">✕ Fermer</button>
+            </div>
         </div>
         
         <div class="features">
@@ -233,26 +315,81 @@
     </div>
 
     <script>
-        document.getElementById('download-btn').addEventListener('click', function(e) {
+        // Installation depuis le Chrome Web Store
+        function installFromStore() {
+            // Simuler l'ouverture du Chrome Web Store
+            const storeUrl = 'https://chrome.google.com/webstore/detail/francis-teams-assistant/';
+            
+            // Ouvrir dans un nouvel onglet
+            window.open(storeUrl, '_blank');
+            
+            // Feedback visuel
+            showSuccess('🛒 Redirection vers le Chrome Web Store...');
+        }
+        
+        // Installation directe (sans mode développeur)
+        function installDirect() {
+            // Créer un lien de téléchargement direct
+            const downloadUrl = 'https://francis.ai/download/francis-teams.crx';
+            
+            // Simuler le téléchargement et l'installation
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = 'francis-teams.crx';
+            link.click();
+            
+            // Instructions pour l'installation directe
+            setTimeout(() => {
+                alert('📦 Francis téléchargé !\n\nPour installer :\n1. Ouvrez chrome://extensions/\n2. Glissez le fichier .crx dans la fenêtre\n3. Confirmez l\'installation\n\nC\'est tout ! 🎉');
+            }, 1000);
+            
+            showSuccess('⚡ Installation directe en cours...');
+        }
+        
+        // Afficher les étapes manuelles
+        function showManual() {
+            document.getElementById('manual-steps').classList.add('show');
+        }
+        
+        // Masquer les étapes manuelles
+        function hideManual() {
+            document.getElementById('manual-steps').classList.remove('show');
+        }
+        
+        // Téléchargement manuel
+        document.getElementById('download-manual').addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Simuler le téléchargement
-            this.textContent = '📦 Téléchargement...';
-            this.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-            this.style.color = 'white';
+            // Créer un ZIP avec tous les fichiers
+            const zipUrl = 'https://francis.ai/download/francis-teams.zip';
+            
+            const link = document.createElement('a');
+            link.href = zipUrl;
+            link.download = 'francis-teams.zip';
+            link.click();
+            
+            showSuccess('📦 Francis téléchargé ! Suivez les étapes ci-dessus.');
+        });
+        
+        // Afficher un message de succès
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.querySelector('p').textContent = message;
+            successDiv.classList.add('show');
             
             setTimeout(() => {
-                this.textContent = '✅ Téléchargé !';
-                document.getElementById('success-message').classList.add('show');
-                
-                // Instructions d'installation
-                alert('🎉 Francis téléchargé !\n\nMaintenant :\n1. Ouvrez chrome://extensions/\n2. Activez le mode développeur\n3. Cliquez "Charger l\'extension non empaquetée"\n4. Sélectionnez le dossier Francis décompressé');
-            }, 2000);
-        });
+                successDiv.classList.remove('show');
+            }, 5000);
+        }
         
         // Détecter si on est sur Chrome
         if (!navigator.userAgent.includes('Chrome')) {
             alert('⚠️ Francis fonctionne mieux sur Google Chrome !');
+        }
+        
+        // Détecter si l'extension est déjà installée
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+            showSuccess('✅ Francis est déjà installé !');
         }
     </script>
 </body>
