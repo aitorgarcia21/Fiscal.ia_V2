@@ -1582,7 +1582,7 @@ def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResp
     profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
     return profile
 
-@app.post("/user-profile/", response_model=UserProfileResponse)
+@api_router.post("/user-profile/", response_model=UserProfileResponse)
 def create_user_profile(user_profile_data: UserProfileCreate, db: Session = Depends(get_db_session)):
     # Vérifier si un profil existe déjà pour cet auth_user_id
     existing_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == user_profile_data.auth_user_id).first()
@@ -1615,7 +1615,7 @@ def create_user_profile(user_profile_data: UserProfileCreate, db: Session = Depe
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
+@api_router.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
@@ -1633,7 +1633,7 @@ def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
+@api_router.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfileCreate, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
@@ -1670,7 +1670,7 @@ def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfile
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
+@api_router.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def delete_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:

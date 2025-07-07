@@ -8,20 +8,20 @@ from datetime import datetime
 from fastapi.responses import StreamingResponse
 import io
 
-from backend.database import get_db
-from backend.models_pro import ClientProfile, RendezVousProfessionnel
-from backend.schemas_pro import (
+from database import get_db
+from models_pro import ClientProfile, RendezVousProfessionnel
+from schemas_pro import (
     ClientProfileCreate, ClientProfileResponse, ClientProfileUpdate, 
     AnalysisResultSchema, AnalysisRecommendation,
     RendezVousCreate, RendezVousResponse, RendezVousUpdate,
     ClientProfileWithAnalysisResponse
 )
-from backend.dependencies import supabase, verify_token
-from backend.assistant_fiscal_simple import get_fiscal_response
-from backend.pdf_report import generate_client_pdf_report
+from dependencies import supabase, verify_token
+from assistant_fiscal_simple import get_fiscal_response
+from pdf_report import generate_client_pdf_report
 from pydantic import BaseModel
 from decimal import Decimal
-from backend.calculs_fiscaux import simulate_tax_scenario
+from calculs_fiscaux import simulate_tax_scenario
 
 try:
     import pandas as pd
