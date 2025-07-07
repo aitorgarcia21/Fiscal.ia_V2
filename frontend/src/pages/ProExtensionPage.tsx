@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, Chrome } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function ProExtensionPage() {
   const navigate = useNavigate();
+
+  // Redirection automatique vers la page d'installation après 2 secondes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.open('/francis/install', '_blank');
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 p-6 flex flex-col items-center">
@@ -16,35 +25,31 @@ export function ProExtensionPage() {
         </button>
 
         <h1 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
-          <Chrome className="w-7 h-7 text-[#c5a572]" /> Extension Chrome « Remplir avec Francis »
+          <Chrome className="w-7 h-7 text-[#c5a572]" /> Installer l'Extension Chrome Francis
         </h1>
         <p className="text-gray-300 mb-8 text-lg">
-          Cette extension détecte automatiquement les formulaires en ligne et les remplit grâce à votre IA Francis.
+          Cliquez sur le bouton ci-dessous pour installer automatiquement l'extension Chrome Francis.
         </p>
 
-        <ol className="list-decimal list-inside space-y-4 text-gray-300 text-base">
-          <li>
-            Téléchargez le fichier zip de l’extension&nbsp;:
-            <a
-              href="https://github.com/aitorgarcia21/Fiscal.ia_V2/archive/refs/heads/main.zip"
-              className="text-[#c5a572] hover:underline ml-1"
-              target="_blank" rel="noopener noreferrer"
-            >
-              Télécharger
-            </a>
-          </li>
-          <li>Décompressez-le dans un dossier de votre choix.</li>
-          <li>
-            Ouvrez Chrome et rendez-vous sur <code className="bg-black/30 px-1 py-0.5 rounded">chrome://extensions</code>.
-            Activez le mode développeur.
-          </li>
-          <li>Cliquez « Charger l’extension non empaquetée » et sélectionnez le dossier.</li>
-          <li>Dans la barre d’outils Chrome, cliquez sur l’icône Francis et collez votre token d’API.</li>
-          <li>Visitez une page contenant un formulaire et utilisez le bouton « Remplir avec Francis ».</li>
-        </ol>
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <a
+            href="/francis/install"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-bold px-6 py-3 rounded-lg transition-transform transform hover:-translate-y-1"
+          >
+            ⚡ Installer Francis Automatiquement
+          </a>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-[#c5a572] transition-colors"
+          >
+            Retour au tableau de bord
+          </button>
+        </div>
 
-        <p className="text-gray-400 mt-8 text-sm">
-          🚀 Astuce : Épinglez l’icône Francis pour un accès rapide.
+        <p className="text-gray-400 mt-8 text-sm text-center max-w-xl mx-auto">
+          Une nouvelle page va s'ouvrir et Francis s'installera automatiquement en 30&nbsp;secondes. Aucune action manuelle n'est requise.
         </p>
       </div>
     </div>
