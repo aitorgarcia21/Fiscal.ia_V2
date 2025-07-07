@@ -102,7 +102,7 @@ class WhisperTranscriptionService:
             start_time = time.time()
             logger.info(f"Transcription ultra-rapide du fichier: {audio_path}")
             
-            # Transcription ultra-optimisée pour capturer TOUT
+            # Transcription ultra-fluide pour reconnaissance en temps réel
             segments, info = self.model.transcribe(
                 audio_path,
                 beam_size=1,  # Minimum pour la vitesse
@@ -110,13 +110,14 @@ class WhisperTranscriptionService:
                 vad_filter=False,  # DÉSACTIVÉ pour capturer TOUT
                 condition_on_previous_text=False,  # Plus rapide
                 temperature=0.0,  # Déterministe
-                compression_ratio_threshold=1.0,  # Très bas pour capturer plus
-                no_speech_threshold=0.01,  # Ultra-bas pour capturer tout
+                compression_ratio_threshold=0.5,  # Ultra-bas pour capturer plus
+                no_speech_threshold=0.001,  # Ultra-bas pour capturer tout
                 word_timestamps=False,  # Désactivé pour la vitesse
-                initial_prompt="Français conversation",  # Court et efficace
-                max_initial_timestamp=1.0,  # Limite le temps de traitement
+                initial_prompt="Français",  # Plus court
+                max_initial_timestamp=0.5,  # Plus rapide
                 suppress_tokens=[-1],  # Supprime les tokens spéciaux
-                without_timestamps=True  # Plus rapide sans timestamps
+                without_timestamps=True,  # Plus rapide sans timestamps
+                best_of=1  # Minimum pour la vitesse
             )
             
             # Récupération du texte complet avec nettoyage minimal
