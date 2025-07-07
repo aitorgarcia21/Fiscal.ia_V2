@@ -85,7 +85,7 @@ class WhisperTranscriptionService:
     
     def _transcribe_audio_file_internal(self, audio_path: str) -> Dict[str, Any]:
         """
-        Transcription interne ultra-optimisée pour la vitesse.
+        Transcription interne ultra-optimisée pour la vitesse et la précision.
         
         Args:
             audio_path: Chemin vers le fichier audio
@@ -102,7 +102,7 @@ class WhisperTranscriptionService:
             start_time = time.time()
             logger.info(f"Transcription ultra-rapide du fichier: {audio_path}")
             
-            # Transcription ultra-optimisée pour la vitesse MAXIMALE
+            # Transcription ultra-optimisée pour capturer TOUT
             segments, info = self.model.transcribe(
                 audio_path,
                 beam_size=1,  # Minimum pour la vitesse
@@ -110,8 +110,8 @@ class WhisperTranscriptionService:
                 vad_filter=False,  # DÉSACTIVÉ pour capturer TOUT
                 condition_on_previous_text=False,  # Plus rapide
                 temperature=0.0,  # Déterministe
-                compression_ratio_threshold=2.4,
-                no_speech_threshold=0.1,  # Très bas pour capturer tout
+                compression_ratio_threshold=1.0,  # Très bas pour capturer plus
+                no_speech_threshold=0.01,  # Ultra-bas pour capturer tout
                 word_timestamps=False,  # Désactivé pour la vitesse
                 initial_prompt="Français conversation",  # Court et efficace
                 max_initial_timestamp=1.0,  # Limite le temps de traitement
@@ -146,8 +146,8 @@ class WhisperTranscriptionService:
                     vad_filter=False,
                     condition_on_previous_text=False,
                     temperature=0.0,
-                    compression_ratio_threshold=1.0,  # Très bas
-                    no_speech_threshold=0.05,  # Ultra-bas
+                    compression_ratio_threshold=0.5,  # Très bas
+                    no_speech_threshold=0.001,  # Ultra-bas
                     word_timestamps=False,
                     without_timestamps=True
                 )
@@ -419,7 +419,7 @@ class WhisperTranscriptionService:
                 "end": 0,
                 "is_final": True,
                 "error": str(e)
-        }
+            }
 
 # Instance globale du service avec chargement lazy
 _whisper_service = None

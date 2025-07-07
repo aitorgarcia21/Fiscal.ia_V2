@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button } from './ui/Button';
-import { Mic, MicOff, CheckCircle } from 'lucide-react';
+import { Mic, MicOff, CheckCircle, Loader } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onTranscriptionUpdate: (text: string) => void;
@@ -8,10 +7,7 @@ interface VoiceRecorderProps {
   onError?: (error: string) => void;
   disabled?: boolean;
   className?: string;
-  autoStart?: boolean;
 }
-
-const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onTranscriptionUpdate,
@@ -19,105 +15,167 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onError,
   disabled = false,
   className = '',
-  autoStart = false,
 }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [accumulatedText, setAccumulatedText] = useState('');
   
-  const recognitionRef = useRef<any>(null);
-  const accumulatedTextRef = useRef('');
-  
-  // Ref to hold the latest recording state to avoid stale closures in callbacks
-  const isRecordingRef = useRef(isRecording);
-  isRecordingRef.current = isRecording;
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const processingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!SpeechRecognition) {
-      setIsAvailable(false);
-      onError?.("Reconnaissance vocale non supportée sur ce navigateur.");
-      return;
-    }
+  // Configuration audio optimisée pour Whisper
+  const audioConfig = {
+    sampleRate: 16000,
+    channelCount: 1,
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  };
 
-    recognitionRef.current = new SpeechRecognition();
-    const recognition = recognitionRef.current;
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'fr-FR';
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
+  const startRecording = useCallback(async () => {
+    try {
+      // Demander l'accès au microphone avec configuration optimisée
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: audioConfig,
+        video: false
+      });
       
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript.trim() + ' ';
-      } else {
-          interimTranscript += transcript;
-      }
-      }
-
-      onTranscriptionUpdate(accumulatedTextRef.current + finalTranscript + interimTranscript);
+      streamRef.current = stream;
+      audioChunksRef.current = [];
+      setAccumulatedText('');
       
-      if (finalTranscript) {
-        accumulatedTextRef.current += finalTranscript;
-      }
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Erreur reconnaissance vocale:', event.error);
-      if (event.error !== 'no-speech') {
-        onError?.(`Erreur: ${event.error}`);
-      }
-      // The onend event will handle the stop logic
-    };
-    
-    recognition.onend = () => {
-      // Only call onTranscriptionComplete if the user explicitly stopped it.
-      // If it stops on its own, it will restart if still in recording mode.
-      if (isRecordingRef.current) {
-        console.log("Speech recognition service stopped, restarting...");
-        recognition.start();
-        } 
-    };
-
-    // Cleanup function to stop recognition when the component unmounts
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      // Si on était en cours d'enregistrement, renvoyer la transcription accumulée
-      if (isRecordingRef.current && accumulatedTextRef.current) {
-        onTranscriptionComplete(accumulatedTextRef.current.trim());
-      }
-    };
-  }, [onTranscriptionUpdate, onError]); // This effect should run only once.
-
-  // Démarrage automatique si demandé
-  useEffect(() => {
-    if (autoStart && !isRecording && recognitionRef.current) {
-      startRecording();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoStart]);
-
-  const startRecording = useCallback(() => {
-    if (recognitionRef.current) {
-      accumulatedTextRef.current = '';
-      onTranscriptionUpdate('');
+      // Créer le MediaRecorder avec format optimisé pour Whisper
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 16000
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      
+      // Gestion des chunks audio
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      // Démarrer l'enregistrement avec chunks fréquents
+      mediaRecorder.start(1000); // Chunk toutes les secondes
+      
       setIsRecording(true);
-      recognitionRef.current.start();
+      setRecordingDuration(0);
+      
+      // Timer pour la durée
+      durationIntervalRef.current = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+      
+      // Traitement en temps réel
+      startRealTimeProcessing();
+      
+    } catch (error) {
+      console.error('Erreur démarrage enregistrement:', error);
+      onError?.('Impossible d\'accéder au microphone. Vérifiez les permissions.');
     }
-  }, [onTranscriptionUpdate]);
+  }, [onError]);
 
-  const stopRecording = useCallback(() => {
-    if (recognitionRef.current) {
-      setIsRecording(false);
-      recognitionRef.current.stop();
-      onTranscriptionComplete(accumulatedTextRef.current);
+  const startRealTimeProcessing = () => {
+    // Traitement en temps réel toutes les 3 secondes
+    processingTimeoutRef.current = setInterval(async () => {
+      if (audioChunksRef.current.length > 0 && !isProcessing) {
+        await processAudioChunks();
+      }
+    }, 3000);
+  };
+
+  const processAudioChunks = async () => {
+    if (audioChunksRef.current.length === 0) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      // Créer un blob avec les chunks accumulés
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      
+      // Convertir en base64
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const base64Audio = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+      
+      // Envoyer à Whisper avec paramètres optimisés
+      const response = await fetch('/api/whisper/transcribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          audio_base64: base64Audio,
+          audio_format: 'webm',
+          language: 'fr'
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.text && result.text.trim()) {
+          const newText = result.text.trim();
+          const updatedText = accumulatedText + ' ' + newText;
+          setAccumulatedText(updatedText);
+          onTranscriptionUpdate(updatedText);
+        }
+      } else {
+        console.error('Erreur API Whisper:', response.status);
+      }
+      
+      // Vider les chunks traités
+      audioChunksRef.current = [];
+      
+    } catch (error) {
+      console.error('Erreur traitement audio:', error);
+      onError?.('Erreur lors du traitement audio');
+    } finally {
+      setIsProcessing(false);
     }
-  }, [onTranscriptionComplete]);
+  };
+
+  const stopRecording = useCallback(async () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      
+      // Nettoyer les timers
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+        durationIntervalRef.current = null;
+      }
+      
+      if (processingTimeoutRef.current) {
+        clearInterval(processingTimeoutRef.current);
+        processingTimeoutRef.current = null;
+      }
+      
+      // Traitement final
+      if (audioChunksRef.current.length > 0) {
+        await processAudioChunks();
+      }
+      
+      // Arrêter le stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      
+      // Envoyer le texte final
+      const finalText = accumulatedText.trim();
+      onTranscriptionComplete(finalText);
+      setAccumulatedText('');
+    }
+  }, [isRecording, onTranscriptionComplete, accumulatedText]);
 
   const handleButtonClick = useCallback(() => {
     if (isRecording) {
@@ -127,31 +185,75 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   }, [isRecording, startRecording, stopRecording]);
 
-  if (!isAvailable) {
-    return (
-      <div className={`flex flex-col items-center text-red-400 ${className}`}>
-        <MicOff className="w-8 h-8" />
-        <span className="text-sm mt-2">Reconnaissance vocale non disponible</span>
-      </div>
-    );
-  }
+  // Formatage de la durée
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Nettoyage au démontage
+  useEffect(() => {
+    return () => {
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
+      if (processingTimeoutRef.current) {
+        clearInterval(processingTimeoutRef.current);
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-          <Button
-            onClick={handleButtonClick}
-        disabled={disabled}
-            className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
-              isRecording 
-            ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-            : 'bg-green-500 hover:bg-green-600'
-        }`}
-          >
-        {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
-          </Button>
-      <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
-        <CheckCircle className="w-4 h-4 text-green-500" />
-        <span>Reconnaissance instantanée activée</span>
+      <div className="relative">
+        <button
+          onClick={handleButtonClick}
+          disabled={disabled || isProcessing}
+          className={`relative w-16 h-16 rounded-full transition-all duration-300 flex items-center justify-center ${
+            isRecording 
+              ? 'bg-red-500 hover:bg-red-600 animate-pulse shadow-lg shadow-red-500/50' 
+              : 'bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/50'
+          } ${disabled || isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {isProcessing ? (
+            <Loader className="w-8 h-8 animate-spin text-white" />
+          ) : isRecording ? (
+            <MicOff className="w-8 h-8 text-white" />
+          ) : (
+            <Mic className="w-8 h-8 text-white" />
+          )}
+        </button>
+        
+        {isRecording && (
+          <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-pulse">
+            ●
+          </div>
+        )}
+      </div>
+      
+      <div className="mt-3 flex flex-col items-center gap-1">
+        {isRecording && (
+          <span className="text-sm text-red-400 font-mono bg-red-500/10 px-2 py-1 rounded">
+            {formatDuration(recordingDuration)}
+          </span>
+        )}
+        
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <CheckCircle className="w-4 h-4 text-green-500" />
+          <span>
+            {isProcessing ? 'Traitement Whisper...' : 'Reconnaissance temps réel'}
+          </span>
+        </div>
+        
+        {accumulatedText && (
+          <div className="mt-2 text-xs text-gray-300 bg-gray-800/50 px-3 py-2 rounded max-w-xs text-center">
+            "{accumulatedText.length > 50 ? accumulatedText.substring(0, 50) + '...' : accumulatedText}"
+          </div>
+        )}
       </div>
     </div>
   );
