@@ -63,8 +63,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         }
       };
       
-      // Démarrer l'enregistrement avec chunks fréquents
-      mediaRecorder.start(1000); // Chunk toutes les secondes
+      // Démarrer l'enregistrement avec chunks ultra-fréquents
+      mediaRecorder.start(500); // Chunk toutes les 500ms pour plus de fluidité
       
       setIsRecording(true);
       setRecordingDuration(0);
@@ -84,12 +84,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   }, [onError]);
 
   const startRealTimeProcessing = () => {
-    // Traitement en temps réel toutes les 3 secondes
+    // Traitement ultra-fluide toutes les 1.5 secondes
     processingTimeoutRef.current = setInterval(async () => {
       if (audioChunksRef.current.length > 0 && !isProcessing) {
         await processAudioChunks();
       }
-    }, 3000);
+    }, 1500);
   };
 
   const processAudioChunks = async () => {
@@ -252,9 +252,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         </div>
         
         {accumulatedText && (
-          <div className="mt-2 text-xs text-gray-300 bg-gray-800/50 px-3 py-2 rounded max-w-xs text-center">
-            <div className="font-semibold text-green-400 mb-1">Texte en direct :</div>
-            "{accumulatedText.length > 100 ? accumulatedText.substring(0, 100) + '...' : accumulatedText}"
+          <div className="mt-2 text-xs text-gray-300 bg-gray-800/50 px-3 py-2 rounded max-w-xs text-center transition-all duration-300">
+            <div className="font-semibold text-green-400 mb-1 flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              Texte en direct :
+            </div>
+            <div className="text-white font-medium">
+              "{accumulatedText.length > 150 ? accumulatedText.substring(0, 150) + '...' : accumulatedText}"
+            </div>
           </div>
         )}
       </div>
