@@ -6,9 +6,9 @@ première estimation ; elles ne remplacent pas un calcul complet intégrant tous
 les régimes spéciaux et plafonnements.
 """
 from typing import Literal, Dict, Optional, List
-from .tax_data_loader import get_tax_data
-from .income_utils import compute_revenu_net_imposable
-from .credits_impot import calculate_credits
+from tax_data_loader import get_tax_data
+from income_utils import compute_revenu_net_imposable
+from credits_impot import calculate_credits
 
 
 # ------------------------

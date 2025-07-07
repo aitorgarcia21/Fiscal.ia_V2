@@ -1170,7 +1170,10 @@ def generate_validation_notes(extracted_data: Dict[str, Any], validated_data: Di
 # Export CSV / Excel
 # -------------------------
 
-def _client_to_dataframe(client: ClientProfile) -> pd.DataFrame:
+def _client_to_dataframe(client: ClientProfile):
+    if pd is None:
+        raise HTTPException(status_code=500, detail="Pandas n'est pas disponible pour l'export")
+    
     data = {}
     for column in client.__table__.columns:
         key = column.name
