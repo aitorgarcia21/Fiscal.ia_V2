@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation Extension Francis - Fiscal.ia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#c5a572',
+                            light: '#e8cfa0',
+                            dark: '#1a2942',
+                        },
+                        secondary: {
+                            DEFAULT: '#234876',
+                            light: '#223c63',
+                        },
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #162238 0%, #1E3253 50%, #234876 100%);
+        }
+        
+        .glass-card {
+            background: rgba(30, 50, 83, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(42, 63, 108, 0.5);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #c5a572, #e8cfa0);
+            color: #162238;
+            border: 2px solid #d4b483;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(197, 165, 114, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(30, 50, 83, 0.8);
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #c5a572;
+            background: rgba(197, 165, 114, 0.1);
+        }
+        
+        .step-card {
+            background: rgba(30, 50, 83, 0.4);
+            border: 1px solid rgba(197, 165, 114, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .step-card:hover {
+            border-color: #c5a572;
+            background: rgba(197, 165, 114, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #c5a572, #e8cfa0);
+            color: #162238;
+        }
+        
+        .highlight-box {
+            background: rgba(197, 165, 114, 0.1);
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            border-left: 4px solid #c5a572;
+        }
+        
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .success-box {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .feature-card {
+            background: rgba(30, 50, 83, 0.3);
+            border: 1px solid rgba(197, 165, 114, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            border-color: #c5a572;
+            background: rgba(197, 165, 114, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <div class="inline-flex items-center justify-center mb-6">
+                <div class="relative">
+                    <div class="w-16 h-16 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-2xl flex items-center justify-center text-2xl font-bold text-[#162238] shadow-lg">
+                        ⚡
+                    </div>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">
+                Extension Francis Teams
+            </h1>
+            <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                Votre assistant fiscal intelligent pour Microsoft Teams
+            </p>
+        </div>
+
+        <!-- Download Section -->
+        <div class="glass-card rounded-2xl p-8 mb-8 animate-fade-in" style="animation-delay: 0.2s;">
+            <h2 class="text-2xl font-semibold mb-6 text-[#c5a572]">📦 Téléchargement de l'extension</h2>
+            <p class="text-gray-300 mb-6">Cliquez sur le bouton ci-dessous pour télécharger l'extension Francis :</p>
+            <a href="francis-teams-extension.zip" download class="btn-primary inline-flex items-center px-8 py-4 rounded-xl font-semibold text-lg shadow-lg">
+                <span class="mr-2">⬇️</span>
+                Télécharger Francis Teams Extension
+            </a>
+            <p class="text-sm text-gray-400 mt-4">Taille : ~12KB • Compatible : Chrome uniquement</p>
+        </div>
+
+        <!-- Installation Steps -->
+        <div class="glass-card rounded-2xl p-8 mb-8 animate-fade-in" style="animation-delay: 0.4s;">
+            <h2 class="text-2xl font-semibold mb-8 text-[#c5a572]">🔧 Installation étape par étape</h2>
+            
+            <div class="space-y-6">
+                <div class="step-card rounded-xl p-6 animate-slide-in" style="animation-delay: 0.6s;">
+                    <div class="flex items-start">
+                        <div class="step-number w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+                            1
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Ouvrir Chrome</h3>
+                            <p class="text-gray-300">Lancez Google Chrome sur votre ordinateur</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card rounded-xl p-6 animate-slide-in" style="animation-delay: 0.8s;">
+                    <div class="flex items-start">
+                        <div class="step-number w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+                            2
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Aller aux extensions</h3>
+                            <p class="text-gray-300 mb-3">Dans la barre d'adresse de Chrome, tapez :</p>
+                            <div class="highlight-box rounded-lg p-3 font-mono text-sm">
+                                chrome://extensions/
+                            </div>
+                            <p class="text-gray-300 mt-2">Puis appuyez sur Entrée</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card rounded-xl p-6 animate-slide-in" style="animation-delay: 1.0s;">
+                    <div class="flex items-start">
+                        <div class="step-number w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+                            3
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Activer le mode développeur</h3>
+                            <p class="text-gray-300">En haut à droite de la page, cliquez sur le bouton <strong>"Mode développeur"</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card rounded-xl p-6 animate-slide-in" style="animation-delay: 1.2s;">
+                    <div class="flex items-start">
+                        <div class="step-number w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+                            4
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Charger l'extension</h3>
+                            <p class="text-gray-300">Cliquez sur le bouton <strong>"Charger l'extension non empaquetée"</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card rounded-xl p-6 animate-slide-in" style="animation-delay: 1.4s;">
+                    <div class="flex items-start">
+                        <div class="step-number w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+                            5
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Sélectionner le dossier</h3>
+                            <p class="text-gray-300 mb-3">Dans la fenêtre qui s'ouvre :</p>
+                            <ul class="text-gray-300 space-y-2 ml-4">
+                                <li>• Naviguez vers le dossier où vous avez téléchargé le zip</li>
+                                <li>• Décompressez le fichier <code class="bg-gray-700 px-2 py-1 rounded">francis-teams-extension.zip</code></li>
+                                <li>• Sélectionnez le dossier décompressé</li>
+                                <li>• Cliquez sur "Sélectionner le dossier"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-box rounded-xl p-6 mt-8 animate-fade-in" style="animation-delay: 1.6s;">
+                <h4 class="text-lg font-semibold mb-2 text-green-400">✅ Installation terminée !</h4>
+                <p class="text-gray-300">L'extension Francis devrait maintenant apparaître dans votre liste d'extensions Chrome. Vous pouvez la voir dans la barre d'outils de Chrome.</p>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="glass-card rounded-2xl p-8 mb-8 animate-fade-in" style="animation-delay: 1.8s;">
+            <h2 class="text-2xl font-semibold mb-6 text-[#c5a572]">⚠️ Important à savoir</h2>
+            
+            <div class="warning-box rounded-xl p-6 mb-4">
+                <h4 class="text-lg font-semibold mb-2 text-yellow-400">🔒 Sécurité Chrome</h4>
+                <p class="text-gray-300">Chrome ne permet pas l'installation automatique d'extensions depuis un site web pour des raisons de sécurité. C'est pourquoi vous devez suivre ces étapes manuellement.</p>
+            </div>
+            
+            <div class="warning-box rounded-xl p-6">
+                <h4 class="text-lg font-semibold mb-2 text-yellow-400">🔄 Mises à jour</h4>
+                <p class="text-gray-300">Pour mettre à jour l'extension, vous devrez télécharger la nouvelle version et répéter le processus d'installation.</p>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="glass-card rounded-2xl p-8 mb-8 animate-fade-in" style="animation-delay: 2.0s;">
+            <h2 class="text-2xl font-semibold mb-8 text-[#c5a572]">🚀 Utilisation de Francis</h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="feature-card rounded-xl p-6 text-center">
+                    <div class="text-3xl mb-4">🎯</div>
+                    <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Écoute automatique</h3>
+                    <p class="text-gray-300 text-sm">Francis écoute automatiquement vos conversations Teams et détecte les questions fiscales</p>
+                </div>
+                
+                <div class="feature-card rounded-xl p-6 text-center">
+                    <div class="text-3xl mb-4">💡</div>
+                    <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Suggestions intelligentes</h3>
+                    <p class="text-gray-300 text-sm">Recevez des suggestions fiscales en temps réel basées sur vos conversations</p>
+                </div>
+                
+                <div class="feature-card rounded-xl p-6 text-center">
+                    <div class="text-3xl mb-4">📊</div>
+                    <h3 class="text-lg font-semibold mb-2 text-[#c5a572]">Analyse avancée</h3>
+                    <p class="text-gray-300 text-sm">Profitez de l'expertise fiscale de Francis pour optimiser vos conseils</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="glass-card rounded-2xl p-8 animate-fade-in" style="animation-delay: 2.2s;">
+            <h2 class="text-2xl font-semibold mb-6 text-[#c5a572]">❓ Besoin d'aide ?</h2>
+            <p class="text-gray-300 mb-4">Si vous rencontrez des difficultés lors de l'installation :</p>
+            <ul class="text-gray-300 space-y-2 ml-4">
+                <li>• Vérifiez que vous utilisez Google Chrome (pas Firefox, Edge, etc.)</li>
+                <li>• Assurez-vous que le mode développeur est bien activé</li>
+                <li>• Vérifiez que le fichier zip a été correctement décompressé</li>
+                <li>• Contactez notre support technique si le problème persiste</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Animation au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Animation du bouton de téléchargement
+        const downloadBtn = document.querySelector('.btn-primary');
+        downloadBtn.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 150);
+        });
+
+        // Effet de parallaxe subtil
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.gradient-bg');
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        });
+    </script>
+</body>
+</html> 

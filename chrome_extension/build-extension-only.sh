@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Script pour créer l'extension Chrome Francis
-# Ce script crée un zip contenant uniquement l'extension
+# Script pour créer un zip contenant uniquement l'extension Chrome Francis
+# Ce script ne doit inclure que les fichiers nécessaires pour l'extension
 
 set -e
 
-echo "🔧 Construction de l'extension Chrome Francis..."
+echo "🔧 Construction de l'extension Chrome Francis (fichiers uniquement)..."
 
 # Définir les variables
 EXTENSION_NAME="francis-teams-extension"
-BUILD_DIR="build"
+BUILD_DIR="build-extension"
 ZIP_NAME="${EXTENSION_NAME}.zip"
 
 # Nettoyer le répertoire de build précédent
