@@ -940,6 +940,8 @@ async def get_user_documents(user_id: str = Depends(verify_token)):
 async def stripe_webhook(request: dict):
     try:
         event_type = request.get("type")
+        
+        # Gestion des événements de paiement
         if event_type == "payment_intent.succeeded":
             payment_intent = request["data"]["object"]
             user_id = payment_intent["metadata"]["user_id"]
@@ -952,8 +954,86 @@ async def stripe_webhook(request: dict):
                     "status": "succeeded",
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
+        
+        # Gestion des événements de souscription
+        elif event_type == "checkout.session.completed":
+            session = request["data"]["object"]
+            customer_email = session.get("customer_email")
+            subscription_id = session.get("subscription")
+            
+            if customer_email and supabase:
+                # Mettre à jour le profil utilisateur avec les informations de souscription
+                try:
+                    supabase.table("profils_utilisateurs").update({
+                        "stripe_customer_id": session.get("customer"),
+                        "stripe_subscription_id": subscription_id,
+                        "updated_at": datetime.utcnow().isoformat()
+                    }).eq("email", customer_email).execute()
+                    print(f"✅ Souscription activée pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur mise à jour profil pour {customer_email}: {e}")
+        
+        # Gestion des événements de souscription
+        elif event_type == "customer.subscription.created":
+            subscription = request["data"]["object"]
+            customer_id = subscription.get("customer")
+            
+            if customer_id and supabase:
+                try:
+                    # Récupérer l'email du customer depuis Stripe
+                    customer = stripe.Customer.retrieve(customer_id)
+                    customer_email = customer.get("email")
+                    
+                    if customer_email:
+                        supabase.table("profils_utilisateurs").update({
+                            "stripe_subscription_id": subscription.get("id"),
+                            "updated_at": datetime.utcnow().isoformat()
+                        }).eq("email", customer_email).execute()
+                        print(f"✅ Abonnement créé pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur création abonnement: {e}")
+        
+        # Gestion des événements de mise à jour d'abonnement
+        elif event_type == "customer.subscription.updated":
+            subscription = request["data"]["object"]
+            customer_id = subscription.get("customer")
+            
+            if customer_id and supabase:
+                try:
+                    customer = stripe.Customer.retrieve(customer_id)
+                    customer_email = customer.get("email")
+                    
+                    if customer_email:
+                        supabase.table("profils_utilisateurs").update({
+                            "stripe_subscription_id": subscription.get("id"),
+                            "updated_at": datetime.utcnow().isoformat()
+                        }).eq("email", customer_email).execute()
+                        print(f"✅ Abonnement mis à jour pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur mise à jour abonnement: {e}")
+        
+        # Gestion des événements d'annulation d'abonnement
+        elif event_type == "customer.subscription.deleted":
+            subscription = request["data"]["object"]
+            customer_id = subscription.get("customer")
+            
+            if customer_id and supabase:
+                try:
+                    customer = stripe.Customer.retrieve(customer_id)
+                    customer_email = customer.get("email")
+                    
+                    if customer_email:
+                        supabase.table("profils_utilisateurs").update({
+                            "stripe_subscription_id": None,
+                            "updated_at": datetime.utcnow().isoformat()
+                        }).eq("email", customer_email).execute()
+                        print(f"✅ Abonnement annulé pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur annulation abonnement: {e}")
+        
         return {"received": True}
     except Exception as e:
+        print(f"❌ Erreur webhook Stripe: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @api_router.post("/create-checkout-session")
