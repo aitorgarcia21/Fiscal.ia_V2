@@ -124,9 +124,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         
         if (result.text && result.text.trim()) {
           const newText = result.text.trim();
+          // Afficher immédiatement le nouveau texte
+          onTranscriptionUpdate(newText);
+          // Accumuler pour le texte final
           const updatedText = accumulatedText + ' ' + newText;
           setAccumulatedText(updatedText);
-          onTranscriptionUpdate(updatedText);
         }
       } else {
         console.error('Erreur API Whisper:', response.status);
@@ -251,7 +253,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         
         {accumulatedText && (
           <div className="mt-2 text-xs text-gray-300 bg-gray-800/50 px-3 py-2 rounded max-w-xs text-center">
-            "{accumulatedText.length > 50 ? accumulatedText.substring(0, 50) + '...' : accumulatedText}"
+            <div className="font-semibold text-green-400 mb-1">Texte en direct :</div>
+            "{accumulatedText.length > 100 ? accumulatedText.substring(0, 100) + '...' : accumulatedText}"
           </div>
         )}
       </div>
