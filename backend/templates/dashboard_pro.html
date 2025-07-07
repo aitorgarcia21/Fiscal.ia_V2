@@ -24,7 +24,7 @@
                 <span class="feature-badge">⚡ Installation automatique</span>
             </div>
             <div class="extension-actions">
-                <a href="/francis/install" class="button-link primary" target="_blank" onclick="openInstallPage()">
+                <a href="/francis-install.html" class="button-link primary" target="_blank">
                     ⚡ Installer Francis Automatiquement
                 </a>
                 <a href="/chrome-extension/GUIDE-ULTRA-AUTO.md" class="button-link secondary" target="_blank">
@@ -68,14 +68,6 @@
     <p class="nav-links"><a href="{{ url_for('serve_react_spa') }}">Retour à l'interface principale de Francis</a></p>
 
     <script>
-        function openInstallPage() {
-            // Ouvrir la page d'installation dans un nouvel onglet
-            window.open('/francis/install', '_blank');
-            
-            // Optionnel : afficher un message de confirmation
-            setTimeout(() => {
-                alert('⚡ Page d\'installation Francis ouverte !\n\nFrancis va s\'installer automatiquement en 30 secondes.');
-            }, 500);
-        }
+    // Plus besoin de script : le lien ouvre directement la page d'installation servie par le frontend.
     </script>
 {% endblock %} 

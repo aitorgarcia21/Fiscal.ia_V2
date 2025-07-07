@@ -5,14 +5,8 @@ import { useNavigate } from 'react-router-dom';
 export function ProExtensionPage() {
   const navigate = useNavigate();
 
-  // Redirection automatique vers la page d'installation après 2 secondes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.open('/francis/install', '_blank');
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // Plus de redirection automatique : lien direct vers la page statique servie par Netlify
+  // L'utilisateur clique simplement sur le bouton.
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#162238] via-[#1E3253] to-[#234876] text-gray-100 p-6 flex flex-col items-center">
@@ -33,7 +27,7 @@ export function ProExtensionPage() {
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <a
-            href="/francis/install"
+            href="/francis-install.html"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-bold px-6 py-3 rounded-lg transition-transform transform hover:-translate-y-1"
