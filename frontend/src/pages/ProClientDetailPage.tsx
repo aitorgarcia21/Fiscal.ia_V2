@@ -342,36 +342,42 @@ export function ProClientDetailPage() {
 
   const renderDetailSection = (title: string, icon: React.ElementType, details: Record<string, any>) => {
     const filteredDetails = Object.entries(details).filter(([_, value]) => value !== null && value !== undefined && value !== '' && (typeof value !== 'object' || (typeof value ==='object' && Object.keys(value).length > 0) ) );
-    if (filteredDetails.length === 0) return null;
-
+    
     return (
       <section className="mb-6 p-6 bg-[#0E2444]/50 rounded-xl shadow-lg border border-[#2A3F6C]/40">
         <div className="flex items-center mb-4">
           {React.createElement(icon, { className: "w-7 h-7 text-[#88C0D0] mr-3 flex-shrink-0" })}
           <h2 className="text-xl font-semibold text-white">{title}</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-          {filteredDetails.map(([key, value]) => {
-            let displayValue = value;
-            if (typeof value === 'boolean') displayValue = value ? 'Oui' : 'Non';
-            if (typeof value === 'object' && value !== null) {
-                displayValue = (<pre className="text-xs bg-[#0A192F]/50 p-2 rounded-md overflow-x-auto">{JSON.stringify(value, null, 2)}</pre>);
-            } else if (key.toLowerCase().includes('date') && typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
-                try {
-                    displayValue = new Date(value).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
-                } catch (e) { /* Gérer date invalide si nécessaire */ }
-            } else if (typeof value === 'number') {
-                displayValue = value.toLocaleString('fr-FR');
-            }
+        {filteredDetails.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400 text-sm">Aucune information disponible pour cette section</p>
+            <p className="text-gray-500 text-xs mt-1">Les données seront affichées une fois renseignées</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+            {filteredDetails.map(([key, value]) => {
+              let displayValue = value;
+              if (typeof value === 'boolean') displayValue = value ? 'Oui' : 'Non';
+              if (typeof value === 'object' && value !== null) {
+                  displayValue = (<pre className="text-xs bg-[#0A192F]/50 p-2 rounded-md overflow-x-auto">{JSON.stringify(value, null, 2)}</pre>);
+              } else if (key.toLowerCase().includes('date') && typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
+                  try {
+                      displayValue = new Date(value).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+                  } catch (e) { /* Gérer date invalide si nécessaire */ }
+              } else if (typeof value === 'number') {
+                  displayValue = value.toLocaleString('fr-FR');
+              }
 
-            return (
-              <div key={key} className="py-2 border-b border-[#2A3F6C]/20 last:border-b-0 md:border-b-0 md:[&:nth-child(2n)]:border-l md:[&:nth-child(2n)]:pl-3 md:[&:nth-child(2n-1)]:pr-3 md:border-b-[#2A3F6C]/20">
-                <span className="block text-xs font-medium text-gray-400 capitalize mb-0.5">{key.replace(/_/g, ' ').replace(/client[12]?/g, '').replace(/json str/gi, '(JSON)').trim()}: </span>
-                <span className="text-gray-200 whitespace-pre-wrap break-words">{String(displayValue)}</span>
-              </div>
-            );
-          })}
-        </div>
+              return (
+                <div key={key} className="py-2 border-b border-[#2A3F6C]/20 last:border-b-0 md:border-b-0 md:[&:nth-child(2n)]:border-l md:[&:nth-child(2n)]:pl-3 md:[&:nth-child(2n-1)]:pr-3 md:border-b-[#2A3F6C]/20">
+                  <span className="block text-xs font-medium text-gray-400 capitalize mb-0.5">{key.replace(/_/g, ' ').replace(/client[12]?/g, '').replace(/json str/gi, '(JSON)').trim()}: </span>
+                  <span className="text-gray-200 whitespace-pre-wrap break-words">{String(displayValue)}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
     );
   };
