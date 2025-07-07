@@ -5,7 +5,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
-import { CountrySelector } from '../components/CountrySelector';
+
 
 const ITEMS_PER_PAGE = 8;
 
@@ -244,10 +244,7 @@ export function ProDashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Globe2 className="w-4 h-4 text-[#c5a572]" />
-              <CountrySelector className="bg-[#162238]/80 border-[#c5a572]/40 hover:border-[#c5a572] rounded-lg px-3 py-2 text-white text-sm font-medium transition-all duration-300 focus:ring-2 focus:ring-[#c5a572]/50 focus:outline-none" />
-            </div>
+
             <button
               onClick={() => navigate('/pro/extension')}
               className="px-4 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-gray-300 hover:text-white hover:border-[#c5a572]/50 transition-colors text-sm"

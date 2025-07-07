@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile'; // Pour la sélection client future
 import { useCountry, Country } from '../contexts/CountryContext';
-import { CountrySelector } from '../components/CountrySelector';
+
 
 interface ProMessage {
   role: 'user' | 'assistant';
@@ -168,7 +168,7 @@ export function ProChatPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <CountrySelector />
+              
             </div>
             <button
               onClick={() => navigate(-1)}
