@@ -1788,12 +1788,23 @@ async def test_endpoint():
 
 @app.get("/test-whisper")
 async def test_whisper():
+    """Test simple pour vérifier que Whisper fonctionne."""
     try:
-        from whisper_service import get_whisper_service
-        service = get_whisper_service()
-        return {"message": "Whisper importé avec succès", "service": service is not None}
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        health = whisper_service.check_health()
+        return {
+            "message": "Whisper test endpoint",
+            "health": health,
+            "status": "ok"
+        }
     except Exception as e:
-        return {"error": str(e), "message": "Erreur import Whisper"}
+        return {
+            "error": f"Erreur Whisper: {str(e)}",
+            "status": "error"
+        }
 
 @api_router.post("/whisper/health")
 async def whisper_health_simple():
