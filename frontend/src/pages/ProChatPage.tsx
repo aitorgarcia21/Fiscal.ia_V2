@@ -182,18 +182,52 @@ export function ProChatPage() {
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'fr-FR';
 
+        let finalTranscript = '';
+        
         recognitionRef.current.onresult = (event) => {
+          // Réinitialiser le transcript final si c'est un nouveau résultat
+          if (event.results[0].isFinal) {
+            finalTranscript = '';
+          }
+          
+          // Mettre à jour le transcript en cours
           const transcript = Array.from(event.results)
             .map((result) => result[0])
             .map((result) => result.transcript)
             .join('');
           
           setInput(transcript);
+          
+          // Si c'est un résultat final, traiter l'entrée
+          if (event.results[0].isFinal) {
+            finalTranscript = transcript;
+            processVoiceInput(finalTranscript);
+          }
         };
 
         recognitionRef.current.onerror = (event) => {
           console.error('Erreur de reconnaissance vocale:', event.error);
           setIsListening(false);
+          
+          // Ne pas arrêter complètement l'appel en cas d'erreur,
+          // mais laisser l'utilisateur réessayer
+          if (isCallActive) {
+            speakText("Je n'ai pas bien compris. Pouvez-vous répéter ?")
+              .then(() => {
+                if (recognitionRef.current) {
+                  recognitionRef.current.start();
+                }
+              });
+          }
+        };
+        
+        recognitionRef.current.onend = () => {
+          // Redémarrer automatiquement l'écoute si l'appel est toujours actif
+          if (isCallActive && recognitionRef.current) {
+            recognitionRef.current.start();
+          } else {
+            setIsListening(false);
+          }
         };
       }
     }
@@ -244,50 +278,89 @@ export function ProChatPage() {
     }
   };
 
-  const toggleVoiceCall = () => {
-    console.log('Bouton d\'appel vocal cliqué, isCallActive:', isCallActive);
+  const processVoiceInput = async (transcript: string) => {
+    if (!transcript.trim()) return;
     
+    // Ajouter le message de l'utilisateur au chat
+    const userMessage: ProMessage = { role: 'user', content: transcript };
+    setMessages(prev => [...prev, userMessage]);
+    
+    try {
+      // Envoyer la transcription à l'API
+      const endpoint = selectedClientId 
+        ? `/api/pro/clients/${selectedClientId}/ask_francis` 
+        : '/api/ask';
+      
+      const response = await apiClient(endpoint, {
+        method: 'POST',
+        data: {
+          query: transcript,
+          conversation_history: messages.map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          jurisdiction
+        }
+      });
+      
+      // Ajouter la réponse de Francis au chat
+      const assistantMessage: ProMessage = {
+        role: 'assistant',
+        content: response.answer || 'Je n\'ai pas pu traiter votre demande.',
+        sources: response.sources || []
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+      
+      // Lire la réponse avec la synthèse vocale
+      await speakText(assistantMessage.content);
+      
+      // Redémarrer l'écoute après la lecture
+      if (isCallActive && recognitionRef.current) {
+        recognitionRef.current.start();
+      }
+      
+    } catch (error) {
+      console.error('Erreur lors du traitement de la réponse vocale:', error);
+      const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite.";
+      setMessages(prev => [...prev, { role: 'assistant', content: errorMessage, error: true }]);
+    }
+  };
+
+  const toggleVoiceCall = async () => {
     if (isCallActive) {
-      console.log('Arrêt de l\'appel vocal');
       // Arrêter l'appel
+      console.log('Arrêt de la conversation vocale');
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       setIsCallActive(false);
       setIsListening(false);
       
-      // Annoncer la fin de l'appel
-      speakText("Fin de l'appel avec Francis. Vous pouvez toujours continuer à discuter par écrit.")
-        .then(() => console.log('Message de fin d\'appel terminé'))
-        .catch(err => console.error('Erreur lors de la lecture du message de fin:', err));
+      // Message de fin d'appel
+      await speakText("Fin de la conversation. Vous pouvez continuer à discuter par écrit.");
+      
     } else {
-      console.log('Démarrage de l\'appel vocal');
       // Démarrer l'appel
-      if (recognitionRef.current) {
-        // Annoncer le début de l'appel
-        speakText("Bonjour, je suis Francis, votre assistant vocal. Comment puis-je vous aider ?")
-          .then(() => {
-            console.log('Message d\'accueil terminé, démarrage de l\'écoute');
-            // Démarrer l'écoute après le message d'accueil
-            if (recognitionRef.current) {
-              try {
-                recognitionRef.current.start();
-                console.log('Reconnaissance vocale démarrée');
-                setIsListening(true);
-                setIsCallActive(true);
-              } catch (err) {
-                console.error('Erreur lors du démarrage de la reconnaissance vocale:', err);
-                alert('Impossible de démarrer la reconnaissance vocale. Veuillez réessayer.');
-              }
-            }
-          })
-          .catch(err => {
-            console.error('Erreur lors de la lecture du message d\'accueil:', err);
-            alert('Impossible de lire le message d\'accueil. Vérifiez votre connexion.');
-          });
-      } else {
-        console.error('La reconnaissance vocale n\'est pas disponible');
+      console.log('Démarrage de la conversation vocale');
+      
+      if (!recognitionRef.current) {
         alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
+        return;
+      }
+      
+      try {
+        // Message d'accueil
+        await speakText("Bonjour, je suis Francis. Comment puis-je vous aider aujourd'hui ?");
+        
+        // Démarrer l'écoute
+        recognitionRef.current.start();
+        setIsCallActive(true);
+        setIsListening(true);
+        
+      } catch (error) {
+        console.error('Erreur lors du démarrage de la conversation vocale:', error);
+        alert('Impossible de démarrer la conversation vocale. Veuillez réessayer.');
       }
     }
   };
