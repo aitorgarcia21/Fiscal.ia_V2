@@ -128,7 +128,7 @@ export function ProfilePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-8 h-8 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-300">Chargement du profil...</p>
         </div>
       </div>
@@ -449,9 +449,6 @@ export function ProfilePage() {
                   </div>
                 </div>
               </div>
-            )}
-          )}
-
             </div>
           )}
 
@@ -511,7 +508,7 @@ export function ProfilePage() {
                 </div>
               </div>
 
-              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
+              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6 mt-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Euro className="w-5 h-5 text-[#c5a572]" />
                   Revenus du capital
@@ -563,12 +560,12 @@ export function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {/* Onglet Patrimoine */}
           {activeTab === 'patrimoine' && (
-            <>
+            <div className="space-y-6">
               <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Home className="w-5 h-5 text-[#c5a572]" />
@@ -662,19 +659,38 @@ export function ProfilePage() {
                     />
                   </div>
                 </div>
-                  <ul className="space-y-1 ml-4">
-                    <li>• Calculer vos optimisations précisément</li>
-                    <li>• Recommander les meilleurs investissements</li>
-                    <li>• Simuler votre fiscalité future</li>
-                    <li>• Proposer des stratégies sur-mesure</li>
-                  </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Onglet Objectifs */}
+          {activeTab === 'objectifs' && (
+            <div>
+              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-[#c5a572]" />
+                  Objectifs et conseils
+                </h3>
+                
+                <div className="space-y-4">
+                  <p className="text-gray-300">
+                    Pour des conseils personnalisés, veuillez d'abord remplir les sections Général et Revenus.
+                  </p>
                   
-                  <div className="mt-4 p-3 bg-[#c5a572]/10 rounded-lg border border-[#c5a572]/30">
-                    <p className="text-[#c5a572] font-medium">🎯 Recommandation</p>
-                    <p className="text-gray-300 text-xs mt-1">
-                      Remplissez au minimum "Général" et "Revenus" pour des conseils pertinents.
-                    </p>
-                  </div>
+                  <ul className="space-y-2 text-gray-300">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      Optimisation fiscale
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      Stratégies d'investissement
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      Planification successorale
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -682,5 +698,8 @@ export function ProfilePage() {
         </div>
       </div>
     </div>
+    </div>
   );
 }
+
+export default ProfilePage;
