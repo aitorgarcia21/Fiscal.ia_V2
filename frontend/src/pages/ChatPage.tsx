@@ -6,7 +6,7 @@ import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { useCountry, Country } from '../contexts/CountryContext';
-import { CountrySelector } from '../components/CountrySelector';
+
 
 interface Message {
   role: 'user' | 'assistant';
@@ -221,11 +221,7 @@ export function ChatPage() {
                 Découvrir <ArrowRight className="ml-1 w-4 h-4" />
               </button>
               {/* Sélecteur de juridiction - visible uniquement pour les pros */}
-              {isProfessional && (
-                <div className="flex items-center gap-2 text-gray-300 text-sm">
-                  <CountrySelector />
-                </div>
-              )}
+
             </div>
           </div>
         </div>
@@ -359,7 +355,6 @@ export function ChatPage() {
                 onError={handleVoiceError}
                 disabled={isLoading}
                 className="flex justify-center"
-                autoStart
               />
               {voiceInput && (
                 <p className="mt-2 text-sm text-gray-300">

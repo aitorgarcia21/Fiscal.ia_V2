@@ -183,7 +183,6 @@ const GuidedQuestionCard: React.FC<{
                 onTranscriptionComplete={handleVoiceComplete}
                 onError={handleVoiceError}
                 className="flex justify-center"
-                autoStart
               />
             </div>
           )}

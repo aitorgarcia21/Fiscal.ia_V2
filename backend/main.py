@@ -44,14 +44,7 @@ from pathlib import Path
 
 # Import outils Andorre
 try:
-    from calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
-except ImportError:
-    from backend.calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
-
 # ------------------------------------------------------------------
-# Fallback : assurer l'existence des indicateurs d'embeddings
-# ------------------------------------------------------------------
-try:
     CGI_EMBEDDINGS_AVAILABLE
 except NameError:
     CGI_EMBEDDINGS_AVAILABLE = False
@@ -934,6 +927,8 @@ async def get_user_documents(user_id: str = Depends(verify_token)):
 async def stripe_webhook(request: dict):
     try:
         event_type = request.get("type")
+        
+        # Gestion des événements de paiement
         if event_type == "payment_intent.succeeded":
             payment_intent = request["data"]["object"]
             user_id = payment_intent["metadata"]["user_id"]
@@ -946,8 +941,86 @@ async def stripe_webhook(request: dict):
                     "status": "succeeded",
                     "created_at": datetime.utcnow().isoformat()
                 }).execute()
+        
+        # Gestion des événements de souscription
+        elif event_type == "checkout.session.completed":
+            session = request["data"]["object"]
+            customer_email = session.get("customer_email")
+            subscription_id = session.get("subscription")
+            
+            if customer_email and supabase:
+                # Mettre à jour le profil utilisateur avec les informations de souscription
+                try:
+                    supabase.table("profils_utilisateurs").update({
+                        "stripe_customer_id": session.get("customer"),
+                        "stripe_subscription_id": subscription_id,
+                        "updated_at": datetime.utcnow().isoformat()
+                    }).eq("email", customer_email).execute()
+                    print(f"✅ Souscription activée pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur mise à jour profil pour {customer_email}: {e}")
+        
+        # Gestion des événements de souscription
+        elif event_type == "customer.subscription.created":
+            subscription = request["data"]["object"]
+            customer_id = subscription.get("customer")
+            
+            if customer_id and supabase:
+                try:
+                    # Récupérer l'email du customer depuis Stripe
+                    customer = stripe.Customer.retrieve(customer_id)
+                    customer_email = customer.get("email")
+                    
+                    if customer_email:
+                        supabase.table("profils_utilisateurs").update({
+                            "stripe_subscription_id": subscription.get("id"),
+                            "updated_at": datetime.utcnow().isoformat()
+                        }).eq("email", customer_email).execute()
+                        print(f"✅ Abonnement créé pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur création abonnement: {e}")
+        
+        # Gestion des événements de mise à jour d'abonnement
+        elif event_type == "customer.subscription.updated":
+            subscription = request["data"]["object"]
+            customer_id = subscription.get("customer")
+            
+            if customer_id and supabase:
+                try:
+                    customer = stripe.Customer.retrieve(customer_id)
+                    customer_email = customer.get("email")
+                    
+                    if customer_email:
+                        supabase.table("profils_utilisateurs").update({
+                            "stripe_subscription_id": subscription.get("id"),
+                            "updated_at": datetime.utcnow().isoformat()
+                        }).eq("email", customer_email).execute()
+                        print(f"✅ Abonnement mis à jour pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur mise à jour abonnement: {e}")
+        
+        # Gestion des événements d'annulation d'abonnement
+        elif event_type == "customer.subscription.deleted":
+            subscription = request["data"]["object"]
+            customer_id = subscription.get("customer")
+            
+            if customer_id and supabase:
+                try:
+                    customer = stripe.Customer.retrieve(customer_id)
+                    customer_email = customer.get("email")
+                    
+                    if customer_email:
+                        supabase.table("profils_utilisateurs").update({
+                            "stripe_subscription_id": None,
+                            "updated_at": datetime.utcnow().isoformat()
+                        }).eq("email", customer_email).execute()
+                        print(f"✅ Abonnement annulé pour {customer_email}")
+                except Exception as e:
+                    print(f"❌ Erreur annulation abonnement: {e}")
+        
         return {"received": True}
     except Exception as e:
+        print(f"❌ Erreur webhook Stripe: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @api_router.post("/create-checkout-session")
@@ -1496,7 +1569,7 @@ def clean_user_profile_response(profile: UserProfileResponse) -> UserProfileResp
     profile.situation_familiale = clean_markdown_formatting(profile.situation_familiale) if profile.situation_familiale else None
     return profile
 
-@app.post("/user-profile/", response_model=UserProfileResponse)
+@api_router.post("/user-profile/", response_model=UserProfileResponse)
 def create_user_profile(user_profile_data: UserProfileCreate, db: Session = Depends(get_db_session)):
     # Vérifier si un profil existe déjà pour cet auth_user_id
     existing_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == user_profile_data.auth_user_id).first()
@@ -1529,7 +1602,7 @@ def create_user_profile(user_profile_data: UserProfileCreate, db: Session = Depe
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
+@api_router.get("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
@@ -1547,7 +1620,7 @@ def read_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
+@api_router.put("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfileCreate, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
@@ -1584,7 +1657,7 @@ def update_user_profile(auth_user_id: str, user_profile_update_data: UserProfile
     response = UserProfileResponse(**response_data)
     return clean_user_profile_response(response)
 
-@app.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
+@api_router.delete("/user-profile/{auth_user_id}", response_model=UserProfileResponse)
 def delete_user_profile(auth_user_id: str, db: Session = Depends(get_db_session)):
     db_user_profile = db.query(UserProfile).filter(UserProfile.auth_user_id == auth_user_id).first()
     if db_user_profile is None:
@@ -1702,12 +1775,23 @@ async def test_endpoint():
 
 @app.get("/test-whisper")
 async def test_whisper():
+    """Test simple pour vérifier que Whisper fonctionne."""
     try:
-        from whisper_service import get_whisper_service
-        service = get_whisper_service()
-        return {"message": "Whisper importé avec succès", "service": service is not None}
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        health = whisper_service.check_health()
+        return {
+            "message": "Whisper test endpoint",
+            "health": health,
+            "status": "ok"
+        }
     except Exception as e:
-        return {"error": str(e), "message": "Erreur import Whisper"}
+        return {
+            "error": f"Erreur Whisper: {str(e)}",
+            "status": "error"
+        }
 
 @api_router.post("/whisper/health")
 async def whisper_health_simple():
@@ -2003,7 +2087,7 @@ Si une information n'est pas mentionnée, mets null. Sois précis et intelligent
 @app.post("/api/whisper/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("fr")):
     """
-    Endpoint pour transcrire l'audio avec Whisper
+    Endpoint robuste pour transcrire l'audio avec Whisper
     """
     try:
         print(f"🎤 Transcription Whisper demandée - Langue: {language}")
@@ -2015,45 +2099,35 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
         # Lire le contenu audio
         audio_content = await audio.read()
         
-        # Créer un fichier temporaire
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_file:
-            temp_file.write(audio_content)
-            temp_file_path = temp_file.name
+        # Convertir en base64 pour utiliser le service unifié
+        audio_base64 = base64.b64encode(audio_content).decode('utf-8')
         
-        try:
-            # Importer Whisper de manière lazy pour éviter les erreurs
-            try:
-                import whisper
-            except ImportError:
-                raise HTTPException(status_code=500, detail="Whisper non disponible")
-            
-            # Charger le modèle Whisper (petit modèle pour rapidité)
-            print("🤖 Chargement modèle Whisper...")
-            model = whisper.load_model("base")
-            
-            # Transcrire l'audio
-            print("🎤 Transcription en cours...")
-            result = model.transcribe(
-                temp_file_path,
-                language=language,
-                task="transcribe",
-                fp16=False,  # Éviter les erreurs de précision
-                verbose=False
-            )
-            
-            transcription = result["text"].strip()
-            
-            if transcription:
-                print(f"✅ Transcription réussie: {transcription[:100]}...")
-                return transcription
-            else:
-                print("⚠️ Aucun texte détecté")
-                raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
-                
-        finally:
-            # Nettoyer le fichier temporaire
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
+        # Utiliser le service Whisper unifié
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            raise HTTPException(status_code=503, detail="Service Whisper non disponible")
+        
+        # Déterminer le format audio
+        audio_format = "webm"  # Par défaut
+        if audio.content_type == "audio/wav":
+            audio_format = "wav"
+        elif audio.content_type == "audio/mp3":
+            audio_format = "mp3"
+        
+        # Transcrire avec le service robuste
+        result = whisper_service.transcribe_base64_audio(audio_base64, audio_format)
+        
+        if result.get("error"):
+            raise HTTPException(status_code=500, detail=f"Erreur de transcription: {result['error']}")
+        
+        transcription = result.get("text", "").strip()
+        
+        if transcription:
+            print(f"✅ Transcription réussie: {transcription[:100]}...")
+            return TranscriptionResponse(**result)
+        else:
+            print("⚠️ Aucun texte détecté")
+            raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
                 
     except HTTPException:
         raise
@@ -2269,83 +2343,6 @@ initialize_embeddings()
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
-
-# -----------------------
-#  Endpoints Andorre
-# -----------------------
-
-class IGICalcRequest(BaseModel):
-    ht: float
-    taux: Literal["general", "reduite", "speciale", "majoree", "zero"] = "general"
-
-class IGICalcResponse(BaseModel):
-    ht: float
-    taux: float
-    igi: float
-    ttc: float
-
-class IRPFCalcRequest(BaseModel):
-    revenu_net: float
-
-class IRPFCalcResponse(BaseModel):
-    revenu_net: float
-    irpf: float
-    taux_moyen: float
-
-class ISCalcRequest(BaseModel):
-    benefice_net: float
-    regime: Literal["standard", "holding"] = "standard"
-
-class ISCalcResponse(BaseModel):
-    benefice: float
-    taux: float
-    is_: float = Field(..., alias="is")
-
-class CASSCalcRequest(BaseModel):
-    brut_annuel: float
-
-class CASSCalcResponse(BaseModel):
-    brut_annuel: float
-    assiette: float
-    part_salarie: float
-    part_employeur: float
-    cotisations_totales: float
-
-
-@api_router.post("/tools/calc-igi", response_model=IGICalcResponse)
-async def calc_igi_endpoint(request: IGICalcRequest):
-    try:
-        result = calc_igi(request.ht, request.taux)
-        return IGICalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@api_router.post("/tools/calc-irpf", response_model=IRPFCalcResponse)
-async def calc_irpf_endpoint(request: IRPFCalcRequest):
-    try:
-        result = calc_irpf(request.revenu_net)
-        return IRPFCalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@api_router.post("/tools/calc-is", response_model=ISCalcResponse)
-async def calc_is_endpoint(request: ISCalcRequest):
-    try:
-        result = calc_is(request.benefice_net, request.regime)
-        return ISCalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@api_router.post("/tools/calc-cass", response_model=CASSCalcResponse)
-async def calc_cass_endpoint(request: CASSCalcRequest):
-    try:
-        result = calc_cass(request.brut_annuel)
-        return CASSCalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @api_router.get("/questions/quota")

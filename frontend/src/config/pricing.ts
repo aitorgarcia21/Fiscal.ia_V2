@@ -1,17 +1,19 @@
 export const PRICING = {
-  // Plans Particuliers
+  // Plans Particuliers (limités à 30 requêtes/mois)
   MONTHLY: {
     price: 9.99,
     currency: 'EUR',
     interval: 'month',
-    stripePriceId: 'price_1QVVfZGZEuLRLMp4FZd4eqCH', // ID de test Stripe pour 9.99€/mois
+    stripePriceId: 'price_1RiGM5G0JMtmHIL2OyrdGicK', // Prix mensuel particulier (9.99€/mois - 30 requêtes)
     type: 'particulier',
+    requestLimit: 30,
     features: [
-      'Accès illimité à Francis 24/7',
+      'Accès à Francis 24/7',
       'Analyse personnalisée de votre situation fiscale',
       'Recommandations adaptées à votre profil',
       'Suivi en temps réel de vos optimisations',
       'Mises à jour quotidiennes de la fiscalité',
+      '30 requêtes par mois incluses',
       'Sans engagement - Annulez à tout moment'
     ]
   },
@@ -19,41 +21,28 @@ export const PRICING = {
     price: 99.99,
     currency: 'EUR',
     interval: 'year',
-    stripePriceId: 'price_1QVVh0GZEuLRLMp4qwjkFxrE', // ID de test Stripe pour 99.99€/an
+    stripePriceId: 'price_1RiGM5G0JMtmHIL2zEiHmlCm', // Prix annuel particulier (99.99€/an - 360 requêtes)
     type: 'particulier',
+    requestLimit: 360,
     features: [
-      'Accès illimité à Francis 24/7',
+      'Accès à Francis 24/7',
       'Analyse personnalisée de votre situation fiscale',
       'Recommandations adaptées à votre profil',
       'Suivi en temps réel de vos optimisations',
       'Mises à jour quotidiennes de la fiscalité',
+      '360 requêtes par an incluses',
       'Sans engagement - Annulez à tout moment',
       'Économisez 17% par rapport au tarif mensuel'
     ]
   },
-  // Plans Professionnels
+  // Plans Professionnels (illimités)
   PRO_MONTHLY: {
-    price: 49.99,
+    price: 49,
     currency: 'EUR',
     interval: 'month',
-    stripePriceId: 'price_1QVVfZGZEuLRLMp4FZd4eqCH', // Utilisation temporaire de l'ID particulier pour test
+    stripePriceId: 'price_1RiGKGG0JMtmHIL25K3BCdXs', // Prix mensuel Pro (49.00€/mois - illimité)
     type: 'professionnel',
-    features: [
-      'Interface Pro complète',
-      'Gestion illimitée de clients',
-      'Analyses patrimoniales et fiscales automatisées',
-      'Rapports professionnels personnalisés',
-      'Dashboard temps réel',
-      'Support prioritaire',
-      'Formation et onboarding inclus'
-    ]
-  },
-  PRO_ANNUAL: {
-    price: 499.99,
-    currency: 'EUR',
-    interval: 'year',
-    stripePriceId: 'price_1QVVh0GZEuLRLMp4qwjkFxrE', // Utilisation temporaire de l'ID particulier pour test
-    type: 'professionnel',
+    requestLimit: -1, // Illimité
     features: [
       'Interface Pro complète',
       'Gestion illimitée de clients',
@@ -62,6 +51,25 @@ export const PRICING = {
       'Dashboard temps réel',
       'Support prioritaire',
       'Formation et onboarding inclus',
+      'Requêtes illimitées'
+    ]
+  },
+  PRO_ANNUAL: {
+    price: 490,
+    currency: 'EUR',
+    interval: 'year',
+    stripePriceId: 'price_1RiGKHG0JMtmHIL2dd1tuPjz', // Prix annuel Pro (490.00€/an - illimité)
+    type: 'professionnel',
+    requestLimit: -1, // Illimité
+    features: [
+      'Interface Pro complète',
+      'Gestion illimitée de clients',
+      'Analyses patrimoniales et fiscales automatisées',
+      'Rapports professionnels personnalisés',
+      'Dashboard temps réel',
+      'Support prioritaire',
+      'Formation et onboarding inclus',
+      'Requêtes illimitées',
       'Économisez 17% par rapport au tarif mensuel'
     ]
   }
