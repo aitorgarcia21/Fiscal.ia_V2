@@ -1201,7 +1201,7 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         if supabase:
             try:
                 print(f"🔍 Recherche du profil utilisateur avec user_id: {user_id}")
-                resp = supabase.table("profils_utilisateurs").select("email").eq("user_id", user_id).single().execute()
+                resp = supabase.table("profils_utilisateurs").select("email").eq("auth_user_id", user_id).single().execute()
                 print(f"📝 Réponse de Supabase: {resp}")
                 customer_email = (resp.data or {}).get("email")
                 print(f"✉️ Email trouvé: {customer_email}")
