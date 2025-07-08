@@ -14,6 +14,28 @@
   }
 }
 
+/* Animation pour l'onde sonore */
+@keyframes audio-wave {
+  0%, 100% {
+    transform: scaleY(0.7);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
+}
+
+.animate-audio-wave {
+  animation: audio-wave 1.2s ease-in-out infinite;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.4s;
+}
+
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;

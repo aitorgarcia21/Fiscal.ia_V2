@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, Bot, Mic, MicOff } from 'lucide-react';
+import { Send, X, Bot, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { VoiceRecorder } from './VoiceRecorder';
+import { speakText } from '../services/ttsService';
 
 interface FrancisChatProps {
   onClose: () => void;
@@ -12,6 +13,8 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
   ]);
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -33,10 +36,19 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
 
     // Simuler une réponse de l'IA
     setTimeout(() => {
+      const aiResponse = "Je vais vous aider avec cela. Pourriez-vous me donner plus de détails ?";
       setMessages(prev => [
         ...prev,
-        { text: "Je vais vous aider avec cela. Pourriez-vous me donner plus de détails ?", isUser: false }
+        { text: aiResponse, isUser: false }
       ]);
+      
+      // Lire la réponse si le mode vocal est activé
+      if (isVoiceEnabled) {
+        setIsSpeaking(true);
+        speakText(aiResponse, () => {
+          setIsSpeaking(false);
+        });
+      }
     }, 1000);
   };
 
@@ -59,18 +71,26 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
   return (
     <div className="flex flex-col h-full bg-white">
       {/* En-tête du chat */}
-      <div className="bg-blue-600 text-white p-4 rounded-t-2xl flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <Bot size={20} />
+      <div className="bg-gradient-to-r from-[#1a2332] to-[#2a3a54] text-white p-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <Bot className="mr-2" />
           <h3 className="font-semibold">Francis - Assistant IA</h3>
         </div>
-        <button 
-          onClick={onClose}
-          className="text-white hover:text-gray-200"
-          aria-label="Fermer le chat"
-        >
-          <X size={20} />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
+            className={`p-1 rounded-full ${isVoiceEnabled ? 'text-white' : 'text-gray-400'}`}
+            title={isVoiceEnabled ? 'Désactiver la voix' : 'Activer la voix'}
+          >
+            {isVoiceEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          </button>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-200 focus:outline-none"
+          >
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
       {/* Corps du chat */}
@@ -105,11 +125,27 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
               placeholder="Tapez votre message..."
               className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <VoiceRecorder 
-              onResult={handleVoiceResult}
-              onListeningChange={setIsListening}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2"
-            />
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+              <VoiceRecorder 
+                onResult={handleVoiceResult}
+                onListeningChange={setIsListening}
+                className="hover:scale-110 transition-transform"
+              />
+              {isListening && (
+                <span className="text-xs text-gray-500 animate-pulse">
+                  En écoute...
+                </span>
+              )}
+              {isSpeaking && (
+                <div className="flex items-center">
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-3 bg-[#c5a572] rounded-full animate-audio-wave"></div>
+                    <div className="w-1 h-4 bg-[#c5a572] rounded-full animate-audio-wave animation-delay-100"></div>
+                    <div className="w-1 h-3 bg-[#c5a572] rounded-full animate-audio-wave animation-delay-200"></div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <button
             type="submit"
