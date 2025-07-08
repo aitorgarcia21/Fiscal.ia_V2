@@ -32,100 +32,76 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   isRecordingRef.current = isRecording;
 
   useEffect(() => {
-    if (!SpeechRecognition) {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       setIsAvailable(false);
-      onError?.("Reconnaissance vocale non supportée sur ce navigateur.");
+      onError?.('La reconnaissance vocale n\'est pas supportée par votre navigateur');
       return;
     }
 
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
-    const recognition = recognitionRef.current;
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'fr-FR';
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'fr-FR';
 
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-      
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript.trim() + ' ';
-      } else {
-          interimTranscript += transcript;
-      }
-      }
-
-      onTranscriptionUpdate(accumulatedTextRef.current + finalTranscript + interimTranscript);
-      
-      if (finalTranscript) {
-        accumulatedTextRef.current += finalTranscript;
-      }
-    };
-
-    recognition.onerror = (event: any) => {
+    recognitionRef.current.onerror = (event) => {
       console.error('Erreur reconnaissance vocale:', event.error);
       if (event.error !== 'no-speech') {
         onError?.(`Erreur: ${event.error}`);
       }
-      // The onend event will handle the stop logic
-    };
-    
-    recognition.onend = () => {
-      // Only call onTranscriptionComplete if the user explicitly stopped it.
-      // If it stops on its own, it will restart if still in recording mode.
-      if (isRecordingRef.current) {
-        console.log("Speech recognition service stopped, restarting...");
-        recognition.start();
-        } 
+      setIsRecording(false);
     };
 
-    // Cleanup function to stop recognition when the component unmounts
+    recognitionRef.current.onend = () => {
+      if (isRecordingRef.current) {
+        recognitionRef.current.start(); // Redémarrer si toujours en mode enregistrement
+      }
+    };
+
+    if (autoStart) {
+      handleButtonClick();
+    }
+
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      // Si on était en cours d'enregistrement, renvoyer la transcription accumulée
-      if (isRecordingRef.current && accumulatedTextRef.current) {
-        onTranscriptionComplete(accumulatedTextRef.current.trim());
-      }
     };
-  }, [onTranscriptionUpdate, onError]); // This effect should run only once.
-
-  // Démarrage automatique si demandé
-  useEffect(() => {
-    if (autoStart && !isRecording && recognitionRef.current) {
-      startRecording();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
 
-  const startRecording = useCallback(() => {
-    if (recognitionRef.current) {
-      accumulatedTextRef.current = '';
-      onTranscriptionUpdate('');
-      setIsRecording(true);
-      recognitionRef.current.start();
-    }
-  }, [onTranscriptionUpdate]);
+  const handleButtonClick = () => {
+    if (!isAvailable || disabled) return;
 
-  const stopRecording = useCallback(() => {
-    if (recognitionRef.current) {
-      setIsRecording(false);
+    if (!isRecording) {
+      accumulatedTextRef.current = '';
+      recognitionRef.current.start();
+      setIsRecording(true);
+    } else {
       recognitionRef.current.stop();
+      setIsRecording(false);
       onTranscriptionComplete(accumulatedTextRef.current);
     }
-  }, [onTranscriptionComplete]);
+  };
 
-  const handleButtonClick = useCallback(() => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+  recognitionRef.current.onresult = (event: any) => {
+    let interimTranscript = '';
+    let finalTranscript = '';
+    
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript.trim() + ' ';
+      } else {
+        interimTranscript += transcript;
+      }
     }
-  }, [isRecording, startRecording, stopRecording]);
+
+    onTranscriptionUpdate(accumulatedTextRef.current + finalTranscript + interimTranscript);
+    
+    if (finalTranscript) {
+      accumulatedTextRef.current += finalTranscript;
+    }
+  };
 
   if (!isAvailable) {
     return (
@@ -138,17 +114,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-          <Button
-            onClick={handleButtonClick}
+      <Button
+        onClick={handleButtonClick}
         disabled={disabled}
-            className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
-              isRecording 
+        className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
+          isRecording 
             ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
             : 'bg-green-500 hover:bg-green-600'
         }`}
-          >
+      >
         {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
-          </Button>
+      </Button>
       <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
         <CheckCircle className="w-4 h-4 text-green-500" />
         <span>Reconnaissance instantanée activée</span>

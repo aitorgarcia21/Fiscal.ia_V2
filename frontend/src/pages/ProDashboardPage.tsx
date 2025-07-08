@@ -6,6 +6,7 @@ import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
 import { CountrySelector } from '../components/CountrySelector';
+import { FrancisFloatingButton } from '../components/FrancisFloatingButton';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -19,6 +20,7 @@ export function ProDashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
+  const [showFrancisChat, setShowFrancisChat] = useState(true);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -484,6 +486,17 @@ export function ProDashboardPage() {
           </div>
         </div>
       </div>
+      <FrancisFloatingButton 
+        position="right"
+        onClick={() => setShowFrancisChat(!showFrancisChat)}
+      />
+      {showFrancisChat && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-full shadow-xl">
+            {/* <FrancisChat onClose={() => setShowFrancisChat(false)} /> */}
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
