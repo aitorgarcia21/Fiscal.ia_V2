@@ -205,6 +205,45 @@ export function ProChatPage() {
     };
   }, []);
 
+  const startCall = () => {
+    if (isCallActive) {
+      // Arrêter l'appel
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsCallActive(false);
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      // Vérifier si la reconnaissance vocale est disponible
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: "Désolé, la reconnaissance vocale n'est pas disponible sur votre navigateur. Veuillez utiliser un navigateur compatible comme Chrome ou Edge.",
+          error: true
+        }]);
+        return;
+      } else {
+        alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
+      }
+    } catch (error) {
+      console.error('Erreur lors du démarrage de l\'appel:', error);
+    }
+  };
+
+  const toggleListening = () => {
+    if (recognitionRef.current) {
+      if (isListening) {
+        recognitionRef.current.stop();
+      } else {
+        recognitionRef.current.start();
+      }
+      setIsListening(!isListening);
+    }
+  };
+
   const toggleVoiceCall = () => {
     if (isCallActive) {
       // Arrêter l'appel
@@ -225,24 +264,12 @@ export function ProChatPage() {
           if (recognitionRef.current) {
             recognitionRef.current.start();
             setIsListening(true);
+            setIsCallActive(true);
           }
         });
-        
-        setIsCallActive(true);
       } else {
         alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
       }
-    }
-  };
-
-  const toggleListening = () => {
-    if (recognitionRef.current) {
-      if (isListening) {
-        recognitionRef.current.stop();
-      } else {
-        recognitionRef.current.start();
-      }
-      setIsListening(!isListening);
     }
   };
 
@@ -317,8 +344,13 @@ export function ProChatPage() {
                   >
                     <div className="flex items-start space-x-2">
                       {message.role === 'assistant' && (
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                          <Bot className="w-4 h-4 text-[#c5a572]" />
+                        </div>
+                      )}
+                      <div>
                         <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
-                        {message.role === 'assistant' && (
+                        {message.role === 'assistant' && !message.error && (
                           <button
                             onClick={() => speakText(message.content)}
                             className="ml-2 p-1 rounded-full hover:bg-gray-700/50 transition-colors"
@@ -326,9 +358,16 @@ export function ProChatPage() {
                           >
                             <Volume2 className="w-4 h-4 text-gray-400 hover:text-[#c5a572]" />
                           </button>
-                                ))}
+                        )}
+                        {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                          <div className="mt-2 text-xs text-gray-400">
+                            <span>Sources:</span>
+                            <ul className="list-disc pl-5 mt-1">
+                              {message.sources.map((source, idx) => (
+                                <li key={idx}>{source}</li>
+                              ))}
                             </ul>
-                            </div>
+                          </div>
                         )}
                       </div>
                       {message.role === 'user' && (
