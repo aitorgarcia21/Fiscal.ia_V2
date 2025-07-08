@@ -44,14 +44,7 @@ from pathlib import Path
 
 # Import outils Andorre
 try:
-    from calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
-except ImportError:
-    from backend.calculs_andorra import calc_igi, calc_irpf, calc_is, calc_cass
-
 # ------------------------------------------------------------------
-# Fallback : assurer l'existence des indicateurs d'embeddings
-# ------------------------------------------------------------------
-try:
     CGI_EMBEDDINGS_AVAILABLE
 except NameError:
     CGI_EMBEDDINGS_AVAILABLE = False
@@ -69,8 +62,6 @@ try:
     from models import UserProfile
     from models_pro import BasePro
     from routers import pro_clients as pro_clients_router
-    from routers import swiss_tax as swiss_tax_router
-    from routers import francis_swiss as francis_swiss_router
     from routers import teams_assistant as teams_assistant_router
     from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from whisper_service import get_whisper_service
@@ -82,8 +73,6 @@ except ImportError:
         from backend.models import UserProfile
         from backend.models_pro import BasePro
         from backend.routers import pro_clients as pro_clients_router
-        from backend.routers import swiss_tax as swiss_tax_router
-        from backend.routers import francis_swiss as francis_swiss_router
         from backend.routers import teams_assistant as teams_assistant_router
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
@@ -98,8 +87,6 @@ except ImportError:
         from models import UserProfile
         from models_pro import BasePro
         from routers import pro_clients as pro_clients_router
-        from routers import swiss_tax as swiss_tax_router
-        from routers import francis_swiss as francis_swiss_router
         from routers import teams_assistant as teams_assistant_router
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
@@ -2355,86 +2342,7 @@ initialize_embeddings()
 
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)
-app.include_router(swiss_tax_router.router)
-app.include_router(francis_swiss_router.router)
 app.include_router(teams_assistant_router.router)
-
-# -----------------------
-#  Endpoints Andorre
-# -----------------------
-
-class IGICalcRequest(BaseModel):
-    ht: float
-    taux: Literal["general", "reduite", "speciale", "majoree", "zero"] = "general"
-
-class IGICalcResponse(BaseModel):
-    ht: float
-    taux: float
-    igi: float
-    ttc: float
-
-class IRPFCalcRequest(BaseModel):
-    revenu_net: float
-
-class IRPFCalcResponse(BaseModel):
-    revenu_net: float
-    irpf: float
-    taux_moyen: float
-
-class ISCalcRequest(BaseModel):
-    benefice_net: float
-    regime: Literal["standard", "holding"] = "standard"
-
-class ISCalcResponse(BaseModel):
-    benefice: float
-    taux: float
-    is_: float = Field(..., alias="is")
-
-class CASSCalcRequest(BaseModel):
-    brut_annuel: float
-
-class CASSCalcResponse(BaseModel):
-    brut_annuel: float
-    assiette: float
-    part_salarie: float
-    part_employeur: float
-    cotisations_totales: float
-
-
-@api_router.post("/tools/calc-igi", response_model=IGICalcResponse)
-async def calc_igi_endpoint(request: IGICalcRequest):
-    try:
-        result = calc_igi(request.ht, request.taux)
-        return IGICalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@api_router.post("/tools/calc-irpf", response_model=IRPFCalcResponse)
-async def calc_irpf_endpoint(request: IRPFCalcRequest):
-    try:
-        result = calc_irpf(request.revenu_net)
-        return IRPFCalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@api_router.post("/tools/calc-is", response_model=ISCalcResponse)
-async def calc_is_endpoint(request: ISCalcRequest):
-    try:
-        result = calc_is(request.benefice_net, request.regime)
-        return ISCalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@api_router.post("/tools/calc-cass", response_model=CASSCalcResponse)
-async def calc_cass_endpoint(request: CASSCalcRequest):
-    try:
-        result = calc_cass(request.brut_annuel)
-        return CASSCalcResponse(**result)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @api_router.get("/questions/quota")
