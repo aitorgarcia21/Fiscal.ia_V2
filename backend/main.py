@@ -605,11 +605,22 @@ async def complete_signup(request: CompleteSignupRequest):
         if len(request.password) < 8:
             raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 8 caractères")
         
-        # Vérifier d'abord si l'utilisateur existe dans la table des profils
-        profile_response = supabase.table("profils_utilisateurs").select("*").eq("email", request.email).execute()
+        # Vérifier d'abord si l'utilisateur existe dans le système d'authentification Supabase
+        auth_users = supabase.auth.admin.list_users()
+        auth_user = next((u for u in auth_users.users if u.email == request.email), None)
+        if not auth_user:
+            raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email. Veuillez vérifier l'adresse ou vous inscrire d'abord.")
+
+        auth_user_id = auth_user.id
         
+        # Vérifier si un profil existe déjà ; sinon, en créer un avec type particulier par défaut
+        profile_response = supabase.table("profils_utilisateurs").select("*").eq("auth_user_id", auth_user_id).execute()
         if not profile_response.data or len(profile_response.data) == 0:
-            raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email. Veuillez vous inscrire d'abord.")
+            supabase.table("profils_utilisateurs").insert({
+                "auth_user_id": auth_user_id,
+                "email": request.email,
+                "taper": "particulier"
+            }).execute()
         
         # Vérifier si l'utilisateur a déjà un mot de passe défini
         try:
