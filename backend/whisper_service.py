@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class WhisperTranscriptionService:
-    def __init__(self, model_size: str = "tiny"):
+    def __init__(self, model_size: str = "base"):
         """
         Initialise le service de transcription Whisper avec optimisations.
         
@@ -85,7 +85,7 @@ class WhisperTranscriptionService:
     
     def _transcribe_audio_file_internal(self, audio_path: str) -> Dict[str, Any]:
         """
-        Transcription interne ultra-optimisée pour la vitesse et la précision.
+        Transcription interne ultra-robuste avec paramètres optimaux.
         
         Args:
             audio_path: Chemin vers le fichier audio
@@ -100,14 +100,14 @@ class WhisperTranscriptionService:
                 raise Exception("Modèle Whisper non disponible")
             
             start_time = time.time()
-            logger.info(f"Transcription ultra-rapide du fichier: {audio_path}")
+            logger.info(f"Transcription robuste du fichier: {audio_path}")
             
-            # Transcription avec paramètres optimisés pour la reconnaissance
+            # Paramètres optimaux pour la reconnaissance vocale
             segments, info = self.model.transcribe(
                 audio_path,
-                beam_size=1,  # Minimum pour la vitesse
+                beam_size=5,  # Plus de précision
                 language="fr",  # Français par défaut
-                vad_filter=False,  # Désactivé pour capturer tout
+                vad_filter=True,  # ACTIVÉ pour filtrer le bruit
                 condition_on_previous_text=False,  # Plus rapide
                 temperature=0.0,  # Déterministe
                 compression_ratio_threshold=2.4,  # Valeur par défaut
@@ -117,7 +117,7 @@ class WhisperTranscriptionService:
                 max_initial_timestamp=0.5,  # Plus rapide
                 suppress_tokens=[-1],  # Supprime les tokens spéciaux
                 without_timestamps=True,  # Plus rapide sans timestamps
-                best_of=1  # Minimum pour la vitesse
+                best_of=5  # Plus de précision
             )
             
             # Récupération du texte complet avec nettoyage minimal
@@ -144,7 +144,7 @@ class WhisperTranscriptionService:
                     audio_path,
                     beam_size=1,
                     language=None,  # Auto-détection
-                    vad_filter=False,
+                    vad_filter=False,  # Désactivé pour capturer tout
                     condition_on_previous_text=False,
                     temperature=0.0,
                     compression_ratio_threshold=1.0,  # Plus permissif
@@ -161,9 +161,33 @@ class WhisperTranscriptionService:
                 
                 text = " ".join(text_segments)
             
+            # Si toujours aucun texte, essayer avec des paramètres ultra-permissifs
+            if not text.strip():
+                logger.info("Tentative ultra-permissive...")
+                segments, info = self.model.transcribe(
+                    audio_path,
+                    beam_size=1,
+                    language=None,  # Auto-détection
+                    vad_filter=False,  # Désactivé
+                    condition_on_previous_text=False,
+                    temperature=0.0,
+                    compression_ratio_threshold=0.5,  # Ultra-permissif
+                    no_speech_threshold=0.01,  # Ultra-permissif
+                    word_timestamps=False,
+                    without_timestamps=True
+                )
+                
+                text_segments = []
+                for segment in segments:
+                    clean_text = segment.text.strip()
+                    if clean_text:
+                        text_segments.append(clean_text)
+                
+                text = " ".join(text_segments)
+            
             transcription_time = time.time() - start_time
             
-            logger.info(f"Transcription ultra-rapide terminée en {transcription_time:.2f}s - {len(text)} caractères")
+            logger.info(f"Transcription robuste terminée en {transcription_time:.2f}s - {len(text)} caractères")
             
             return {
                 "text": text,

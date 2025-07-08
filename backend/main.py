@@ -2100,7 +2100,7 @@ Si une information n'est pas mentionnée, mets null. Sois précis et intelligent
 @app.post("/api/whisper/transcribe", response_model=TranscriptionResponse)
 async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("fr")):
     """
-    Endpoint pour transcrire l'audio avec Whisper
+    Endpoint robuste pour transcrire l'audio avec Whisper
     """
     try:
         print(f"🎤 Transcription Whisper demandée - Langue: {language}")
@@ -2112,45 +2112,35 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
         # Lire le contenu audio
         audio_content = await audio.read()
         
-        # Créer un fichier temporaire
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_file:
-            temp_file.write(audio_content)
-            temp_file_path = temp_file.name
+        # Convertir en base64 pour utiliser le service unifié
+        audio_base64 = base64.b64encode(audio_content).decode('utf-8')
         
-        try:
-            # Importer Whisper de manière lazy pour éviter les erreurs
-            try:
-                import whisper
-            except ImportError:
-                raise HTTPException(status_code=500, detail="Whisper non disponible")
-            
-            # Charger le modèle Whisper (petit modèle pour rapidité)
-            print("🤖 Chargement modèle Whisper...")
-            model = whisper.load_model("base")
-            
-            # Transcrire l'audio
-            print("🎤 Transcription en cours...")
-            result = model.transcribe(
-                temp_file_path,
-                language=language,
-                task="transcribe",
-                fp16=False,  # Éviter les erreurs de précision
-                verbose=False
-            )
-            
-            transcription = result["text"].strip()
-            
-            if transcription:
-                print(f"✅ Transcription réussie: {transcription[:100]}...")
-                return transcription
-            else:
-                print("⚠️ Aucun texte détecté")
-                raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
-                
-        finally:
-            # Nettoyer le fichier temporaire
-            if os.path.exists(temp_file_path):
-                os.unlink(temp_file_path)
+        # Utiliser le service Whisper unifié
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            raise HTTPException(status_code=503, detail="Service Whisper non disponible")
+        
+        # Déterminer le format audio
+        audio_format = "webm"  # Par défaut
+        if audio.content_type == "audio/wav":
+            audio_format = "wav"
+        elif audio.content_type == "audio/mp3":
+            audio_format = "mp3"
+        
+        # Transcrire avec le service robuste
+        result = whisper_service.transcribe_base64_audio(audio_base64, audio_format)
+        
+        if result.get("error"):
+            raise HTTPException(status_code=500, detail=f"Erreur de transcription: {result['error']}")
+        
+        transcription = result.get("text", "").strip()
+        
+        if transcription:
+            print(f"✅ Transcription réussie: {transcription[:100]}...")
+            return TranscriptionResponse(**result)
+        else:
+            print("⚠️ Aucun texte détecté")
+            raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
                 
     except HTTPException:
         raise
