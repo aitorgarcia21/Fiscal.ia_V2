@@ -5,7 +5,12 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
+<<<<<<< HEAD
 
+=======
+import { CountrySelector } from '../components/CountrySelector';
+import { FrancisFloatingButton } from '../components/FrancisFloatingButton';
+>>>>>>> 8417bedd ([FRANCIS] Intégration dans Dashboard Pro + correctif enregistrement vocal)
 
 const ITEMS_PER_PAGE = 8;
 
@@ -19,11 +24,15 @@ export function ProDashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
+<<<<<<< HEAD
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoadingMessage, setIsLoadingMessage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+=======
+  const [showFrancisChat, setShowFrancisChat] = useState(true);
+>>>>>>> 8417bedd ([FRANCIS] Intégration dans Dashboard Pro + correctif enregistrement vocal)
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -539,10 +548,52 @@ export function ProDashboardPage() {
         </div>
       </div>
 
+      {/* Transformer Francis en élément central du Dashboard */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl mb-8 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Brain className="w-10 h-10 text-primary-600" />
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Assistant Fiscal Francis</h2>
+              <p className="text-gray-600">Votre expert fiscal intelligent</p>
+            </div>
+          </div>
+          
+          <div className="flex space-x-4">
+            <button 
+              onClick={() => setShowFrancisChat(true)}
+              className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Poser une question
+            </button>
+            
+            <button className="px-6 py-3 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors">
+              Questions fréquentes
+            </button>
+          </div>
+        </div>
+        
+        {/* Widget de questions rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <QuickQuestionCard 
+            question="Calculer l'impôt 2025" 
+            onClick={() => navigate('/calculateur-impot')}
+          />
+          <QuickQuestionCard 
+            question="Déclaration SCI" 
+            onClick={() => navigate('/sci-guide')}
+          />
+          <QuickQuestionCard 
+            question="Optimisation fiscale" 
+            onClick={() => setShowFrancisChat(true)}
+          />
+        </div>
+      </div>
+
       {/* Chat Francis flottant */}
       <div className="fixed bottom-6 right-6 z-50">
         {/* Bouton flottant Francis */}
-        {!isChatOpen && (
+        {/* !isChatOpen && (
           <button
             onClick={() => setIsChatOpen(true)}
             className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
@@ -553,10 +604,10 @@ export function ProDashboardPage() {
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
           </button>
-        )}
+        ) */}
 
         {/* Interface de chat */}
-        {isChatOpen && (
+        {showFrancisChat && (
           <div className="bg-[#162238] border border-[#c5a572]/20 rounded-2xl shadow-2xl w-96 h-[500px] flex flex-col">
             {/* Header du chat */}
             <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
@@ -571,7 +622,7 @@ export function ProDashboardPage() {
                 </div>
               </div>
               <button
-                onClick={() => setIsChatOpen(false)}
+                onClick={() => setShowFrancisChat(false)}
                 className="text-gray-400 hover:text-white transition-colors"
                 title="Fermer le chat"
                 aria-label="Fermer le chat"
@@ -656,6 +707,13 @@ export function ProDashboardPage() {
           </div>
         )}
       </div>
+      {showFrancisChat && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
+          <div className="bg-white w-full max-w-md h-full shadow-xl">
+            {/* <FrancisChat onClose={() => setShowFrancisChat(false)} /> */}
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

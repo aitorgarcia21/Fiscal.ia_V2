@@ -25,6 +25,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const streamRef = useRef<MediaStream | null>(null);
   const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+<<<<<<< HEAD
   const startRecording = useCallback(async () => {
     try {
       // Demander l'accès au microphone
@@ -138,14 +139,79 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       }
     }
   }, [isRecording, onTranscriptionUpdate, onTranscriptionComplete, onError]);
-
-  const handleButtonClick = useCallback(() => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+=======
+  useEffect(() => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      setIsAvailable(false);
+      onError?.('La reconnaissance vocale n\'est pas supportée par votre navigateur');
+      return;
     }
-  }, [isRecording, startRecording, stopRecording]);
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'fr-FR';
+
+    recognitionRef.current.onerror = (event) => {
+      console.error('Erreur reconnaissance vocale:', event.error);
+      if (event.error !== 'no-speech') {
+        onError?.(`Erreur: ${event.error}`);
+      }
+      setIsRecording(false);
+    };
+
+    recognitionRef.current.onend = () => {
+      if (isRecordingRef.current) {
+        recognitionRef.current.start(); // Redémarrer si toujours en mode enregistrement
+      }
+    };
+
+    if (autoStart) {
+      handleButtonClick();
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [autoStart]);
+
+  const handleButtonClick = () => {
+    if (!isAvailable || disabled) return;
+
+    if (!isRecording) {
+      accumulatedTextRef.current = '';
+      recognitionRef.current.start();
+      setIsRecording(true);
+    } else {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      onTranscriptionComplete(accumulatedTextRef.current);
+    }
+  };
+>>>>>>> 8417bedd ([FRANCIS] Intégration dans Dashboard Pro + correctif enregistrement vocal)
+
+  recognitionRef.current.onresult = (event: any) => {
+    let interimTranscript = '';
+    let finalTranscript = '';
+    
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript.trim() + ' ';
+      } else {
+        interimTranscript += transcript;
+      }
+    }
+
+    onTranscriptionUpdate(accumulatedTextRef.current + finalTranscript + interimTranscript);
+    
+    if (finalTranscript) {
+      accumulatedTextRef.current += finalTranscript;
+    }
+  };
 
   // Formatage de la durée
   const formatDuration = (seconds: number) => {
@@ -167,6 +233,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   }, []);
 
   return (
+<<<<<<< HEAD
     <div className={`flex flex-col items-center gap-4 ${className}`}>
       {/* Bouton d'enregistrement */}
       <button
@@ -217,6 +284,23 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             <span>Cliquez pour enregistrer</span>
           </div>
         )}
+=======
+    <div className={`flex flex-col items-center ${className}`}>
+      <Button
+        onClick={handleButtonClick}
+        disabled={disabled}
+        className={`relative w-16 h-16 rounded-full transition-all duration-300 ${
+          isRecording 
+            ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+            : 'bg-green-500 hover:bg-green-600'
+        }`}
+      >
+        {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
+      </Button>
+      <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
+        <CheckCircle className="w-4 h-4 text-green-500" />
+        <span>Reconnaissance instantanée activée</span>
+>>>>>>> 8417bedd ([FRANCIS] Intégration dans Dashboard Pro + correctif enregistrement vocal)
       </div>
 
       {/* Instructions */}

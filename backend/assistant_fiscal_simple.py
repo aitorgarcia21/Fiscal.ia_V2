@@ -29,6 +29,22 @@ except ImportError:
     except ImportError:
         ANDORRA_EMBEDDINGS_AVAILABLE = False
 
+# Import des embeddings luxembourgeois
+try:
+    from backend.mistral_luxembourg_embeddings import (
+        search_similar_chunks as search_similar_lux_chunks,
+    )
+    LUXEMBOURG_EMBEDDINGS_AVAILABLE = True
+except ImportError:
+    # Fallback si le chemin absolu échoue (exécution depuis backend)
+    try:
+        from mistral_luxembourg_embeddings import (
+            search_similar_chunks as search_similar_lux_chunks,
+        )
+        LUXEMBOURG_EMBEDDINGS_AVAILABLE = True
+    except ImportError:
+        LUXEMBOURG_EMBEDDINGS_AVAILABLE = False
+
 # Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
@@ -201,6 +217,28 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None, use
         context_from_sources = ""
         official_sources = []
         
+        # Tentative de récupération depuis les embeddings Luxembourg
+        try:
+            if LUXEMBOURG_EMBEDDINGS_AVAILABLE:
+                print(f"🔍 Recherche Lois Luxembourg pour: {query[:100]}...")
+                lux_chunks = search_similar_lux_chunks(query, top_k=3)
+                print(f"📄 Chunks Luxembourg trouvés: {len(lux_chunks)}")
+
+                if lux_chunks:
+                    context_from_sources += "=== LÉGISLATION FISCALE LUXEMBOURGEOISE ===\n\n"
+                    for chunk in lux_chunks:
+                        chunk_content = chunk.get('text', '')[:2000]
+                        chunk_source = chunk.get('file', 'Texte Luxembourg')
+                        context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
+                        official_sources.append(chunk_source)
+                    context_from_sources += "\n" + "="*60 + "\n\n"
+                else:
+                    print("⚠️ Aucun chunk Luxembourg trouvé")
+            else:
+                print("❌ Embeddings Luxembourg non disponibles")
+        except Exception as e:
+            print(f"❌ Erreur lors de la recherche Luxembourg: {e}")
+
         # Embeddings de base pour Luxembourg
         BASE_EMBEDDINGS_LU = {
             "ir": {
