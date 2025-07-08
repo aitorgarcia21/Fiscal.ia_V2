@@ -4,10 +4,12 @@ import { Mic, MicOff, CheckCircle, AlertCircle } from 'lucide-react';
 interface VoiceRecorderProps {
   onTranscriptionUpdate?: (text: string) => void;
   onTranscriptionComplete?: (text: string) => void;
+  onResult?: (text: string) => void; // Alias pour onTranscriptionComplete pour compatibilité
   onError?: (error: string) => void;
   disabled?: boolean;
   className?: string;
   autoStart?: boolean;
+  onListeningChange?: (isListening: boolean) => void; // Nouvelle prop pour le suivi de l'état d'écoute
 }
 
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
@@ -17,6 +19,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   disabled = false,
   className = '',
   autoStart = false,
+  onResult = () => {},
+  onListeningChange = () => {},
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
@@ -24,6 +28,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const recognitionRef = useRef<any>(null);
   const accumulatedTextRef = useRef<string>('');
   const isRecordingRef = useRef<boolean>(false);
+
+  // Appeler onListeningChange lorsque l'état d'enregistrement change
+  useEffect(() => {
+    onListeningChange(isRecording);
+  }, [isRecording, onListeningChange]);
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -49,92 +58,116 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
     recognitionRef.current.onend = () => {
       if (isRecordingRef.current) {
-        recognitionRef.current.start();
+        // Si on est toujours censé enregistrer, on relance la reconnaissance
+        try {
+          recognitionRef.current.start();
+        } catch (error) {
+          console.error('Erreur de relance de la reconnaissance:', error);
+          setIsRecording(false);
+          isRecordingRef.current = false;
+        }
       }
     };
 
     recognitionRef.current.onresult = (event: any) => {
       let interimTranscript = '';
       let finalTranscript = '';
-      
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += transcript.trim() + ' ';
+          finalTranscript += transcript;
         } else {
           interimTranscript += transcript;
         }
       }
-      
+
       if (finalTranscript) {
-        accumulatedTextRef.current += finalTranscript;
-        onTranscriptionUpdate(accumulatedTextRef.current);
+        accumulatedTextRef.current += ' ' + finalTranscript;
+        const currentText = accumulatedTextRef.current.trim();
+        onTranscriptionUpdate(currentText);
+        onResult(currentText);
       } else if (interimTranscript) {
-        onTranscriptionUpdate(accumulatedTextRef.current + interimTranscript);
+        onTranscriptionUpdate(interimTranscript);
       }
     };
-
-    if (autoStart) {
-      handleButtonClick();
-    }
 
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
     };
-  }, [autoStart]);
+  }, [onError, onResult, onTranscriptionUpdate, onListeningChange]);
 
-  const handleButtonClick = () => {
+  useEffect(() => {
+    if (autoStart && isAvailable && !disabled) {
+      startRecording();
+    }
+  }, [autoStart, isAvailable, disabled]);
+
+  const startRecording = () => {
     if (!isAvailable || disabled) return;
-
-    if (!isRecording) {
-      accumulatedTextRef.current = '';
-      try {
-        recognitionRef.current.start();
-        setIsRecording(true);
-        isRecordingRef.current = true;
-      } catch (error) {
-        console.error('Error starting speech recognition:', error);
-        onError('Erreur lors du démarrage de la reconnaissance vocale');
-        setIsRecording(false);
-        isRecordingRef.current = false;
-      }
-    } else {
-      recognitionRef.current.stop();
+    
+    accumulatedTextRef.current = '';
+    try {
+      recognitionRef.current.start();
+      setIsRecording(true);
+      isRecordingRef.current = true;
+    } catch (error) {
+      console.error('Erreur démarrage reconnaissance vocale:', error);
+      onError('Erreur lors du démarrage de la reconnaissance vocale');
       setIsRecording(false);
       isRecordingRef.current = false;
-      onTranscriptionComplete(accumulatedTextRef.current);
+    }
+  };
+
+  const stopRecording = () => {
+    if (!isAvailable || !isRecording) return;
+    
+    try {
+      recognitionRef.current.stop();
+      const finalText = accumulatedTextRef.current.trim();
+      if (finalText) {
+        onTranscriptionComplete(finalText);
+        onResult(finalText);
+      }
+    } catch (error) {
+      console.error('Erreur arrêt reconnaissance vocale:', error);
+    } finally {
+      setIsRecording(false);
+      isRecordingRef.current = false;
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
   };
 
   if (!isAvailable) {
     return (
-      <div className={`flex flex-col items-center text-red-400 ${className}`}>
-        <MicOff className="w-8 h-8" />
-        <span className="text-sm mt-2">Reconnaissance vocale non disponible</span>
+      <div className={`flex items-center text-red-500 ${className}`}>
+        <AlertCircle className="mr-2" size={20} />
+        <span>Reconnaissance vocale non supportée</span>
       </div>
     );
   }
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
-      <button
-        onClick={handleButtonClick}
-        disabled={disabled}
-        className={`relative flex items-center justify-center w-16 h-16 rounded-full transition-all duration-300 ${
-          isRecording 
-            ? 'bg-red-500 text-white animate-pulse' 
-            : 'bg-primary text-primary-foreground hover:bg-primary/90'
-        }`}
-      >
-        {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
-      </button>
-      
-      <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
-        <CheckCircle className="w-4 h-4 text-green-500" />
-        <span>Reconnaissance vocale {isRecording ? 'active' : 'prête'}</span>
-      </div>
-    </div>
+    <button
+      onClick={handleButtonClick}
+      disabled={disabled}
+      className={`p-2 rounded-full transition-colors ${className} ${
+        isRecording
+          ? 'bg-red-500 text-white hover:bg-red-600'
+          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+      aria-label={isRecording ? 'Arrêter l\'enregistrement' : 'Démarrer l\'enregistrement'}
+    >
+      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+    </button>
   );
 };
