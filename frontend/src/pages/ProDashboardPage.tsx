@@ -19,7 +19,8 @@ export function ProDashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  // Ouvrir le chat Francis par défaut
+  const [isChatOpen, setIsChatOpen] = useState(true);
   const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoadingMessage, setIsLoadingMessage] = useState(false);
