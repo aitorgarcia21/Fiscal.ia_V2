@@ -1,4 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+// Déclaration des types pour l'API de reconnaissance vocale
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+    length: number;
+  };
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot } from 'lucide-react';
 import apiClient from '../services/apiClient';
@@ -24,6 +48,8 @@ export function ProDashboardPage() {
   const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoadingMessage, setIsLoadingMessage] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -281,6 +307,59 @@ export function ProDashboardPage() {
       setIsLoadingMessage(false);
     }
   };
+
+  const startRecording = () => {
+    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      console.error('La reconnaissance vocale n\'est pas supportée par votre navigateur');
+      return;
+    }
+
+    const recognition = new SpeechRecognition() as SpeechRecognition;
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'fr-FR';
+
+    // Utilisation de addEventListener au lieu des propriétés directes pour une meilleure gestion des types
+    recognition.addEventListener('start', () => {
+      setIsRecording(true);
+    });
+
+    recognition.addEventListener('result', (event: Event) => {
+      const speechEvent = event as unknown as SpeechRecognitionEvent;
+      const results = speechEvent.results;
+      
+      if (results && results.length > 0) {
+        const result = results[0];
+        if (result && result[0]) {
+          const transcript = result[0].transcript || '';
+          setCurrentMessage(transcript);
+        }
+      }
+    });
+
+    recognition.addEventListener('error', (event: Event) => {
+      const errorEvent = event as unknown as SpeechRecognitionErrorEvent;
+      console.error('Erreur de reconnaissance vocale:', errorEvent.error, errorEvent.message);
+      setIsRecording(false);
+    });
+
+    recognition.addEventListener('end', () => {
+      setIsRecording(false);
+    });
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      recognitionRef.current = null;
+    }
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -631,28 +710,56 @@ export function ProDashboardPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Zone de saisie */}
-            <div className="p-4 border-t border-[#c5a572]/20">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={currentMessage}
-                  onChange={(e) => setCurrentMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Posez votre question à Francis..."
-                  className="flex-1 bg-[#1a2332] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors"
-                  disabled={isLoadingMessage}
-                />
+            {/* Zone de saisie améliorée avec bouton vocal plus visible */}
+            <div className="p-4 border-t border-[#c5a572]/20 bg-[#1a2332]">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Posez votre question à Francis..."
+                    className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors pr-12"
+                    disabled={isLoadingMessage}
+                  />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Gérer l'ouverture/fermeture de l'enregistrement vocal
+                        if (isRecording) {
+                          stopRecording();
+                        } else {
+                          startRecording();
+                        }
+                      }}
+                      className={`p-2 rounded-full transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-[#c5a572] hover:bg-[#c5a572]/10'}`}
+                      title={isRecording ? 'Arrêter l\'enregistrement' : 'Parler à Francis'}
+                      disabled={isLoadingMessage}
+                    >
+                      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                    </button>
+                  </div>
+                </div>
                 <button
                   onClick={sendMessage}
                   disabled={!currentMessage.trim() || isLoadingMessage}
-                  className="bg-[#c5a572] text-[#162238] p-3 rounded-xl hover:bg-[#e8cfa0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#c5a572] text-[#162238] p-3 rounded-xl hover:bg-[#e8cfa0] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                   title="Envoyer le message"
                   aria-label="Envoyer le message"
                 >
                   <Send className="w-5 h-5" />
                 </button>
               </div>
+              {isRecording && (
+                <div className="mt-2 text-center">
+                  <div className="inline-flex items-center px-3 py-1 bg-red-500/10 rounded-full">
+                    <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
+                    <span className="text-xs text-red-400">En écoute... Parlez maintenant</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -168,6 +168,14 @@ const sectionSubHeaderStyles = "text-lg font-medium text-[#88C0D0] mt-4 mb-3 pb-
 const gridStyles = "grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4";
 const buttonPrimaryStyles = "px-6 py-3 bg-gradient-to-r from-[#88C0D0] to-[#81A1C1] text-[#0A192F] font-semibold rounded-xl shadow-lg hover:shadow-[#88C0D0]/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#88C0D0] focus:ring-offset-2 focus:ring-offset-[#0A192F] transition-all duration-300 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed";
 
+const sectionContainerStyles = "bg-[#0D1F3A]/60 backdrop-blur-sm rounded-xl p-6 border border-[#2A3F6C]/30 shadow-lg mb-8";
+const sectionHeaderStyles = "text-xl font-semibold text-[#c5a572]";
+const sectionSubHeaderStyles = "text-lg font-medium text-gray-300 mt-6 mb-4 pb-2 border-b border-[#2A3F6C]";
+const labelStyles = "block text-sm font-medium text-gray-300 mb-1";
+const inputStyles = "w-full bg-[#0A192F] border border-[#2A3F6C] text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#c5a572] focus:border-transparent";
+const textAreaStyles = "w-full h-32 bg-[#0A192F] border border-[#2A3F6C] text-gray-100 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#c5a572] focus:border-transparent";
+const gridStyles = "grid grid-cols-1 md:grid-cols-2 gap-4 mb-6";
+
 export function ProCreateClientPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -555,12 +563,22 @@ export function ProCreateClientPage() {
   };
 
   const handleVoiceTranscription = (text: string) => {
+    // Mise à jour du texte en temps réel pendant la dictée
     setVoiceText(text);
   };
 
   const handleFinalTranscription = (text: string) => {
-    setVoiceText(text);
-    setFinalTranscript(text);
+    // Pour la transcription finale, on conserve le texte complet
+    setFinalTranscript(prevText => {
+      const newText = prevText ? `${prevText} ${text}`.trim() : text;
+      setVoiceText(newText);
+      return newText;
+    });
+  };
+  
+  const clearTranscript = () => {
+    setVoiceText('');
+    setFinalTranscript('');
   };
 
   const handleVoiceError = (error: string) => {
@@ -599,73 +617,171 @@ export function ProCreateClientPage() {
               {/* Bloc supprimé : doublon retour / titre */}
             </div>
 
-            {/* Nouvelle bannière dictée vocale – toujours visible */}
-            <div className="mb-8 p-6 rounded-xl bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#0A192F] shadow-xl">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                  {showVoiceInput ? <MicOff className="w-10 h-10" /> : <Mic className="w-10 h-10" />}
-                  <div>
-                    <h3 className="text-xl font-bold">Francis enregistre votre entretien</h3>
-                    <p className="text-sm opacity-80">Il crée le profil automatiquement et vous offre l'export du verbatim ou du résumé</p>
+                  {/* Section de dictée vocale améliorée */}
+            <div className="mb-8 rounded-xl overflow-hidden border border-[#2a3f6c] shadow-xl">
+              <div className="bg-gradient-to-r from-[#0f172a] to-[#1e293b] p-6 border-b border-[#2a3f6c]">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-[#c5a572]/10 rounded-lg">
+                      <Mic className="w-6 h-6 text-[#c5a572]" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Assistant de saisie vocale</h3>
+                      <p className="text-sm text-gray-300 mt-1">
+                        Dictez les informations du client pour remplir automatiquement le formulaire
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowVoiceInput(!showVoiceInput)}
+                      className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        showVoiceInput 
+                          ? 'bg-[#c5a572] text-[#0f172a] hover:bg-[#d4b47d]' 
+                          : 'bg-[#1e293b] text-white hover:bg-[#2a3f6c]'
+                      }`}
+                    >
+                      {showVoiceInput ? (
+                        <>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Masquer
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-4 h-4" />
+                          Afficher la dictée
+                        </>
+                      )}
+                    </button>
+                    
+                    {showVoiceInput && (
+                      <div className="hidden sm:flex items-center gap-2 text-xs text-gray-400">
+                        <kbd className="px-2 py-1 bg-[#0f172a] rounded border border-[#2a3f6c]">Cliquez pour dicter</kbd>
+                        <span className="hidden md:inline">ou parlez directement</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowVoiceInput(!showVoiceInput)}
-                  className="px-5 py-2 rounded-lg font-semibold shadow-md bg-[#0A192F] text-[#c5a572] hover:bg-[#162238] transition-colors"
-                >
-                  {showVoiceInput ? 'Masquer' : 'Activer'}
-                </button>
-              </div>
 
               {showVoiceInput && (
-                <div className="mt-6 bg-[#162238]/80 p-6 rounded-lg border border-[#c5a572]/30">
-                  <div className="text-center mb-4">
-                    <h4 className="text-lg font-semibold text-white mb-2 flex items-center justify-center gap-2"><Mic className="w-5 h-5" /> Enregistrement actif</h4>
-                  </div>
-                  <VoiceRecorder
-                    onTranscriptionUpdate={handleVoiceTranscription}
-                    onTranscriptionComplete={handleFinalTranscription}
-                    onError={handleVoiceError}
-                    className="mb-4"
-                  />
+                <div className="bg-[#0f172a] p-6 border-t border-[#2a3f6c]">
+                  <div className="max-w-5xl mx-auto">
+                    <div className="mb-6">
+                      <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+                        <Mic className="w-5 h-5 text-[#c5a572]" /> 
+                        Transcription en direct
+                      </h4>
+                      <p className="text-sm text-gray-400">
+                        Parlez clairement pour que Francis puisse transcrire vos échanges avec le client.
+                      </p>
+                    </div>
+                    <VoiceRecorder
+                      onTranscriptionUpdate={handleVoiceTranscription}
+                      onTranscriptionComplete={handleFinalTranscription}
+                      onError={handleVoiceError}
+                      className="mb-6"
+                    />
 
-                  <div className="mt-4 space-y-4 bg-[#1a2942] rounded-xl border border-[#c5a572]/40 p-4 shadow-inner">
-                    <div className="text-xs font-semibold text-[#c5a572] uppercase tracking-wide mb-2">Texte dicté</div>
-                    <pre className="text-sm text-white whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                      {voiceText}
-                    </pre>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                      <button
-                        onClick={() => analyzeWithAI(voiceText)}
-                        disabled={isAIAnalyzing}
-                        className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/40 hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-3 justify-center"
-                      >
-                        {isAIAnalyzing ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin" /> Analyse...
-                          </>
+                    <div className="bg-[#1a2942] rounded-xl border border-[#c5a572]/40 p-6 shadow-inner">
+
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Mic className="w-5 h-5 text-[#c5a572]" />
+                        <h4 className="text-sm font-semibold text-[#c5a572] uppercase tracking-wide">
+                          Transcription en direct
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={clearTranscript}
+                          disabled={!voiceText || isAIAnalyzing}
+                          className="text-xs text-gray-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                          title="Effacer la transcription"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Effacer
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="relative">
+                      <div className="bg-[#0f172a] rounded-lg border border-[#2a3f6c] p-4 min-h-[200px] max-h-96 overflow-y-auto">
+                        {voiceText ? (
+                          <pre className="text-sm text-gray-100 whitespace-pre-wrap font-sans">
+                            {voiceText}
+                          </pre>
                         ) : (
-                          <>
-                            <Brain className="w-5 h-5" /> Analyser / pré-remplir
-                          </>
+                          <div className="h-full flex flex-col items-center justify-center text-center p-8 text-gray-400">
+                            <Mic className="w-8 h-8 mb-2 opacity-50" />
+                            <p className="text-sm">Commencez à parler pour voir la transcription apparaître ici</p>
+                            <p className="text-xs mt-1 opacity-70">Cliquez sur le bouton d'enregistrement pour commencer</p>
+                          </div>
                         )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          const blob = new Blob([voiceText], { type: 'text/plain;charset=utf-8' });
-                          const url = URL.createObjectURL(blob);
-                          const link = document.createElement('a');
-                          link.href = url;
-                          link.download = `entretien_${formData.nom_client || 'client'}.txt`;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        }}
-                        className="flex-1 sm:flex-none px-6 py-3 bg-[#0A192F] text-[#c5a572] font-semibold rounded-xl shadow-md hover:bg-[#162238] transition-colors flex items-center gap-2 justify-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 12l5 5m0 0l5-5m-5 5V4" /></svg>
-                        Exporter (.txt)
-                      </button>
+                      </div>
+                      
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <VoiceRecorder
+                            onTranscriptionUpdate={handleVoiceTranscription}
+                            onTranscriptionComplete={handleFinalTranscription}
+                            onError={handleVoiceError}
+                            className="flex-shrink-0"
+                          />
+                          <div className="text-xs text-gray-400">
+                            {voiceText ? 'Enregistrement en cours...' : 'Appuyez pour dicter'}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => analyzeWithAI(voiceText)}
+                            disabled={!voiceText.trim() || isAIAnalyzing}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          >
+                            {isAIAnalyzing ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Analyse en cours...
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="w-4 h-4" />
+                                Analyser la transcription
+                              </>
+                            )}
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!voiceText) return;
+                              const blob = new Blob([voiceText], { type: 'text/plain;charset=utf-8' });
+                              const url = URL.createObjectURL(blob);
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.download = `transcription_${formData.nom_client || 'client'}_${new Date().toISOString().split('T')[0]}.txt`;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }}
+                            disabled={!voiceText}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-[#2a3f6c] bg-[#0f172a] text-gray-200 hover:bg-[#1e293b] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            title="Exporter la transcription"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Exporter
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -690,8 +806,11 @@ export function ProCreateClientPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              <section id="identite" className={firstSectionStyles}>
-                <div className="flex items-center"><UserIconLucide className="w-7 h-7 text-[#c5a572] mr-3" /><h2 className={sectionHeaderStyles}>Identité</h2></div>
+              <section id="identite" className={sectionContainerStyles}>
+                <div className="flex items-center">
+                  <UserIconLucide className="w-7 h-7 text-[#c5a572] mr-3" />
+                  <h2 className={sectionHeaderStyles}>Identité</h2>
+                </div>
                 <div className={gridStyles}>
                   <div><label htmlFor="civilite_client" className={labelStyles}>Civilité</label><select id="civilite_client" name="civilite_client" value={formData.civilite_client} onChange={handleChange} className={inputStyles}><option value="M.">M.</option><option value="Mme">Mme</option><option value="Mlle">Mlle</option></select></div>
                   <div></div> 

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft, Mic, MicOff, Phone, PhoneOff, Volume2 } from 'lucide-react';
+import { speakText } from '../services/ttsService';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -34,9 +35,12 @@ export function ProChatPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCallActive, setIsCallActive] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { user, isAuthenticated, isProfessional } = useAuth(); // isProfessional sera utile
+  const { user, isAuthenticated, isProfessional } = useAuth();
 
   // États pour la sélection de client (à développer)
   const [clients, setClients] = useState<ClientProfile[]>([]);
@@ -94,6 +98,12 @@ export function ProChatPage() {
     const currentInput = input;
     setInput('');
     setIsLoading(true);
+    
+    // Si en mode appel, arrêter l'écoute pendant le traitement
+    if (isCallActive && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
 
     let endpoint = '/api/ask'; // Endpoint par défaut (comme pour les particuliers)
     let payload: any = {
@@ -129,11 +139,22 @@ export function ProChatPage() {
 
       const assistantMessage: ProMessage = {
         role: 'assistant',
-        // La réponse de /api/ask et /api/pro/clients/.../ask_francis a la même structure attendue ici
         content: responseData.answer || 'Je n\'ai pas pu traiter votre demande.',
         sources: responseData.sources || []
       };
+      
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Lire la réponse avec la synthèse vocale si en mode appel
+      if (isCallActive && assistantMessage.content) {
+        speakText(assistantMessage.content, () => {
+          // Redémarrer l'écoute après la fin de la lecture
+          if (recognitionRef.current) {
+            recognitionRef.current.start();
+            setIsListening(true);
+          }
+        });
+      }
     } catch (error: any) {
       console.error('Erreur lors de l_envoi du message (ProChatPage):', error);
       const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite. Veuillez réessayer.";
@@ -150,6 +171,80 @@ export function ProChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Initialiser la reconnaissance vocale
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'fr-FR';
+
+        recognitionRef.current.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map((result) => result[0])
+            .map((result) => result.transcript)
+            .join('');
+          
+          setInput(transcript);
+        };
+
+        recognitionRef.current.onerror = (event) => {
+          console.error('Erreur de reconnaissance vocale:', event.error);
+          setIsListening(false);
+        };
+      }
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const toggleVoiceCall = () => {
+    if (isCallActive) {
+      // Arrêter l'appel
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsCallActive(false);
+      setIsListening(false);
+      
+      // Annoncer la fin de l'appel
+      speakText("Fin de l'appel avec Francis. Vous pouvez toujours continuer à discuter par écrit.");
+    } else {
+      // Démarrer l'appel
+      if (recognitionRef.current) {
+        // Annoncer le début de l'appel
+        speakText("Bonjour, je suis Francis, votre assistant vocal. Comment puis-je vous aider ?", () => {
+          // Démarrer l'écoute après le message d'accueil
+          if (recognitionRef.current) {
+            recognitionRef.current.start();
+            setIsListening(true);
+          }
+        });
+        
+        setIsCallActive(true);
+      } else {
+        alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
+      }
+    }
+  };
+
+  const toggleListening = () => {
+    if (recognitionRef.current) {
+      if (isListening) {
+        recognitionRef.current.stop();
+      } else {
+        recognitionRef.current.start();
+      }
+      setIsListening(!isListening);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] p-4 flex flex-col">
@@ -222,19 +317,15 @@ export function ProChatPage() {
                   >
                     <div className="flex items-start space-x-2">
                       {message.role === 'assistant' && (
-                        <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                          <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                          <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                        </div>
-                      )}
-                      <div className='flex-grow'>
                         <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
-                        {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-white/20">
-                            <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
-                            <ul className="list-disc list-inside pl-1 space-y-0.5">
-                                {message.sources.slice(0, 3).map((source, idx) => (
-                                <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
+                        {message.role === 'assistant' && (
+                          <button
+                            onClick={() => speakText(message.content)}
+                            className="ml-2 p-1 rounded-full hover:bg-gray-700/50 transition-colors"
+                            title="Lire le message"
+                          >
+                            <Volume2 className="w-4 h-4 text-gray-400 hover:text-[#c5a572]" />
+                          </button>
                                 ))}
                             </ul>
                             </div>
@@ -270,29 +361,91 @@ export function ProChatPage() {
             {/* Input (similaire à ChatPage) */}
             <form onSubmit={handleSend} className="p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60">
               <div className="flex space-x-2">
-                <textarea // Utilisation de textarea pour questions plus longues
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
-                  className="flex-1 px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
-                  rows={2} // Hauteur initiale pour 2 lignes
-                  disabled={isLoading}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend(e as any); // type assertion for event
+                <div className="relative flex-1">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={
+                      isCallActive 
+                        ? "Parlez maintenant..." 
+                        : selectedClientId 
+                          ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` 
+                          : "Posez votre question à Francis..."
                     }
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[fit-content] self-end"
-                  aria-label="Envoyer le message" 
-                >
-                  <Send className="w-5 h-5" />
-                </button>
+                    className="w-full px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none pr-12"
+                    rows={2}
+                    disabled={isLoading}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend(e as any);
+                      }
+                    }}
+                  />
+                  {isCallActive && (
+                    <div className="absolute right-3 bottom-3 flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`}></div>
+                      <span className="text-xs text-gray-400">{isListening ? 'En écoute...' : 'En attente...'}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col space-y-2">
+                  <button
+                    type="button"
+                    onClick={toggleVoiceCall}
+                    className={`p-3 rounded-lg flex items-center justify-center shadow-md h-[48px] w-[48px] transition-all ${
+                      isCallActive 
+                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                        : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-[#c5a572]/40'
+                    }`}
+                    aria-label={isCallActive ? "Terminer l'appel" : "Démarrer un appel vocal"}
+                  >
+                    {isCallActive ? <PhoneOff className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
+                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[48px] w-[48px]"
+                    aria-label="Envoyer le message"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
+              
+              {isCallActive && (
+                <div className="mt-2 flex justify-center space-x-4">
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+                      isListening 
+                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-white'
+                    }`}
+                  >
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    <span>{isListening ? 'Arrêter' : 'Parler'}</span>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (input.trim()) {
+                        const e = new Event('submit') as any;
+                        handleSend(e);
+                      }
+                    }}
+                    disabled={!input.trim()}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Envoyer</span>
+                  </button>
+                </div>
+              )}
             </form>
           </div>
 

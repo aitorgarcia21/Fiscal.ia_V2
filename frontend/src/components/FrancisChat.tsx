@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, Bot, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
-import { VoiceRecorder } from './VoiceRecorder';
+import { Send, X, Bot, Volume2, MessageSquare, Euro } from 'lucide-react';
 import { speakText } from '../services/ttsService';
 
 interface FrancisChatProps {
@@ -12,8 +11,6 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
     { text: "Bonjour ! Je suis Francis, votre assistant IA. Comment puis-je vous aider aujourd'hui ?", isUser: false }
   ]);
   const [input, setInput] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -27,69 +24,75 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    const userInput = input.trim();
+    if (!userInput) return;
 
     // Ajouter le message de l'utilisateur
-    const userMessage = { text: input, isUser: true };
+    const userMessage = { text: userInput, isUser: true };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
 
     // Simuler une réponse de l'IA
-    setTimeout(() => {
-      const aiResponse = "Je vais vous aider avec cela. Pourriez-vous me donner plus de détails ?";
-      setMessages(prev => [
-        ...prev,
-        { text: aiResponse, isUser: false }
-      ]);
-      
-      // Lire la réponse si le mode vocal est activé
-      if (isVoiceEnabled) {
-        setIsSpeaking(true);
-        speakText(aiResponse, () => {
-          setIsSpeaking(false);
-        });
-      }
-    }, 1000);
-  };
-
-  const handleVoiceResult = (text: string) => {
-    setInput(text);
-    // Envoyer automatiquement le message vocal
-    if (text.trim()) {
-      const userMessage = { text, isUser: true };
-      setMessages(prev => [...prev, userMessage]);
-      
-      setTimeout(() => {
+    const generateAIResponse = async () => {
+      try {
+        // Ici, vous pourriez appeler une API pour une réponse plus intelligente
+        const aiResponse = `J'ai bien reçu votre message : "${userInput}". Je vais vous aider avec cela. Pourriez-vous me donner plus de détails ?`;
+        
+        // Mettre à jour l'interface utilisateur avec la réponse
         setMessages(prev => [
           ...prev,
-          { text: "J'ai bien reçu votre message vocal. Je vais vous aider avec cela.", isUser: false }
+          { text: aiResponse, isUser: false }
         ]);
-      }, 1000);
-    }
+        
+              // Lecture vocale désactivée dans ce composant (réservée au chat pro)
+      } catch (error) {
+        console.error('Erreur lors de la génération de la réponse:', error);
+        const errorMessage = "Je rencontre une difficulté pour traiter votre demande. Veuillez réessayer.";
+        setMessages(prev => [...prev, { text: errorMessage, isUser: false }]);
+      }
+    };
+
+    // Délai pour simuler le temps de traitement
+    setTimeout(generateAIResponse, 800);
   };
+
+  // La fonctionnalité vocale complète est désactivée dans ce composant
+  // et réservée uniquement au chat pro (ProChatPage)
 
   return (
     <div className="flex flex-col h-full bg-white">
       {/* En-tête du chat */}
       <div className="bg-gradient-to-r from-[#1a2332] to-[#2a3a54] text-white p-4 flex justify-between items-center">
         <div className="flex items-center">
-          <Bot className="mr-2" />
-          <h3 className="font-semibold">Francis - Assistant IA</h3>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-            className={`p-1 rounded-full ${isVoiceEnabled ? 'text-white' : 'text-gray-400'}`}
-            title={isVoiceEnabled ? 'Désactiver la voix' : 'Activer la voix'}
-          >
-            {isVoiceEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
-          </button>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200 focus:outline-none"
-          >
-            <X size={20} />
-          </button>
+          <div className="relative mr-2">
+            <MessageSquare className="h-6 w-6 text-[#c5a572]" />
+            <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2332] rounded-full p-0.5" />
+          </div>
+          <div className="flex items-center">
+            <h3 className="font-semibold text-white">Francis - Assistant IA</h3>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => {
+                const lastMessage = messages[messages.length - 1];
+                if (lastMessage && !lastMessage.isUser) {
+                  speakText(lastMessage.text);
+                }
+              }}
+              className="p-1 text-[#c5a572] hover:text-white transition-colors"
+              title="Lire le dernier message"
+              disabled={!messages.length || messages[messages.length - 1]?.isUser}
+            >
+              <Volume2 size={20} />
+            </button>
+            <button
+              onClick={onClose}
+              className="text-white hover:text-gray-200 focus:outline-none"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -115,42 +118,31 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
       </div>
 
       {/* Zone de saisie */}
-      <div className="p-4 border-t border-gray-200">
-        <form onSubmit={handleSendMessage} className="flex space-x-2">
-          <div className="relative flex-1">
+      <div className="p-4 border-t border-gray-200 bg-[#0E2444]">
+        <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
+          <div className="flex-1 relative">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Tapez votre message..."
-              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-[#1a2332] border border-[#2A3F6C]/50 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:border-transparent"
+              disabled={isSpeaking}
             />
-            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-              <VoiceRecorder 
-                onResult={handleVoiceResult}
-                onListeningChange={setIsListening}
-                className="hover:scale-110 transition-transform"
-              />
-              {isListening && (
-                <span className="text-xs text-gray-500 animate-pulse">
-                  En écoute...
-                </span>
-              )}
-              {isSpeaking && (
-                <div className="flex items-center">
-                  <div className="flex space-x-1">
-                    <div className="w-1 h-3 bg-[#c5a572] rounded-full animate-audio-wave"></div>
-                    <div className="w-1 h-4 bg-[#c5a572] rounded-full animate-audio-wave animation-delay-100"></div>
-                    <div className="w-1 h-3 bg-[#c5a572] rounded-full animate-audio-wave animation-delay-200"></div>
-                  </div>
+            {isSpeaking && (
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                <div className="flex space-x-1">
+                  <div className="w-1 h-3 bg-[#c5a572] rounded-full animate-audio-wave"></div>
+                  <div className="w-1 h-4 bg-[#c5a572] rounded-full animate-audio-wave animation-delay-100"></div>
+                  <div className="w-1 h-3 bg-[#c5a572] rounded-full animate-audio-wave animation-delay-200"></div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
           <button
             type="submit"
-            className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={!input.trim()}
+            className="bg-[#c5a572] text-[#162238] p-2 rounded-lg hover:bg-[#e8cfa0] focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:ring-offset-2 focus:ring-offset-[#0E2444] disabled:opacity-50"
+            disabled={!input.trim() || isSpeaking}
           >
             <Send size={20} />
           </button>
