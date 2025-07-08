@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 import uuid
 import asyncio
 import httpx
+import requests
 from supabase import create_client, Client
 import stripe
 from passlib.context import CryptContext
@@ -21,6 +22,7 @@ from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
+from elevenlabs_proxy import router as eleven_router
 import concurrent.futures
 from sqlalchemy.orm import Session
 import re
@@ -112,6 +114,16 @@ TRUELAYER_REDIRECT_URI = os.getenv("TRUELAYER_REDIRECT_URI", "http://localhost:3
 TRUELAYER_ENV = os.getenv("TRUELAYER_ENV", "sandbox")
 TRUELAYER_BASE_AUTH_URL = "https://auth.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://auth.truelayer.com"
 TRUELAYER_API_URL = "https://api.truelayer-sandbox.com" if TRUELAYER_ENV == "sandbox" else "https://api.truelayer.com"
+
+# ElevenLabs configuration
+ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
+ELEVEN_VOICE_ID = os.getenv("ELEVEN_VOICE_ID", "EXAVITQu4vr4xnSDxMaL")  # voix par défaut
+ELEVEN_BASE_URL = "https://api.elevenlabs.io"
+
+# ElevenLabs configuration
+ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY")
+ELEVEN_VOICE_ID = os.getenv("ELEVEN_VOICE_ID", "EXAVITQu4vr4xnSDxMaL")  # voix par défaut
+ELEVEN_BASE_URL = "https://api.elevenlabs.io"
 
 # GoCardless Configuration
 GOCARDLESS_ACCESS_TOKEN = os.getenv("GOCARDLESS_ACCESS_TOKEN")
@@ -2471,6 +2483,7 @@ def initialize_embeddings():
 initialize_embeddings()
 
 app.include_router(api_router)
+app.include_router(eleven_router)
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
 
