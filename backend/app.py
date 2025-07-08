@@ -5,6 +5,7 @@ from main import api_router, pro_clients_router # Importer les routeurs
 from main import startup_event # Importer l'événement startup
 from routers import pro_clients
 from routers import meta
+from routers import tts  # Ajout de l'import du routeur TTS
 from fastapi.responses import JSONResponse
 from fastapi import Request
 from supabase_client import supabase
@@ -33,6 +34,7 @@ app.include_router(api_router)
 app.include_router(pro_clients_router.router)
 app.include_router(pro_clients.router)
 app.include_router(meta.router)
+app.include_router(tts.router, prefix="/api", tags=["tts"])  # Ajout du routeur TTS
 
 # Enregistrer l'événement de démarrage
 app.on_event("startup")(startup_event)

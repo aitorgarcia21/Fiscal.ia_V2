@@ -245,7 +245,10 @@ export function ProChatPage() {
   };
 
   const toggleVoiceCall = () => {
+    console.log('Bouton d\'appel vocal cliqué, isCallActive:', isCallActive);
+    
     if (isCallActive) {
+      console.log('Arrêt de l\'appel vocal');
       // Arrêter l'appel
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -254,20 +257,36 @@ export function ProChatPage() {
       setIsListening(false);
       
       // Annoncer la fin de l'appel
-      speakText("Fin de l'appel avec Francis. Vous pouvez toujours continuer à discuter par écrit.");
+      speakText("Fin de l'appel avec Francis. Vous pouvez toujours continuer à discuter par écrit.")
+        .then(() => console.log('Message de fin d\'appel terminé'))
+        .catch(err => console.error('Erreur lors de la lecture du message de fin:', err));
     } else {
+      console.log('Démarrage de l\'appel vocal');
       // Démarrer l'appel
       if (recognitionRef.current) {
         // Annoncer le début de l'appel
-        speakText("Bonjour, je suis Francis, votre assistant vocal. Comment puis-je vous aider ?", () => {
-          // Démarrer l'écoute après le message d'accueil
-          if (recognitionRef.current) {
-            recognitionRef.current.start();
-            setIsListening(true);
-            setIsCallActive(true);
-          }
-        });
+        speakText("Bonjour, je suis Francis, votre assistant vocal. Comment puis-je vous aider ?")
+          .then(() => {
+            console.log('Message d\'accueil terminé, démarrage de l\'écoute');
+            // Démarrer l'écoute après le message d'accueil
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+                console.log('Reconnaissance vocale démarrée');
+                setIsListening(true);
+                setIsCallActive(true);
+              } catch (err) {
+                console.error('Erreur lors du démarrage de la reconnaissance vocale:', err);
+                alert('Impossible de démarrer la reconnaissance vocale. Veuillez réessayer.');
+              }
+            }
+          })
+          .catch(err => {
+            console.error('Erreur lors de la lecture du message d\'accueil:', err);
+            alert('Impossible de lire le message d\'accueil. Vérifiez votre connexion.');
+          });
       } else {
+        console.error('La reconnaissance vocale n\'est pas disponible');
         alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
       }
     }
