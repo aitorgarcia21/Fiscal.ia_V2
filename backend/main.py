@@ -1177,10 +1177,22 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         customer_email = None
         if supabase:
             try:
+                print(f"🔍 Recherche du profil utilisateur avec user_id: {user_id}")
                 resp = supabase.table("profils_utilisateurs").select("email").eq("user_id", user_id).single().execute()
+                print(f"📝 Réponse de Supabase: {resp}")
                 customer_email = (resp.data or {}).get("email")
-            except Exception:
-                pass
+                print(f"✉️ Email trouvé: {customer_email}")
+            except Exception as e:
+                print(f"❌ Erreur lors de la récupération de l'email: {str(e)}")
+                # Essayer de récupérer l'utilisateur directement depuis auth.users
+                try:
+                    auth_user = supabase.auth.admin.get_user_by_id(user_id)
+                    print(f"🔑 Utilisateur auth trouvé: {auth_user}")
+                    if hasattr(auth_user, 'user') and hasattr(auth_user.user, 'email'):
+                        customer_email = auth_user.user.email
+                        print(f"📧 Email récupéré depuis auth.users: {customer_email}")
+                except Exception as auth_err:
+                    print(f"❌ Erreur lors de la récupération de l'utilisateur auth: {str(auth_err)}")
 
         if not customer_email:
             raise HTTPException(status_code=400, detail="Email utilisateur introuvable pour créer la session portal")
