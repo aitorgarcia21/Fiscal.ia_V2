@@ -356,6 +356,7 @@ const ProLandingPage = () => {
               <a href="/mentions-legales" className="hover:text-[#c5a572] transition-colors">Mentions Légales</a>
               <a href="/politique-confidentialite" className="hover:text-[#c5a572] transition-colors">Politique de Confidentialité</a>
               <a href="/blog" className="hover:text-[#c5a572] transition-colors">Blog</a>
+              <a href="/complete-signup" className="hover:text-[#c5a572] transition-colors font-medium">Déjà inscrit ?</a>
             </div>
           </div>
         </footer>

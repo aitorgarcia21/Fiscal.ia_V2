@@ -44,6 +44,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AccountPage } from './pages/AccountPage';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { ParticulierProtectedRoute } from './components/auth/ParticulierProtectedRoute';
+import { CompleteSignupPage } from './pages/CompleteSignupPage';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -77,6 +78,7 @@ function App() {
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/mes-donnees" element={<DataPrivacyPage />} />
+          <Route path="/complete-signup" element={<CompleteSignupPage />} />
           
           <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
           <Route path="/auth/callback" element={<AuthCallback />} />

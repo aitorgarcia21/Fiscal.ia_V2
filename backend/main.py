@@ -463,6 +463,11 @@ class WhisperHealthResponse(BaseModel):
 class UserInvite(BaseModel):
     email: EmailStr
 
+class CompleteSignupRequest(BaseModel):
+    email: EmailStr
+    password: str
+    confirm_password: str
+
 # Utils
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -581,6 +586,108 @@ async def register(user: UserCreate):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors de l'inscription.")
+
+@api_router.post("/auth/complete-signup", response_model=Dict[str, Any])
+async def complete_signup(request: CompleteSignupRequest):
+    """
+    Finalise l'inscription d'un utilisateur existant en lui permettant de définir un mot de passe.
+    Vérifie d'abord si l'email existe dans la base de données avant de permettre la création du mot de passe.
+    """
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Service Supabase non disponible")
+        
+        # Vérifier que les mots de passe correspondent
+        if request.password != request.confirm_password:
+            raise HTTPException(status_code=400, detail="Les mots de passe ne correspondent pas")
+        
+        # Vérifier la longueur du mot de passe
+        if len(request.password) < 8:
+            raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 8 caractères")
+        
+        # Vérifier d'abord si l'utilisateur existe dans la table des profils
+        profile_response = supabase.table("profils_utilisateurs").select("*").eq("email", request.email).execute()
+        
+        if not profile_response.data or len(profile_response.data) == 0:
+            raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email. Veuillez vous inscrire d'abord.")
+        
+        # Vérifier si l'utilisateur a déjà un mot de passe défini
+        try:
+            # Essayer de récupérer l'utilisateur par email
+            user_response = supabase.auth.sign_in_with_password({
+                "email": request.email,
+                "password": "temporary_password_123!"  # Mot de passe factice pour déclencher une erreur si l'utilisateur existe
+            })
+            
+            # Si on arrive ici, c'est que l'utilisateur a déjà un mot de passe
+            raise HTTPException(status_code=400, detail="Un mot de passe est déjà défini pour ce compte. Veuillez vous connecter ou utiliser la réinitialisation de mot de passe.")
+            
+        except Exception as e:
+            # On s'attend à une erreur car on a utilisé un mot de passe factice
+            # Vérifier si l'erreur est bien liée à un mot de passe invalide
+            if "Invalid login credentials" in str(e):
+                # L'utilisateur existe mais le mot de passe est incorrect (comportement attendu)
+                pass
+            else:
+                # Autre erreur inattendue
+                print(f"Erreur lors de la vérification de l'existence du compte: {str(e)}")
+                raise HTTPException(status_code=500, detail="Erreur lors de la vérification du compte")
+        
+        # Si on arrive ici, l'utilisateur existe mais n'a pas encore de mot de passe défini
+        # Mettre à jour le mot de passe via l'API d'administration de Supabase
+        try:
+            # D'abord, récupérer l'utilisateur par email
+            auth_users = supabase.auth.admin.list_users()
+            user_to_update = None
+            
+            for user in auth_users.users:
+                if user.email == request.email:
+                    user_to_update = user
+                    break
+            
+            if not user_to_update:
+                raise HTTPException(status_code=404, detail="Utilisateur introuvable dans le système d'authentification")
+            
+            # Mettre à jour le mot de passe
+            update_response = supabase.auth.admin.update_user_by_id(
+                user_to_update.id,
+                {"password": request.password}
+            )
+            
+            # Connecter automatiquement l'utilisateur
+            login_response = supabase.auth.sign_in_with_password({
+                "email": request.email,
+                "password": request.password
+            })
+            
+            if not login_response.user:
+                raise HTTPException(status_code=400, detail="Échec de la connexion après la mise à jour du mot de passe")
+            
+            # Créer un token JWT pour l'utilisateur
+            token = create_access_token({"sub": login_response.user.id})
+            
+            return {
+                "access_token": token,
+                "token_type": "bearer",
+                "user": {
+                    "id": login_response.user.id,
+                    "email": login_response.user.email,
+                    "user_metadata": login_response.user.user_metadata or {}
+                },
+                "message": "Votre compte a été activé avec succès !"
+            }
+            
+        except Exception as e:
+            print(f"Erreur lors de la mise à jour du mot de passe: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Erreur lors de la mise à jour du mot de passe: {str(e)}")
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        print(f"Erreur inattendue dans complete-signup: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Une erreur inattendue s'est produite lors de la finalisation de votre inscription.")
 
 @api_router.post("/auth/login", response_model=Dict[str, Any])
 async def login(user: UserLogin):
