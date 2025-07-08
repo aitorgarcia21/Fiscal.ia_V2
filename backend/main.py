@@ -22,7 +22,7 @@ from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
-from elevenlabs_proxy import router as eleven_router
+from .elevenlabs_proxy import router as eleven_router
 import concurrent.futures
 from sqlalchemy.orm import Session
 import re
