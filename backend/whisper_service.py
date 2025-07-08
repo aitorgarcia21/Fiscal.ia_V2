@@ -102,16 +102,16 @@ class WhisperTranscriptionService:
             start_time = time.time()
             logger.info(f"Transcription ultra-rapide du fichier: {audio_path}")
             
-            # Transcription ultra-fluide pour reconnaissance en temps réel
+            # Transcription avec paramètres optimisés pour la reconnaissance
             segments, info = self.model.transcribe(
                 audio_path,
                 beam_size=1,  # Minimum pour la vitesse
                 language="fr",  # Français par défaut
-                vad_filter=False,  # DÉSACTIVÉ pour capturer TOUT
+                vad_filter=False,  # Désactivé pour capturer tout
                 condition_on_previous_text=False,  # Plus rapide
                 temperature=0.0,  # Déterministe
-                compression_ratio_threshold=0.5,  # Ultra-bas pour capturer plus
-                no_speech_threshold=0.001,  # Ultra-bas pour capturer tout
+                compression_ratio_threshold=2.4,  # Valeur par défaut
+                no_speech_threshold=0.6,  # Valeur par défaut
                 word_timestamps=False,  # Désactivé pour la vitesse
                 initial_prompt="Français",  # Plus court
                 max_initial_timestamp=0.5,  # Plus rapide
@@ -137,9 +137,9 @@ class WhisperTranscriptionService:
             
             text = " ".join(text_segments)
             
-            # Si aucun texte, essayer avec des paramètres encore plus agressifs
+            # Si aucun texte, essayer avec des paramètres plus permissifs
             if not text.strip():
-                logger.info("Tentative ultra-agressive...")
+                logger.info("Tentative avec paramètres permissifs...")
                 segments, info = self.model.transcribe(
                     audio_path,
                     beam_size=1,
@@ -147,8 +147,8 @@ class WhisperTranscriptionService:
                     vad_filter=False,
                     condition_on_previous_text=False,
                     temperature=0.0,
-                    compression_ratio_threshold=0.5,  # Très bas
-                    no_speech_threshold=0.001,  # Ultra-bas
+                    compression_ratio_threshold=1.0,  # Plus permissif
+                    no_speech_threshold=0.1,  # Plus permissif
                     word_timestamps=False,
                     without_timestamps=True
                 )
