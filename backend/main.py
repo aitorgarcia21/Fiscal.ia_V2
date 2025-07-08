@@ -898,8 +898,8 @@ async def ask_question(
                     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
                     count_resp = supabase.table("questions").select("id", count='exact').eq("user_id", user_id).gte("created_at", month_start).execute()
                     questions_used = count_resp.count or 0
-                    if questions_used >= 50:
-                        raise HTTPException(status_code=429, detail="Quota atteint : 50 questions gratuites ce mois-ci. Passez à Francis Pro pour plus d'accès.")
+                    if questions_used >= 30:
+                        raise HTTPException(status_code=429, detail="Quota atteint : 30 questions gratuites ce mois-ci. Passez à Francis Pro pour plus d'accès.")
             except HTTPException:
                 raise
             except Exception as e:
@@ -2474,7 +2474,7 @@ async def get_questions_quota(user_id: str = Depends(verify_token)):
         count_resp = supabase.table("questions").select("id", count='exact').eq("user_id", user_id).gte("created_at", month_start).execute()
         questions_used = count_resp.count or 0
         
-        quota_limit = 50  # Limite mensuelle pour les particuliers
+        quota_limit = 30  # Limite mensuelle pour les particuliers
         questions_remaining = max(0, quota_limit - questions_used)
         
         return {
