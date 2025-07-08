@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Euro, MessageSquare, Save, ArrowLeft, Target, Building2, Home, TrendingUp, Calculator, FileText, Mail, Send, Lock } from 'lucide-react';
+import { User, Euro, MessageSquare, Save, ArrowLeft, Target, Building2, Home, TrendingUp, Calculator, FileText, Mail, Send, Lock, Check, X, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+
+interface QuotaInfo {
+  questions_used: number;
+  questions_remaining: number;
+  quota_limit: number;
+  unlimited: boolean;
+}
 
 interface UserProfile {
   auth_user_id: string;
+  taper?: 'particulier' | 'professionnel';
   tmi?: number;
   situation_familiale?: string;
   nombre_enfants?: number;
@@ -44,13 +52,32 @@ export function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [quotaInfo, setQuotaInfo] = useState<QuotaInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
   useEffect(() => {
-    fetchProfile();
+    const fetchData = async () => {
+      await Promise.all([
+        fetchProfile(),
+        fetchQuotaInfo()
+      ]);
+    };
+    fetchData();
   }, []);
+
+  const fetchQuotaInfo = async () => {
+    try {
+      const response = await fetch('/api/questions/quota');
+      if (response.ok) {
+        const data = await response.json();
+        setQuotaInfo(data);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du quota:', error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -186,16 +213,103 @@ export function ProfilePage() {
         </div>
 
         {/* Contenu des onglets */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Colonne de gauche - Informations de compte */}
+          <div className="space-y-6">
+            {/* Carte Compte */}
+            <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <User className="w-5 h-5 text-[#c5a572]" />
+                Mon Compte
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400">Email</p>
+                  <p className="text-white font-medium">{user?.email || 'Non défini'}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-400">Type de compte</p>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 bg-[#c5a572]/20 text-[#c5a572] text-xs rounded-full">
+                      {profile?.taper === 'professionnel' ? 'Professionnel' : 'Particulier'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t border-[#c5a572]/20">
+                  <Link
+                    to="/change-password"
+                    className="inline-flex items-center gap-2 text-sm text-[#c5a572] hover:text-[#e8cfa0] transition-colors"
+                  >
+                    <Lock className="w-4 h-4" />
+                    Changer mon mot de passe
+                  </Link>
+                </div>
+              </div>
+            </div>
+            
+            {/* Carte Abonnement */}
+            <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#c5a572]" />
+                Mon Abonnement
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400">Statut</p>
+                  <div className="flex items-center gap-2">
+                    {profile?.taper === 'professionnel' ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-400" />
+                        <span className="text-green-400 font-medium">Actif - Pro</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-4 h-4 text-amber-400" />
+                        <span className="text-amber-400 font-medium">Gratuit - {quotaInfo?.questions_remaining || 0} questions restantes</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                
+                {quotaInfo && !quotaInfo.unlimited && (
+                  <div className="pt-2">
+                    <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <span>Votre quota mensuel</span>
+                      <span>{quotaInfo.questions_used} / {quotaInfo.quota_limit} questions</span>
+                    </div>
+                    <div className="w-full bg-[#1a2332] rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full" 
+                        style={{ 
+                          width: `${Math.min(100, (quotaInfo.questions_used / quotaInfo.quota_limit) * 100)}%` 
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-2">
+                  <button className="w-full py-2 px-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-medium rounded-lg hover:opacity-90 transition-opacity">
+                    {profile?.taper === 'professionnel' ? 'Gérer mon abonnement' : 'Passer à la version Pro'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           
-          {/* Onglet Général */}
-          {activeTab === 'general' && (
-            <>
-              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <User className="w-5 h-5 text-[#c5a572]" />
-                  Informations personnelles
-                </h3>
+          {/* Colonne de droite - Contenu de l'onglet */}
+          <div className="lg:col-span-2">
+            {activeTab === 'general' && (
+              <div>
+                <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <User className="w-5 h-5 text-[#c5a572]" />
+                    Mes informations personnelles
+                  </h3>
                 
                 <div className="space-y-4">
                   <div>
@@ -274,13 +388,13 @@ export function ProfilePage() {
                     </select>
                   </div>
                 </div>
-              </div>
+                </div>
 
-              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-[#c5a572]" />
-                  Situation fiscale
-                </h3>
+                <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Calculator className="w-5 h-5 text-[#c5a572]" />
+                    Situation fiscale
+                  </h3>
                 
                 <div className="space-y-4">
                   <div>
@@ -335,12 +449,15 @@ export function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </>
+            )}
+          )}
+
+            </div>
           )}
 
           {/* Onglet Revenus */}
           {activeTab === 'revenus' && (
-            <>
+            <div>
               <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-[#c5a572]" />
@@ -545,86 +662,6 @@ export function ProfilePage() {
                     />
                   </div>
                 </div>
-              </div>
-            </>
-          )}
-
-          {/* Onglet Objectifs */}
-          {activeTab === 'objectifs' && (
-            <>
-              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-[#c5a572]" />
-                  Objectifs d'optimisation
-                </h3>
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">Priorités fiscales</label>
-                    <div className="space-y-2">
-                      {[
-                        'Réduire l\'impôt sur le revenu',
-                        'Optimiser la retraite',
-                        'Préparer une transmission',
-                        'Défiscaliser les plus-values',
-                        'Réduire l\'IFI',
-                        'Optimiser les revenus locatifs',
-                        'Développer l\'épargne'
-                      ].map(objectif => (
-                        <label key={objectif} className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={profile?.objectifs_fiscaux?.includes(objectif) || false}
-                            onChange={(e) => {
-                              const current = profile?.objectifs_fiscaux || [];
-                              if (e.target.checked) {
-                                updateProfile('objectifs_fiscaux', [...current, objectif]);
-                              } else {
-                                updateProfile('objectifs_fiscaux', current.filter(o => o !== objectif));
-                              }
-                            }}
-                            className="rounded border-[#c5a572]/30 bg-[#162238] text-[#c5a572]"
-                          />
-                          <span className="text-gray-300">{objectif}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Horizon d'investissement</label>
-                    <select
-                      value={profile?.horizon_investissement || ''}
-                      onChange={(e) => updateProfile('horizon_investissement', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    >
-                      <option value="">Sélectionner</option>
-                      <option value="court_terme">Court terme (1-3 ans)</option>
-                      <option value="moyen_terme">Moyen terme (3-7 ans)</option>
-                      <option value="long_terme">Long terme (7-15 ans)</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Tolérance au risque</label>
-                    <select
-                      value={profile?.tolerance_risque || ''}
-                      onChange={(e) => updateProfile('tolerance_risque', e.target.value)}
-                      className="w-full px-3 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    >
-                      <option value="">Sélectionner</option>
-                      <option value="prudent">Prudent</option>
-                      <option value="equilibre">Équilibré</option>
-                      <option value="dynamique">Dynamique</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#1a2332]/60 rounded-xl border border-[#c5a572]/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">💡 Conseils personnalisés</h3>
-                <div className="space-y-3 text-sm text-gray-300">
-                  <p>Plus votre profil est détaillé, plus Francis pourra :</p>
                   <ul className="space-y-1 ml-4">
                     <li>• Calculer vos optimisations précisément</li>
                     <li>• Recommander les meilleurs investissements</li>
@@ -640,10 +677,10 @@ export function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
     </div>
   );
-} 
+}
