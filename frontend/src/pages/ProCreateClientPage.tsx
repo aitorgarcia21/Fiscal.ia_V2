@@ -611,92 +611,86 @@ export function ProCreateClientPage() {
 
             {/* Section de dictée vocale améliorée */}
             <div className="mb-8 rounded-xl overflow-hidden border border-[#2a3f6c] shadow-xl">
-              <div className="bg-gradient-to-r from-[#0f172a] to-[#1e293b] p-6 border-b border-[#2a3f6c]">
+              <div className="bg-gradient-to-r from-[#0f172a] to-[#1a2235] p-5 border-b border-[#2a3f6c]">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-[#c5a572]/10 rounded-lg">
-                      <Mic className="w-6 h-6 text-[#c5a572]" />
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-[#c5a572]/15 rounded-xl">
+                      <Mic className="w-5 h-5 text-[#c5a572]" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-white">Assistant de saisie vocale</h3>
-                      <p className="text-sm text-gray-300 mt-1">
-                        Dictez les informations du client pour remplir automatiquement le formulaire
+                      <h3 className="text-lg font-semibold text-white">Saisie vocale</h3>
+                      <p className="text-sm text-gray-300 mt-0.5">
+                        Parlez pour remplir automatiquement les champs
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setShowVoiceInput(!showVoiceInput)}
-                      className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                         showVoiceInput 
-                          ? 'bg-[#c5a572] text-[#0f172a] hover:bg-[#d4b47d]' 
-                          : 'bg-[#1e293b] text-white hover:bg-[#2a3f6c]'
+                          ? 'bg-[#c5a572] text-[#0f172a] hover:bg-[#d4b47d] shadow-md' 
+                          : 'bg-[#1a2235] text-white hover:bg-[#2a3f6c] border border-[#2a3f6c] hover:border-[#3a4f7c]'
                       }`}
                     >
                       {showVoiceInput ? (
                         <>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                           </svg>
-                          Masquer
+                          Fermer
                         </>
                       ) : (
                         <>
                           <Mic className="w-4 h-4" />
-                          Afficher la dictée
+                          Activer le micro
                         </>
                       )}
                     </button>
-                    
-                    {showVoiceInput && (
-                      <div className="hidden sm:flex items-center gap-2 text-xs text-gray-400">
-                        <kbd className="px-2 py-1 bg-[#0f172a] rounded border border-[#2a3f6c]">Cliquez pour dicter</kbd>
-                        <span className="hidden md:inline">ou parlez directement</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
 
               {showVoiceInput && (
                 <>
-                  <div className="bg-[#0f172a] p-6 border-t border-[#2a3f6c]">
+                  <div className="bg-[#0f172a] p-5 border-t border-[#2a3f6c]">
                     <div className="max-w-5xl mx-auto">
-                      <div className="mb-6">
-                        <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
-                          <Mic className="w-5 h-5 text-[#c5a572]" /> 
-                          Transcription en direct
+                      <div className="mb-5 text-center">
+                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#c5a572]/10 mb-3">
+                          <Mic className="w-6 h-6 text-[#c5a572]" />
+                        </div>
+                        <h4 className="text-base font-medium text-white mb-1">
+                          Parlez maintenant
                         </h4>
-                        <p className="text-sm text-gray-400">
-                          Parlez clairement pour que Francis puisse transcrire vos échanges avec le client.
+                        <p className="text-sm text-gray-300 max-w-md mx-auto">
+                          Dictez les informations client et Francis les ajoutera automatiquement au formulaire.
                         </p>
                       </div>
-                      <VoiceRecorder
-                        onTranscriptionUpdate={handleVoiceTranscription}
-                        onTranscriptionComplete={handleFinalTranscription}
-                        onError={handleVoiceError}
-                        className="mb-6"
-                      />
+                      
+                      <div className="mb-5">
+                        <VoiceRecorder
+                          onTranscriptionUpdate={handleVoiceTranscription}
+                          onTranscriptionComplete={handleFinalTranscription}
+                          onError={handleVoiceError}
+                          className="mb-0"
+                        />
+                      </div>
 
-                      <div className="bg-[#1a2942] rounded-xl border border-[#c5a572]/40 p-6 shadow-inner">
+                      <div className="bg-[#131d32] rounded-xl border border-[#2a3f6c] p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <Mic className="w-5 h-5 text-[#c5a572]" />
-                            <h4 className="text-sm font-semibold text-[#c5a572] uppercase tracking-wide">
-                              Transcription en direct
-                            </h4>
+                            <div className="w-2 h-2 rounded-full bg-[#c5a572] animate-pulse"></div>
+                            <span className="text-sm font-medium text-gray-300">En écoute active</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setTranscript('')}
-                              className="text-xs text-gray-400 hover:text-white transition-colors"
-                            >
-                              Effacer
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setTranscript('')}
+                            className="text-xs text-gray-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-white/5"
+                          >
+                            Effacer la transcription
+                          </button>
                         </div>
                         <div className="bg-[#0f172a] rounded-lg p-4 min-h-[100px] max-h-[200px] overflow-y-auto border border-[#2a3f6c]">
                           <p className="text-sm whitespace-pre-wrap">{transcript}</p>
