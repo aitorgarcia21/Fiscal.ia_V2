@@ -80,7 +80,8 @@ const GuidedQuestionCard: React.FC<{
   onVoiceComplete: (id: string, text: string) => void;
   isRecording: boolean;
   setIsRecording: (recording: boolean) => void;
-}> = ({ question, onAnswer, onVoiceComplete, isRecording, setIsRecording }) => {
+  allowVoice: boolean;
+}> = ({ question, onAnswer, onVoiceComplete, isRecording, setIsRecording, allowVoice }) => {
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
 
@@ -137,6 +138,7 @@ const GuidedQuestionCard: React.FC<{
             />
             
             {/* Bouton dictée vocale */}
+            {allowVoice && (
             <button
               type="button"
               onClick={toggleVoiceRecorder}
@@ -149,10 +151,11 @@ const GuidedQuestionCard: React.FC<{
             >
               {isRecording ? <Volume2 className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
+          )}
           </div>
 
           {/* Enregistreur vocal */}
-          {showVoiceRecorder && (
+          {allowVoice && showVoiceRecorder && (
             <div className="p-4 bg-[#1a2942]/30 border border-[#c5a572]/20 rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-medium text-[#c5a572] flex items-center gap-2">
@@ -335,6 +338,7 @@ export function DiscoverPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
+          {isProfessional && (
           <button 
             onClick={() => navigate('/')}
             className="flex items-center text-[#c5a572] hover:text-[#e8cfa0] transition-colors"
@@ -342,6 +346,7 @@ export function DiscoverPage() {
             <ArrowLeft className="w-5 h-5 mr-1" />
             Retour au chat
           </button>
+          )}
           <h1 className="text-2xl font-bold text-white flex items-center">
             {isProfessional ? (
               <>
@@ -439,7 +444,7 @@ export function DiscoverPage() {
             {/* Questions guidées */}
             <div className="space-y-6">
               {guidedQuestions.map((question) => (
-                <GuidedQuestionCard
+                <GuidedQuestionCard allowVoice={isProfessional}
                   key={question.id}
                   question={question}
                   onAnswer={handleAnswer}
