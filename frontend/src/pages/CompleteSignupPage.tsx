@@ -45,7 +45,7 @@ export function CompleteSignupPage() {
       
       if (response.access_token) {
         // Connexion réussie, enregistrer le token et rediriger
-        localStorage.setItem('token', response.access_token);
+        localStorage.setItem('authToken', response.access_token);
         
         // Mettre à jour le contexte d'authentification
         if (response.user && login) {
