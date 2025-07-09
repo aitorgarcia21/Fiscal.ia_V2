@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft, Mic, MicOff, Volume2 } from 'lucide-react'; // Ajout icônes vocaux
+import { FrancisVoiceCallButton } from '../components/FrancisVoiceCallButton';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -26,6 +27,7 @@ interface ClientContextForFrancis {
 }
 
 export function ProChatPage() {
+  
   const [messages, setMessages] = useState<ProMessage[]>([
     {
       role: 'assistant',
@@ -36,6 +38,8 @@ export function ProChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   // Voice recording
   const [isRecording, setIsRecording] = useState(false);
+  // If true, we do not display transcripts (voice-only mode)
+  const showTranscripts = !isRecording;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -250,7 +254,7 @@ export function ProChatPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              
+              <FrancisVoiceCallButton agentId="9OHQ0uha4ER6Iero4ev3" />
             </div>
             <button
               onClick={() => navigate(-1)}
@@ -289,67 +293,72 @@ export function ProChatPage() {
           {/* Zone de chat */}
           <div className="flex flex-col flex-grow">
             {/* Messages (similaire à ChatPage) */}
-            <div className="flex-grow overflow-y-auto p-4 space-y-4">
-              {messages.map((message, index) => (
-                <div 
-                  key={index} 
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+            {showTranscripts && (
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message, index) => (
                   <div 
-                    className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
-                      message.role === 'user'
-                        ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
-                        : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
-                    }`}
+                    key={index} 
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="flex items-start space-x-2">
-                      {message.role === 'assistant' && (
-                        <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                          <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                          <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                        </div>
-                      )}
-                      <div className='flex-grow'>
-                        <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
-                        {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-white/20">
-                            <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
-                            <ul className="list-disc list-inside pl-1 space-y-0.5">
-                                {message.sources.slice(0, 3).map((source, idx) => (
-                                <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
-                                ))}
-                            </ul>
-                            </div>
-                        )}
-                      </div>
-                      {message.role === 'user' && (
-                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
-                          <UserIcon className="w-4 h-4 text-[#c5a572]" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start p-3">
-                    <div className="flex items-center space-x-2">
-                        <div className="flex-shrink-0 relative inline-flex items-center justify-center">
+                    <div 
+                      className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
+                        message.role === 'user'
+                          ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
+                          : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
+                      }`}
+                    >
+                      <div className="flex items-start space-x-2">
+                        {message.role === 'assistant' && (
+                          <div className="flex-shrink-0 relative inline-flex items-center justify-center">
                             <MessageSquare className="w-7 h-7 text-[#c5a572]" />
                             <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
+                          </div>
+                        )}
+                        <div className='flex-grow'>
+                          <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
+                          {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                              <div className="mt-2 pt-2 border-t border-white/20">
+                              <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
+                              <ul className="list-disc list-inside pl-1 space-y-0.5">
+                                  {message.sources.slice(0, 3).map((source, idx) => (
+                                  <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
+                                  ))}
+                              </ul>
+                              </div>
+                          )}
                         </div>
-                        <div className="flex items-center space-x-1.5 bg-[#1a2332]/80 border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
-                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                        </div>
+                        {message.role === 'user' && (
+                          <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                            <UserIcon className="w-4 h-4 text-[#c5a572]" />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start p-3">
+                      <div className="flex items-center space-x-2">
+                          <div className="flex-shrink-0 relative inline-flex items-center justify-center">
+                              <MessageSquare className="w-7 h-7 text-[#c5a572]" />
+                              <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
+                          </div>
+                          <div className="flex items-center space-x-1.5 bg-[#1a2332]/80 border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
+                              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                          </div>
+                      </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+            {!showTranscripts && (
+              <div className="p-4 text-center text-gray-400">Appel vocal en cours…</div>
+            )}
             {/* Input (similaire à ChatPage) */}
+            {showTranscripts && (
             <form onSubmit={handleSend} className="p-3 md:p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60 sticky bottom-0">
                <div className="flex gap-2 w-full items-end">
                 <button type="button" onClick={toggleRecording} className={`p-2 rounded-lg ${isRecording ? 'bg-red-600' : 'bg-[#c5a572]'}`} title={isRecording ? 'Arrêter' : 'Parler'}>

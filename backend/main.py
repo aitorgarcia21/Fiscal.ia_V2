@@ -62,7 +62,7 @@ try:
     from models import UserProfile
     from models_pro import BasePro
     from routers import pro_clients as pro_clients_router
-    from routers import teams_assistant as teams_assistant_router
+    from routers import teams_assistant as teams_assistant_router, voice_agent as voice_agent_router
     from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from whisper_service import get_whisper_service
 except ImportError:
@@ -87,7 +87,7 @@ except ImportError:
         from models import UserProfile
         from models_pro import BasePro
         from routers import pro_clients as pro_clients_router
-        from routers import teams_assistant as teams_assistant_router
+        from routers import teams_assistant as teams_assistant_router, voice_agent as voice_agent_router
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
 # --- Fin des imports relatifs corrigés ---
@@ -1538,6 +1538,7 @@ async def get_fiscal_insights(request: FiscalInsightsRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des insights: {str(e)}")
 
+app.include_router(voice_agent_router.router)
 # (L'inclusion finale des routeurs se trouve en bas du fichier)
 # app.include_router(api_router)
 # app.include_router(pro_clients_router.router)
@@ -2377,6 +2378,7 @@ initialize_embeddings()
 app.include_router(api_router)
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
+app.include_router(voice_agent_router.router)
 
 
 @api_router.get("/questions/quota")
