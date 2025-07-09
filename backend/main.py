@@ -619,7 +619,9 @@ async def complete_signup(request: CompleteSignupRequest):
         
         # Vérifier d'abord si l'utilisateur existe dans le système d'authentification Supabase
         auth_users = supabase.auth.admin.list_users()
-        auth_user = next((u for u in auth_users.users if u.email == request.email), None)
+        # La méthode list_users peut renvoyer un objet avec l'attribut .users OU directement une liste selon la version du SDK
+        users_list = getattr(auth_users, "users", auth_users)
+        auth_user = next((u for u in users_list if getattr(u, "email", None) == request.email), None)
         if not auth_user:
             raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email. Veuillez vérifier l'adresse ou vous inscrire d'abord.")
 
@@ -643,12 +645,8 @@ async def complete_signup(request: CompleteSignupRequest):
         try:
             # D'abord, récupérer l'utilisateur par email
             auth_users = supabase.auth.admin.list_users()
-            user_to_update = None
-            
-            for user in auth_users.users:
-                if user.email == request.email:
-                    user_to_update = user
-                    break
+            users_list = getattr(auth_users, "users", auth_users)
+            user_to_update = next((u for u in users_list if getattr(u, "email", None) == request.email), None)
             
             if not user_to_update:
                 raise HTTPException(status_code=404, detail="Utilisateur introuvable dans le système d'authentification")
