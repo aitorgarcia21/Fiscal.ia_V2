@@ -364,7 +364,7 @@ export function ProChatPage() {
                 <button type="button" onClick={toggleRecording} className={`p-2 rounded-lg ${isRecording ? 'bg-red-600' : 'bg-[#c5a572]'}`} title={isRecording ? 'Arrêter' : 'Parler'}>
                   {isRecording ? <MicOff className="text-white w-5 h-5" /> : <Mic className="text-[#162238] w-5 h-5" />}
                 </button>
-                <textarea // Utilisation de textarea pour questions plus longues
+                <textarea /* Utilisation de textarea pour questions plus longues */
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
@@ -388,6 +388,7 @@ export function ProChatPage() {
                 </button>
               </div>
             </form>
+            )}
           </div>
 
           {/* Panneau latéral d'aperçu client */}
