@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft } from 'lucide-react'; // Ajout de ArrowLeft pour le bouton retour
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft, Mic, MicOff, Volume2 } from 'lucide-react'; // Ajout icônes vocaux
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -34,6 +34,10 @@ export function ProChatPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Voice recording
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated, isProfessional } = useAuth(); // isProfessional sera utile
@@ -85,6 +89,37 @@ export function ProChatPage() {
     fetchClientProfile();
   }, [selectedClientId]);
 
+  const uploadAudioSTT = async (blob: Blob): Promise<string> => {
+    const formData = new FormData();
+    formData.append('audio', blob, 'recording.webm');
+    const res = await apiClient<{ text: string }>('/api/stt', {
+      method: 'POST',
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return res.text;
+  };
+
+  const speakAssistant = async (text: string) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/tts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+        },
+        body: JSON.stringify({ text })
+      });
+      if (!res.ok) throw new Error('Erreur TTS');
+      const audioBlob = await res.blob();
+      const url = URL.createObjectURL(audioBlob);
+      const audio = new Audio(url);
+      audio.play();
+    } catch (err) {
+      console.error('Erreur TTS:', err);
+    }
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -134,6 +169,8 @@ export function ProChatPage() {
         sources: responseData.sources || []
       };
       setMessages(prev => [...prev, assistantMessage]);
+      // Lecture audio de la réponse
+      await speakAssistant(assistantMessage.content);
     } catch (error: any) {
       console.error('Erreur lors de l_envoi du message (ProChatPage):', error);
       const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite. Veuillez réessayer.";
