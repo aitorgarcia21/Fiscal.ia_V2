@@ -624,6 +624,43 @@ export function ProCreateClientPage() {
                       </p>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowVoiceInput(!showVoiceInput)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      showVoiceInput 
+                        ? 'bg-[#c5a572] text-[#0f172a] hover:bg-[#d4b47d] shadow-md' 
+                        : 'bg-[#1a2235] text-white hover:bg-[#2a3f6c] border border-[#2a3f6c] hover:border-[#3a4f7c]'
+                    }`}
+                  >
+                    {showVoiceInput ? (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                        Fermer
+                      </>
+                    ) : (
+                      <>Commencer l'enregistrement</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            <div className="mb-8 rounded-xl overflow-hidden border border-[#2a3f6c] shadow-xl">
+              <div className="bg-gradient-to-r from-[#0f172a] to-[#1a2235] p-5 border-b border-[#2a3f6c]">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-[#c5a572]/15 rounded-xl">
+                      <Mic className="w-5 h-5 text-[#c5a572]" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">Saisie vocale</h3>
+                      <p className="text-sm text-gray-300 mt-0.5">
+                        Parlez pour remplir automatiquement les champs
+                      </p>
+                    </div>
+                  </div>
                   
                   <div className="flex items-center gap-3">
                     <button
@@ -637,19 +674,32 @@ export function ProCreateClientPage() {
                     >
                       {showVoiceInput ? (
                         <>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                          Fermer
-                        </>
-                      ) : (
-                        <>
-                          <Mic className="w-4 h-4" />
-                          Activer le micro
-                        </>
-                      )}
-                    </button>
                   </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowVoiceInput(!showVoiceInput)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      showVoiceInput 
+                        ? 'bg-[#c5a572] text-[#0f172a] hover:bg-[#d4b47d] shadow-md' 
+                        : 'bg-[#1a2235] text-white hover:bg-[#2a3f6c] border border-[#2a3f6c] hover:border-[#3a4f7c]'
+                    }`}
+                  >
+                    {showVoiceInput ? (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                        Fermer
+                      </>
+                    ) : (
+                      <>
+                        Commencer l'enregistrement
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -665,7 +715,7 @@ export function ProCreateClientPage() {
                           Parlez maintenant
                         </h4>
                         <p className="text-sm text-gray-300 max-w-md mx-auto">
-                          Dictez les informations client et Francis les ajoutera automatiquement au formulaire.
+                           Enregistrez l'entretien avec le client et Francis se chargera de créer son profil et de l'analyser.
                         </p>
                       </div>
                       
