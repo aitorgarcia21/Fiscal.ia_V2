@@ -57,7 +57,13 @@ USE_LOCAL_LLM = bool(os.getenv("LLM_ENDPOINT")) or not MISTRAL_API_KEY
 
 if USE_LOCAL_LLM:
     # Client local (Ollama / LiteLLM proxy)
-    from ollama_client import generate as _local_generate  # type: ignore
+    try:
+        from ollama_client import generate as _local_generate  # type: ignore
+        ollama_available = True
+    except ImportError:
+        print("WARNING: ollama_client module not available, local LLM will not work")
+        _local_generate = lambda **kwargs: {"response": "ERROR: Local LLM not available"}
+        ollama_available = False
     ChatMessage = None  # Placeholder pour éviter les références inutiles
     client = None
 else:

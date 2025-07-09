@@ -5,8 +5,19 @@ import hashlib
 import os
 from typing import List, Dict, Any
 
-from ..dependencies import verify_token  # reuse auth if needed, though agent will call anonymously
-from ..assistant_fiscal_simple import get_fiscal_response
+# Essayer d'abord les imports absolus pour le déploiement
+try:
+    from backend.dependencies import verify_token  # reuse auth if needed, though agent will call anonymously
+    from backend.assistant_fiscal_simple import get_fiscal_response
+except ImportError:
+    # Fallback aux imports relatifs pour le développement local
+    try:
+        from ..dependencies import verify_token
+        from ..assistant_fiscal_simple import get_fiscal_response
+    except ImportError:
+        # Dernier fallback aux imports directs
+        from dependencies import verify_token
+        from assistant_fiscal_simple import get_fiscal_response
 
 router = APIRouter(prefix="/api", tags=["voice_agent"])
 
