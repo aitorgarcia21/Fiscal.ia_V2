@@ -7,6 +7,7 @@ import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
 import { CountrySelector } from '../components/CountrySelector';
+import { FrancisFloatingButton } from '../components/FrancisFloatingButton';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -486,6 +487,9 @@ export function ProDashboardPage() {
         </div>
         
       </div>
+
+      {/* Bouton flottant Francis */}
+      <FrancisFloatingButton onClick={() => setShowFrancisChat(true)} />
 
       {/* Chat Francis flottant */}
       {showFrancisChat && (

@@ -14,7 +14,9 @@ interface FrancisChatProps {
 export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '' }) => {
   const [input, setInput] = useState('');
   interface ChatMessage { role: 'user' | 'assistant'; content: string; error?: boolean }
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: 'assistant', content: "Bonjour ! Je suis Francis, votre assistant fiscal. Comment puis-je vous aider ?" }
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isProfessional } = useAuth();

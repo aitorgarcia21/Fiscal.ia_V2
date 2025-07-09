@@ -1,4 +1,5 @@
 import React from 'react';
+import { Bot } from 'lucide-react';
 
 interface FrancisFloatingButtonProps {
   onClick?: () => void;
@@ -13,10 +14,10 @@ export const FrancisFloatingButton: React.FC<FrancisFloatingButtonProps> = ({ on
   <button
     type="button"
     onClick={onClick}
-    className={`fixed bottom-6 right-6 p-4 rounded-full bg-[#c5a572] text-[#162238] shadow-lg hover:bg-[#e8cfa0] transition-colors ${className}`}
+    className={`fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-[#c5a572] text-[#162238] shadow-xl hover:bg-[#e8cfa0] transition-colors animate-bounce ${className}`}
     title="Parler à Francis"
   >
-    Francis
+    <Bot className="w-7 h-7" />
   </button>
 );
 
