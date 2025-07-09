@@ -15,15 +15,17 @@ export const StepperVertical: React.FC<StepperVerticalProps> = ({ steps }) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
+        // Trouver la première section réellement visible afin d'éviter les sauts
+        const firstVisible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (firstVisible) {
+          setActiveId(firstVisible.target.id);
+        }
       },
       {
-        rootMargin: '-30% 0px -60% 0px', // déclenche quand l&#39;element est au milieu de l&#39;écran environ
-        threshold: 0.1,
+        rootMargin: '-40% 0px -50% 0px', // marge pour déclencher un peu avant le centre
+        threshold: 0.25,
       }
     );
 
@@ -37,8 +39,16 @@ export const StepperVertical: React.FC<StepperVerticalProps> = ({ steps }) => {
 
   const handleClick = (id: string) => {
     const el = document.getElementById(id);
+    // Mette à jour immédiatement l'étape active pour éviter le "saut" visuel
+    setActiveId(id);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scroll avec un léger offset pour ne pas être caché sous le header sticky
+      const headerOffset = 80; // hauteur approximative du header
+      const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: elementPosition - headerOffset,
+        behavior: 'smooth',
+      });
     }
   };
 
