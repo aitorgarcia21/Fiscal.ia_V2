@@ -89,6 +89,51 @@ export function ProChatPage() {
     fetchClientProfile();
   }, [selectedClientId]);
 
+  // --------------------------------------------------
+  // VOICE RECORDING HELPERS
+  const startRecording = async () => {
+    if (isRecording) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      recordedChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
+        try {
+          const text = await uploadAudioSTT(blob);
+          setInput(text);
+          // Auto-send transcription
+          setTimeout(() => {
+            const fakeEvent = { preventDefault: () => {} } as unknown as React.FormEvent;
+            handleSend(fakeEvent);
+          }, 0);
+        } catch (err) {
+          console.error('Erreur STT:', err);
+        }
+      };
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Erreur accès micro:', err);
+    }
+  };
+
+  const stopRecording = () => {
+    if (!isRecording || !mediaRecorderRef.current) return;
+    mediaRecorderRef.current.stop();
+    mediaRecorderRef.current.stream.getTracks().forEach((t) => t.stop());
+    setIsRecording(false);
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) stopRecording(); else startRecording();
+  };
+  // --------------------------------------------------
+
   const uploadAudioSTT = async (blob: Blob): Promise<string> => {
     const formData = new FormData();
     formData.append('audio', blob, 'recording.webm');
@@ -190,7 +235,7 @@ export function ProChatPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] p-4 flex flex-col">
-      <div className="max-w-4xl w-full mx-auto bg-[#0A192F]/90 backdrop-blur-md rounded-xl border border-[#2A3F6C]/40 overflow-hidden flex flex-col shadow-2xl flex-grow">
+      <div className="w-full md:max-w-4xl mx-auto bg-[#0A192F]/90 backdrop-blur-md md:rounded-xl md:border md:border-[#2A3F6C]/40 overflow-hidden flex flex-col shadow-2xl flex-grow">
         {/* Header */}
         <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
           <div className="flex items-center justify-between">
@@ -305,14 +350,17 @@ export function ProChatPage() {
             </div>
 
             {/* Input (similaire à ChatPage) */}
-            <form onSubmit={handleSend} className="p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60">
-              <div className="flex space-x-2">
+            <form onSubmit={handleSend} className="p-3 md:p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60 sticky bottom-0">
+               <div className="flex gap-2 w-full items-end">
+                <button type="button" onClick={toggleRecording} className={`p-2 rounded-lg ${isRecording ? 'bg-red-600' : 'bg-[#c5a572]'}`} title={isRecording ? 'Arrêter' : 'Parler'}>
+                  {isRecording ? <MicOff className="text-white w-5 h-5" /> : <Mic className="text-[#162238] w-5 h-5" />}
+                </button>
                 <textarea // Utilisation de textarea pour questions plus longues
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
                   className="flex-1 px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
-                  rows={2} // Hauteur initiale pour 2 lignes
+                  rows={2}
                   disabled={isLoading}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
