@@ -693,10 +693,8 @@ async def complete_signup(request: CompleteSignupRequest):
         import traceback
         traceback.print_exc()
         # En environnement de développement, renvoyer l'erreur complète pour faciliter le debug
-        app_env = os.getenv("APP_ENV", "production")
-        if app_env == "development":
-            raise HTTPException(status_code=500, detail=str(e))
-        raise HTTPException(status_code=500, detail="Une erreur inattendue s'est produite lors de la finalisation de votre inscription.")
+        # TEMP: retourner toujours le détail de l'erreur pour debug production
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/auth/login", response_model=Dict[str, Any])
 async def login(user: UserLogin):
