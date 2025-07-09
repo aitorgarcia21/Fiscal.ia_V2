@@ -634,27 +634,9 @@ async def complete_signup(request: CompleteSignupRequest):
                 "taper": "particulier"
             }).execute()
         
-        # Vérifier si l'utilisateur a déjà un mot de passe défini
-        try:
-            # Essayer de récupérer l'utilisateur par email
-            user_response = supabase.auth.sign_in_with_password({
-                "email": request.email,
-                "password": "temporary_password_123!"  # Mot de passe factice pour déclencher une erreur si l'utilisateur existe
-            })
-            
-            # Si on arrive ici, c'est que l'utilisateur a déjà un mot de passe
-            raise HTTPException(status_code=400, detail="Un mot de passe est déjà défini pour ce compte. Veuillez vous connecter ou utiliser la réinitialisation de mot de passe.")
-            
-        except Exception as e:
-            # On s'attend à une erreur car on a utilisé un mot de passe factice
-            # Vérifier si l'erreur est bien liée à un mot de passe invalide
-            if "Invalid login credentials" in str(e):
-                # L'utilisateur existe mais le mot de passe est incorrect (comportement attendu)
-                pass
-            else:
-                # Autre erreur inattendue
-                print(f"Erreur lors de la vérification de l'existence du compte: {str(e)}")
-                raise HTTPException(status_code=500, detail="Erreur lors de la vérification du compte")
+        # A ce stade, nous savons que l'utilisateur existe dans Auth. Inutile de tester un login factice ;
+        # nous tentons directement de définir/mettre à jour son mot de passe via l'API d'administration.
+
         
         # Si on arrive ici, l'utilisateur existe mais n'a pas encore de mot de passe défini
         # Mettre à jour le mot de passe via l'API d'administration de Supabase
