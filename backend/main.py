@@ -605,8 +605,10 @@ async def complete_signup(request: CompleteSignupRequest):
     Finalise l'inscription d'un utilisateur existant en lui permettant de définir un mot de passe.
     Vérifie d'abord si l'email existe dans la base de données avant de permettre la création du mot de passe.
     """
+    print(f"DEBUG: /auth/complete-signup - Début du traitement pour l'email: {request.email}")
     try:
         if not supabase:
+            print(f"ERROR: /auth/complete-signup - Service Supabase non disponible")
             raise HTTPException(status_code=500, detail="Service Supabase non disponible")
         
         # Vérifier que les mots de passe correspondent
@@ -618,23 +620,34 @@ async def complete_signup(request: CompleteSignupRequest):
             raise HTTPException(status_code=400, detail="Le mot de passe doit contenir au moins 8 caractères")
         
         # Vérifier d'abord si l'utilisateur existe dans le système d'authentification Supabase
+        print(f"DEBUG: /auth/complete-signup - Vérification de l'existence de l'utilisateur dans Supabase Auth")
         auth_users = supabase.auth.admin.list_users()
         # La méthode list_users peut renvoyer un objet avec l'attribut .users OU directement une liste selon la version du SDK
         users_list = getattr(auth_users, "users", auth_users)
+        print(f"DEBUG: /auth/complete-signup - Nombre d'utilisateurs trouvés dans Supabase Auth: {len(users_list) if users_list else 0}")
         auth_user = next((u for u in users_list if getattr(u, "email", None) == request.email), None)
         if not auth_user:
+            print(f"ERROR: /auth/complete-signup - Aucun utilisateur trouvé avec l'email: {request.email}")
             raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email. Veuillez vérifier l'adresse ou vous inscrire d'abord.")
 
         auth_user_id = auth_user.id
+        print(f"DEBUG: /auth/complete-signup - Utilisateur trouvé avec ID: {auth_user_id}")
         
         # Vérifier si un profil existe déjà ; sinon, en créer un avec type particulier par défaut
+        print(f"DEBUG: /auth/complete-signup - Vérification de l'existence d'un profil utilisateur")
         profile_response = supabase.table("profils_utilisateurs").select("*").eq("user_id", auth_user_id).execute()
+        print(f"DEBUG: /auth/complete-signup - Réponse de la recherche de profil: {profile_response}")
+        
         if not profile_response.data or len(profile_response.data) == 0:
-            supabase.table("profils_utilisateurs").insert({
+            print(f"DEBUG: /auth/complete-signup - Aucun profil trouvé, création d'un nouveau profil")
+            insert_response = supabase.table("profils_utilisateurs").insert({
                 "user_id": auth_user_id,
                 "email": request.email,
                 "taper": "particulier"
             }).execute()
+            print(f"DEBUG: /auth/complete-signup - Résultat de l'insertion du profil: {insert_response}")
+        else:
+            print(f"DEBUG: /auth/complete-signup - Profil existant trouvé: {profile_response.data}")
         
         # A ce stade, nous savons que l'utilisateur existe dans Auth. Inutile de tester un login factice ;
         # nous tentons directement de définir/mettre à jour son mot de passe via l'API d'administration.
@@ -643,56 +656,78 @@ async def complete_signup(request: CompleteSignupRequest):
         # Si on arrive ici, l'utilisateur existe mais n'a pas encore de mot de passe défini
         # Mettre à jour le mot de passe via l'API d'administration de Supabase
         try:
+            print(f"DEBUG: /auth/complete-signup - Début de la mise à jour du mot de passe")
             # D'abord, récupérer l'utilisateur par email
             auth_users = supabase.auth.admin.list_users()
             users_list = getattr(auth_users, "users", auth_users)
             user_to_update = next((u for u in users_list if getattr(u, "email", None) == request.email), None)
             
             if not user_to_update:
+                print(f"ERROR: /auth/complete-signup - Utilisateur introuvable lors de la mise à jour du mot de passe")
                 raise HTTPException(status_code=404, detail="Utilisateur introuvable dans le système d'authentification")
             
+            print(f"DEBUG: /auth/complete-signup - Utilisateur trouvé pour la mise à jour du mot de passe: {user_to_update.id}")
             # Mettre à jour le mot de passe
-            update_response = supabase.auth.admin.update_user_by_id(
-                user_to_update.id,
-                {"password": request.password}
-            )
+            try:
+                update_response = supabase.auth.admin.update_user_by_id(
+                    user_to_update.id,
+                    {"password": request.password}
+                )
+                print(f"DEBUG: /auth/complete-signup - Résultat de la mise à jour du mot de passe: {update_response}")
+            except Exception as e_update:
+                print(f"ERROR: /auth/complete-signup - Erreur lors de la mise à jour du mot de passe: {str(e_update)}")
+                raise HTTPException(status_code=500, detail=f"Erreur lors de la mise à jour du mot de passe: {str(e_update)}")
             
             # Connecter automatiquement l'utilisateur
-            login_response = supabase.auth.sign_in_with_password({
-                "email": request.email,
-                "password": request.password
-            })
+            print(f"DEBUG: /auth/complete-signup - Tentative de connexion automatique après mise à jour du mot de passe")
+            try:
+                login_response = supabase.auth.sign_in_with_password({
+                    "email": request.email,
+                    "password": request.password
+                })
+                print(f"DEBUG: /auth/complete-signup - Résultat de la connexion: {login_response}")
+            except Exception as e_login:
+                print(f"ERROR: /auth/complete-signup - Erreur lors de la connexion automatique: {str(e_login)}")
+                raise HTTPException(status_code=500, detail=f"Erreur lors de la connexion automatique: {str(e_login)}")
             
             if not login_response.user:
+                print(f"ERROR: /auth/complete-signup - Pas d'utilisateur retourné après connexion")
                 raise HTTPException(status_code=400, detail="Échec de la connexion après la mise à jour du mot de passe")
             
             # Créer un token JWT pour l'utilisateur
+            print(f"DEBUG: /auth/complete-signup - Création du token JWT pour l'utilisateur: {login_response.user.id}")
             token = create_access_token({"sub": login_response.user.id})
             
-            return {
+            user_data = {
+                "id": login_response.user.id,
+                "email": login_response.user.email,
+                "user_metadata": login_response.user.user_metadata or {}
+            }
+            print(f"DEBUG: /auth/complete-signup - Données utilisateur pour la réponse: {user_data}")
+            
+            response_data = {
                 "access_token": token,
                 "token_type": "bearer",
-                "user": {
-                    "id": login_response.user.id,
-                    "email": login_response.user.email,
-                    "user_metadata": login_response.user.user_metadata or {}
-                },
+                "user": user_data,
                 "message": "Votre compte a été activé avec succès !"
             }
+            print(f"DEBUG: /auth/complete-signup - Activation réussie pour {request.email}")
+            return response_data
             
         except Exception as e:
-            print(f"Erreur lors de la mise à jour du mot de passe: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Erreur lors de la mise à jour du mot de passe: {str(e)}")
+            print(f"ERROR: Unexpected error in /auth/complete-signup for email {request.email}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors de l'activation du compte: {str(e)}")
     
     except HTTPException as http_exc:
+        print(f"ERROR: /auth/complete-signup - HTTPException: {http_exc.detail} (code {http_exc.status_code})")
         raise http_exc
     except Exception as e:
         print(f"Erreur inattendue dans complete-signup: {str(e)}")
         import traceback
         traceback.print_exc()
-        # En environnement de développement, renvoyer l'erreur complète pour faciliter le debug
-        # TEMP: retourner toujours le détail de l'erreur pour debug production
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erreur interne du serveur lors de l'activation du compte: {str(e)}")
 
 @api_router.post("/auth/login", response_model=Dict[str, Any])
 async def login(user: UserLogin):
