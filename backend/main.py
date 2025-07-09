@@ -487,6 +487,8 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
+from elevenlabs_utils import speech_to_text, text_to_speech_stream
+
 # Routes
 @api_router.post("/auth/register", response_model=Dict[str, Any])
 async def register(user: UserCreate):
@@ -2337,6 +2339,38 @@ def initialize_embeddings():
     except Exception as e:
         print(f"❌ Erreur lors de l'initialisation des embeddings: {e}")
 
+# ------------------ ElevenLabs voice endpoints ------------------
+class TTSRequest(BaseModel):
+    text: str
+    voice_id: Optional[str] | None = None
+
+@api_router.post("/stt", summary="Speech-to-Text via ElevenLabs", response_model=dict)
+async def stt_endpoint(
+    audio: UploadFile = File(...),
+    user_id: str = Depends(verify_token),
+):
+    """Convertit un fichier audio (webm/wav) en texte via ElevenLabs.
+    Accessible uniquement aux professionnels (vérif à implémenter côté rôle)."""
+    data = await audio.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Fichier audio vide")
+    try:
+        text = speech_to_text(data)
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+    return {"text": text}
+
+@api_router.post("/tts", summary="Text-to-Speech via ElevenLabs", response_class=StreamingResponse)
+async def tts_endpoint(
+    req: TTSRequest,
+    user_id: str = Depends(verify_token),
+):
+    """Renvoie un flux audio (mp3) pour le texte fourni via ElevenLabs TTS."""
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail="Texte vide")
+    return text_to_speech_stream(req.text, voice_id=req.voice_id)
+
+# -----------------------------------------------------------------
 # Appeler l'initialisation au démarrage
 initialize_embeddings()
 
