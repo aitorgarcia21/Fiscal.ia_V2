@@ -34,7 +34,7 @@ export function CompleteSignupPage() {
       setError('');
       setMessage('');
       
-      const response = await apiClient('/auth/complete-signup', {
+      const response = await apiClient('/api/auth/complete-signup', {
         method: 'POST',
         data: { 
           email: email.trim(), 
