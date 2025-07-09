@@ -2483,6 +2483,7 @@ def initialize_embeddings():
 initialize_embeddings()
 
 app.include_router(api_router)
+app.include_router(api_router, prefix="/api")  # alias pour compatibilité frontend
 app.include_router(eleven_router)
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
