@@ -48,8 +48,9 @@ export function CompleteSignupPage() {
         localStorage.setItem('authToken', response.access_token);
         
         // Mettre à jour le contexte d'authentification
-        if (response.user && login) {
-          await login(response.access_token, response.user);
+            if (login) {
+               // Utiliser les mêmes identifiants que ceux fournis par l'utilisateur
+               await login(email.trim(), password);
           
           setMessage('Votre compte a été activé avec succès ! Redirection en cours...');
           toast.success('Compte activé avec succès !');
