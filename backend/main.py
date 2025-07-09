@@ -628,10 +628,10 @@ async def complete_signup(request: CompleteSignupRequest):
         auth_user_id = auth_user.id
         
         # Vérifier si un profil existe déjà ; sinon, en créer un avec type particulier par défaut
-        profile_response = supabase.table("profils_utilisateurs").select("*").eq("auth_user_id", auth_user_id).execute()
+        profile_response = supabase.table("profils_utilisateurs").select("*").eq("user_id", auth_user_id).execute()
         if not profile_response.data or len(profile_response.data) == 0:
             supabase.table("profils_utilisateurs").insert({
-                "auth_user_id": auth_user_id,
+                "user_id": auth_user_id,
                 "email": request.email,
                 "taper": "particulier"
             }).execute()
@@ -1183,7 +1183,7 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         if supabase:
             try:
                 print(f"🔍 Recherche du profil utilisateur avec user_id: {user_id}")
-                resp = supabase.table("profils_utilisateurs").select("email").eq("auth_user_id", user_id).single().execute()
+                resp = supabase.table("profils_utilisateurs").select("email").eq("user_id", user_id).single().execute()
                 print(f"📝 Réponse de Supabase: {resp}")
                 customer_email = (resp.data or {}).get("email")
                 print(f"✉️ Email trouvé: {customer_email}")
