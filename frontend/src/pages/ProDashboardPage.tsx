@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot } from 'lucide-react';
-import { QuickQuestionCard } from '../components/QuickQuestionCard';
 import { FrancisChat } from '../components/FrancisChat';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
 import { CountrySelector } from '../components/CountrySelector';
-import { FrancisFloatingButton } from '../components/FrancisFloatingButton';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -476,49 +474,17 @@ export function ProDashboardPage() {
               </div>
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Transformer Francis en élément central du Dashboard */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl mb-8 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Brain className="w-10 h-10 text-primary-600" />
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Assistant Fiscal Francis</h2>
-              <p className="text-gray-600">Votre expert fiscal intelligent</p>
-            </div>
-          </div>
           
-          <div className="flex space-x-4">
+          <div className="flex mt-4">
             <button 
               onClick={() => setShowFrancisChat(true)}
               className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               Poser une question
             </button>
-            
-            <button className="px-6 py-3 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors">
-              Questions fréquentes
-            </button>
           </div>
         </div>
         
-        {/* Widget de questions rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <QuickQuestionCard 
-            question="Calculer l'impôt 2025" 
-            onClick={() => navigate('/calculateur-impot')}
-          />
-          <QuickQuestionCard 
-            question="Déclaration SCI" 
-            onClick={() => navigate('/sci-guide')}
-          />
-          <QuickQuestionCard 
-            question="Optimisation fiscale" 
-            onClick={() => setShowFrancisChat(true)}
-          />
-        </div>
       </div>
 
       {/* Chat Francis flottant */}
