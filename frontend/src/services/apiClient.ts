@@ -49,11 +49,27 @@ async function apiClient<T = any>(endpoint: string, { data, headers: customHeade
   const response = await fetch(buildUrl(endpoint), config);
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+    // Essayer de parser le JSON de la réponse d'erreur, avec fallback en cas d'échec
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      // Si la réponse n'est pas du JSON valide, utiliser le statusText comme fallback
+      errorData = { detail: response.statusText };
+    }
+    
+    // Créer un message d'erreur plus descriptif selon le code de statut
+    let errorMessage = errorData.detail || 'Une erreur API est survenue';
+    if (response.status === 422) {
+      errorMessage = 'Erreur de validation des données. Vérifiez les informations saisies.';
+      console.error('Erreur 422 détaillée:', errorData);
+    }
+    
     // Lève une erreur structurée que nous pouvons attraper dans les composants
-    const error = new Error(errorData.detail || 'Une erreur API est survenue') as any;
+    const error = new Error(errorMessage) as any;
     error.response = response;
     error.data = errorData;
+    error.status = response.status;
     throw error;
   }
 

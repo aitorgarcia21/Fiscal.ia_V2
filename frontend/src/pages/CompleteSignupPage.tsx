@@ -64,14 +64,22 @@ export function CompleteSignupPage() {
       console.error('Erreur lors de l\'activation du compte:', err);
       
       // Gestion des erreurs plus détaillée
+      console.log('Détail de l\'erreur:', err);
+      
       if (err.response) {
+        console.log('Statut de l\'erreur:', err.response.status);
+        console.log('Données de l\'erreur:', err.response.data);
+        
         // Erreur du serveur avec un statut
         if (err.response.status === 400) {
-          setError(err.response.data.detail || 'Données invalides. Veuillez vérifier vos informations.');
+          setError(err.response.data?.detail || 'Données invalides. Veuillez vérifier vos informations.');
         } else if (err.response.status === 404) {
           setError('Aucun compte trouvé avec cet email. Veuillez vous inscrire d\'abord.');
+        } else if (err.response.status === 422) {
+          setError('Erreur de validation des données. Veuillez vérifier votre email et mot de passe.');
         } else {
-          setError(err.response.data.detail || 'Une erreur est survenue lors de l\'activation du compte');
+          // Utiliser l'opérateur optionnel pour éviter les erreurs si data ou detail est undefined
+          setError(err.response.data?.detail || 'Une erreur est survenue lors de l\'activation du compte');
         }
       } else if (err.request) {
         // La requête a été faite mais aucune réponse n'a été reçue
