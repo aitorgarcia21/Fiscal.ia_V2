@@ -73,7 +73,7 @@ except ImportError:
         from backend.models import UserProfile
         from backend.models_pro import BasePro
         from backend.routers import pro_clients as pro_clients_router
-        from backend.routers import teams_assistant as teams_assistant_router
+        from backend.routers import teams_assistant as teams_assistant_router, voice_agent as voice_agent_router
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
     except ImportError:
