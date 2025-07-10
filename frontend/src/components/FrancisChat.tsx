@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X as CloseIcon, Send } from 'lucide-react';
+import { X as CloseIcon, Send, Bot } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -57,7 +57,7 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#162238] to-[#243447] border-b border-[#c5a572]/30">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
-            <span className="text-[#162238] font-bold">F</span>
+            <Bot className="text-[#162238]" size={18} />
           </div>
           <span className="font-semibold tracking-wide text-white">Francis, votre copilote</span>
         </div>
