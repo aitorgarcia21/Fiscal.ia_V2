@@ -238,19 +238,20 @@ export function ProChatPage() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] p-4 flex flex-col">
-      <div className="w-full md:max-w-4xl mx-auto bg-[#0A192F]/90 backdrop-blur-md md:rounded-xl md:border md:border-[#2A3F6C]/40 overflow-hidden flex flex-col shadow-2xl flex-grow">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] p-4 flex flex-col">
+      <div className="w-full md:max-w-4xl mx-auto bg-[#0f1419]/90 backdrop-blur-md md:rounded-xl md:border md:border-[#c5a572]/30 overflow-hidden flex flex-col shadow-2xl flex-grow">
         {/* Header */}
-        <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+        <div className="bg-gradient-to-r from-[#162238] to-[#243447] border-b border-[#c5a572]/30 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group">
-                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+                </div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Chat Pro</h1>
-                <p className="text-sm text-gray-400">Assistant pour vos clients</p>
+                <h1 className="text-xl font-bold text-white">Votre Copilote</h1>
+                <p className="text-sm text-[#c5a572]">Discussion professionnelle</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -258,7 +259,7 @@ export function ProChatPage() {
             </div>
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-lg bg-[#0E2444]/50 border border-[#c5a572]/30 hover:bg-[#0E2444]/70 hover:border-[#c5a572]/50 transition-all duration-200"
+              className="p-2 rounded-lg bg-[#162238] border border-[#c5a572]/30 hover:bg-[#243447] hover:border-[#c5a572]/50 transition-all duration-200"
               title="Retour"
             >
               <ArrowLeft className="w-5 h-5 text-[#c5a572]" />
@@ -268,23 +269,30 @@ export function ProChatPage() {
 
         {/* Zone de sélection de client (placeholder, à améliorer) */}
         {clients.length > 0 && (
-          <div className="p-3 border-b border-[#2A3F6C]/30 bg-[#0E2444]/50">
-            <label htmlFor="client-select" className="text-xs text-gray-400 mr-2">Question pour le client :</label>
-            <select 
-              id="client-select"
-              value={selectedClientId || ''}
-              onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
-              disabled={isLoadingClients || isLoading}
-              className="px-3 py-1.5 bg-[#162238] border border-[#c5a572]/30 rounded-md text-sm text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] min-w-[200px]"
-            >
-              <option value="">Général (sans client spécifique)</option>
-              {clients.map(client => (
-                <option key={client.id} value={client.id}>
-                  {client.prenom_client} {client.nom_client}
-                </option>
-              ))}
-            </select>
-            {isLoadingClients && <span className='text-xs text-gray-500 ml-2'>Chargement clients...</span>}
+          <div className="p-3 border-b border-[#c5a572]/20 bg-[#162238]/80">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                <Users className="h-4 w-4 text-[#162238]" />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="client-select" className="text-xs text-[#c5a572] font-medium mb-1 block">Question pour le client :</label>
+                <select 
+                  id="client-select"
+                  value={selectedClientId || ''}
+                  onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
+                  disabled={isLoadingClients || isLoading}
+                  className="px-3 py-2 bg-[#243447] border border-[#c5a572]/30 rounded-md text-sm text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] min-w-[200px] w-full max-w-md"
+                >
+                  <option value="">Général (sans client spécifique)</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.prenom_client} {client.nom_client}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {isLoadingClients && <span className='text-xs text-[#c5a572]/70 ml-2'>Chargement clients...</span>}
+            </div>
           </div>
         )}
 
@@ -304,21 +312,22 @@ export function ProChatPage() {
                       className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
                         message.role === 'user'
                           ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
-                          : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
+                          : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/90 text-gray-100 border border-[#c5a572]/30 rounded-bl-none'
                       }`}
                     >
                       <div className="flex items-start space-x-2">
                         {message.role === 'assistant' && (
                           <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                            <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                            <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
+                            <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                              <Bot className="w-4 h-4 text-[#162238]" />
+                            </div>
                           </div>
                         )}
                         <div className='flex-grow'>
                           <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
                           {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
-                              <div className="mt-2 pt-2 border-t border-white/20">
-                              <p className="text-xs text-gray-300 mb-1">Sources principales :</p>
+                              <div className="mt-2 pt-2 border-t border-[#c5a572]/20">
+                              <p className="text-xs text-[#c5a572] mb-1 font-medium">Sources principales :</p>
                               <ul className="list-disc list-inside pl-1 space-y-0.5">
                                   {message.sources.slice(0, 3).map((source, idx) => (
                                   <li key={idx} className="text-xs text-gray-400 truncate" title={source}>{source}</li>
@@ -328,7 +337,7 @@ export function ProChatPage() {
                           )}
                         </div>
                         {message.role === 'user' && (
-                          <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                          <div className="flex-shrink-0 w-8 h-8 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
                             <UserIcon className="w-4 h-4 text-[#c5a572]" />
                           </div>
                         )}
@@ -340,13 +349,14 @@ export function ProChatPage() {
                   <div className="flex justify-start p-3">
                       <div className="flex items-center space-x-2">
                           <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                              <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                              <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
+                            <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                              <Bot className="w-4 h-4 text-[#162238]" />
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-1.5 bg-[#1a2332]/80 border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
-                              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                              <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                          <div className="flex items-center space-x-1.5 bg-[#1a2332]/90 border border-[#c5a572]/30 p-3 rounded-lg rounded-bl-none shadow-md">
+                              <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                              <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                              <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                           </div>
                       </div>
                   </div>
@@ -359,25 +369,39 @@ export function ProChatPage() {
             )}
             {/* Input (similaire à ChatPage) */}
             {showTranscripts && (
-            <form onSubmit={handleSend} className="p-3 md:p-4 border-t border-[#2A3F6C]/30 bg-[#0E2444]/60 sticky bottom-0">
-               <div className="flex gap-2 w-full items-end">
-                <button type="button" onClick={toggleRecording} className={`p-2 rounded-lg ${isRecording ? 'bg-red-600' : 'bg-[#c5a572]'}`} title={isRecording ? 'Arrêter' : 'Parler'}>
-                  {isRecording ? <MicOff className="text-white w-5 h-5" /> : <Mic className="text-[#162238] w-5 h-5" />}
+            <form onSubmit={handleSend} className="p-4 md:p-5 border-t border-[#c5a572]/30 bg-gradient-to-r from-[#162238] to-[#243447] sticky bottom-0 shadow-lg">
+               <div className="flex gap-3 w-full items-end">
+                <button 
+                  type="button" 
+                  onClick={toggleRecording} 
+                  className={`p-3 rounded-lg ${isRecording ? 'bg-red-600 text-white' : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238]'} shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center`} 
+                  title={isRecording ? 'Arrêter l\'enregistrement' : 'Parler à votre copilote'}
+                >
+                  {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </button>
-                <textarea /* Utilisation de textarea pour questions plus longues */
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à Francis..."}
-                  className="flex-1 px-4 py-3 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none"
-                  rows={2}
-                  disabled={isLoading}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend(e as any); // type assertion for event
-                    }
-                  }}
-                />
+                <div className="flex-1 relative">
+                  <textarea /* Utilisation de textarea pour questions plus longues */
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={selectedClientId ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` : "Posez votre question à votre copilote..."}
+                    className="w-full px-4 py-3 bg-[#243447] border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors resize-none shadow-inner"
+                    rows={2}
+                    disabled={isLoading}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend(e as any); // type assertion for event
+                      }
+                    }}
+                  />
+                  {isLoading && (
+                    <div className="absolute right-3 bottom-3 flex items-center space-x-1">
+                      <div className="w-1.5 h-1.5 bg-[#c5a572] rounded-full animate-pulse"></div>
+                      <div className="w-1.5 h-1.5 bg-[#c5a572] rounded-full animate-pulse delay-100"></div>
+                      <div className="w-1.5 h-1.5 bg-[#c5a572] rounded-full animate-pulse delay-200"></div>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
