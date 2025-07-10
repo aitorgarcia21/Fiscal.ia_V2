@@ -16,7 +16,7 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '
   const [input, setInput] = useState('');
   interface ChatMessage { role: 'user' | 'assistant'; content: string; error?: boolean }
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: "Bonjour ! Je suis Francis, votre assistant fiscal. Comment puis-je vous aider ?" }
+    { role: 'assistant', content: "Bonjour ! Je suis Francis, votre copilote. Comment puis-je vous aider aujourd'hui ?" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -55,7 +55,7 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '
   return (
     <div className={`flex flex-col h-[520px] w-full max-w-sm rounded-xl shadow-2xl border border-[#c5a572] overflow-hidden bg-[#1a2942] ${className}`}>
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#1a2942] to-[#234876] text-[#c5a572] border-b border-[#c5a572]">
-        <span className="font-semibold tracking-wide">Assistant Fiscal Francis</span>
+        <span className="font-semibold tracking-wide">Francis - Votre Copilote</span>
         <button onClick={onClose} className="text-[#c5a572] hover:text-red-400 transition-colors"><CloseIcon size={18} /></button>
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-[#0f1b33] text-white">
