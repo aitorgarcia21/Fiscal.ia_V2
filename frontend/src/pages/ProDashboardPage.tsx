@@ -484,7 +484,7 @@ export function ProDashboardPage() {
               <div className="w-6 h-6 bg-[#162238] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Bot className="w-3.5 h-3.5 text-[#c5a572]" />
               </div>
-              Consulter votre copilote
+              Poser une question
             </button>
           </div>
         </div>
