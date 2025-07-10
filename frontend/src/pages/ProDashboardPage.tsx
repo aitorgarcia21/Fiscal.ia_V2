@@ -241,7 +241,7 @@ export function ProDashboardPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
-                <p className="text-sm text-[#c5a572] font-medium">Le copilote financier</p>
+                <p className="text-sm text-[#c5a572] font-medium">Votre copilote</p>
               </div>
             </div>
           </div>
