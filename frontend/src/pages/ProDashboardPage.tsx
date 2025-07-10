@@ -476,17 +476,7 @@ export function ProDashboardPage() {
             </button>
           </div>
           
-          <div className="flex mt-4">
-            <button 
-              onClick={() => setShowFrancisChat(true)}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/30 transition-all border-2 border-[#e8cfa0]/50 font-medium flex items-center gap-2 group"
-            >
-              <div className="w-6 h-6 bg-[#162238] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Bot className="w-3.5 h-3.5 text-[#c5a572]" />
-              </div>
-              Poser une question
-            </button>
-          </div>
+          {/* Bouton "Poser une question" supprimé à la demande de l'utilisateur */}
         </div>
         
       </div>

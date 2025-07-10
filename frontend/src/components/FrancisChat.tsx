@@ -59,7 +59,7 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '
           <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
             <span className="text-[#162238] font-bold">C</span>
           </div>
-          <span className="font-semibold tracking-wide text-white">Votre Copilote</span>
+          <span className="font-semibold tracking-wide text-white">Votre copilote Francis</span>
         </div>
         <button onClick={onClose} className="text-[#c5a572] hover:text-red-500 transition-colors"><CloseIcon size={18} /></button>
       </div>
