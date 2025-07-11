@@ -670,7 +670,10 @@ export function ProDashboardPage() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
                 <div className="text-center py-8">
-                  <Bot className="w-12 h-12 text-[#c5a572] mx-auto mb-4" />
+                  <div className="relative inline-flex items-center justify-center w-12 h-12 mx-auto mb-4">
+                    <MessageSquareIcon className="w-12 h-12 text-[#c5a572]" />
+                    <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5" />
+                   </div>
                   <h4 className="text-white font-semibold mb-2">Bonjour ! Je suis Francis</h4>
                   <p className="text-gray-400 text-sm">
                     Posez-moi vos questions sur la fiscalité, vos clients, ou demandez-moi de l'aide pour optimiser vos stratégies.
