@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot } from 'lucide-react';
+import { MessageSquare, Euro } from 'lucide-react';
 
 interface FrancisFloatingButtonProps {
   onClick?: () => void;
@@ -15,9 +15,12 @@ export const FrancisFloatingButton: React.FC<FrancisFloatingButtonProps> = ({ on
     type="button"
     onClick={onClick}
     className={`fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-[#c5a572] text-[#162238] shadow-xl hover:bg-[#e8cfa0] transition-colors animate-bounce ${className}`}
-    title="Parler à Francis"
+    title="Francis, votre copilote"
   >
-    <Bot className="w-7 h-7" />
+    <div className="relative">
+      <MessageSquare className="w-7 h-7" />
+      <Euro className="w-4 h-4 absolute -bottom-0.5 -right-0.5 bg-[#c5a572] rounded-full p-0.5" />
+    </div>
   </button>
 );
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X as CloseIcon, Send, Bot } from 'lucide-react';
+import { X as CloseIcon, Send, MessageSquare, Euro } from 'lucide-react';
 import apiClient from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -56,10 +56,14 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '
     <div className={`flex flex-col h-[520px] w-full max-w-sm rounded-xl shadow-2xl border border-[#c5a572]/30 overflow-hidden bg-[#0f1419] ${className}`}>
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#162238] to-[#243447] border-b border-[#c5a572]/30">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
-            <Bot className="text-[#162238]" size={18} />
+          <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center relative">
+            <MessageSquare className="text-[#162238]" size={18} />
+            <Euro className="w-3.5 h-3.5 text-[#162238] absolute -bottom-0.5 -right-0.5 bg-[#e8cfa0] rounded-full p-0.5" />
           </div>
-          <span className="font-semibold tracking-wide text-white">Francis, votre copilote</span>
+          <div className="flex flex-col">
+            <span className="font-semibold tracking-wide text-white">Francis</span>
+            <span className="text-xs text-[#c5a572]">votre copilote</span>
+          </div>
         </div>
         <button onClick={onClose} className="text-[#c5a572] hover:text-red-500 transition-colors"><CloseIcon size={18} /></button>
       </div>
