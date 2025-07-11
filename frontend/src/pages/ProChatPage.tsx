@@ -245,13 +245,14 @@ export function ProChatPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center relative">
                   <MessageSquare className="h-6 w-6 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+                  <Euro className="w-4 h-4 text-[#162238] absolute -bottom-0.5 -right-0.5 bg-[#e8cfa0] rounded-full p-0.5" />
                 </div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Votre Copilote</h1>
-                <p className="text-sm text-[#c5a572]">Discussion professionnelle</p>
+                <h1 className="text-xl font-bold text-white">Francis</h1>
+                <p className="text-sm text-[#c5a572]">votre copilote</p>
               </div>
             </div>
             <div className="flex items-center gap-3">

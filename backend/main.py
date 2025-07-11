@@ -1068,41 +1068,99 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         
         return_url = request.get("returnUrl", "https://fiscal-ia.net/account")
         
+        print(f"DEBUG: Création portal session pour user_id={user_id}, return_url={return_url}")
+        
         # 1. Récupérer l'email de l'utilisateur pour retrouver / créer le Customer Stripe
         customer_email = None
-        if supabase:
+        
+        # Essayer d'abord via Supabase Auth
+        try:
+            user_data = supabase.auth.admin.get_user(user_id)
+            print(f"DEBUG: user_data récupéré via Supabase Auth: {user_data}")
+            
+            # Vérifier la structure de user_data pour extraire l'email
+            if hasattr(user_data, 'user') and hasattr(user_data.user, 'email'):
+                customer_email = user_data.user.email
+            elif hasattr(user_data, 'email'):
+                customer_email = user_data.email
+            else:
+                # Essayer d'accéder comme un dictionnaire
+                customer_email = user_data.get('email') or (user_data.get('user', {}) or {}).get('email')
+            
+            print(f"DEBUG: customer_email extrait de Supabase Auth: {customer_email}")
+        except Exception as e:
+            print(f"DEBUG: Erreur lors de la récupération des données utilisateur via Supabase Auth: {e}")
+        
+        # Si pas d'email via Auth, essayer via la table profils_utilisateurs
+        if not customer_email and supabase:
             try:
                 resp = supabase.table("profils_utilisateurs").select("email").eq("user_id", user_id).single().execute()
                 customer_email = (resp.data or {}).get("email")
-            except Exception:
-                pass
-
+                print(f"DEBUG: customer_email extrait de profils_utilisateurs: {customer_email}")
+            except Exception as e:
+                print(f"DEBUG: Erreur lors de la récupération de l'email depuis profils_utilisateurs: {e}")
+        
+        # Si toujours pas d'email, essayer via la table users
         if not customer_email:
-            raise HTTPException(status_code=400, detail="Email utilisateur introuvable pour créer la session portal")
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+                        result = cursor.fetchone()
+                        if result:
+                            customer_email = result[0]
+                            print(f"DEBUG: Email récupéré depuis la base SQL users: {customer_email}")
+            except Exception as db_error:
+                print(f"DEBUG: Erreur lors de la récupération de l'email depuis la base SQL: {db_error}")
+        
+        if not customer_email:
+            error_msg = "Email utilisateur introuvable pour créer la session portal"
+            print(f"DEBUG: {error_msg}")
+            raise HTTPException(status_code=400, detail=error_msg)
 
         # 2. Chercher un customer existant, sinon le créer
         customer_id = None
         try:
+            print(f"DEBUG: Recherche du customer Stripe avec email={customer_email}")
             search_res = stripe.Customer.list(email=customer_email, limit=1)
-            if search_res.data:
+            if search_res and hasattr(search_res, 'data') and search_res.data:
                 customer_id = search_res.data[0].id
-        except Exception:
-            pass
-
+                print(f"DEBUG: Customer Stripe existant trouvé: {customer_id}")
+        except Exception as stripe_error:
+            print(f"DEBUG: Erreur lors de la recherche du customer Stripe: {stripe_error}")
+        
         if not customer_id:
-            customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
-            customer_id = customer.id
+            try:
+                print(f"DEBUG: Création d'un nouveau customer Stripe avec email={customer_email}")
+                customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
+                customer_id = customer.id
+                print(f"DEBUG: Nouveau customer Stripe créé: {customer_id}")
+            except Exception as create_error:
+                print(f"DEBUG: Erreur lors de la création du customer Stripe: {create_error}")
+                raise HTTPException(status_code=400, detail=f"Erreur lors de la création du customer Stripe: {str(create_error)}")
 
         # 3. Créer la session du portail
-        portal_session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=return_url,
-        )
-        return {"url": portal_session.url}
+        try:
+            print(f"DEBUG: Création de la session portal pour customer_id={customer_id}")
+            portal_session = stripe.billing_portal.Session.create(
+                customer=customer_id,
+                return_url=return_url,
+            )
+            print(f"DEBUG: Session portal créée avec succès: {portal_session.url}")
+            return {"url": portal_session.url}
+        except Exception as portal_error:
+            print(f"DEBUG: Erreur lors de la création de la session portal: {portal_error}")
+            raise HTTPException(status_code=400, detail=f"Erreur lors de la création de la session portal: {str(portal_error)}")
         
     except Exception as e:
-        print(f"Erreur création portal session: {e}")
-        raise HTTPException(status_code=400, detail=f"Erreur lors de la création du portal: {str(e)}")
+        error_detail = str(e)
+        print(f"ERREUR: Création portal session: {error_detail}")
+        
+        # Si c'est une HTTPException, la propager directement
+        if isinstance(e, HTTPException):
+            raise e
+            
+        raise HTTPException(status_code=400, detail=f"Erreur lors de la création du portal: {error_detail}")
 
 @api_router.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
 async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depends(verify_token)):

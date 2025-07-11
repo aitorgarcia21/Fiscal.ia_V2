@@ -53,7 +53,7 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose, className = '
   if (!isProfessional) return null; // safety
 
   return (
-    <div className={`flex flex-col h-[520px] w-full max-w-sm rounded-xl shadow-2xl border border-[#c5a572]/30 overflow-hidden bg-[#0f1419] ${className}`}>
+    <div className={`flex flex-col h-[520px] w-full max-w-sm rounded-xl shadow-2xl border border-[#c5a572]/30 overflow-hidden bg-[#1a2332] ${className}`}>
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#162238] to-[#243447] border-b border-[#c5a572]/30">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center relative">
