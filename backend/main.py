@@ -1213,53 +1213,121 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         
         return_url = request.get("returnUrl", "https://fiscal-ia.net/account")
         
+        print(f"DEBUG: Création portal session pour user_id={user_id}, return_url={return_url}")
+        
         # 1. Récupérer l'email de l'utilisateur pour retrouver / créer le Customer Stripe
         customer_email = None
+        
+        # Méthode 1: Essayer via profils_utilisateurs
         if supabase:
             try:
-                print(f"🔍 Recherche du profil utilisateur avec user_id: {user_id}")
+                print(f"DEBUG: Recherche du profil utilisateur avec user_id: {user_id}")
                 resp = supabase.table("profils_utilisateurs").select("email").eq("user_id", user_id).single().execute()
-                print(f"📝 Réponse de Supabase: {resp}")
+                print(f"DEBUG: Réponse de Supabase profils_utilisateurs: {resp}")
                 customer_email = (resp.data or {}).get("email")
-                print(f"✉️ Email trouvé: {customer_email}")
+                print(f"DEBUG: Email trouvé dans profils_utilisateurs: {customer_email}")
             except Exception as e:
-                print(f"❌ Erreur lors de la récupération de l'email: {str(e)}")
-                # Essayer de récupérer l'utilisateur directement depuis auth.users
+                print(f"DEBUG: Erreur lors de la récupération de l'email depuis profils_utilisateurs: {str(e)}")
+        
+        # Méthode 2: Essayer via auth.admin.get_user
+        if not customer_email and supabase:
+            try:
+                print(f"DEBUG: Tentative de récupération via auth.admin.get_user({user_id})")
+                auth_user = supabase.auth.admin.get_user(user_id)
+                print(f"DEBUG: Utilisateur auth trouvé: {auth_user}")
+                
+                # Vérifier la structure de auth_user pour extraire l'email
+                if hasattr(auth_user, 'user') and hasattr(auth_user.user, 'email'):
+                    customer_email = auth_user.user.email
+                    print(f"DEBUG: Email récupéré depuis auth_user.user.email: {customer_email}")
+                elif hasattr(auth_user, 'email'):
+                    customer_email = auth_user.email
+                    print(f"DEBUG: Email récupéré depuis auth_user.email: {customer_email}")
+                else:
+                    # Essayer d'accéder comme un dictionnaire
+                    try:
+                        if isinstance(auth_user, dict):
+                            customer_email = auth_user.get('email') or (auth_user.get('user', {}) or {}).get('email')
+                            print(f"DEBUG: Email récupéré depuis auth_user dict: {customer_email}")
+                    except Exception as dict_err:
+                        print(f"DEBUG: Erreur lors de l'accès dict à auth_user: {dict_err}")
+            except Exception as auth_err:
+                print(f"DEBUG: Erreur lors de la récupération via auth.admin.get_user: {str(auth_err)}")
+                
+                # Méthode 3: Essayer via auth.admin.get_user_by_id (alternative)
                 try:
+                    print(f"DEBUG: Tentative alternative via auth.admin.get_user_by_id({user_id})")
                     auth_user = supabase.auth.admin.get_user_by_id(user_id)
-                    print(f"🔑 Utilisateur auth trouvé: {auth_user}")
+                    print(f"DEBUG: Utilisateur auth trouvé (méthode alternative): {auth_user}")
+                    
                     if hasattr(auth_user, 'user') and hasattr(auth_user.user, 'email'):
                         customer_email = auth_user.user.email
-                        print(f"📧 Email récupéré depuis auth.users: {customer_email}")
-                except Exception as auth_err:
-                    print(f"❌ Erreur lors de la récupération de l'utilisateur auth: {str(auth_err)}")
+                        print(f"DEBUG: Email récupéré depuis auth_user.user.email (méthode alternative): {customer_email}")
+                except Exception as alt_auth_err:
+                    print(f"DEBUG: Erreur lors de la récupération alternative via auth.admin: {str(alt_auth_err)}")
+
+        # Méthode 4: Essayer via la table users SQL
+        if not customer_email:
+            try:
+                print(f"DEBUG: Tentative de récupération via SQL users table pour user_id={user_id}")
+                with get_db_connection() as conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+                        result = cursor.fetchone()
+                        if result:
+                            customer_email = result[0]
+                            print(f"DEBUG: Email récupéré depuis la base SQL users: {customer_email}")
+            except Exception as db_error:
+                print(f"DEBUG: Erreur lors de la récupération de l'email depuis la base SQL: {db_error}")
 
         if not customer_email:
-            raise HTTPException(status_code=400, detail="Email utilisateur introuvable pour créer la session portal")
+            error_msg = "Email utilisateur introuvable pour créer la session portal"
+            print(f"DEBUG: {error_msg}")
+            raise HTTPException(status_code=400, detail=error_msg)
 
         # 2. Chercher un customer existant, sinon le créer
         customer_id = None
         try:
+            print(f"DEBUG: Recherche du customer Stripe avec email={customer_email}")
             search_res = stripe.Customer.list(email=customer_email, limit=1)
-            if search_res.data:
+            if search_res and hasattr(search_res, 'data') and search_res.data:
                 customer_id = search_res.data[0].id
-        except Exception:
-            pass
-
+                print(f"DEBUG: Customer Stripe existant trouvé: {customer_id}")
+        except Exception as stripe_error:
+            print(f"DEBUG: Erreur lors de la recherche du customer Stripe: {stripe_error}")
+        
         if not customer_id:
-            customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
-            customer_id = customer.id
+            try:
+                print(f"DEBUG: Création d'un nouveau customer Stripe avec email={customer_email}")
+                customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
+                customer_id = customer.id
+                print(f"DEBUG: Nouveau customer Stripe créé: {customer_id}")
+            except Exception as create_error:
+                print(f"DEBUG: Erreur lors de la création du customer Stripe: {create_error}")
+                raise HTTPException(status_code=400, detail=f"Erreur lors de la création du customer Stripe: {str(create_error)}")
 
         # 3. Créer la session du portail
-        portal_session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=return_url,
-        )
-        return {"url": portal_session.url}
+        try:
+            print(f"DEBUG: Création de la session portal pour customer_id={customer_id}")
+            portal_session = stripe.billing_portal.Session.create(
+                customer=customer_id,
+                return_url=return_url,
+            )
+            print(f"DEBUG: Session portal créée avec succès: {portal_session.url}")
+            return {"url": portal_session.url}
+        except Exception as portal_error:
+            print(f"DEBUG: Erreur lors de la création de la session portal: {portal_error}")
+            raise HTTPException(status_code=400, detail=f"Erreur lors de la création de la session portal: {str(portal_error)}")
         
     except Exception as e:
-        print(f"Erreur création portal session: {e}")
-        raise HTTPException(status_code=400, detail=f"Erreur lors de la création du portal: {str(e)}")
+        error_detail = str(e)
+        print(f"ERREUR: Création portal session: {error_detail}")
+        
+        # Si c'est une HTTPException, la propager directement
+        if isinstance(e, HTTPException):
+            raise e
+            
+        raise HTTPException(status_code=400, detail=f"Erreur lors de la création du portal: {error_detail}")
 
 @api_router.post("/truelayer/exchange", response_model=TrueLayerExchangeResponse)
 async def truelayer_exchange(request: TrueLayerCodeRequest, user_id: str = Depends(verify_token)):
