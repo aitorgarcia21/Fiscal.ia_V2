@@ -30,7 +30,7 @@ export function ProChatPage() {
   const [messages, setMessages] = useState<ProMessage[]>([
     {
       role: 'assistant',
-      content: "Bonjour ! Je suis Francis, votre copilote fiscal. Comment puis-je vous aider aujourd'hui ?"
+      content: "Bonjour ! Je suis Francis, votre copilote. Comment puis-je vous aider aujourd'hui ?"
     }
   ]);
   const [input, setInput] = useState('');
