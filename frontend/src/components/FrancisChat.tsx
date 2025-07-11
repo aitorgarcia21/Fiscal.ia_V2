@@ -69,7 +69,10 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
             <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2332] rounded-full p-0.5" />
           </div>
           <div className="flex items-center">
-            <h3 className="font-semibold text-white">Francis - Assistant IA</h3>
+            <div className="flex flex-col">
+              <h3 className="font-semibold text-white leading-none">Francis</h3>
+              <p className="text-xs text-gray-300 leading-none">Votre copilote</p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <button

@@ -377,7 +377,7 @@ export function ProChatPage() {
                 <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Chat Pro</h1>
+                <h1 className="text-xl font-bold text-white">Francis</h1>
                 <p className="text-sm text-gray-400">Votre copilote</p>
               </div>
             </div>
