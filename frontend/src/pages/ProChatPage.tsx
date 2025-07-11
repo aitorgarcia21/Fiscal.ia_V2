@@ -428,10 +428,10 @@ export function ProChatPage() {
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div 
-                    className={`max-w-[85%] p-3 sm:p-4 rounded-lg shadow-md ${
+                    className={`max-w-[80%] p-4 rounded-2xl shadow-lg ${
                       message.role === 'user'
-                        ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
-                        : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#1a2332]/80 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
+                        ? 'bg-[#c5a572]/90 text-[#162238] rounded-br-none'
+                        : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#162238]/90 text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
                     }`}
                   >
                     <div className="flex items-start space-x-2">
