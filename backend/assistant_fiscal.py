@@ -23,6 +23,9 @@ except ImportError:
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
 
+# PII sanitizer
+from pii_sanitizer import sanitize_text
+
 # Sources officielles autorisées UNIQUEMENT
 OFFICIAL_SOURCES = {
     'CGI': ['cgi_chunks', 'CGI'],
@@ -246,6 +249,8 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles ci-dessus) :
     
     return final_prompt
 
+from pii_sanitizer import sanitize_text
+
 def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> Tuple[str, List[str], float]:
     """Obtient une réponse de l'assistant fiscal basée EXCLUSIVEMENT sur les sources officielles."""
     all_sources_for_api = []
@@ -277,8 +282,19 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
             return ("Je ne trouve aucune information dans les sources officielles (CGI, BOFiP et fiscalité suisse) "
                    "pour répondre à votre question. Pourriez-vous reformuler ou être plus spécifique ?"), [], 0.3
         
-        # Création du prompt avec le contexte RAG officiel UNIQUEMENT
-        prompt = create_prompt(query, similar_cgi_articles, similar_bofip_chunks, swiss_result, conversation_history)
+                # --- Sanitize content before sending to LLM ---
+        sanitized_query = sanitize_text(query)
+        sanitized_history = None
+        if conversation_history:
+            sanitized_history = []
+            for m in conversation_history[-10:]:
+                sanitized_history.append({
+                    "role": m.get("role", "user"),
+                    "content": sanitize_text(m.get("content", ""))
+                })
+
+        # Création du prompt avec le contexte RAG officiel UNIQUEMENT (PII protégées)
+        prompt = create_prompt(sanitized_query, similar_cgi_articles, similar_bofip_chunks, swiss_result, sanitized_history)
         
         # Appel à Mistral avec le prompt complet
         messages = [ChatMessage(role="user", content=prompt)]
