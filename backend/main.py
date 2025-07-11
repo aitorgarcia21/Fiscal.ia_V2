@@ -158,7 +158,11 @@ else:
 
 from middleware.security import SecurityHeadersMiddleware, RateLimitMiddleware
 
-app = FastAPI(
+fastapi_kwargs = {}
+if APP_ENV != "development":
+    fastapi_kwargs.update({"docs_url": None, "redoc_url": None, "openapi_url": None})
+
+app = FastAPI(**fastapi_kwargs,
     title="Fiscal.ia API",
     description="API pour l'assistant fiscal intelligent",
     version="1.0.0"
