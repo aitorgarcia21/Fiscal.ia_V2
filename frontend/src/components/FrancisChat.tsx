@@ -8,7 +8,7 @@ interface FrancisChatProps {
 
 export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([
-    { text: "Bonjour ! Je suis Francis, votre assistant IA. Comment puis-je vous aider aujourd'hui ?", isUser: false }
+    { text: "Bonjour ! Je suis Francis, votre copilote. Comment puis-je vous aider aujourd'hui ?", isUser: false }
   ]);
   const [input, setInput] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);

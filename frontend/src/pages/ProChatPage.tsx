@@ -30,7 +30,7 @@ export function ProChatPage() {
   const [messages, setMessages] = useState<ProMessage[]>([
     {
       role: 'assistant',
-      content: "Bonjour ! Je suis Francis, votre assistant financier personnel ! Comment puis-je vous aider aujourd'hui ?"
+      content: "Bonjour ! Je suis Francis, votre copilote. Comment puis-je vous aider aujourd'hui ?"
     }
   ]);
   const [input, setInput] = useState('');
@@ -378,7 +378,7 @@ export function ProChatPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Chat Pro</h1>
-                <p className="text-sm text-gray-400">Assistant pour vos clients</p>
+                <p className="text-sm text-gray-400">Votre copilote</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
