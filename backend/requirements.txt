@@ -30,4 +30,5 @@ pydub
 elevenlabs
 pandas==2.2.2
 openpyxl==3.1.2
-reportlab==4.1.0 
+reportlab==4.1.0
+boto3==1.34.114 

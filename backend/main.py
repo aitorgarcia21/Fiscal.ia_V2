@@ -31,6 +31,13 @@ import tempfile
 import logging
 import base64
 # --- Import optionnel de Whisper ---
+
+# --- Optional AWS S3 helper ---
+try:
+    from aws_storage import upload_bytes, generate_storage_key  # type: ignore
+    HAS_S3 = True
+except Exception:
+    HAS_S3 = False
 import base64
 try:
     import whisper  # type: ignore
@@ -1034,12 +1041,27 @@ async def upload_document(
         if file.content_type not in allowed_types:
             raise HTTPException(status_code=400, detail="Type de fichier non supporté")
         content = await file.read()
+
+        if HAS_S3:
+            try:
+                key = generate_storage_key(user_id, file.filename)
+                key, presigned_url = upload_bytes(key, content, file.content_type)
+                return {
+                    "file_id": key.split("/")[-1],
+                    "filename": file.filename,
+                    "presigned_url": presigned_url,
+                    "message": "Document uploadé sur S3 (SSE) avec succès"
+                }
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Erreur S3: {str(e)}")
+
+        # Fallback Supabase storage
         file_id = str(uuid.uuid4())
         file_extension = file.filename.split('.')[-1]
         storage_path = f"documents/{user_id}/{file_id}.{file_extension}"
         if supabase:
             try:
-                response = supabase.storage.from_("documents").upload(storage_path, content)
+                supabase.storage.from_("documents").upload(storage_path, content)
                 public_url = supabase.storage.from_("documents").get_public_url(storage_path)
                 supabase.table("documents").insert({
                     "id": file_id,
@@ -1054,10 +1076,10 @@ async def upload_document(
                     "file_id": file_id,
                     "filename": file.filename,
                     "public_url": public_url,
-                    "message": "Document uploadé avec succès"
+                    "message": "Document uploadé avec succès (Supabase)"
                 }
             except Exception as e:
-                pass
+                raise HTTPException(status_code=500, detail=str(e))
         return {
             "file_id": file_id,
             "filename": file.filename,
