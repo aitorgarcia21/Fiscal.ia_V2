@@ -436,7 +436,7 @@ export function ProChatPage() {
                   >
                     <div className="flex items-start space-x-2">
                       {message.role === 'assistant' && (
-                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center">
                           <div className="relative">
                             <MessageSquare className="w-4 h-4 text-[#c5a572]" />
                             <Euro className="w-2.5 h-2.5 text-[#c5a572] absolute -bottom-1 -right-1" />
@@ -466,7 +466,7 @@ export function ProChatPage() {
                         )}
                       </div>
                       {message.role === 'user' && (
-                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center border-2 border-[#c5a572]">
+                        <div className="flex-shrink-0 w-7 h-7 bg-[#162238] rounded-full flex items-center justify-center">
                           <UserIcon className="w-4 h-4 text-[#c5a572]" />
                         </div>
                       )}
