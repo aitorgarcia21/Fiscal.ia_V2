@@ -969,7 +969,10 @@ export function Dashboard() {
               <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
               <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <h1 className="text-lg font-semibold text-white">Francis</h1>
+            <div>
+              <h1 className="text-lg font-semibold text-white">Francis</h1>
+              <p className="text-sm text-gray-400">Votre copilote</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -997,8 +1000,11 @@ export function Dashboard() {
               }`}
             >
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Chat Francis
+                <div className="relative">
+                  <MessageSquare className="w-4 h-4" />
+                  <Euro className="w-2.5 h-2.5 absolute -bottom-1 -right-1" />
+                </div>
+                Francis, votre copilote
               </div>
             </button>
             <button
@@ -1328,7 +1334,16 @@ export function Dashboard() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Compléter votre profil avec Francis</h3>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center">
+                    <MessageSquare className="w-5 h-5 text-[#c5a572]" />
+                    <Euro className="w-4 h-4 text-[#c5a572] -ml-1" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white">Francis</h3>
+                    <p className="text-sm text-gray-400">Votre copilote</p>
+                  </div>
+                </div>
                 <button
                   onClick={() => {
                     setShowDiscoveryExtraction(false);
@@ -1348,7 +1363,10 @@ export function Dashboard() {
                 {/* Mode vocal Francis uniquement */}
                 <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/20">
                   <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-[#c5a572]" />
+                    <div className="relative flex items-center">
+                      <MessageSquare className="w-5 h-5 text-[#c5a572]" />
+                      <Euro className="w-3.5 h-3.5 text-[#c5a572] absolute -bottom-1 -right-1" />
+                    </div>
                     Discussion vocale avec Francis
                   </h4>
                   <p className="text-gray-400 mb-4">
