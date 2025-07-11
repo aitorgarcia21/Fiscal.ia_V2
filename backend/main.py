@@ -141,6 +141,8 @@ if not MISTRAL_API_KEY:
 else:
     mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 
+from middleware.security import SecurityHeadersMiddleware, RateLimitMiddleware
+
 app = FastAPI(
     title="Fiscal.ia API",
     description="API pour l'assistant fiscal intelligent",
@@ -151,6 +153,10 @@ if APP_ENV == "production":
     allowed_cors_origins = ["https://fiscal-ia.net"]
 else:
     allowed_cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "https://fiscal-ia.net"]
+
+# Security middlewares
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware, max_requests=100, window_seconds=60)
 
 app.add_middleware(
     CORSMiddleware,
