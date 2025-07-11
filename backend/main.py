@@ -1,4 +1,12 @@
 from dotenv import load_dotenv
+
+# Set up logging with masking and rotation
+try:
+    from logging_config import setup_logging  # type: ignore
+    setup_logging()
+except Exception:
+    import logging
+    logging.basicConfig(level=logging.INFO)
 load_dotenv()
 from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect, Form, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
