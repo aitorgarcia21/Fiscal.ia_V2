@@ -23,13 +23,7 @@ export const FrancisFloatingButton: React.FC<FrancisFloatingButtonProps> = ({
       {isActive ? (
         <MessageSquare size={28} className="animate-pulse" />
       ) : (
-        <div className="relative">
-          <Bot size={28} />
-          <span className="absolute -top-1 -right-1 flex h-4 w-4">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
-          </span>
-        </div>
+        <Bot size={28} className="text-[#c5a572]" />
       )}
     </button>
   );
