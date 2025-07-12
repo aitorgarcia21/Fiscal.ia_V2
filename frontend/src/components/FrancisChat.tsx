@@ -64,9 +64,9 @@ export const FrancisChat: React.FC<FrancisChatProps> = ({ onClose }) => {
       {/* En-tête du chat */}
       <div className="bg-gradient-to-r from-[#1a2332] to-[#2a3a54] text-white p-4 flex justify-between items-center">
         <div className="flex items-center">
-          <div className="relative mr-2">
-            <MessageSquare className="h-6 w-6 text-[#c5a572]" />
-            <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2332] rounded-full p-0.5" />
+          <div className="relative inline-flex items-center justify-center group mr-2">
+            <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+            <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
           </div>
           <div className="flex items-center">
             <div className="flex flex-col">
