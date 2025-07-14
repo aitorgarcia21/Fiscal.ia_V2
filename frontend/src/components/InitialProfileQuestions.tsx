@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingUp, Mic, MicOff } from 'lucide-react';
+import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingUp, Mic, MicOff, X, CheckCircle } from 'lucide-react';
 import { VoiceRecorder } from './VoiceRecorder';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -555,21 +555,49 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
           <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-white mb-2 px-2">{currentQ.title}</h2>
           <p className="text-sm sm:text-base text-gray-400 px-2">Cette information nous aide à personnaliser vos conseils fiscaux</p>
           
-          {/* Bouton de dictée */}
-          <div className="mt-4 flex justify-center">
+          {/* Assistant Francis Vocal */}
+          <div className="mt-6">
             <button
               onClick={() => setShowVoiceInput(!showVoiceInput)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/20 border border-[#c5a572] rounded-lg text-[#c5a572] hover:bg-[#c5a572]/30 transition-colors"
+              className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                showVoiceInput 
+                  ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
+                  : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
+              }`}
             >
-              {showVoiceInput ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              <span className="text-sm">{showVoiceInput ? 'Masquer' : 'Dictée vocale'}</span>
+              {showVoiceInput ? (
+                <>
+                  <X className="w-4 h-4" />
+                  Fermer l'assistant vocal
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4" />
+                  Activer l'assistant vocal Francis
+                </>
+              )}
             </button>
           </div>
           
-          {/* Interface de dictée */}
+          {/* Interface de dictée améliorée */}
           {showVoiceInput && (
-            <div className="mt-4 p-4 bg-[#162238]/50 rounded-lg border border-[#c5a572]/30">
-              <div className="mt-6 flex justify-center">
+            <div className="mt-6 p-6 bg-gradient-to-br from-[#162238] to-[#1a2332] rounded-xl border border-[#c5a572]/20 shadow-xl">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 border border-[#c5a572]/30 mb-4">
+                  <div className="relative">
+                    <Mic className="w-7 h-7 text-[#c5a572]" />
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#c5a572] rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold text-white mb-2">
+                  Francis vous écoute
+                </h4>
+                <p className="text-sm text-gray-300 max-w-lg mx-auto">
+                  Parlez naturellement. Francis analysera votre réponse et sélectionnera automatiquement la meilleure option.
+                </p>
+              </div>
+              
+              <div className="mb-6">
                 <VoiceRecorder
                   onTranscriptionUpdate={handleTranscriptionUpdate}
                   onTranscriptionComplete={handleTranscriptionComplete}
@@ -577,27 +605,41 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
                 />
               </div>
 
-              {dictatedText && (
-                <div className="mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                  <p className="text-sm text-gray-400 mb-2">Texte dicté (en direct) :</p>
-                  <p className="text-white font-mono">{dictatedText}</p>
+              <div className="bg-[#0E2444] rounded-lg border border-[#c5a572]/20 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#c5a572] animate-pulse"></div>
+                      <span className="text-sm font-medium text-[#c5a572]">Assistant actif</span>
+                    </div>
+                    <div className="text-xs text-gray-400">• En écoute continue</div>
+                  </div>
                 </div>
-              )}
+                <div className="bg-[#1a2332] rounded-lg p-4 min-h-[100px] max-h-[200px] overflow-y-auto border border-[#c5a572]/20">
+                  <p className="text-sm whitespace-pre-wrap text-gray-200 leading-relaxed">
+                    {dictatedText || "Parlez maintenant pour que Francis commence à écouter..."}
+                  </p>
+                </div>
+              </div>
               
               {/* Indicateur d'analyse IA */}
               {isAIAnalyzing && (
-                <div className="mt-3 p-3 bg-[#1a2942] rounded border border-blue-500/50">
-                  <div className="flex items-center gap-2 text-blue-400">
-                    <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm">Francis analyse votre profil...</span>
+                <div className="mt-4 p-4 bg-[#1a2332] rounded-lg border border-[#c5a572]/20">
+                  <div className="flex items-center gap-3 text-[#c5a572]">
+                    <div className="w-4 h-4 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm font-medium">Francis analyse votre réponse...</span>
                   </div>
                 </div>
               )}
               
               {/* Résultat de l'analyse IA */}
               {aiAnalysisResult && !isAIAnalyzing && (
-                <div className="mt-3 p-3 bg-[#1a2942] rounded border border-green-500/50">
-                  <div className="text-sm text-green-400">{aiAnalysisResult}</div>
+                <div className="mt-4 p-4 bg-[#1a2332] rounded-lg border border-[#c5a572]/20">
+                  <div className="flex items-center gap-2 text-[#c5a572] mb-2">
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="text-sm font-medium">Francis a analysé votre réponse</span>
+                  </div>
+                  <div className="text-sm text-gray-200">{aiAnalysisResult}</div>
                 </div>
               )}
             </div>
