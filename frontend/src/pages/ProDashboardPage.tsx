@@ -25,10 +25,12 @@ interface SpeechRecognitionErrorEvent extends Event {
 }
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot } from 'lucide-react';
+import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
+import { Logo } from '../components/ui/Logo';
 
 
 const ITEMS_PER_PAGE = 8;
@@ -628,10 +630,10 @@ export function ProDashboardPage() {
             className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
             title="Parler à Francis"
           >
-            <div className="relative inline-flex items-center justify-center group">
-              <MessageSquareIcon className="w-8 h-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
-            </div>
+            <div className="relative inline-flex items-center justify-center">
+<MessageSquareIcon className="w-8 h-8 text-[#c5a572]" />
+<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
+</div>
           </button>
         )}
         {/* Bouton flottant Francis */}
@@ -642,9 +644,9 @@ export function ProDashboardPage() {
 {/* Header du chat */}
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
-<div className="relative inline-flex items-center justify-center group">
-<MessageSquareIcon className="w-8 h-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
+<div className="relative inline-flex items-center justify-center">
+<MessageSquareIcon className="w-8 h-8 text-[#c5a572]" />
+<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -665,9 +667,9 @@ aria-label="Fermer le chat"
               {messages.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="relative inline-flex items-center justify-center w-12 h-12 mx-auto mb-4">
-                    <MessageSquareIcon className="w-12 h-12 text-[#c5a572]" />
-                    <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5" />
-                   </div>
+<MessageSquareIcon className="w-12 h-12 text-[#c5a572]" />
+<Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2" />
+</div>
                   <h4 className="text-white font-semibold mb-2">Bonjour ! Je suis Francis</h4>
                   <p className="text-gray-400 text-sm">
                     Posez-moi vos questions sur la fiscalité, vos clients, ou demandez-moi de l'aide pour optimiser vos stratégies.
@@ -727,22 +729,14 @@ aria-label="Fermer le chat"
                     disabled={isLoadingMessage}
                   />
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // Gérer l'ouverture/fermeture de l'enregistrement vocal
-                        if (isRecording) {
-                          stopRecording();
-                        } else {
-                          startRecording();
-                        }
-                      }}
-                      className={`p-2 rounded-full transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-[#c5a572] hover:bg-[#c5a572]/10'}`}
-                      title={isRecording ? 'Arrêter l\'enregistrement' : 'Parler à Francis'}
-                      disabled={isLoadingMessage}
-                    >
-                      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-                    </button>
+                                      <UltraFluidVoiceRecorder
+                    onTranscriptionUpdate={(text) => setCurrentMessage(text)}
+                    onTranscriptionComplete={(text) => setCurrentMessage(text)}
+                    onError={(error) => console.error('Erreur reconnaissance vocale:', error)}
+                    streamingMode={true}
+                    realTimeMode={true}
+                    className="p-2"
+                  />
                   </div>
                 </div>
                 <button

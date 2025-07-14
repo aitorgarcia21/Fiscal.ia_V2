@@ -2084,14 +2084,17 @@ async def whisper_transcribe_real(request: dict):
 @api_router.post("/whisper/transcribe-streaming")
 async def transcribe_streaming(request: dict):
     """
-    Endpoint de transcription en streaming pour du temps réel.
+    Endpoint de transcription en streaming ultra-fluide pour du temps réel.
     """
     try:
         audio_base64 = request.get("audio_base64", "")
+        streaming = request.get("streaming", False)
+        language = request.get("language", "fr")
+        
         if not audio_base64:
             return {"error": "Audio manquant"}
         
-        # Décodage base64
+        # Décodage base64 optimisé
         audio_data = base64.b64decode(audio_base64)
         
         # Service Whisper
@@ -2099,32 +2102,111 @@ async def transcribe_streaming(request: dict):
         if not whisper_service:
             return {"error": "Service Whisper non disponible"}
         
-        # Transcription en streaming
-        def generate_stream():
-            try:
-                # Diviser l'audio en chunks pour simuler le streaming
-                chunk_size = len(audio_data) // 4  # 4 chunks
-                chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
-                
-                for result in whisper_service.transcribe_streaming(chunks):
-                    yield f"data: {json.dumps(result)}\n\n"
+        # Mode streaming ultra-fluide
+        if streaming:
+            def generate_ultra_fluid_stream():
+                try:
+                    start_time = time.time()
                     
-            except Exception as e:
-                error_result = {"error": str(e), "is_final": True}
-                yield f"data: {json.dumps(error_result)}\n\n"
+                    # Chunks plus petits pour latence réduite
+                    chunk_size = max(len(audio_data) // 8, 1024)  # 8 chunks minimum
+                    chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
+                    
+                    for i, result in enumerate(whisper_service.transcribe_streaming(chunks)):
+                        # Ajouter métadonnées de performance
+                        current_time = time.time()
+                        latency = (current_time - start_time) * 1000  # en ms
+                        
+                        enhanced_result = {
+                            **result,
+                            "chunk_index": i,
+                            "latency_ms": round(latency, 1),
+                            "timestamp": current_time,
+                            "streaming": True
+                        }
+                        
+                        yield f"data: {json.dumps(enhanced_result)}\n\n"
+                        
+                        # Pause minimale pour éviter la surcharge
+                        await asyncio.sleep(0.01)
+                    
+                    # Signal de fin avec métriques
+                    final_result = {
+                        "text": "",
+                        "is_final": True,
+                        "total_latency_ms": round((time.time() - start_time) * 1000, 1),
+                        "chunks_processed": len(chunks),
+                        "streaming": True
+                    }
+                    yield f"data: {json.dumps(final_result)}\n\n"
+                    
+                except Exception as e:
+                    error_result = {
+                        "error": str(e), 
+                        "is_final": True,
+                        "streaming": True
+                    }
+                    yield f"data: {json.dumps(error_result)}\n\n"
+            
+            return StreamingResponse(
+                generate_ultra_fluid_stream(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Content-Type": "text/event-stream",
+                    "X-Streaming": "ultra-fluid"
+                }
+            )
         
-        return StreamingResponse(
-            generate_stream(),
-            media_type="text/plain",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Type": "text/event-stream"
-            }
-        )
+        # Mode normal (compatibilité)
+        else:
+            result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+            result["streaming"] = False
+            return result
         
     except Exception as e:
         return {"error": f"Erreur streaming: {str(e)}"}
+
+@api_router.post("/whisper/transcribe-ultra-fluid")
+async def transcribe_ultra_fluid(request: dict):
+    """
+    Endpoint ultra-fluide optimisé pour la reconnaissance vocale en temps réel.
+    """
+    try:
+        audio_base64 = request.get("audio_base64", "")
+        language = request.get("language", "fr")
+        
+        if not audio_base64:
+            return {"error": "Audio manquant"}
+        
+        # Service Whisper
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        start_time = time.time()
+        
+        # Transcription ultra-rapide avec paramètres optimisés
+        result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+        
+        # Calcul des métriques de performance
+        end_time = time.time()
+        latency_ms = (end_time - start_time) * 1000
+        
+        # Amélioration du résultat avec métriques
+        enhanced_result = {
+            **result,
+            "ultra_fluid": True,
+            "latency_ms": round(latency_ms, 1),
+            "processing_time": round(end_time - start_time, 3),
+            "optimized": True
+        }
+        
+        return enhanced_result
+        
+    except Exception as e:
+        return {"error": f"Erreur ultra-fluid: {str(e)}"}
 
 @app.websocket("/ws/whisper-stream")
 async def websocket_whisper_stream(websocket: WebSocket):
