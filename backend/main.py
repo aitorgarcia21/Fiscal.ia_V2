@@ -2128,7 +2128,7 @@ async def transcribe_streaming(request: dict):
                         yield f"data: {json.dumps(enhanced_result)}\n\n"
                         
                         # Pause minimale pour éviter la surcharge
-                        await asyncio.sleep(0.01)
+                        time.sleep(0.01)
                     
                     # Signal de fin avec métriques
                     final_result = {
