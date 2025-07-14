@@ -503,8 +503,6 @@ export function ProChatPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            </div>
-
             {/* Zone de saisie */}
             <form onSubmit={handleSend} className="p-6 border-t border-[#c5a572]/20 bg-[#162238]/90">
               <div className="flex space-x-4">
@@ -635,4 +633,4 @@ export function ProChatPage() {
       </div>
     </div>
   );
-} 
+}
