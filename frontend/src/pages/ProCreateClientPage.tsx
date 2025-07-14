@@ -4,6 +4,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3, MessageSquare, Euro } from 'lucide-react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
+import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import { StepperVertical } from '../components/ui/StepperVertical';
 
 interface ProCreateClientFormState {
@@ -690,11 +691,13 @@ export function ProCreateClientPage() {
                       </div>
                       
                       <div className="mb-5">
-                        <VoiceRecorder
+                        <UltraFluidVoiceRecorder
                           onTranscriptionUpdate={handleVoiceTranscription}
                           onTranscriptionComplete={handleFinalTranscription}
                           onError={handleVoiceError}
                           className="mb-0"
+                          streamingMode={true}
+                          realTimeMode={true}
                         />
                       </div>
 

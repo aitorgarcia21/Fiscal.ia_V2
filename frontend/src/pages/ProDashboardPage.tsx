@@ -25,6 +25,7 @@ interface SpeechRecognitionErrorEvent extends Event {
 }
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot } from 'lucide-react';
+import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -728,22 +729,14 @@ aria-label="Fermer le chat"
                     disabled={isLoadingMessage}
                   />
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // Gérer l'ouverture/fermeture de l'enregistrement vocal
-                        if (isRecording) {
-                          stopRecording();
-                        } else {
-                          startRecording();
-                        }
-                      }}
-                      className={`p-2 rounded-full transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-[#c5a572] hover:bg-[#c5a572]/10'}`}
-                      title={isRecording ? 'Arrêter l\'enregistrement' : 'Parler à Francis'}
-                      disabled={isLoadingMessage}
-                    >
-                      {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-                    </button>
+                                      <UltraFluidVoiceRecorder
+                    onTranscriptionUpdate={(text) => setCurrentMessage(text)}
+                    onTranscriptionComplete={(text) => setCurrentMessage(text)}
+                    onError={(error) => console.error('Erreur reconnaissance vocale:', error)}
+                    streamingMode={true}
+                    realTimeMode={true}
+                    className="p-2"
+                  />
                   </div>
                 </div>
                 <button
