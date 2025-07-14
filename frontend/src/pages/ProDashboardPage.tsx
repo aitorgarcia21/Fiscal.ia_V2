@@ -376,12 +376,9 @@ export function ProDashboardPage() {
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Logo Francis (bulle + euro) */}
+            {/* Logo Francis */}
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center group">
-                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-              </div>
+              <Logo size="lg" />
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
                 <p className="text-sm text-[#c5a572] font-medium">Votre copilote</p>
@@ -630,10 +627,7 @@ export function ProDashboardPage() {
             className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
             title="Parler à Francis"
           >
-            <div className="relative inline-flex items-center justify-center">
-<MessageSquareIcon className="w-8 h-8 text-[#c5a572]" />
-<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
-</div>
+            <Logo size="md" />
           </button>
         )}
         {/* Bouton flottant Francis */}
@@ -644,10 +638,7 @@ export function ProDashboardPage() {
 {/* Header du chat */}
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
-<div className="relative inline-flex items-center justify-center">
-<MessageSquareIcon className="w-8 h-8 text-[#c5a572]" />
-<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
-</div>
+<Logo size="md" />
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
 <p className="text-xs text-[#c5a572]">Votre copilote</p>
@@ -666,10 +657,9 @@ aria-label="Fermer le chat"
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="relative inline-flex items-center justify-center w-12 h-12 mx-auto mb-4">
-<MessageSquareIcon className="w-12 h-12 text-[#c5a572]" />
-<Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2" />
-</div>
+                  <div className="flex justify-center mb-4">
+                    <Logo size="lg" />
+                  </div>
                   <h4 className="text-white font-semibold mb-2">Bonjour ! Je suis Francis</h4>
                   <p className="text-gray-400 text-sm">
                     Posez-moi vos questions sur la fiscalité, vos clients, ou demandez-moi de l'aide pour optimiser vos stratégies.
