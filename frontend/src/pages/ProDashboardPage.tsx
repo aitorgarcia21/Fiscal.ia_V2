@@ -29,6 +29,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
+import { Logo } from '../components/ui/Logo';
 
 
 const ITEMS_PER_PAGE = 8;
