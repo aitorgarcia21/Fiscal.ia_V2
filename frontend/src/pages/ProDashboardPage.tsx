@@ -644,9 +644,9 @@ export function ProDashboardPage() {
 {/* Header du chat */}
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
-<div className="relative inline-flex items-center justify-center">
-<MessageSquareIcon className="w-8 h-8 text-[#c5a572]" />
-<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
+<div className="relative inline-flex items-center justify-center group">
+<MessageSquareIcon className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+<Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -717,7 +717,7 @@ aria-label="Fermer le chat"
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Zone de saisie améliorée avec bouton vocal plus visible */}
+            {/* Zone de saisie simplifiée sans micro */}
             <div className="p-4 border-t border-[#c5a572]/20 bg-[#1a2332]">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -727,19 +727,9 @@ aria-label="Fermer le chat"
                     onChange={(e) => setCurrentMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Posez votre question à Francis..."
-                    className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors pr-12"
+                    className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors"
                     disabled={isLoadingMessage}
                   />
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                                      <UltraFluidVoiceRecorder
-                    onTranscriptionUpdate={(text) => setCurrentMessage(text)}
-                    onTranscriptionComplete={(text) => setCurrentMessage(text)}
-                    onError={(error) => console.error('Erreur reconnaissance vocale:', error)}
-                    streamingMode={true}
-                    realTimeMode={true}
-                    className="p-2"
-                  />
-                  </div>
                 </div>
                 <button
                   onClick={sendMessage}
@@ -751,14 +741,6 @@ aria-label="Fermer le chat"
                   <Send className="w-5 h-5" />
                 </button>
               </div>
-              {isRecording && (
-                <div className="mt-2 text-center">
-                  <div className="inline-flex items-center px-3 py-1 bg-red-500/10 rounded-full">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                    <span className="text-xs text-red-400">En écoute... Parlez maintenant</span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
