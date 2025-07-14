@@ -2208,6 +2208,81 @@ async def transcribe_ultra_fluid(request: dict):
     except Exception as e:
         return {"error": f"Erreur ultra-fluid: {str(e)}"}
 
+@api_router.post("/whisper/transcribe-ultra-max")
+async def transcribe_ultra_max(request: dict):
+    """
+    Endpoint ULTRA-MAXIMAL pour les performances extrêmes.
+    """
+    try:
+        audio_base64 = request.get("audio_base64", "")
+        language = request.get("language", "fr")
+        
+        if not audio_base64:
+            return {"error": "Audio manquant"}
+        
+        # Service Whisper ULTRA-MAX
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        start_time = time.time()
+        
+        # Transcription ULTRA-MAX avec métriques avancées
+        result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+        
+        # Calcul des métriques ULTRA-MAX
+        end_time = time.time()
+        latency_ms = (end_time - start_time) * 1000
+        
+        # Résultat ULTRA-MAX avec toutes les métriques
+        ultra_max_result = {
+            **result,
+            "ultra_max": True,
+            "latency_ms": round(latency_ms, 1),
+            "processing_time": round(end_time - start_time, 3),
+            "performance_level": "ULTRA-MAX",
+            "optimization_score": min(100, max(0, 100 - latency_ms / 10)),  # Score basé sur la latence
+            "cache_efficiency": result.get("cache_hit", False),
+            "success_rate": result.get("performance_metrics", {}).get("success_rate", 0.0),
+            "avg_latency": result.get("performance_metrics", {}).get("avg_latency", 0.0),
+            "total_transcriptions": result.get("performance_metrics", {}).get("total_transcriptions", 0)
+        }
+        
+        # Log des performances ULTRA-MAX
+        logger.info(f"🚀 ULTRA-MAX - Latence: {latency_ms:.1f}ms, Score: {ultra_max_result['optimization_score']:.1f}%")
+        
+        return ultra_max_result
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur ULTRA-MAX: {e}")
+        return {"error": f"Erreur ULTRA-MAX: {str(e)}"}
+
+@api_router.get("/whisper/performance-metrics")
+async def get_performance_metrics():
+    """
+    Récupère les métriques de performance ULTRA-MAX.
+    """
+    try:
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        metrics = whisper_service._performance_metrics
+        health = whisper_service.check_health()
+        
+        return {
+            "ultra_max_metrics": {
+                **metrics,
+                "health_status": health.get("status"),
+                "model_loaded": health.get("model_loaded"),
+                "cache_size": health.get("cache_size"),
+                "performance_level": "ULTRA-MAX"
+            }
+        }
+        
+    except Exception as e:
+        return {"error": f"Erreur métriques: {str(e)}"}
+
 @app.websocket("/ws/whisper-stream")
 async def websocket_whisper_stream(websocket: WebSocket):
     """

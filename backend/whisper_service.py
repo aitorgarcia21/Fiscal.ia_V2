@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class WhisperTranscriptionService:
     def __init__(self, model_size: str = "base"):
         """
-        Initialise le service de transcription Whisper avec optimisations.
+        Initialise le service de transcription Whisper avec optimisations ULTRA-MAX.
         
         Args:
             model_size: Taille du modèle ("tiny", "base", "small", "medium", "large")
@@ -27,12 +27,36 @@ class WhisperTranscriptionService:
         self._last_health_check = 0
         self._health_status = "unknown"
         
-        # Optimisations pour Railway
+        # Optimisations ULTRA-MAX pour Railway
         self._model_cache = {}
         self._transcription_cache = {}
+        self._streaming_buffer = {}  # Buffer pour streaming
+        self._last_transcription = ""  # Cache du dernier résultat
+        self._performance_metrics = {
+            "total_transcriptions": 0,
+            "avg_latency": 0.0,
+            "success_rate": 0.0
+        }
+        
+        # Pré-chargement intelligent
+        self._preload_model()
+    
+    def _preload_model(self):
+        """Pré-chargement intelligent du modèle en arrière-plan."""
+        import threading
+        def load_in_background():
+            try:
+                self._load_model()
+                logger.info("✅ Modèle pré-chargé avec succès")
+            except Exception as e:
+                logger.warning(f"⚠️ Pré-chargement échoué: {e}")
+        
+        # Chargement en arrière-plan pour ne pas bloquer
+        thread = threading.Thread(target=load_in_background, daemon=True)
+        thread.start()
     
     def _load_model(self):
-        """Charge le modèle Whisper avec optimisations."""
+        """Charge le modèle Whisper avec optimisations ULTRA-MAX."""
         if self._is_loading:
             logger.info("Modèle déjà en cours de chargement...")
             return
@@ -40,25 +64,36 @@ class WhisperTranscriptionService:
         try:
             self._is_loading = True
             self._load_start_time = time.time()
-            logger.info(f"Chargement du modèle Whisper {self.model_size}...")
+            logger.info(f"🚀 Chargement ULTRA-MAX du modèle Whisper {self.model_size}...")
             
-            # Optimisations ultra-rapides pour Railway
+            # Optimisations ULTRA-MAXIMALES pour Railway
             self.model = WhisperModel(
                 self.model_size,
-                device="cpu",  # Utilise CPU pour Railway
-                compute_type="int8",  # Optimisation pour la mémoire
+                device="cpu",  # CPU optimisé
+                compute_type="int8",  # Quantification maximale
                 download_root="/tmp/whisper_models",  # Cache local
-                local_files_only=False,  # Permet le téléchargement si nécessaire
-                cpu_threads=8,  # Plus de threads CPU
-                num_workers=1  # Réduit la charge mémoire
+                local_files_only=False,  # Téléchargement si nécessaire
+                cpu_threads=12,  # Plus de threads CPU
+                num_workers=2,  # Workers optimisés
+                beam_size=1,  # Beam search rapide
+                best_of=1,  # Optimisation vitesse
+                temperature=0.0,  # Déterministe
+                compression_ratio_threshold=1.0,  # Permissif
+                no_speech_threshold=0.1,  # Permissif
+                condition_on_previous_text=False,  # Plus rapide
+                initial_prompt="Français",  # Prompt court
+                word_timestamps=False,  # Pas de timestamps
+                without_timestamps=True,  # Optimisation
+                max_initial_timestamp=0.5,  # Plus rapide
+                suppress_tokens=[-1]  # Supprime tokens spéciaux
             )
             
             load_time = time.time() - self._load_start_time
-            logger.info(f"Modèle Whisper {self.model_size} chargé avec succès en {load_time:.2f}s")
-            self._health_status = "healthy"
+            logger.info(f"✅ Modèle Whisper {self.model_size} chargé ULTRA-MAX en {load_time:.2f}s")
+            self._health_status = "ultra_healthy"
             
         except Exception as e:
-            logger.error(f"Erreur lors du chargement du modèle Whisper: {e}")
+            logger.error(f"❌ Erreur lors du chargement ULTRA-MAX: {e}")
             self._health_status = "error"
             raise
         finally:
@@ -261,7 +296,7 @@ class WhisperTranscriptionService:
     
     def transcribe_base64_audio(self, audio_base64: str, audio_format: str = "wav") -> Dict[str, Any]:
         """
-        Transcrit un audio encodé en base64 avec optimisations.
+        Transcrit un audio encodé en base64 avec optimisations ULTRA-MAX.
         
         Args:
             audio_base64: Audio encodé en base64
@@ -271,31 +306,59 @@ class WhisperTranscriptionService:
             Dict avec le texte transcrit et les métadonnées
         """
         try:
-            # Décodage base64
+            start_time = time.time()
+            
+            # Décodage base64 optimisé
             audio_data = base64.b64decode(audio_base64)
             
-            # Vérifier le cache
+            # Vérification du cache ULTRA-MAX
             cache_key = self._get_cache_key(audio_data)
             if cache_key in self._transcription_cache:
-                logger.info("Utilisation du cache pour la transcription base64")
-                return self._transcription_cache[cache_key]
+                logger.info("🚀 Cache ULTRA-MAX hit pour la transcription base64")
+                cached_result = self._transcription_cache[cache_key]
+                cached_result["cached"] = True
+                cached_result["cache_hit"] = True
+                cached_result["ultra_max"] = True
+                return cached_result
             
-            # Création d'un fichier temporaire
+            # Création d'un fichier temporaire optimisé
             with tempfile.NamedTemporaryFile(suffix=f".{audio_format}", delete=False) as temp_file:
                 temp_file.write(audio_data)
                 temp_file_path = temp_file.name
             
             try:
-                # Transcription
+                # Transcription ULTRA-MAX
                 result = self._transcribe_audio_file_internal(temp_file_path)
                 
-                # Mettre en cache si succès
+                # Mise à jour des métriques de performance
+                processing_time = time.time() - start_time
+                self._performance_metrics["total_transcriptions"] += 1
+                self._performance_metrics["avg_latency"] = (
+                    (self._performance_metrics["avg_latency"] * (self._performance_metrics["total_transcriptions"] - 1) + processing_time) 
+                    / self._performance_metrics["total_transcriptions"]
+                )
+                
+                if result.get("text"):
+                    self._performance_metrics["success_rate"] = (
+                        (self._performance_metrics["success_rate"] * (self._performance_metrics["total_transcriptions"] - 1) + 1) 
+                        / self._performance_metrics["total_transcriptions"]
+                    )
+                
+                # Mettre en cache si succès ULTRA-MAX
                 if not result.get("error") and result.get("text"):
                     self._transcription_cache[cache_key] = result
-                    # Limiter la taille du cache
-                    if len(self._transcription_cache) > 50:
+                    # Limiter la taille du cache ULTRA-MAX
+                    if len(self._transcription_cache) > 100:  # Cache plus grand
                         oldest_key = next(iter(self._transcription_cache))
                         del self._transcription_cache[oldest_key]
+                
+                # Ajouter métriques ULTRA-MAX
+                result.update({
+                    "ultra_max": True,
+                    "processing_time": round(processing_time, 3),
+                    "cache_hit": False,
+                    "performance_metrics": self._performance_metrics
+                })
                 
                 return result
             finally:
@@ -304,7 +367,7 @@ class WhisperTranscriptionService:
                     os.unlink(temp_file_path)
                     
         except Exception as e:
-            logger.error(f"Erreur lors du traitement base64: {e}")
+            logger.error(f"❌ Erreur ULTRA-MAX lors du traitement base64: {e}")
             return {
                 "text": "",
                 "segments": [],
@@ -312,7 +375,9 @@ class WhisperTranscriptionService:
                 "language_probability": 0.0,
                 "duration": 0.0,
                 "transcription_time": 0.0,
-                "error": str(e)
+                "error": str(e),
+                "ultra_max": True,
+                "processing_time": 0.0
             }
     
     def get_model_info(self) -> Dict[str, Any]:
