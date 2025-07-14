@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3, MessageSquare, Euro } from 'lucide-react';
+import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3, MessageSquare, Euro, X } from 'lucide-react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import { StepperVertical } from '../components/ui/StepperVertical';
@@ -628,6 +628,16 @@ export function ProCreateClientPage() {
               <h2 className="text-2xl font-bold text-white mb-2">Nouveau Profil Client</h2>
               <p className="text-gray-400">Créez un nouveau profil client avec Francis</p>
             </div>
+            <div className="flex items-center gap-3">
+              <div className="relative inline-flex items-center justify-center w-10 h-10 bg-[#0E2444] rounded-full border-2 border-[#c5a572]">
+                <MessageSquare className="w-5 h-5 text-[#c5a572]" />
+                <Euro className="w-3 h-3 text-[#c5a572] absolute -bottom-1 -right-1" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-[#c5a572]">Francis Assistant</p>
+                <p className="text-xs text-gray-400">Prêt à vous aider</p>
+              </div>
+            </div>
           </div>
 
           <div className="lg:flex gap-8">
@@ -635,17 +645,17 @@ export function ProCreateClientPage() {
             <div className="flex-1">
 
             {/* Section de dictée vocale améliorée */}
-            <div className="mb-8 rounded-xl overflow-hidden border border-[#2a3f6c] shadow-xl">
-              <div className="bg-gradient-to-r from-[#0f172a] to-[#1a2235] p-5 border-b border-[#2a3f6c]">
+            <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
+              <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] p-6 border-b border-[#c5a572]/20">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="p-2.5 bg-[#c5a572]/15 rounded-xl">
-                      <Mic className="w-5 h-5 text-[#c5a572]" />
+                    <div className="p-3 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 rounded-xl border border-[#c5a572]/30">
+                      <Mic className="w-6 h-6 text-[#c5a572]" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">Saisie vocale</h3>
-                      <p className="text-sm text-gray-300 mt-0.5">
-                        Parlez pour remplir automatiquement les champs
+                      <h3 className="text-xl font-semibold text-white">Assistant Francis</h3>
+                      <p className="text-sm text-gray-300 mt-1">
+                        Parlez pour que Francis remplisse automatiquement le profil client
                       </p>
                     </div>
                   </div>
@@ -653,21 +663,22 @@ export function ProCreateClientPage() {
                   <button
                     type="button"
                     onClick={() => setShowVoiceInput(!showVoiceInput)}
-                    className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
                       showVoiceInput 
-                        ? 'bg-[#c5a572] text-[#0f172a] hover:bg-[#d4b47d] shadow-md' 
-                        : 'bg-[#1a2235] text-white hover:bg-[#2a3f6c] border border-[#2a3f6c] hover:border-[#3a4f7c]'
+                        ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
+                        : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
                     }`}
                   >
                     {showVoiceInput ? (
                       <>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                        Fermer
+                        <X className="w-4 h-4" />
+                        Fermer l'assistant
                       </>
                     ) : (
-                      <>Commencer l'enregistrement</>
+                      <>
+                        <Mic className="w-4 h-4" />
+                        Activer l'assistant vocal
+                      </>
                     )}
                   </button>
                 </div>
@@ -676,21 +687,24 @@ export function ProCreateClientPage() {
 
               {showVoiceInput && (
                 <>
-                  <div className="bg-[#0f172a] p-5 border-t border-[#2a3f6c]">
+                  <div className="bg-gradient-to-br from-[#0E2444] to-[#162238] p-6 border-t border-[#c5a572]/20">
                     <div className="max-w-5xl mx-auto">
-                      <div className="mb-5 text-center">
-                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#c5a572]/10 mb-3">
-                          <Mic className="w-6 h-6 text-[#c5a572]" />
+                      <div className="mb-6 text-center">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 border border-[#c5a572]/30 mb-4">
+                          <div className="relative">
+                            <Mic className="w-7 h-7 text-[#c5a572]" />
+                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#c5a572] rounded-full animate-pulse"></div>
+                          </div>
                         </div>
-                        <h4 className="text-base font-medium text-white mb-1">
-                          Parlez maintenant
+                        <h4 className="text-lg font-semibold text-white mb-2">
+                          Francis vous écoute
                         </h4>
-                        <p className="text-sm text-gray-300 max-w-md mx-auto">
-                           Enregistrez l'entretien avec le client et Francis se chargera de créer son profil et de l'analyser.
+                        <p className="text-sm text-gray-300 max-w-lg mx-auto">
+                          Parlez naturellement de votre client. Francis analysera votre discours et remplira automatiquement le profil.
                         </p>
                       </div>
                       
-                      <div className="mb-5">
+                      <div className="mb-6">
                         <UltraFluidVoiceRecorder
                           onTranscriptionUpdate={handleVoiceTranscription}
                           onTranscriptionComplete={handleFinalTranscription}
@@ -701,22 +715,25 @@ export function ProCreateClientPage() {
                         />
                       </div>
 
-                      <div className="bg-[#131d32] rounded-xl border border-[#2a3f6c] p-5">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-[#c5a572] animate-pulse"></div>
-                            <span className="text-sm font-medium text-gray-300">En écoute active</span>
+                      <div className="bg-[#1a2332] rounded-xl border border-[#c5a572]/20 p-5 shadow-lg">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-[#c5a572] animate-pulse"></div>
+                              <span className="text-sm font-medium text-[#c5a572]">Assistant actif</span>
+                            </div>
+                            <div className="text-xs text-gray-400">• En écoute continue</div>
                           </div>
                           <button
                             type="button"
                             onClick={() => setTranscript('')}
-                            className="text-xs text-gray-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-white/5"
+                            className="text-xs text-gray-400 hover:text-[#c5a572] transition-colors px-3 py-1 rounded-lg hover:bg-[#c5a572]/10 border border-[#c5a572]/20"
                           >
-                            Effacer la transcription
+                            Effacer
                           </button>
                         </div>
-                        <div className="bg-[#0f172a] rounded-lg p-4 min-h-[100px] max-h-[200px] overflow-y-auto border border-[#2a3f6c]">
-                          <p className="text-sm whitespace-pre-wrap">{transcript}</p>
+                        <div className="bg-[#0E2444] rounded-lg p-4 min-h-[120px] max-h-[250px] overflow-y-auto border border-[#c5a572]/20">
+                          <p className="text-sm whitespace-pre-wrap text-gray-200 leading-relaxed">{transcript || "Parlez maintenant pour que Francis commence à écouter..."}</p>
                         </div>
                       </div>
                     </div>
