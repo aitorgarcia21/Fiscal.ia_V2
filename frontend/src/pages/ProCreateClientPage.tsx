@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3 } from 'lucide-react';
+import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3, MessageSquare, Euro } from 'lucide-react';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { StepperVertical } from '../components/ui/StepperVertical';
 
@@ -589,25 +589,49 @@ export function ProCreateClientPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] text-gray-100 font-sans antialiased scroll-smooth">
-      <header className="bg-[#0D1F3A]/90 backdrop-blur-md border-b border-[#2A3F6C]/30 shadow-lg sticky top-0 z-40">
-        <div className="h-20 max-w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
-            <ChevronLeft className="w-6 h-6" />
-            Retour
-          </button>
-          <h1 className="text-xl sm:text-2xl font-semibold text-white">Nouveau Profil Client</h1>
-          <div className="w-20">{/* Placeholder */}</div>
-        </div>
-      </header>
-
-      <main className="p-4 sm:p-6 lg:p-8">
-        <div className="max-w-6xl mx-auto lg:flex gap-8">
-          <StepperVertical steps={steps} />
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-8">
-              {/* Bloc supprimé : doublon retour / titre */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
+      {/* Header cohérent avec le dashboard pro */}
+      <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Logo Francis (bulle + euro) */}
+            <div className="flex items-center gap-3">
+              <div className="relative inline-flex items-center justify-center">
+                <MessageSquare className="h-10 w-10 text-[#c5a572]" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Francis</h1>
+                <p className="text-sm text-[#c5a572] font-medium">Votre copilote</p>
+              </div>
             </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-lg bg-[#1a2332] border border-[#c5a572]/30 hover:bg-[#223c63] transition-colors"
+              title="Retour"
+            >
+              <ChevronLeft className="w-5 h-5 text-[#c5a572]" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Contenu principal cohérent avec le dashboard pro */}
+      <div className="flex-1 p-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Nouveau Profil Client</h2>
+              <p className="text-gray-400">Créez un nouveau profil client avec Francis</p>
+            </div>
+          </div>
+
+          <div className="lg:flex gap-8">
+            <StepperVertical steps={steps} />
+            <div className="flex-1">
 
             {/* Section de dictée vocale améliorée */}
             <div className="mb-8 rounded-xl overflow-hidden border border-[#2a3f6c] shadow-xl">
@@ -855,9 +879,10 @@ export function ProCreateClientPage() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
