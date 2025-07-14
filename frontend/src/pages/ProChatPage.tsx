@@ -374,10 +374,10 @@ export function ProChatPage() {
         <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center group">
-                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1.5 -right-1.5 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-              </div>
+              <div className="relative inline-flex items-center justify-center">
+<MessageSquare className="h-10 w-10 text-[#c5a572]" />
+<Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
+</div>
               <div>
                 <h1 className="text-xl font-bold text-white">Francis</h1>
                 <p className="text-sm text-gray-400">Votre copilote</p>
@@ -439,11 +439,11 @@ export function ProChatPage() {
                     <div className="flex items-start space-x-2">
                       {message.role === 'assistant' && (
                         <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center">
-                          <div className="relative">
-                            <MessageSquare className="w-5 h-5 text-[#c5a572]" />
-                            <Euro className="w-3 h-3 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                          </div>
-                        </div>
+<div className="relative">
+<MessageSquare className="w-5 h-5 text-[#c5a572]" />
+<Euro className="w-3 h-3 text-[#c5a572] absolute -bottom-1 -right-1" />
+</div>
+</div>
                       )}
                       <div>
                         <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
@@ -480,9 +480,9 @@ export function ProChatPage() {
                 <div className="flex justify-start p-3">
                     <div className="flex items-center space-x-2">
                         <div className="flex-shrink-0 relative inline-flex items-center justify-center">
-                            <MessageSquare className="w-7 h-7 text-[#c5a572]" />
-                            <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-                        </div>
+<MessageSquare className="w-7 h-7 text-[#c5a572]" />
+<Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1" />
+</div>
                         <div className="flex items-center space-x-1.5 bg-[#162238] border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
                             <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                             <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
