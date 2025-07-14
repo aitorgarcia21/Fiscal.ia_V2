@@ -51,14 +51,46 @@ export function ProChatPage() {
 
   const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
 
-  // Charger la liste des clients du professionnel au montage
+  // Fonction pour nettoyer le cache
+  const clearCache = () => {
+    localStorage.removeItem('pro_clients_cache');
+    localStorage.removeItem('pro_clients_cache_timestamp');
+    // Nettoyer tous les caches de profils clients
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('client_profile_')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
+  // Charger la liste des clients du professionnel au montage avec cache et optimisations
   useEffect(() => {
     const fetchClients = async () => {
       if (isAuthenticated && isProfessional) {
         setIsLoadingClients(true);
         try {
+          // Vérifier le cache local d'abord
+          const cachedClients = localStorage.getItem('pro_clients_cache');
+          const cacheTimestamp = localStorage.getItem('pro_clients_cache_timestamp');
+          
+          // Utiliser le cache si il a moins de 5 minutes
+          if (cachedClients && cacheTimestamp) {
+            const cacheAge = Date.now() - parseInt(cacheTimestamp);
+            if (cacheAge < 5 * 60 * 1000) { // 5 minutes
+              setClients(JSON.parse(cachedClients));
+              setIsLoadingClients(false);
+              return;
+            }
+          }
+          
           const response = await apiClient<ClientProfile[]>('/api/pro/clients/');
-          setClients(response || []);
+          const clientsData = response || [];
+          
+          // Mettre en cache les données
+          localStorage.setItem('pro_clients_cache', JSON.stringify(clientsData));
+          localStorage.setItem('pro_clients_cache_timestamp', Date.now().toString());
+          
+          setClients(clientsData);
         } catch (err) {
           console.error("Erreur chargement des clients pour le chat pro:", err);
           setClients([]);
@@ -69,13 +101,32 @@ export function ProChatPage() {
     fetchClients();
   }, [isAuthenticated, isProfessional]);
 
-  // Charger le profil complet dès qu'un client est sélectionné
+  // Charger le profil complet dès qu'un client est sélectionné avec cache
   useEffect(() => {
     const fetchClientProfile = async () => {
       if (selectedClientId) {
         setIsLoadingClientProfile(true);
         try {
+          // Vérifier le cache local d'abord
+          const cachedProfile = localStorage.getItem(`client_profile_${selectedClientId}`);
+          const cacheTimestamp = localStorage.getItem(`client_profile_timestamp_${selectedClientId}`);
+          
+          // Utiliser le cache si il a moins de 2 minutes
+          if (cachedProfile && cacheTimestamp) {
+            const cacheAge = Date.now() - parseInt(cacheTimestamp);
+            if (cacheAge < 2 * 60 * 1000) { // 2 minutes
+              setSelectedClientProfile(JSON.parse(cachedProfile));
+              setIsLoadingClientProfile(false);
+              return;
+            }
+          }
+          
           const profile = await apiClient<ClientProfile>(`/api/pro/clients/${selectedClientId}`, { method: 'GET' });
+          
+          // Mettre en cache les données
+          localStorage.setItem(`client_profile_${selectedClientId}`, JSON.stringify(profile));
+          localStorage.setItem(`client_profile_timestamp_${selectedClientId}`, Date.now().toString());
+          
           setSelectedClientProfile(profile);
         } catch (err) {
           console.error('Erreur chargement du profil client:', err);
@@ -94,7 +145,14 @@ export function ProChatPage() {
     if (!input.trim()) return;
 
     const userMessage: ProMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    
+    // Optimisation: limiter le nombre de messages pour éviter les problèmes de mémoire
+    setMessages(prev => {
+      const newMessages = [...prev, userMessage];
+      // Garder seulement les 50 derniers messages
+      return newMessages.slice(-50);
+    });
+    
     const currentInput = input;
     setInput('');
     setIsLoading(true);
@@ -143,7 +201,12 @@ export function ProChatPage() {
         sources: responseData.sources || []
       };
       
-      setMessages(prev => [...prev, assistantMessage]);
+      // Optimisation: limiter le nombre de messages pour éviter les problèmes de mémoire
+      setMessages(prev => {
+        const newMessages = [...prev, assistantMessage];
+        // Garder seulement les 50 derniers messages
+        return newMessages.slice(-50);
+      });
       
       // Lire la réponse avec la synthèse vocale si en mode appel
       if (isCallActive && assistantMessage.content) {
@@ -158,21 +221,34 @@ export function ProChatPage() {
     } catch (error: any) {
       console.error('Erreur lors de l_envoi du message (ProChatPage):', error);
       const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite. Veuillez réessayer.";
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: errorMessage,
-        error: true 
-      }]);
+      // Optimisation: limiter le nombre de messages pour éviter les problèmes de mémoire
+      setMessages(prev => {
+        const newMessages = [...prev, { 
+          role: 'assistant' as const, 
+          content: errorMessage,
+          error: true 
+        }];
+        // Garder seulement les 50 derniers messages
+        return newMessages.slice(-50);
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Optimisation du scroll automatique avec debouncing
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+    
+    // Debouncing pour éviter les scrolls trop fréquents
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, [messages]);
 
-  // Initialiser la reconnaissance vocale
+  // Initialiser la reconnaissance vocale avec optimisations de performance
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -183,14 +259,17 @@ export function ProChatPage() {
         recognitionRef.current.lang = 'fr-FR';
 
         let finalTranscript = '';
+        let isProcessing = false; // Éviter les traitements multiples
         
         recognitionRef.current.onresult = (event) => {
+          if (isProcessing) return; // Éviter les conflits
+          
           // Réinitialiser le transcript final si c'est un nouveau résultat
           if (event.results[0].isFinal) {
             finalTranscript = '';
           }
           
-          // Mettre à jour le transcript en cours
+          // Mettre à jour le transcript en cours avec debouncing
           const transcript = Array.from(event.results)
             .map((result) => result[0])
             .map((result) => result.transcript)
@@ -198,24 +277,32 @@ export function ProChatPage() {
           
           setInput(transcript);
           
-          // Si c'est un résultat final, traiter l'entrée
+          // Si c'est un résultat final, traiter l'entrée avec un délai pour éviter les doublons
           if (event.results[0].isFinal) {
             finalTranscript = transcript;
-            processVoiceInput(finalTranscript);
+            isProcessing = true;
+            
+            // Délai pour éviter les traitements multiples
+            setTimeout(() => {
+              processVoiceInput(finalTranscript);
+              isProcessing = false;
+            }, 100);
           }
         };
 
         recognitionRef.current.onerror = (event) => {
           console.error('Erreur de reconnaissance vocale:', event.error);
           setIsListening(false);
+          isProcessing = false;
           
-          // Ne pas arrêter complètement l'appel en cas d'erreur,
-          // mais laisser l'utilisateur réessayer
-          if (isCallActive) {
+          // Gestion d'erreur améliorée avec retry automatique
+          if (isCallActive && event.error !== 'no-speech') {
             speakText("Je n'ai pas bien compris. Pouvez-vous répéter ?")
               .then(() => {
                 if (recognitionRef.current) {
-                  recognitionRef.current.start();
+                  setTimeout(() => {
+                    recognitionRef.current.start();
+                  }, 1000); // Délai avant redémarrage
                 }
               });
           }
@@ -223,8 +310,12 @@ export function ProChatPage() {
         
         recognitionRef.current.onend = () => {
           // Redémarrer automatiquement l'écoute si l'appel est toujours actif
-          if (isCallActive && recognitionRef.current) {
-            recognitionRef.current.start();
+          if (isCallActive && recognitionRef.current && !isProcessing) {
+            setTimeout(() => {
+              if (recognitionRef.current) {
+                recognitionRef.current.start();
+              }
+            }, 500); // Délai pour éviter les redémarrages trop rapides
           } else {
             setIsListening(false);
           }
@@ -407,6 +498,31 @@ export function ProChatPage() {
                   <h2 className="text-xl font-bold text-white mb-2">Sélection du client</h2>
                   <p className="text-gray-400">Choisissez un client pour un conseil personnalisé</p>
                 </div>
+                <button
+                  onClick={() => {
+                    clearCache();
+                    // Recharger les clients
+                    const fetchClients = async () => {
+                      setIsLoadingClients(true);
+                      try {
+                        const response = await apiClient<ClientProfile[]>('/api/pro/clients/');
+                        const clientsData = response || [];
+                        localStorage.setItem('pro_clients_cache', JSON.stringify(clientsData));
+                        localStorage.setItem('pro_clients_cache_timestamp', Date.now().toString());
+                        setClients(clientsData);
+                      } catch (err) {
+                        console.error("Erreur chargement des clients:", err);
+                        setClients([]);
+                      }
+                      setIsLoadingClients(false);
+                    };
+                    fetchClients();
+                  }}
+                  className="px-3 py-2 bg-[#1a2332] hover:bg-[#223c63] text-gray-300 rounded-lg transition-colors duration-300 text-sm"
+                  title="Rafraîchir les données"
+                >
+                  🔄
+                </button>
               </div>
               <div className="flex items-center gap-4">
                 <label htmlFor="client-select" className="text-sm text-gray-300">Question pour le client :</label>
