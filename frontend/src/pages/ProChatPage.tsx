@@ -366,64 +366,73 @@ export function ProChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] to-[#0D1F3A] p-4 flex flex-col">
-      {/* Conteneur principal */}
-      <div className="max-w-4xl w-full mx-auto bg-[#0A192F]/90 backdrop-blur-md rounded-xl border border-[#2A3F6C]/40 overflow-hidden flex flex-col shadow-2xl flex-grow">
-        {/* Conteneur principal avec effet de verre */}
-        {/* Header */}
-        <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
+      {/* Header cohérent avec le dashboard pro */}
+      <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Logo Francis (bulle + euro) */}
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center">
-<MessageSquare className="h-10 w-10 text-[#c5a572]" />
-<Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1.5 -right-1.5" />
-</div>
+                <MessageSquare className="h-10 w-10 text-[#c5a572]" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2" />
+              </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Francis</h1>
-                <p className="text-sm text-gray-400">Votre copilote</p>
+                <h1 className="text-2xl font-bold text-white">Francis</h1>
+                <p className="text-sm text-[#c5a572] font-medium">Votre copilote</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              
-            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-lg bg-[#0E2444]/50 border border-[#c5a572]/30 hover:bg-[#0E2444]/70 hover:border-[#c5a572]/50 transition-all duration-200"
+              className="p-2 rounded-lg bg-[#1a2332] border border-[#c5a572]/30 hover:bg-[#223c63] transition-colors"
               title="Retour"
             >
               <ArrowLeft className="w-5 h-5 text-[#c5a572]" />
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Zone de sélection de client (placeholder, à améliorer) */}
-        {clients.length > 0 && (
-          <div className="p-3 border-b border-[#2A3F6C]/30 bg-[#0E2444]/50">
-            <label htmlFor="client-select" className="text-xs text-gray-400 mr-2">Question pour le client :</label>
-            <select 
-              id="client-select"
-              value={selectedClientId || ''}
-              onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
-              disabled={isLoadingClients || isLoading}
-              className="px-3 py-1.5 bg-[#162238] border border-[#c5a572]/30 rounded-md text-sm text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] min-w-[200px]"
-            >
-              <option value="">Général (sans client spécifique)</option>
-              {clients.map(client => (
-                <option key={client.id} value={client.id}>
-                  {client.prenom_client} {client.nom_client}
-                </option>
-              ))}
-            </select>
-            {isLoadingClients && <span className='text-xs text-gray-500 ml-2'>Chargement clients...</span>}
-          </div>
-        )}
+      {/* Contenu principal cohérent avec le dashboard pro */}
+      <div className="flex-1 p-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Zone de sélection de client */}
+          {clients.length > 0 && (
+            <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-2">Sélection du client</h2>
+                  <p className="text-gray-400">Choisissez un client pour un conseil personnalisé</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <label htmlFor="client-select" className="text-sm text-gray-300">Question pour le client :</label>
+                <select 
+                  id="client-select"
+                  value={selectedClientId || ''}
+                  onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
+                  disabled={isLoadingClients || isLoading}
+                  className="px-4 py-2 bg-[#162238] border border-[#c5a572]/30 rounded-lg text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] min-w-[250px]"
+                >
+                  <option value="">Général (sans client spécifique)</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.prenom_client} {client.nom_client}
+                    </option>
+                  ))}
+                </select>
+                {isLoadingClients && <span className='text-sm text-gray-500'>Chargement clients...</span>}
+              </div>
+            </div>
+          )}
 
-        {/* Corps principal du composant */}
-        <div className="flex flex-col lg:flex-row flex-grow">
-          {/* Zone de chat */}
-          <div className="flex flex-col flex-grow">
-            {/* Messages (similaire à ChatPage) */}
-            <div className="flex-grow overflow-y-auto p-4 space-y-4">
+          {/* Zone de chat principale */}
+          <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl overflow-hidden">
+            {/* Messages */}
+            <div className="flex-grow overflow-y-auto p-6 space-y-4 h-[500px]">
               {messages.map((message, index) => (
                 <div 
                   key={index} 
@@ -494,9 +503,11 @@ export function ProChatPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input (similaire à ChatPage) */}
-            <form onSubmit={handleSend} className="p-4 border-t border-[#2A3F6C]/30 bg-[#162238]/90">
-              <div className="flex space-x-2">
+            </div>
+
+            {/* Zone de saisie */}
+            <form onSubmit={handleSend} className="p-6 border-t border-[#c5a572]/20 bg-[#162238]/90">
+              <div className="flex space-x-4">
                 <div className="relative flex-1">
                   <textarea
                     value={input}
@@ -506,8 +517,8 @@ export function ProChatPage() {
                       : selectedClientId 
                         ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` 
                         : "Posez votre question fiscale..."}
-                    className="w-full p-3 pr-12 bg-[#0E2444] border border-[#c5a572]/30 rounded-lg text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] resize-none"
-                    rows={2}
+                    className="w-full p-4 pr-12 bg-[#0E2444] border border-[#c5a572]/30 rounded-xl text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] resize-none"
+                    rows={3}
                     disabled={isLoading}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -517,50 +528,50 @@ export function ProChatPage() {
                     }}
                   />
                   {isCallActive && (
-                    <div className="absolute right-3 bottom-3 flex items-center space-x-1">
+                    <div className="absolute right-4 bottom-4 flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`}></div>
-                      <span className="text-xs text-gray-400">{isListening ? 'En écoute...' : 'En attente...'}</span>
+                      <span className="text-sm text-gray-400">{isListening ? 'En écoute...' : 'En attente...'}</span>
                     </div>
                   )}
                 </div>
                 
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-3">
                   <button
                     type="button"
                     onClick={toggleVoiceCall}
-                    className={`p-3 rounded-lg flex items-center justify-center shadow-md h-[48px] w-[48px] transition-all ${
+                    className={`p-4 rounded-xl flex items-center justify-center shadow-lg h-[56px] w-[56px] transition-all ${
                       isCallActive 
                         ? 'bg-red-600 hover:bg-red-700 text-white' 
                         : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-[#c5a572]/40'
                     }`}
                     aria-label={isCallActive ? "Terminer l'appel" : "Démarrer un appel vocal"}
                   >
-                    {isCallActive ? <PhoneOff className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
+                    {isCallActive ? <PhoneOff className="w-6 h-6" /> : <Phone className="w-6 h-6" />}
                   </button>
                   
                   <button
                     type="submit"
                     disabled={!input.trim() || isLoading}
-                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-lg hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md h-[48px] w-[48px]"
+                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-4 rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-[56px] w-[56px]"
                     aria-label="Envoyer le message"
                   >
-                    <Send className="w-5 h-5" />
+                    <Send className="w-6 h-6" />
                   </button>
                 </div>
               </div>
               
               {isCallActive && (
-                <div className="mt-2 flex justify-center space-x-4">
+                <div className="mt-4 flex justify-center space-x-4">
                   <button
                     type="button"
                     onClick={toggleListening}
-                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
+                    className={`px-6 py-3 rounded-xl flex items-center space-x-2 ${
                       isListening 
                         ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-white'
+                        : 'bg-[#1a2332] hover:bg-[#223c63] text-white border border-[#c5a572]/30'
                     }`}
                   >
-                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                     <span>{isListening ? 'Arrêter' : 'Parler'}</span>
                   </button>
                   
@@ -573,9 +584,9 @@ export function ProChatPage() {
                       }
                     }}
                     disabled={!input.trim()}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-5 h-5" />
                     <span>Envoyer</span>
                   </button>
                 </div>
@@ -585,8 +596,8 @@ export function ProChatPage() {
 
           {/* Panneau latéral d'aperçu client */}
           {selectedClientId && (
-            <aside className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-[#2A3F6C]/30 bg-[#0E2444]/60 flex flex-col">
-              <div className="p-4 border-b border-[#2A3F6C]/30 flex items-center justify-between">
+            <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2 text-white font-semibold">
                   <Users className="w-5 h-5 text-[#c5a572]" />
                   <span>Profil Client</span>
@@ -598,11 +609,11 @@ export function ProChatPage() {
                   Annuler
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-2 text-gray-200 text-sm">
+              <div className="space-y-3 text-gray-200 text-sm">
                 {isLoadingClientProfile && <p>Chargement du profil...</p>}
                 {!isLoadingClientProfile && selectedClientProfile && (
                   <>
-                    <p className="font-semibold text-lg text-white mb-2">{selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}</p>
+                    <p className="font-semibold text-lg text-white mb-3">{selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}</p>
                     {selectedClientProfile.email_client && <p><span className="text-gray-400">Email:</span> {selectedClientProfile.email_client}</p>}
                     {selectedClientProfile.telephone_principal_client && <p><span className="text-gray-400">Téléphone:</span> {selectedClientProfile.telephone_principal_client}</p>}
                     {selectedClientProfile.situation_maritale_client && <p><span className="text-gray-400">Situation familiale:</span> {selectedClientProfile.situation_maritale_client}</p>}
@@ -610,7 +621,7 @@ export function ProChatPage() {
                     {selectedClientProfile.tranche_marginale_imposition_estimee && <p><span className="text-gray-400">TMI estimée:</span> {selectedClientProfile.tranche_marginale_imposition_estimee}%</p>}
                     <button
                       onClick={() => navigate(`/pro/clients/${selectedClientId}`)}
-                      className="mt-4 w-full py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all"
+                      className="mt-4 w-full py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all"
                     >
                       Voir fiche complète
                     </button>
@@ -618,7 +629,7 @@ export function ProChatPage() {
                 )}
                 {!isLoadingClientProfile && !selectedClientProfile && <p className="text-gray-400">Aucun détail trouvé pour ce client.</p>}
               </div>
-            </aside>
+            </div>
           )}
         </div>
       </div>
