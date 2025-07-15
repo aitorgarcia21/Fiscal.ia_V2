@@ -78,25 +78,29 @@ const ProDemoSection = () => {
         title: "PER (Plan d'Épargne Retraite)",
         saving: "8 500€",
         description: "Réduction d'impôt immédiate + épargne retraite",
-        priority: "Haute"
+        priority: "Haute",
+        details: "Versement de 8 500€ = réduction d'impôt immédiate de 2 550€ + épargne retraite"
       },
       {
-        title: "Pinel + Malraux",
+        title: "Investissement Pinel Toulouse",
         saving: "12 000€",
-        description: "Investissement immobilier avec avantages fiscaux",
-        priority: "Haute"
+        description: "Programme neuf avec 12% de réduction d'impôt",
+        priority: "Haute",
+        details: "Appartement 2 pièces 250 000€ = 30 000€ de réduction sur 9 ans"
       },
       {
-        title: "Assurance-vie",
+        title: "Assurance-vie transmission",
         saving: "3 200€",
-        description: "Transmission optimisée et épargne flexible",
-        priority: "Moyenne"
+        description: "Optimisation de la transmission successorale",
+        priority: "Moyenne",
+        details: "Contrat en faveur des enfants avec abattement de 152 500€"
       },
       {
-        title: "Donation-partage",
+        title: "Donation-partage anticipée",
         saving: "15 000€",
-        description: "Transmission anticipée avec abattements",
-        priority: "Moyenne"
+        description: "Transmission avec abattements renouvelables",
+        priority: "Moyenne",
+        details: "Donation de 100 000€ par enfant avec abattement de 100 000€"
       }
     ],
     totalSaving: "38 700€",
@@ -106,22 +110,31 @@ const ProDemoSection = () => {
 
   const leadsData = [
     {
-      title: "PER BNP Paribas",
-      description: "Taux de réduction d'impôt optimal",
-      contact: "Marie Dubois - 01 42 34 56 78",
-      priority: "Urgent"
+      title: "PER BNP Paribas - Taux optimal",
+      description: "Taux de réduction d'impôt de 30% + fonds en euros 3.5%",
+      contact: "Marie Dubois - Conseillère patrimoniale",
+      phone: "01 42 34 56 78",
+      email: "m.dubois@bnpparibas.fr",
+      priority: "Urgent",
+      opportunity: "Ouverture possible sous 48h avec versement immédiat"
     },
     {
-      title: "Investissement Pinel Toulouse",
-      description: "Programme neuf avec 12% de réduction",
-      contact: "Pierre Martin - 05 61 23 45 67",
-      priority: "Haute"
+      title: "Programme Pinel Toulouse - Quartier Compans",
+      description: "Appartement neuf 2 pièces 250 000€ avec 12% de réduction",
+      contact: "Pierre Martin - Promoteur immobilier",
+      phone: "05 61 23 45 67",
+      email: "p.martin@promoteur-toulouse.fr",
+      priority: "Haute",
+      opportunity: "Livraison 2025, réduction d'impôt étalée sur 9 ans"
     },
     {
-      title: "Assurance-vie AXA",
-      description: "Fonds en euros + unités de compte",
-      contact: "Sophie Bernard - 01 45 67 89 12",
-      priority: "Normale"
+      title: "Assurance-vie AXA - Fonds euros + UC",
+      description: "Fonds en euros 3.2% + unités de compte performantes",
+      contact: "Sophie Bernard - Conseillère en investissement",
+      phone: "01 45 67 89 12",
+      email: "s.bernard@axa.fr",
+      priority: "Normale",
+      opportunity: "Contrat optimisé pour la transmission aux enfants"
     }
   ];
 
@@ -353,7 +366,11 @@ const ProDemoSection = () => {
                         <h4 className="font-semibold text-white text-sm">{opt.title}</h4>
                         <span className="text-green-400 font-bold text-sm">{opt.saving}</span>
                       </div>
-                      <p className="text-xs text-gray-400">{opt.description}</p>
+                      <p className="text-xs text-gray-400 mb-2">{opt.description}</p>
+                      <div className="bg-green-500/10 border border-green-500/20 rounded p-2">
+                        <p className="text-xs text-green-400 font-medium">📊 Détails</p>
+                        <p className="text-xs text-gray-300">{opt.details}</p>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -450,7 +467,12 @@ const ProDemoSection = () => {
                         </span>
                       </div>
                       <p className="text-xs text-gray-400 mb-2">{lead.description}</p>
-                      <p className="text-xs text-[#c5a572]">{lead.contact}</p>
+                      <p className="text-xs text-[#c5a572] mb-1">{lead.contact}</p>
+                      <p className="text-xs text-gray-400 mb-2">{lead.phone} • {lead.email}</p>
+                      <div className="bg-[#c5a572]/10 border border-[#c5a572]/20 rounded p-2">
+                        <p className="text-xs text-[#c5a572] font-medium">💡 Opportunité</p>
+                        <p className="text-xs text-gray-300">{lead.opportunity}</p>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
