@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, User as UserIconLucide, Home, Users as UsersGroupIcon, Briefcase, DollarSign, Target, FileText as FileTextIcon, Edit2 as EditIcon, Brain, Mic, MicOff, Volume2, VolumeX, CheckCircle, AlertCircle, Loader2, Edit3, MessageSquare, Euro, X } from 'lucide-react';
+import { Logo } from '../components/ui/Logo';
 import { VoiceRecorder } from '../components/VoiceRecorder';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import { StepperVertical } from '../components/ui/StepperVertical';
@@ -597,9 +598,9 @@ export function ProCreateClientPage() {
           <div className="flex items-center gap-4">
             {/* Logo Francis (bulle + euro) */}
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center w-12 h-12 bg-[#0E2444] rounded-full border-2 border-[#c5a572]">
-                <MessageSquare className="w-6 h-6 text-[#c5a572]" />
-                <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1" />
+              <div className="relative inline-flex items-center justify-center group">
+                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
