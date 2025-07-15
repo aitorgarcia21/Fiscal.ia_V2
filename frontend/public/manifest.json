@@ -1,0 +1,79 @@
+{
+  "name": "Francis - Assistant Fiscal Intelligent",
+  "short_name": "Francis Fiscal",
+  "description": "Assistant fiscal intelligent powered by IA pour optimiser vos impôts",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A1628",
+  "theme_color": "#1a2942",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["finance", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/fiscalia-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Simulateur Fiscal",
+      "short_name": "Simulateur",
+      "description": "Simulez vos économies fiscales",
+      "url": "/simulateur-impot",
+      "icons": [
+        {
+          "src": "/fiscalia-logo.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Optimisation Fiscale",
+      "short_name": "Optimisation",
+      "description": "Découvrez nos solutions d'optimisation",
+      "url": "/optimisation-fiscale-ia",
+      "icons": [
+        {
+          "src": "/fiscalia-logo.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+} 

@@ -1,0 +1,6 @@
+Contact: mailto:security@fiscal-ia.net
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: fr, en
+Canonical: https://fiscal-ia.net/.well-known/security.txt
+Policy: https://fiscal-ia.net/security-policy
+Hiring: https://fiscal-ia.net/careers 
