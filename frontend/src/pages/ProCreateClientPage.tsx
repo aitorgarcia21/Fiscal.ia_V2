@@ -635,8 +635,8 @@ export function ProCreateClientPage() {
                 <Euro className="w-3 h-3 text-[#c5a572] absolute -bottom-1 -right-1" />
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-[#c5a572]">Francis Assistant</p>
-                <p className="text-xs text-gray-400">Prêt à vous aider</p>
+                <p className="text-sm font-medium text-[#c5a572]">Assistant Francis</p>
+                <p className="text-xs text-gray-400">Intelligence artificielle</p>
               </div>
             </div>
           </div>
@@ -656,7 +656,7 @@ export function ProCreateClientPage() {
                     <div>
                       <h3 className="text-xl font-semibold text-white">Assistant Francis</h3>
                       <p className="text-sm text-gray-300 mt-1">
-                        Parlez pour que Francis remplisse automatiquement le profil client
+                        Parlez naturellement et Francis analysera votre discours pour remplir automatiquement le profil client
                       </p>
                     </div>
                   </div>
@@ -678,7 +678,7 @@ export function ProCreateClientPage() {
                     ) : (
                       <>
                         <Mic className="w-4 h-4" />
-                        Activer l'assistant vocal
+                        Activer Francis
                       </>
                     )}
                   </button>
