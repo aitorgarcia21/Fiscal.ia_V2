@@ -223,12 +223,12 @@ export function ProCreateClientPage() {
     setError(null);
 
     try {
-      const response = await apiClient.post('/pro/clients', formData);
-      if (response.data.success) {
+      const response = await apiClient('/pro/clients', { data: formData });
+      if (response && (response as any).success) {
         navigate('/pro/dashboard');
       }
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Erreur lors de la création du client');
+      setError(error.data?.detail || error.message || 'Erreur lors de la création du client');
     } finally {
       setIsLoading(false);
     }
