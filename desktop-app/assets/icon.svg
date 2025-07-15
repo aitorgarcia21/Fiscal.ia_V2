@@ -1,1 +1,23 @@
- 
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#162238;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#234876;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="512" height="512" fill="url(#bg)" rx="80" ry="80"/>
+  
+  <!-- MessageSquare icon -->
+  <g transform="translate(128, 128)">
+    <rect x="0" y="0" width="256" height="256" rx="32" ry="32" fill="#c5a572" opacity="0.9"/>
+    <path d="M64 96h128v32H64V96zm0 64h128v32H64v-32zm0 64h128v32H64v-32z" fill="#162238"/>
+  </g>
+  
+  <!-- Euro icon (petit) -->
+  <g transform="translate(320, 320)">
+    <circle cx="64" cy="64" r="48" fill="#e8cfa0"/>
+    <path d="M40 64h48M64 40v48M48 48h32M48 80h32" stroke="#162238" stroke-width="8" stroke-linecap="round" fill="none"/>
+  </g>
+</svg> 
