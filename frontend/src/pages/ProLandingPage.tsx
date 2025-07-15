@@ -343,6 +343,7 @@ const ProLandingPage = () => {
               <h3 className="text-xl font-bold text-white mb-2">Intégration O2S de Harvest</h3>
               <p className="text-gray-300 text-base">
                 <span className="text-[#33ee87] font-semibold">Nouveau&nbsp;!</span> L'offre <span className="text-[#c5a572] font-semibold">Francis Pro</span> permet une intégration directe avec <span className="font-semibold">O2S</span> de <span className="font-semibold">Harvest</span>.<br />
+                <span className="text-[#c5a572] font-semibold">Compatible uniquement avec l'offre Succès de chez Harvest.</span><br />
                 Synchronisez vos données clients et automatisez encore plus votre gestion patrimoniale.
               </p>
             </div>
