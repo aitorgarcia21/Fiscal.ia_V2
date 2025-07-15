@@ -33,7 +33,7 @@ const ProDemoSection = () => {
     {
       id: 'listen',
       title: 'Écoute en temps réel',
-      description: 'Francis écoute discrètement votre entretien',
+      description: '',
       icon: Ear,
       duration: 3000,
       status: 'pending'
@@ -41,7 +41,7 @@ const ProDemoSection = () => {
     {
       id: 'transcribe',
       title: 'Transcription instantanée',
-      description: 'Conversion audio → texte en temps réel',
+      description: '',
       icon: FileText,
       duration: 2500,
       status: 'pending'
@@ -49,7 +49,7 @@ const ProDemoSection = () => {
     {
       id: 'analyze',
       title: 'Analyse IA avancée',
-      description: 'Identification des opportunités fiscales',
+      description: '',
       icon: Brain,
       duration: 4000,
       status: 'pending'
@@ -57,7 +57,7 @@ const ProDemoSection = () => {
     {
       id: 'generate',
       title: 'Génération automatique',
-      description: 'PDF + Leads d\'optimisation',
+      description: '',
       icon: FileDown,
       duration: 2000,
       status: 'pending'

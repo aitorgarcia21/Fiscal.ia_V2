@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Zap, Sparkles, Play, Download, TrendingUp, Timer } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import ProDemoSection from '../components/demo/ProDemoSection';
 
 
 const features = [
@@ -130,18 +129,12 @@ const ProLandingPage = () => {
             Concentrez-vous sur vos clients, pas sur la paperasse.
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+          <div className="flex justify-center mb-16">
             <button
               onClick={() => handleAuth('signup')}
               className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
               Commencer maintenant !
-            </button>
-            <button
-              onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border-2 border-[#c5a572] text-[#c5a572] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#c5a572]/10 transition-all duration-300"
-            >
-              Voir la démo
             </button>
           </div>
         </main>
@@ -201,10 +194,7 @@ const ProLandingPage = () => {
           </div>
         </section>
 
-        {/* Démo Section */}
-        <section id="demo" className="pb-20">
-          <ProDemoSection />
-        </section>
+
 
         {/* Features modernes */}
         <section id="features" className="container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
