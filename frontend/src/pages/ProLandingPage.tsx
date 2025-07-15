@@ -337,7 +337,7 @@ const ProLandingPage = () => {
               src="/images/logo_harvest.svg"
               alt="Logo Harvest O2S"
               className="h-16 w-auto mb-4 md:mb-0 md:mr-8"
-              style={{ background: 'white', borderRadius: '0.75rem', padding: '0.5rem' }}
+              style={{ background: '#1E3253', borderRadius: '0.75rem', padding: '0.5rem' }}
             />
             <div className="flex-1 text-center md:text-left">
               <h3 className="text-xl font-bold text-white mb-2">Intégration O2S de Harvest</h3>
