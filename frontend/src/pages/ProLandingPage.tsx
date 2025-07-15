@@ -330,6 +330,25 @@ const ProLandingPage = () => {
           </div>
         </section>
 
+        {/* Intégration O2S Harvest */}
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="flex flex-col md:flex-row items-center gap-6 bg-[#1E3253]/60 backdrop-blur-sm rounded-xl border border-[#2A3F6C]/30 p-8 shadow-lg">
+            <img
+              src="/images/logo_harvest.svg"
+              alt="Logo Harvest O2S"
+              className="h-16 w-auto mb-4 md:mb-0 md:mr-8"
+              style={{ background: 'white', borderRadius: '0.75rem', padding: '0.5rem' }}
+            />
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-xl font-bold text-white mb-2">Intégration O2S de Harvest</h3>
+              <p className="text-gray-300 text-base">
+                <span className="text-[#33ee87] font-semibold">Nouveau&nbsp;!</span> L'offre <span className="text-[#c5a572] font-semibold">Francis Pro</span> permet une intégration directe avec <span className="font-semibold">O2S</span> de <span className="font-semibold">Harvest</span>.<br />
+                Synchronisez vos données clients et automatisez encore plus votre gestion patrimoniale.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Final */}
         <section className="pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
