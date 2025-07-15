@@ -16,22 +16,22 @@ const features = [
     icon: Clock,
     title: "Gain de temps",
     description: "Automatisez la prise de notes et la génération de rapports. Plus de saisie manuelle.",
-    color: "from-[#88C0D0] to-[#81A1C1]",
-    bgColor: "bg-[#88C0D0]/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   },
   {
     icon: Users,
     title: "Suivi client simplifié",
     description: "Tous vos clients et leurs données fiscales centralisés dans un seul outil.",
-    color: "from-[#3E5F8A] to-[#2A3F6C]",
-    bgColor: "bg-[#3E5F8A]/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   },
   {
     icon: Shield,
     title: "Sécurité maximale",
     description: "Vos données sont chiffrées et hébergées en France. Conformité RGPD garantie.",
-    color: "from-[#0E2444] to-[#162238]",
-    bgColor: "bg-[#0E2444]/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   }
 ];
 
