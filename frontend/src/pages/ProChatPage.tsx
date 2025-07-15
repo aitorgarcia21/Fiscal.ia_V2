@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft, Mic, MicOff, Phone, PhoneOff, Volume2 } from 'lucide-react';
-import { speakText } from '../services/ttsService';
+import { Send, Bot, User as UserIcon, ArrowRight, MessageSquare, Euro, Briefcase, Users, ArrowLeft } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
@@ -35,9 +34,6 @@ export function ProChatPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isCallActive, setIsCallActive] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated, isProfessional } = useAuth();
@@ -153,15 +149,9 @@ export function ProChatPage() {
       return newMessages.slice(-50);
     });
     
-    const currentInput = input;
+        const currentInput = input;
     setInput('');
     setIsLoading(true);
-    
-    // Si en mode appel, arrêter l'écoute pendant le traitement
-    if (isCallActive && recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    }
 
     let endpoint = '/api/ask'; // Endpoint par défaut (comme pour les particuliers)
     let payload: any = {
@@ -207,17 +197,6 @@ export function ProChatPage() {
         // Garder seulement les 50 derniers messages
         return newMessages.slice(-50);
       });
-      
-      // Lire la réponse avec la synthèse vocale si en mode appel
-      if (isCallActive && assistantMessage.content) {
-        speakText(assistantMessage.content, () => {
-          // Redémarrer l'écoute après la fin de la lecture
-          if (recognitionRef.current) {
-            recognitionRef.current.start();
-            setIsListening(true);
-          }
-        });
-      }
     } catch (error: any) {
       console.error('Erreur lors de l_envoi du message (ProChatPage):', error);
       const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite. Veuillez réessayer.";
@@ -248,213 +227,7 @@ export function ProChatPage() {
     return () => clearTimeout(timeoutId);
   }, [messages]);
 
-  // Initialiser la reconnaissance vocale avec optimisations de performance
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'fr-FR';
 
-        let finalTranscript = '';
-        let isProcessing = false; // Éviter les traitements multiples
-        
-        recognitionRef.current.onresult = (event) => {
-          if (isProcessing) return; // Éviter les conflits
-          
-          // Réinitialiser le transcript final si c'est un nouveau résultat
-          if (event.results[0].isFinal) {
-            finalTranscript = '';
-          }
-          
-          // Mettre à jour le transcript en cours avec debouncing
-          const transcript = Array.from(event.results)
-            .map((result) => result[0])
-            .map((result) => result.transcript)
-            .join('');
-          
-          setInput(transcript);
-          
-          // Si c'est un résultat final, traiter l'entrée avec un délai pour éviter les doublons
-          if (event.results[0].isFinal) {
-            finalTranscript = transcript;
-            isProcessing = true;
-            
-            // Délai pour éviter les traitements multiples
-            setTimeout(() => {
-              processVoiceInput(finalTranscript);
-              isProcessing = false;
-            }, 100);
-          }
-        };
-
-        recognitionRef.current.onerror = (event) => {
-          console.error('Erreur de reconnaissance vocale:', event.error);
-          setIsListening(false);
-          isProcessing = false;
-          
-          // Gestion d'erreur améliorée avec retry automatique
-          if (isCallActive && event.error !== 'no-speech') {
-            speakText("Je n'ai pas bien compris. Pouvez-vous répéter ?")
-              .then(() => {
-                if (recognitionRef.current) {
-                  setTimeout(() => {
-                    recognitionRef.current.start();
-                  }, 1000); // Délai avant redémarrage
-                }
-              });
-          }
-        };
-        
-        recognitionRef.current.onend = () => {
-          // Redémarrer automatiquement l'écoute si l'appel est toujours actif
-          if (isCallActive && recognitionRef.current && !isProcessing) {
-            setTimeout(() => {
-              if (recognitionRef.current) {
-                recognitionRef.current.start();
-              }
-            }, 500); // Délai pour éviter les redémarrages trop rapides
-          } else {
-            setIsListening(false);
-          }
-        };
-      }
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, []);
-
-  const startCall = () => {
-    if (isCallActive) {
-      // Arrêter l'appel
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      setIsCallActive(false);
-      setIsListening(false);
-      return;
-    }
-
-    try {
-      // Vérifier si la reconnaissance vocale est disponible
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: "Désolé, la reconnaissance vocale n'est pas disponible sur votre navigateur. Veuillez utiliser un navigateur compatible comme Chrome ou Edge.",
-          error: true
-        }]);
-        return;
-      } else {
-        alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
-      }
-    } catch (error) {
-      console.error('Erreur lors du démarrage de l\'appel:', error);
-    }
-  };
-
-  const toggleListening = () => {
-    if (recognitionRef.current) {
-      if (isListening) {
-        recognitionRef.current.stop();
-      } else {
-        recognitionRef.current.start();
-      }
-      setIsListening(!isListening);
-    }
-  };
-
-  const processVoiceInput = async (transcript: string) => {
-    if (!transcript.trim()) return;
-    
-    // Ajouter le message de l'utilisateur au chat
-    const userMessage: ProMessage = { role: 'user', content: transcript };
-    setMessages(prev => [...prev, userMessage]);
-    
-    try {
-      // Envoyer la transcription à l'API
-      const endpoint = selectedClientId 
-        ? `/api/pro/clients/${selectedClientId}/ask_francis` 
-        : '/api/ask';
-      
-      const response = await apiClient(endpoint, {
-        method: 'POST',
-        data: {
-          query: transcript,
-          conversation_history: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-          jurisdiction
-        }
-      });
-      
-      // Ajouter la réponse de Francis au chat
-      const assistantMessage: ProMessage = {
-        role: 'assistant',
-        content: response.answer || 'Je n\'ai pas pu traiter votre demande.',
-        sources: response.sources || []
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      
-      // Lire la réponse avec la synthèse vocale
-      await speakText(assistantMessage.content);
-      
-      // Redémarrer l'écoute après la lecture
-      if (isCallActive && recognitionRef.current) {
-        recognitionRef.current.start();
-      }
-      
-    } catch (error) {
-      console.error('Erreur lors du traitement de la réponse vocale:', error);
-      const errorMessage = error.data?.detail || error.message || "Désolé, une erreur s'est produite.";
-      setMessages(prev => [...prev, { role: 'assistant', content: errorMessage, error: true }]);
-    }
-  };
-
-  const toggleVoiceCall = async () => {
-    if (isCallActive) {
-      // Arrêter l'appel
-      console.log('Arrêt de la conversation vocale');
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      setIsCallActive(false);
-      setIsListening(false);
-      
-      // Message de fin d'appel
-      await speakText("Fin de la conversation. Vous pouvez continuer à discuter par écrit.");
-      
-    } else {
-      // Démarrer l'appel
-      console.log('Démarrage de la conversation vocale');
-      
-      if (!recognitionRef.current) {
-        alert("La reconnaissance vocale n'est pas supportée par votre navigateur");
-        return;
-      }
-      
-      try {
-        // Message d'accueil
-        await speakText("Bonjour, je suis Francis. Comment puis-je vous aider aujourd'hui ?");
-        
-        // Démarrer l'écoute
-        recognitionRef.current.start();
-        setIsCallActive(true);
-        setIsListening(true);
-        
-      } catch (error) {
-        console.error('Erreur lors du démarrage de la conversation vocale:', error);
-        alert('Impossible de démarrer la conversation vocale. Veuillez réessayer.');
-      }
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
@@ -614,15 +387,7 @@ export function ProChatPage() {
                     )}
                     <div className="flex-1">
                       <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
-                      {message.role === 'assistant' && !message.error && (
-                        <button
-                          onClick={() => speakText(message.content)}
-                          className="mt-2 p-1 rounded-full hover:bg-[#1a2332]/50 transition-colors"
-                          title="Lire le message"
-                        >
-                          <Volume2 className="w-4 h-4 text-[#c5a572]" />
-                        </button>
-                      )}
+
                       {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
                         <div className="mt-3 p-2 bg-[#1a2332]/50 rounded-lg border border-[#c5a572]/10">
                           <span className="text-xs font-medium text-[#c5a572] mb-1 block">Sources:</span>
@@ -669,11 +434,7 @@ export function ProChatPage() {
                   <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={isCallActive 
-                      ? "Parlez maintenant..." 
-                      : selectedClientId 
-                        ? `Question pour ${clients.find(c=>c.id === selectedClientId)?.prenom_client || 'ce client'}...` 
-                        : "Posez votre question fiscale..."}
+                    placeholder="Posez votre question"
                     className="w-full p-4 pr-12 bg-[#0E2444] border border-[#c5a572]/30 rounded-xl text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/20 transition-all resize-none"
                     rows={2}
                     disabled={isLoading}
@@ -684,70 +445,17 @@ export function ProChatPage() {
                       }
                     }}
                   />
-                  {isCallActive && (
-                    <div className="absolute right-4 bottom-4 flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`}></div>
-                      <span className="text-xs text-gray-400">{isListening ? 'En écoute...' : 'En attente...'}</span>
-                    </div>
-                  )}
                 </div>
                 
-                <div className="flex flex-col space-y-2">
-                  <button
-                    type="button"
-                    onClick={toggleVoiceCall}
-                    className={`p-3 rounded-xl flex items-center justify-center shadow-lg h-[48px] w-[48px] transition-all ${
-                      isCallActive 
-                        ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-[#c5a572]/40'
-                    }`}
-                    aria-label={isCallActive ? "Terminer l'appel" : "Démarrer un appel vocal"}
-                  >
-                    {isCallActive ? <PhoneOff className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
-                  </button>
-                  
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading}
-                    className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-[48px] w-[48px]"
-                    aria-label="Envoyer le message"
-                  >
-                    <Send className="w-5 h-5" />
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-[48px] w-[48px]"
+                  aria-label="Envoyer le message"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
               </div>
-              
-              {isCallActive && (
-                <div className="mt-4 flex justify-center space-x-3">
-                  <button
-                    type="button"
-                    onClick={toggleListening}
-                    className={`px-4 py-2 rounded-lg flex items-center space-x-2 text-sm ${
-                      isListening 
-                        ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'bg-[#1a2332] hover:bg-[#223c63] text-white border border-[#c5a572]/30'
-                    }`}
-                  >
-                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                    <span>{isListening ? 'Arrêter' : 'Parler'}</span>
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (input.trim()) {
-                        const e = new Event('submit') as any;
-                        handleSend(e);
-                      }
-                    }}
-                    disabled={!input.trim()}
-                    className="px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>Envoyer</span>
-                  </button>
-                </div>
-              )}
             </form>
           </div>
         </div>
