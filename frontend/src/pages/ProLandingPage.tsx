@@ -322,11 +322,16 @@ const ProLandingPage = () => {
 
         {/* Intégration O2S Harvest - Version visible et attrayante */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-          <div className="flex items-center justify-center gap-4 bg-gradient-to-r from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-6 bg-gradient-to-r from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="flex items-center gap-4">
               <div className="bg-[#33ee87]/20 rounded-full p-2">
                 <span className="text-[#33ee87] text-sm font-bold">NOUVEAU</span>
               </div>
+              <img
+                src="/images/logo_harvest.svg"
+                alt="Logo Harvest"
+                className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+              />
               <div className="text-center">
                 <h4 className="text-white font-semibold text-lg">Intégration O2S de Harvest</h4>
                 <p className="text-gray-300 text-sm">Compatible avec l'offre Succès</p>
