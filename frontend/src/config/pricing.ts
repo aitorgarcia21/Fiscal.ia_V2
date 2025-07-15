@@ -4,7 +4,7 @@ export const PRICING = {
     price: 9.99,
     currency: 'EUR',
     interval: 'month',
-    stripePriceId: 'price_1RiGM5G0JMtmHIL2OyrdGicK', // Prix mensuel particulier (9.99€/mois - 30 requêtes)
+    stripePriceId: 'price_1RiGEHG0JMtmHIL2YEl2kzaH', // Prix mensuel particulier (9.99€/mois - 30 requêtes)
     type: 'particulier',
     requestLimit: 30,
     features: [
@@ -21,7 +21,7 @@ export const PRICING = {
     price: 99.99,
     currency: 'EUR',
     interval: 'year',
-    stripePriceId: 'price_1RiGM5G0JMtmHIL2zEiHmlCm', // Prix annuel particulier (99.99€/an - 360 requêtes)
+    stripePriceId: 'price_1RiGEoG0JMtmHIL27nuiIWfm', // Prix annuel particulier (99.99€/an - 360 requêtes)
     type: 'particulier',
     requestLimit: 360,
     features: [

@@ -271,7 +271,7 @@ const ProLandingPage = () => {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
-                  Jusqu'à 20 clients
+                  50 questions Francis / mois
                 </li>
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
@@ -305,7 +305,7 @@ const ProLandingPage = () => {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
-                  Jusqu'à 50 clients
+                  100 questions Francis / mois
                 </li>
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
