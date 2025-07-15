@@ -66,9 +66,13 @@ const ProDemoSection = () => {
 
   const demoAudio = [
     "Bonjour Monsieur Martin, je suis ravi de vous rencontrer aujourd'hui.",
+    "Pouvez-vous me parler de votre situation familiale et professionnelle ?",
     "J'ai 45 ans, je suis marié avec 2 enfants. Je travaille comme directeur commercial.",
+    "Quel est votre revenu net annuel et celui de votre épouse ?",
     "Mon salaire net est de 95 000€ par an, ma femme gagne 42 000€.",
+    "Avez-vous des biens immobiliers ?",
     "Nous avons notre résidence principale à 450 000€ et un appartement en location.",
+    "Quels sont vos objectifs fiscaux et patrimoniaux ?",
     "Je souhaite optimiser ma fiscalité et préparer ma retraite."
   ];
 
@@ -76,35 +80,35 @@ const ProDemoSection = () => {
     optimizations: [
       {
         title: "PER (Plan d'Épargne Retraite)",
-        saving: "8 500€",
-        description: "Réduction d'impôt immédiate + épargne retraite",
+        saving: "2 550€",
+        description: "Réduction d'impôt immédiate (art. 163 quinquies CGI)",
         priority: "Haute",
-        details: "Versement de 8 500€ = réduction d'impôt immédiate de 2 550€ + épargne retraite"
+        details: "Versement de 8 500€ = réduction d'impôt immédiate de 2 550€ (30%) + épargne retraite (Loi PACTE 2019)"
       },
       {
         title: "Investissement Pinel Toulouse",
-        saving: "12 000€",
-        description: "Programme neuf avec 12% de réduction d'impôt",
+        saving: "3 000€",
+        description: "Réduction d'impôt 12% (art. 199 sexdecies CGI)",
         priority: "Haute",
-        details: "Appartement 2 pièces 250 000€ = 30 000€ de réduction sur 9 ans"
+        details: "Appartement 2 pièces 250 000€ = 30 000€ de réduction sur 9 ans (3 000€/an)"
       },
       {
         title: "Assurance-vie transmission",
-        saving: "3 200€",
-        description: "Optimisation de la transmission successorale",
+        saving: "1 200€",
+        description: "Optimisation transmission (art. 757 CGI)",
         priority: "Moyenne",
-        details: "Contrat en faveur des enfants avec abattement de 152 500€"
+        details: "Contrat en faveur des enfants avec abattement de 152 500€ (art. 757 CGI)"
       },
       {
         title: "Donation-partage anticipée",
-        saving: "15 000€",
-        description: "Transmission avec abattements renouvelables",
+        saving: "1 500€",
+        description: "Transmission avec abattements (art. 779 CGI)",
         priority: "Moyenne",
-        details: "Donation de 100 000€ par enfant avec abattement de 100 000€"
+        details: "Donation de 100 000€ par enfant avec abattement de 100 000€ (art. 779 CGI)"
       }
     ],
-    totalSaving: "38 700€",
-    timeToImplement: "2-3 mois",
+    totalSaving: "8 250€",
+    timeToImplement: "1-2 mois",
     riskLevel: "Faible"
   };
 
@@ -116,7 +120,7 @@ const ProDemoSection = () => {
       phone: "01 42 34 56 78",
       email: "m.dubois@bnpparibas.fr",
       priority: "Urgent",
-      opportunity: "Ouverture possible sous 48h avec versement immédiat"
+      opportunity: "Ouverture possible sous 48h avec versement immédiat de 8 500€"
     },
     {
       title: "Programme Pinel Toulouse - Quartier Compans",
@@ -125,7 +129,7 @@ const ProDemoSection = () => {
       phone: "05 61 23 45 67",
       email: "p.martin@promoteur-toulouse.fr",
       priority: "Haute",
-      opportunity: "Livraison 2025, réduction d'impôt étalée sur 9 ans"
+      opportunity: "Livraison 2025, réduction d'impôt de 3 000€/an sur 9 ans"
     },
     {
       title: "Assurance-vie AXA - Fonds euros + UC",
@@ -134,7 +138,7 @@ const ProDemoSection = () => {
       phone: "01 45 67 89 12",
       email: "s.bernard@axa.fr",
       priority: "Normale",
-      opportunity: "Contrat optimisé pour la transmission aux enfants"
+      opportunity: "Contrat optimisé pour la transmission aux enfants (abattement 152 500€)"
     }
   ];
 
@@ -429,7 +433,7 @@ const ProDemoSection = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Économie potentielle</span>
-                      <span className="text-[#c5a572] font-bold">38 700€</span>
+                      <span className="text-[#c5a572] font-bold">8 250€</span>
                     </div>
                   </div>
                 </div>
