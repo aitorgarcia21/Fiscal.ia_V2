@@ -469,7 +469,7 @@ export function ProChatPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Francis</h1>
-                <p className="text-xs text-[#c5a572] font-medium">Copilote IA</p>
+                <p className="text-xs text-[#c5a572] font-medium">Votre copilote</p>
               </div>
             </div>
           </div>
