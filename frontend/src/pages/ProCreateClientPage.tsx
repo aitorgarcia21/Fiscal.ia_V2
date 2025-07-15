@@ -723,6 +723,29 @@ export function ProCreateClientPage() {
                         <div className="bg-[#0E2444] rounded-lg p-4 min-h-[120px] max-h-[250px] overflow-y-auto border border-[#c5a572]/20">
                           <p className="text-sm whitespace-pre-wrap text-gray-200 leading-relaxed">{transcript || "Parlez maintenant pour que Francis commence à écouter..."}</p>
                         </div>
+                        
+                        {transcript && (
+                          <div className="mt-4 flex justify-center">
+                            <button
+                              type="button"
+                              onClick={processTranscript}
+                              disabled={isAIAnalyzing}
+                              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isAIAnalyzing ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-transparent border-t-[#162238] rounded-full animate-spin"></div>
+                                  Analyse en cours...
+                                </>
+                              ) : (
+                                <>
+                                  <Brain className="w-4 h-4" />
+                                  Analyser avec Francis
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
