@@ -690,20 +690,7 @@ export function ProCreateClientPage() {
                 <>
                   <div className="bg-gradient-to-br from-[#0E2444] to-[#162238] p-6 border-t border-[#c5a572]/20">
                     <div className="max-w-5xl mx-auto">
-                      <div className="mb-6 text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 border border-[#c5a572]/30 mb-4">
-                          <div className="relative">
-                            <Mic className="w-7 h-7 text-[#c5a572]" />
-                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#c5a572] rounded-full animate-pulse"></div>
-                          </div>
-                        </div>
-                        <h4 className="text-lg font-semibold text-white mb-2">
-                          Francis vous écoute
-                        </h4>
-                        <p className="text-sm text-gray-300 max-w-lg mx-auto">
-                          Parlez naturellement de votre client. Francis analysera votre discours et remplira automatiquement le profil.
-                        </p>
-                      </div>
+
                       
                       <div className="mb-6">
                         <UltraFluidVoiceRecorder
