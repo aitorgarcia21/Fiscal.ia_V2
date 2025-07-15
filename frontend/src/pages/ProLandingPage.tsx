@@ -151,28 +151,54 @@ const ProLandingPage = () => {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {processSteps.map((step, index) => (
-                <div key={index} className="relative">
-                  {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-gradient-to-r from-[#c5a572]/20 to-transparent z-0"></div>
-                  )}
-                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-6 rounded-xl border border-[#2A3F6C]/30 hover:border-[#c5a572]/40 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-[#c5a572]/10">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center text-[#162238] font-semibold text-sm">
-                        {step.step}
+                <div key={index} className="group relative">
+                  <div className="bg-gradient-to-br from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30 hover:border-[#c5a572]/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20">
+                    {/* Header avec numéro et icône */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
+                          {step.step}
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#33ee87] rounded-full flex items-center justify-center">
+                          <step.icon className="w-3 h-3 text-[#162238]" />
+                        </div>
                       </div>
-                      <step.icon className="w-6 h-6 text-[#c5a572]" />
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-1 group-hover:text-[#c5a572] transition-colors duration-300">
+                          {step.title}
+                        </h3>
+                        <p className="text-[#c5a572] text-sm font-medium">
+                          {step.subtitle}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-                    <p className="text-[#c5a572] text-sm font-medium mb-2">{step.subtitle}</p>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-3">{step.description}</p>
-                    <div className="bg-[#c5a572]/10 border border-[#c5a572]/20 rounded-lg p-2">
-                      <p className="text-[#c5a572] text-xs font-semibold uppercase tracking-wide">
-                        {step.benefit}
-                      </p>
+                    
+                    {/* Description */}
+                    <p className="text-gray-300 text-base leading-relaxed mb-6">
+                      {step.description}
+                    </p>
+                    
+                    {/* Bénéfice avec design moderne */}
+                    <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/30 rounded-xl p-4 backdrop-blur-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-pulse"></div>
+                        <p className="text-[#c5a572] font-semibold text-sm">
+                          {step.benefit}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                  
+                  {/* Flèche de connexion (sauf pour le dernier) */}
+                  {index < processSteps.length - 1 && (
+                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                      <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg">
+                        <ChevronRight className="w-4 h-4 text-[#162238]" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
