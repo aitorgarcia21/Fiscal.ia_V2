@@ -630,9 +630,9 @@ export function ProDashboardPage() {
             className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
             title="Parler à Francis"
           >
-            <div className="relative inline-flex items-center justify-center w-12 h-12 bg-[#0E2444] rounded-full border-2 border-[#c5a572]">
-              <MessageSquareIcon className="w-6 h-6 text-[#c5a572]" />
-              <Euro className="w-4 h-4 text-[#c5a572] absolute -bottom-1 -right-1" />
+            <div className="relative inline-flex items-center justify-center group">
+              <MessageSquareIcon className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
           </button>
         )}
@@ -644,9 +644,9 @@ export function ProDashboardPage() {
 {/* Header du chat */}
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
-<div className="relative inline-flex items-center justify-center group w-10 h-10 bg-[#0E2444] rounded-full border-2 border-[#c5a572]">
+<div className="relative inline-flex items-center justify-center group">
 <MessageSquareIcon className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-<Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 transition-transform group-hover:scale-110 duration-300" />
+<Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -667,9 +667,9 @@ aria-label="Fermer le chat"
               {messages.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="flex justify-center mb-4">
-                    <div className="relative inline-flex items-center justify-center w-16 h-16 bg-[#0E2444] rounded-full border-2 border-[#c5a572]">
-                      <MessageSquareIcon className="w-8 h-8 text-[#c5a572]" />
-                      <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1 -right-1" />
+                    <div className="relative inline-flex items-center justify-center group">
+                      <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                      <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                     </div>
                   </div>
                   <h4 className="text-white font-semibold mb-2">Bonjour ! Je suis Francis</h4>
