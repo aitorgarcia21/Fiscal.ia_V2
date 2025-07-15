@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Zap, Sparkles, Play, Download, TrendingUp, Timer } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { ProDemoSection } from '../components/demo/ProDemoSection';
+import ProDemoSection from '../components/demo/ProDemoSection';
 
 
 const features = [
