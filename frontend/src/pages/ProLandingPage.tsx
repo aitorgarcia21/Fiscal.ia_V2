@@ -65,7 +65,7 @@ const processSteps = [
     step: "04",
     title: "Exportez en 1 clic",
     subtitle: "Format de votre choix",
-    description: "PDF pour le client, Excel pour vos calculs, CSV pour votre logiciel. Plus de saisie manuelle !",
+    description: "PDF pour le client, Excel pour vos calculs, CSV pour votre logiciel. Intégration Harvest et d'autres CRM préféré prochainement !",
     icon: Download,
     benefit: "Export multi-format automatique"
   }
