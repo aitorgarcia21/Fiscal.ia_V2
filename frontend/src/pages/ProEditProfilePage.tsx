@@ -4,6 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProProfile {
+  tmi?: number;
+  situation_familiale?: string;
+  nombre_enfants?: number;
+  residence_principale?: boolean;
+  residence_secondaire?: boolean;
+  revenus_annuels?: number;
+  charges_deductibles?: number;
   company_name?: string;
   siret?: string;
   address?: string;
@@ -22,6 +29,13 @@ export function ProEditProfilePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const [profile, setProfile] = useState<ProProfile>({
+    tmi: null,
+    situation_familiale: '',
+    nombre_enfants: null,
+    residence_principale: null,
+    residence_secondaire: null,
+    revenus_annuels: null,
+    charges_deductibles: null,
     company_name: '',
     siret: '',
     address: '',
@@ -126,101 +140,105 @@ export function ProEditProfilePage() {
         {/* Formulaire */}
         <div className="bg-[#1A2942]/60 rounded-2xl border border-[#c5a572]/20 overflow-hidden">
           <div className="p-8">
-            <h2 className="text-2xl font-semibold text-white mb-6">Informations professionnelles</h2>
+            <h2 className="text-2xl font-semibold text-white mb-6">Modifier mon profil</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Informations de base */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                    <Building className="w-4 h-4" />
-                    Nom de l'entreprise
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.company_name}
-                    onChange={(e) => updateField('company_name', e.target.value)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    placeholder="Nom de votre cabinet"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Numéro SIRET</label>
-                  <input
-                    type="text"
-                    value={profile.siret}
-                    onChange={(e) => updateField('siret', e.target.value)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    placeholder="12345678901234"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Adresse
-                  </label>
-                  <textarea
-                    value={profile.address}
-                    onChange={(e) => updateField('address', e.target.value)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    rows={3}
-                    placeholder="Adresse complète de votre cabinet"
-                  />
-                </div>
+            <div className="space-y-6">
+              {/* Informations fiscales */}
+              <div>
+                <label htmlFor="tmi" className="block text-sm font-medium text-gray-300 mb-2">TMI (Tranche Marginale d'Imposition) en %</label>
+                <input
+                  type="number"
+                  id="tmi"
+                  value={profile.tmi ?? ''}
+                  onChange={(e) => updateField('tmi', e.target.value === '' ? null : parseFloat(e.target.value))}
+                  placeholder="Ex: 30" 
+                  min="0" max="100" step="0.01"
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                />
               </div>
 
-              {/* Informations de contact */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    Téléphone
-                  </label>
-                  <input
-                    type="tel"
-                    value={profile.phone}
-                    onChange={(e) => updateField('phone', e.target.value)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    placeholder="01 23 45 67 89"
-                  />
-                </div>
+              <div>
+                <label htmlFor="situation_familiale" className="block text-sm font-medium text-gray-300 mb-2">Situation Familiale</label>
+                <select
+                  id="situation_familiale"
+                  value={profile.situation_familiale ?? ''}
+                  onChange={(e) => updateField('situation_familiale', e.target.value)}
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                >
+                  <option value="">Non précisé</option>
+                  <option value="Célibataire">Célibataire</option>
+                  <option value="Marié(e)">Marié(e)</option>
+                  <option value="Pacsé(e)">Pacsé(e)</option>
+                  <option value="Divorcé(e)">Divorcé(e)</option>
+                  <option value="Veuf(ve)">Veuf(ve)</option>
+                </select>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Site web</label>
-                  <input
-                    type="url"
-                    value={profile.website}
-                    onChange={(e) => updateField('website', e.target.value)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    placeholder="https://www.votre-cabinet.fr"
-                  />
-                </div>
+              <div>
+                <label htmlFor="nombre_enfants" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
+                <input
+                  type="number"
+                  id="nombre_enfants"
+                  value={profile.nombre_enfants ?? ''}
+                  onChange={(e) => updateField('nombre_enfants', e.target.value === '' ? null : parseInt(e.target.value))}
+                  placeholder="Ex: 2"
+                  min="0"
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Spécialisation</label>
-                  <input
-                    type="text"
-                    value={profile.specialization}
-                    onChange={(e) => updateField('specialization', e.target.value)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    placeholder="Fiscalité des entreprises, ISF, etc."
-                  />
-                </div>
+              <div>
+                <label htmlFor="residence_principale" className="block text-sm font-medium text-gray-300 mb-2">Résidence principale</label>
+                <select
+                  id="residence_principale"
+                  value={profile.residence_principale === null ? '' : profile.residence_principale ? 'true' : 'false'}
+                  onChange={(e) => updateField('residence_principale', e.target.value === '' ? null : e.target.value === 'true')}
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                >
+                  <option value="">Non précisé</option>
+                  <option value="true">Oui</option>
+                  <option value="false">Non</option>
+                </select>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Années d'expérience</label>
-                  <input
-                    type="number"
-                    value={profile.years_experience}
-                    onChange={(e) => updateField('years_experience', parseInt(e.target.value) || 0)}
-                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                    min="0"
-                    max="50"
-                    aria-label="Années d'expérience"
-                  />
-                </div>
+              <div>
+                <label htmlFor="residence_secondaire" className="block text-sm font-medium text-gray-300 mb-2">Résidence secondaire</label>
+                <select
+                  id="residence_secondaire"
+                  value={profile.residence_secondaire === null ? '' : profile.residence_secondaire ? 'true' : 'false'}
+                  onChange={(e) => updateField('residence_secondaire', e.target.value === '' ? null : e.target.value === 'true')}
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                >
+                  <option value="">Non précisé</option>
+                  <option value="true">Oui</option>
+                  <option value="false">Non</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="revenus_annuels" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels (€)</label>
+                <input
+                  type="number"
+                  id="revenus_annuels"
+                  value={profile.revenus_annuels ?? ''}
+                  onChange={(e) => updateField('revenus_annuels', e.target.value === '' ? null : parseFloat(e.target.value))}
+                  placeholder="Ex: 50000"
+                  min="0" step="0.01"
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="charges_deductibles" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles annuelles (€)</label>
+                <input
+                  type="number"
+                  id="charges_deductibles"
+                  value={profile.charges_deductibles ?? ''}
+                  onChange={(e) => updateField('charges_deductibles', e.target.value === '' ? null : parseFloat(e.target.value))}
+                  placeholder="Ex: 5000"
+                  min="0" step="0.01"
+                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                />
               </div>
             </div>
 
