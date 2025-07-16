@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro } from 'lucide-react';
+import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import { ProfileSelector, ClientProfile as ProfileType } from '../components/ProfileSelector';
