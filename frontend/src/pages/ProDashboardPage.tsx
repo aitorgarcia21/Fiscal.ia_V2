@@ -394,6 +394,8 @@ export function ProDashboardPage() {
             <span className="text-sm text-gray-300 hidden md:block">
               {professionalName}
             </span>
+            {/* Bouton PWA dans le header */}
+            <PWAInstallButton />
           </div>
         </div>
       </div>
@@ -617,9 +619,6 @@ export function ProDashboardPage() {
               </div>
             </button>
           </div>
-
-          {/* Bouton d'installation PWA pour utilisateurs connectés */}
-          <PWAInstallButton className="mt-6" />
         </div>
       </div>
 
@@ -749,4 +748,4 @@ aria-label="Fermer le chat"
       </div>
     </div>
   );
-} 
+}
