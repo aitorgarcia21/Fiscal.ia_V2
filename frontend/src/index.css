@@ -46,4 +46,58 @@
   .scrollbar-track-transparent::-webkit-scrollbar-track {
     background-color: transparent;
   }
+}
+
+/* Optimisations Mobile */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimisation du scroll sur mobile */
+@media (max-width: 768px) {
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Amélioration des touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Espacement amélioré pour mobile */
+  .mobile-spacing > * + * {
+    margin-top: 1rem;
+  }
+  
+  /* Optimisation des formulaires mobile */
+  input, select, textarea {
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+}
+
+/* Animations optimisées pour mobile */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-hover {
+    transition: transform 0.2s ease;
+  }
+  
+  .mobile-hover:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Amélioration de l'accessibilité mobile */
+@media (max-width: 768px) {
+  /* Focus visible amélioré */
+  *:focus {
+    outline: 2px solid #c5a572;
+    outline-offset: 2px;
+  }
+  
+  /* Amélioration de la lisibilité */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
 } 
