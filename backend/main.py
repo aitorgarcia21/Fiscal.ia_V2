@@ -1339,8 +1339,8 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         if not customer_id:
             try:
                 print(f"DEBUG: Création d'un nouveau customer Stripe avec email={customer_email}")
-            customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
-            customer_id = customer.id
+                customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
+                customer_id = customer.id
                 print(f"DEBUG: Nouveau customer Stripe créé: {customer_id}")
             except Exception as create_error:
                 print(f"DEBUG: Erreur lors de la création du customer Stripe: {create_error}")
@@ -1349,12 +1349,12 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         # 3. Créer la session du portail
         try:
             print(f"DEBUG: Création de la session portal pour customer_id={customer_id}")
-        portal_session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=return_url,
-        )
+            portal_session = stripe.billing_portal.Session.create(
+                customer=customer_id,
+                return_url=return_url,
+            )
             print(f"DEBUG: Session portal créée avec succès: {portal_session.url}")
-        return {"url": portal_session.url}
+            return {"url": portal_session.url}
         except Exception as portal_error:
             print(f"DEBUG: Erreur lors de la création de la session portal: {portal_error}")
             raise HTTPException(status_code=400, detail=f"Erreur lors de la création de la session portal: {str(portal_error)}")
