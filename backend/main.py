@@ -2105,13 +2105,13 @@ async def transcribe_streaming(request: dict):
         # Mode streaming ultra-fluide
         if streaming:
             def generate_ultra_fluid_stream():
-            try:
+                try:
                     start_time = time.time()
                     
                     # Chunks plus petits pour latence réduite
                     chunk_size = max(len(audio_data) // 8, 1024)  # 8 chunks minimum
-                chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
-                
+                    chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
+                    
                     for i, result in enumerate(whisper_service.transcribe_streaming(chunks)):
                         # Ajouter métadonnées de performance
                         current_time = time.time()
@@ -2140,13 +2140,13 @@ async def transcribe_streaming(request: dict):
                     }
                     yield f"data: {json.dumps(final_result)}\n\n"
                     
-            except Exception as e:
+                except Exception as e:
                     error_result = {
                         "error": str(e), 
                         "is_final": True,
                         "streaming": True
                     }
-                yield f"data: {json.dumps(error_result)}\n\n"
+                    yield f"data: {json.dumps(error_result)}\n\n"
         
         return StreamingResponse(
                 generate_ultra_fluid_stream(),
