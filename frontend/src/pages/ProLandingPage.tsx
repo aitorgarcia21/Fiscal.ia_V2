@@ -161,9 +161,7 @@ const ProLandingPage = () => {
                         <div className="w-12 h-12 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
                           {step.step}
                         </div>
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#33ee87] rounded-full flex items-center justify-center">
-                          <step.icon className="w-3 h-3 text-[#162238]" />
-                        </div>
+
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-white mb-1 group-hover:text-[#c5a572] transition-colors duration-300">
