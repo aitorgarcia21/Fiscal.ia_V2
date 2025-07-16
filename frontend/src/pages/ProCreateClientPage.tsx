@@ -691,16 +691,10 @@ export function ProCreateClientPage() {
             </p>
           </div>
 
-          {/* Sélecteur de profil */}
-          {!selectedProfile && (
-            <ProfileSelector 
-              selectedProfile={selectedProfile} 
-              onProfileSelect={handleProfileSelect} 
-            />
-          )}
+
 
           {/* Assistant vocal */}
-          {selectedProfile && (
+          {(
             <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
               <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] p-6 border-b border-[#c5a572]/20">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -807,7 +801,7 @@ export function ProCreateClientPage() {
           )}
 
           {/* Formulaire adaptatif */}
-          {selectedProfile && (
+          {(
             <form onSubmit={handleSubmit} className="space-y-8">
               {renderFormByProfile()}
               
