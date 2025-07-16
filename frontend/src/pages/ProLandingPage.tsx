@@ -201,20 +201,7 @@ const ProLandingPage = () => {
               ))}
             </div>
 
-            <div className="mt-12 text-center">
-              <div className="inline-flex items-center gap-2 text-gray-300 bg-[#1E3253]/60 backdrop-blur-sm p-4 rounded-xl border border-[#2A3F6C]/30">
-                <Timer className="w-5 h-5 text-[#c5a572]" />
-                <span>Temps total : <span className="text-[#c5a572] font-semibold">moins de 5 minutes</span> après votre entretien</span>
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-gray-400 text-sm">
-                  <span className="text-[#c5a572] font-semibold">Avant Francis :</span> 2-3 heures de saisie et d'analyse manuelle
-                </p>
-                <p className="text-gray-400 text-sm">
-                  <span className="text-[#c5a572] font-semibold">Avec Francis :</span> 5 minutes d'export automatique
-                </p>
-              </div>
-            </div>
+
           </div>
         </section>
 
