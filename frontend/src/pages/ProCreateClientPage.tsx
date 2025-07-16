@@ -237,18 +237,421 @@ export function ProCreateClientPage() {
   const renderFormByProfile = () => {
     if (!selectedProfile) return null;
 
-    switch (selectedProfile) {
-      case 'particulier':
-        return <ParticulierForm formData={formData} handleChange={handleChange} />;
-      case 'professionnel':
-        return <div className="text-center text-gray-300">Formulaire professionnel à venir</div>;
-      case 'investisseur':
-        return <div className="text-center text-gray-300">Formulaire investisseur à venir</div>;
-      case 'entrepreneur':
-        return <div className="text-center text-gray-300">Formulaire entrepreneur à venir</div>;
-      default:
-        return null;
-    }
+    // Retourner le formulaire général complet pour tous les profils
+    return (
+      <div className="space-y-8">
+        {/* Informations personnelles */}
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <User className="w-5 h-5 text-[#c5a572]" />
+            Informations personnelles
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Civilité</label>
+              <select
+                name="civilite_client"
+                value={formData.civilite_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              >
+                <option value="">Sélectionner</option>
+                <option value="M">Monsieur</option>
+                <option value="Mme">Madame</option>
+                <option value="Mlle">Mademoiselle</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Nom de famille</label>
+              <input
+                type="text"
+                name="nom_client"
+                value={formData.nom_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Nom de famille"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Prénom</label>
+              <input
+                type="text"
+                name="prenom_client"
+                value={formData.prenom_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Prénom"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Nom d'usage</label>
+              <input
+                type="text"
+                name="nom_usage_client"
+                value={formData.nom_usage_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Nom d'usage (si différent)"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Date de naissance</label>
+              <input
+                type="date"
+                name="date_naissance_client"
+                value={formData.date_naissance_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Lieu de naissance</label>
+              <input
+                type="text"
+                name="lieu_naissance_client"
+                value={formData.lieu_naissance_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Ville, Pays"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Nationalité</label>
+              <input
+                type="text"
+                name="nationalite_client"
+                value={formData.nationalite_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Nationalité"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Numéro fiscal</label>
+              <input
+                type="text"
+                name="numero_fiscal_client"
+                value={formData.numero_fiscal_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Numéro fiscal (13 chiffres)"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Coordonnées */}
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Mail className="w-5 h-5 text-[#c5a572]" />
+            Coordonnées
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+              <input
+                type="email"
+                name="email_client"
+                value={formData.email_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="email@exemple.com"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Téléphone principal</label>
+              <input
+                type="tel"
+                name="telephone_principal_client"
+                value={formData.telephone_principal_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="06 12 34 56 78"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Téléphone secondaire</label>
+              <input
+                type="tel"
+                name="telephone_secondaire_client"
+                value={formData.telephone_secondaire_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Téléphone secondaire (optionnel)"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Adresse postale</label>
+              <input
+                type="text"
+                name="adresse_postale_client"
+                value={formData.adresse_postale_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Numéro et rue"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Code postal</label>
+              <input
+                type="text"
+                name="code_postal_client"
+                value={formData.code_postal_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="75001"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Ville</label>
+              <input
+                type="text"
+                name="ville_client"
+                value={formData.ville_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Paris"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Pays de résidence fiscale</label>
+              <input
+                type="text"
+                name="pays_residence_fiscale_client"
+                value={formData.pays_residence_fiscale_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="France"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Situation familiale */}
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#c5a572]" />
+            Situation familiale
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Situation maritale</label>
+              <select
+                name="situation_maritale_client"
+                value={formData.situation_maritale_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              >
+                <option value="">Sélectionner</option>
+                <option value="Célibataire">Célibataire</option>
+                <option value="Marié(e)">Marié(e)</option>
+                <option value="Pacsé(e)">Pacsé(e)</option>
+                <option value="Divorcé(e)">Divorcé(e)</option>
+                <option value="Veuf/Veuve">Veuf/Veuve</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Date de mariage/PACS</label>
+              <input
+                type="date"
+                name="date_mariage_pacs_client"
+                value={formData.date_mariage_pacs_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Régime matrimonial</label>
+              <select
+                name="regime_matrimonial_client"
+                value={formData.regime_matrimonial_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              >
+                <option value="">Sélectionner</option>
+                <option value="Séparation de biens">Séparation de biens</option>
+                <option value="Communauté réduite aux acquêts">Communauté réduite aux acquêts</option>
+                <option value="Communauté universelle">Communauté universelle</option>
+                <option value="Participation aux acquêts">Participation aux acquêts</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants à charge</label>
+              <input
+                type="number"
+                name="nombre_enfants_a_charge_client"
+                value={formData.nombre_enfants_a_charge_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Personnes dépendantes</label>
+              <input
+                type="number"
+                name="personnes_dependantes_client"
+                value={formData.personnes_dependantes_client}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Activité professionnelle */}
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-[#c5a572]" />
+            Activité professionnelle
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Profession</label>
+              <input
+                type="text"
+                name="profession_client1"
+                value={formData.profession_client1}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Profession"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Statut professionnel</label>
+              <select
+                name="statut_professionnel_client1"
+                value={formData.statut_professionnel_client1}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              >
+                <option value="">Sélectionner</option>
+                <option value="Salarié">Salarié</option>
+                <option value="Fonctionnaire">Fonctionnaire</option>
+                <option value="Indépendant">Indépendant</option>
+                <option value="Retraité">Retraité</option>
+                <option value="Sans activité">Sans activité</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Employeur/Entreprise</label>
+              <input
+                type="text"
+                name="nom_employeur_entreprise_client1"
+                value={formData.nom_employeur_entreprise_client1}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Nom de l'employeur ou entreprise"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Type de contrat</label>
+              <select
+                name="type_contrat_client1"
+                value={formData.type_contrat_client1}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+              >
+                <option value="">Sélectionner</option>
+                <option value="CDI">CDI</option>
+                <option value="CDD">CDD</option>
+                <option value="Intérim">Intérim</option>
+                <option value="Stage">Stage</option>
+                <option value="Alternance">Alternance</option>
+                <option value="Libéral">Libéral</option>
+                <option value="Auto-entrepreneur">Auto-entrepreneur</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Revenu net annuel (€)</label>
+              <input
+                type="number"
+                name="revenu_net_annuel_client1"
+                value={formData.revenu_net_annuel_client1}
+                onChange={handleChange}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="50000"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Notes et objectifs */}
+        <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Target className="w-5 h-5 text-[#c5a572]" />
+            Objectifs et notes
+          </h3>
+          
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Objectifs fiscaux</label>
+              <textarea
+                name="objectifs_fiscaux_client"
+                value={formData.objectifs_fiscaux_client}
+                onChange={handleChange}
+                rows={3}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Objectifs fiscaux du client..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Objectifs patrimoniaux</label>
+              <textarea
+                name="objectifs_patrimoniaux_client"
+                value={formData.objectifs_patrimoniaux_client}
+                onChange={handleChange}
+                rows={3}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Objectifs patrimoniaux du client..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Notes internes</label>
+              <textarea
+                name="notes_internes_pro"
+                value={formData.notes_internes_pro}
+                onChange={handleChange}
+                rows={4}
+                className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
+                placeholder="Notes internes pour le professionnel..."
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
