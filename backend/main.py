@@ -2105,61 +2105,20 @@ async def transcribe_streaming(request: dict):
         # Mode streaming ultra-fluide
         if streaming:
             def generate_ultra_fluid_stream():
-                try:
-                    start_time = time.time()
-                    
-                    # Chunks plus petits pour latence réduite
-                    chunk_size = max(len(audio_data) // 8, 1024)  # 8 chunks minimum
-                    chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
-                    
-                    for i, result in enumerate(whisper_service.transcribe_streaming(chunks)):
-                        # Ajouter métadonnées de performance
-                        current_time = time.time()
-                        latency = (current_time - start_time) * 1000  # en ms
-                        
-                        enhanced_result = {
-                            **result,
-                            "chunk_index": i,
-                            "latency_ms": round(latency, 1),
-                            "timestamp": current_time,
-                            "streaming": True
-                        }
-                        
-                        yield f"data: {json.dumps(enhanced_result)}\n\n"
-                        
-                        # Pause minimale pour éviter la surcharge
-                        time.sleep(0.01)
-                    
-                    # Signal de fin avec métriques
-                    final_result = {
-                        "text": "",
-                        "is_final": True,
-                        "total_latency_ms": round((time.time() - start_time) * 1000, 1),
-                        "chunks_processed": len(chunks),
-                        "streaming": True
-                    }
-                    yield f"data: {json.dumps(final_result)}\n\n"
-                    
-                except Exception as e:
-                    error_result = {
-                        "error": str(e), 
-                        "is_final": True,
-                        "streaming": True
-                    }
-                    yield f"data: {json.dumps(error_result)}\n\n"
-        
-        return StreamingResponse(
+                # Transcription en streaming ultra-fluide
+                result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+                yield f"data: {json.dumps(result)}\n\n"
+            
+            return StreamingResponse(
                 generate_ultra_fluid_stream(),
                 media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
                     "Content-Type": "text/event-stream",
                     "X-Streaming": "ultra-fluid"
-            }
-        )
-        
-        # Mode normal (compatibilité)
+                }
+            )
         else:
             result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
             result["streaming"] = False
@@ -2470,13 +2429,13 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
             raise HTTPException(status_code=500, detail=f"Erreur de transcription: {result['error']}")
             
         transcription = result.get("text", "").strip()
-            
-            if transcription:
-                print(f"✅ Transcription réussie: {transcription[:100]}...")
+        
+        if transcription:
+            print(f"✅ Transcription réussie: {transcription[:100]}...")
             return TranscriptionResponse(**result)
-            else:
-                print("⚠️ Aucun texte détecté")
-                raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
+        else:
+            print("⚠️ Aucun texte détecté")
+            raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
                 
     except HTTPException:
         raise
