@@ -149,7 +149,7 @@ export function ProChatPage() {
       return newMessages.slice(-50);
     });
     
-        const currentInput = input;
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
 
@@ -204,8 +204,8 @@ export function ProChatPage() {
       setMessages(prev => {
         const newMessages = [...prev, { 
           role: 'assistant' as const, 
-          content: errorMessage,
-          error: true 
+        content: errorMessage,
+        error: true 
         }];
         // Garder seulement les 50 derniers messages
         return newMessages.slice(-50);
@@ -218,9 +218,9 @@ export function ProChatPage() {
   // Optimisation du scroll automatique avec debouncing
   useEffect(() => {
     const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
-    
+
     // Debouncing pour éviter les scrolls trop fréquents
     const timeoutId = setTimeout(scrollToBottom, 100);
     
@@ -293,7 +293,7 @@ export function ProChatPage() {
                   🔄
                 </button>
               </div>
-                              <select 
+                <select 
                   value={selectedClientId || ''}
                   onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
                   disabled={isLoadingClients || isLoading}
@@ -301,12 +301,12 @@ export function ProChatPage() {
                   aria-label="Sélectionner un client"
                 >
                 <option value="">Général</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.prenom_client} {client.nom_client}
-                  </option>
-                ))}
-              </select>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.prenom_client} {client.nom_client}
+                    </option>
+                  ))}
+                </select>
               {isLoadingClients && <p className="text-xs text-gray-500 mt-2">Chargement...</p>}
             </div>
           )}
@@ -362,69 +362,69 @@ export function ProChatPage() {
           )}
         </div>
 
-        {/* Zone de chat principale */}
+          {/* Zone de chat principale */}
         <div className="flex-1 flex flex-col">
-          {/* Messages */}
+            {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {messages.map((message, index) => (
-              <div 
-                key={index} 
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+              {messages.map((message, index) => (
                 <div 
-                  className={`max-w-[75%] p-4 rounded-2xl shadow-lg ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
-                      : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#162238] text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
-                  }`}
+                  key={index} 
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
+                  <div 
+                  className={`max-w-[75%] p-4 rounded-2xl shadow-lg ${
+                      message.role === 'user'
+                      ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
+                        : message.error ? 'bg-red-700/70 text-white rounded-bl-none' : 'bg-[#162238] text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
+                    }`}
+                  >
                   <div className="flex items-start space-x-3">
-                    {message.role === 'assistant' && (
+                      {message.role === 'assistant' && (
                       <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
                         <MessageSquare className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
                         <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-                      </div>
-                    )}
+</div>
+                      )}
                     <div className="flex-1">
                       <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
 
-                      {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
+                        {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
                         <div className="mt-3 p-2 bg-[#1a2332]/50 rounded-lg border border-[#c5a572]/10">
                           <span className="text-xs font-medium text-[#c5a572] mb-1 block">Sources:</span>
                           <ul className="list-disc pl-4 text-xs text-gray-400 space-y-1">
-                            {message.sources.map((source, idx) => (
-                              <li key={idx}>{source}</li>
-                            ))}
-                          </ul>
+                              {message.sources.map((source, idx) => (
+                                <li key={idx}>{source}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      {message.role === 'user' && (
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-[#c5a572]/20">
+                          <UserIcon className="w-5 h-5 text-[#c5a572]" />
                         </div>
                       )}
                     </div>
-                    {message.role === 'user' && (
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-[#c5a572]/20">
-                        <UserIcon className="w-5 h-5 text-[#c5a572]" />
-                      </div>
-                    )}
                   </div>
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start p-3">
-                <div className="flex items-center space-x-2">
+              ))}
+              {isLoading && (
+                <div className="flex justify-start p-3">
+                    <div className="flex items-center space-x-2">
                   <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
                     <MessageSquare className="h-7 w-7 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
                     <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-                  </div>
-                  <div className="flex items-center space-x-1.5 bg-[#162238] border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
+</div>
+                        <div className="flex items-center space-x-1.5 bg-[#162238] border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
+                            <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
           {/* Zone de saisie moderne */}
           <div className="border-t border-[#c5a572]/20 bg-[#162238]/90 p-4">
@@ -446,15 +446,15 @@ export function ProChatPage() {
                     }}
                   />
                 </div>
-                
-                <button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
+                  
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
                   className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-[48px] w-[48px]"
-                  aria-label="Envoyer le message"
-                >
+                    aria-label="Envoyer le message"
+                  >
                   <Send className="w-5 h-5" />
-                </button>
+                  </button>
               </div>
             </form>
           </div>
@@ -462,4 +462,4 @@ export function ProChatPage() {
       </div>
     </div>
   );
-}
+} 

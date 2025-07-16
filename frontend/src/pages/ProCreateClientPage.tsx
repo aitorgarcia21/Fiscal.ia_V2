@@ -635,9 +635,9 @@ export function ProCreateClientPage() {
                 className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
                 placeholder="Objectifs patrimoniaux du client..."
               />
-            </div>
+              </div>
             
-            <div>
+              <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Notes internes</label>
               <textarea
                 name="notes_internes_pro"
@@ -647,13 +647,13 @@ export function ProCreateClientPage() {
                 className="w-full bg-[#0E2444] border border-[#2A3F6C] rounded-lg px-4 py-3 text-white focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
                 placeholder="Notes internes pour le professionnel..."
               />
+              </div>
             </div>
           </div>
-        </div>
       </div>
     );
   };
-
+          
   return (
     <div className="min-h-screen bg-gradient-to-tr from-[#234876] to-[#162238] text-gray-100">
       {/* Header */}
@@ -672,10 +672,10 @@ export function ProCreateClientPage() {
               <div className="relative inline-flex items-center justify-center">
                 <MessageSquare className="h-8 w-8 text-[#c5a572]" />
                 <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-              </div>
-              <span className="text-lg font-bold text-white">Francis</span>
-            </div>
           </div>
+              <span className="text-lg font-bold text-white">Francis</span>
+        </div>
+      </div>
         </div>
       </header>
 
@@ -736,17 +736,17 @@ export function ProCreateClientPage() {
 
               {showVoiceInput && (
                 <div className="bg-gradient-to-br from-[#0E2444] to-[#162238] p-6 border-t border-[#c5a572]/20">
-                  <div className="max-w-5xl mx-auto">
+                    <div className="max-w-5xl mx-auto">
                     <div className="mb-6">
-                      <UltraFluidVoiceRecorder
-                        onTranscriptionUpdate={handleVoiceTranscription}
-                        onTranscriptionComplete={handleFinalTranscription}
-                        onError={handleVoiceError}
-                        className="mb-0"
-                        streamingMode={true}
-                        realTimeMode={true}
-                      />
-                    </div>
+                        <UltraFluidVoiceRecorder
+                          onTranscriptionUpdate={handleVoiceTranscription}
+                          onTranscriptionComplete={handleFinalTranscription}
+                          onError={handleVoiceError}
+                          className="mb-0"
+                          streamingMode={true}
+                          realTimeMode={true}
+                        />
+                      </div>
 
                     <div className="bg-[#1a2332] rounded-xl border border-[#c5a572]/20 p-5 shadow-lg">
                       <div className="flex items-center justify-between mb-4">
@@ -756,20 +756,20 @@ export function ProCreateClientPage() {
                             <span className="text-sm font-medium text-[#c5a572]">Assistant actif</span>
                           </div>
                           <div className="text-xs text-gray-400">• En écoute continue</div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setTranscript('')}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setTranscript('')}
                           className="text-xs text-gray-400 hover:text-[#c5a572] transition-colors px-3 py-1 rounded-lg hover:bg-[#c5a572]/10 border border-[#c5a572]/20"
-                        >
+                          >
                           Effacer
-                        </button>
-                      </div>
+                          </button>
+                        </div>
                       <div className="bg-[#0E2444] rounded-lg p-4 min-h-[120px] max-h-[250px] overflow-y-auto border border-[#c5a572]/20">
                         <p className="text-sm whitespace-pre-wrap text-gray-200 leading-relaxed">
                           {transcript || "Parlez maintenant pour que Francis commence à écouter..."}
                         </p>
-                      </div>
+                        </div>
                       
                       {transcript && (
                         <div className="mt-4 flex justify-center">
@@ -788,16 +788,16 @@ export function ProCreateClientPage() {
                               <>
                                 <Brain className="w-4 h-4" />
                                 Analyser avec Francis
-                              </>
-                            )}
+                </>
+              )}
                           </button>
-                        </div>
+            </div>
                       )}
-                    </div>
-                  </div>
+                </div>
+                </div>
                 </div>
               )}
-            </div>
+                </div>
           )}
 
           {/* Formulaire adaptatif */}

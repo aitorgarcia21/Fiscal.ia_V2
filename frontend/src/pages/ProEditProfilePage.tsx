@@ -144,26 +144,26 @@ export function ProEditProfilePage() {
             
             <div className="space-y-6">
               {/* Informations fiscales */}
-              <div>
+                <div>
                 <label htmlFor="tmi" className="block text-sm font-medium text-gray-300 mb-2">TMI (Tranche Marginale d'Imposition) en %</label>
-                <input
+                  <input
                   type="number"
                   id="tmi"
                   value={profile.tmi ?? ''}
                   onChange={(e) => updateField('tmi', e.target.value === '' ? null : parseFloat(e.target.value))}
                   placeholder="Ex: 30" 
                   min="0" max="100" step="0.01"
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                />
-              </div>
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                  />
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="situation_familiale" className="block text-sm font-medium text-gray-300 mb-2">Situation Familiale</label>
                 <select
                   id="situation_familiale"
                   value={profile.situation_familiale ?? ''}
                   onChange={(e) => updateField('situation_familiale', e.target.value)}
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
                 >
                   <option value="">Non précisé</option>
                   <option value="Célibataire">Célibataire</option>
@@ -172,9 +172,9 @@ export function ProEditProfilePage() {
                   <option value="Divorcé(e)">Divorcé(e)</option>
                   <option value="Veuf(ve)">Veuf(ve)</option>
                 </select>
-              </div>
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="nombre_enfants" className="block text-sm font-medium text-gray-300 mb-2">Nombre d'enfants</label>
                 <input
                   type="number"
@@ -183,62 +183,62 @@ export function ProEditProfilePage() {
                   onChange={(e) => updateField('nombre_enfants', e.target.value === '' ? null : parseInt(e.target.value))}
                   placeholder="Ex: 2"
                   min="0"
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                />
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                  />
               </div>
 
-              <div>
+                <div>
                 <label htmlFor="residence_principale" className="block text-sm font-medium text-gray-300 mb-2">Résidence principale</label>
                 <select
                   id="residence_principale"
                   value={profile.residence_principale === null ? '' : profile.residence_principale ? 'true' : 'false'}
                   onChange={(e) => updateField('residence_principale', e.target.value === '' ? null : e.target.value === 'true')}
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
                 >
                   <option value="">Non précisé</option>
                   <option value="true">Oui</option>
                   <option value="false">Non</option>
                 </select>
-              </div>
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="residence_secondaire" className="block text-sm font-medium text-gray-300 mb-2">Résidence secondaire</label>
                 <select
                   id="residence_secondaire"
                   value={profile.residence_secondaire === null ? '' : profile.residence_secondaire ? 'true' : 'false'}
                   onChange={(e) => updateField('residence_secondaire', e.target.value === '' ? null : e.target.value === 'true')}
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
                 >
                   <option value="">Non précisé</option>
                   <option value="true">Oui</option>
                   <option value="false">Non</option>
                 </select>
-              </div>
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="revenus_annuels" className="block text-sm font-medium text-gray-300 mb-2">Revenus annuels (€)</label>
-                <input
+                  <input
                   type="number"
                   id="revenus_annuels"
                   value={profile.revenus_annuels ?? ''}
                   onChange={(e) => updateField('revenus_annuels', e.target.value === '' ? null : parseFloat(e.target.value))}
                   placeholder="Ex: 50000"
                   min="0" step="0.01"
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                />
-              </div>
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                  />
+                </div>
 
-              <div>
+                <div>
                 <label htmlFor="charges_deductibles" className="block text-sm font-medium text-gray-300 mb-2">Charges déductibles annuelles (€)</label>
-                <input
-                  type="number"
+                  <input
+                    type="number"
                   id="charges_deductibles"
                   value={profile.charges_deductibles ?? ''}
                   onChange={(e) => updateField('charges_deductibles', e.target.value === '' ? null : parseFloat(e.target.value))}
                   placeholder="Ex: 5000"
                   min="0" step="0.01"
-                  className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
-                />
+                    className="w-full px-4 py-3 bg-[#162238]/50 border border-[#c5a572]/30 rounded-lg text-white focus:outline-none focus:border-[#c5a572]"
+                  />
               </div>
             </div>
 

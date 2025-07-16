@@ -2,7 +2,7 @@
   "name": "Francis - Assistant Fiscal Intelligent",
   "short_name": "Francis Fiscal",
   "description": "Assistant fiscal intelligent powered by IA pour optimiser vos impôts",
-  "start_url": "/",
+  "start_url": "/login",
   "display": "standalone",
   "background_color": "#0A1628",
   "theme_color": "#1a2942",
@@ -13,19 +13,19 @@
   "categories": ["finance", "productivity", "business"],
   "icons": [
     {
-      "src": "/fiscalia-logo.svg",
+      "src": "/francis-favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/fiscalia-logo.svg",
+      "src": "/francis-favicon.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/fiscalia-logo.svg",
+      "src": "/francis-favicon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any"
@@ -47,25 +47,25 @@
   ],
   "shortcuts": [
     {
-      "name": "Simulateur Fiscal",
-      "short_name": "Simulateur",
-      "description": "Simulez vos économies fiscales",
-      "url": "/simulateur-impot",
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Accédez à votre dashboard Francis",
+      "url": "/dashboard",
       "icons": [
         {
-          "src": "/fiscalia-logo.svg",
+          "src": "/francis-favicon.svg",
           "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Optimisation Fiscale",
-      "short_name": "Optimisation",
-      "description": "Découvrez nos solutions d'optimisation",
-      "url": "/optimisation-fiscale-ia",
+      "name": "Chat Francis",
+      "short_name": "Chat",
+      "description": "Discutez avec Francis",
+      "url": "/chat",
       "icons": [
         {
-          "src": "/fiscalia-logo.svg",
+          "src": "/francis-favicon.svg",
           "sizes": "96x96"
         }
       ]

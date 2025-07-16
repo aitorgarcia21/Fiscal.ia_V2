@@ -1,10 +1,14 @@
 const CACHE_NAME = 'fiscal-ia-v1.0.0';
 const urlsToCache = [
-  '/',
+  '/login',
+  '/register',
+  '/dashboard',
+  '/chat',
+  '/account',
   '/index.html',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/fiscalia-logo.svg',
+  '/francis-favicon.svg',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
@@ -38,6 +42,20 @@ self.addEventListener('activate', function(event) {
 
 // Interception des requêtes
 self.addEventListener('fetch', function(event) {
+  // Ne pas mettre en cache la landing page (/) et les pages publiques
+  const url = new URL(event.request.url);
+  const isPublicPage = url.pathname === '/' || 
+                      url.pathname.startsWith('/simulateur') ||
+                      url.pathname.startsWith('/optimisation') ||
+                      url.pathname.startsWith('/pricing') ||
+                      url.pathname.startsWith('/about');
+  
+  if (isPublicPage) {
+    // Pour les pages publiques, toujours aller chercher en réseau
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
@@ -73,8 +91,8 @@ self.addEventListener('fetch', function(event) {
 self.addEventListener('push', function(event) {
   const options = {
     body: event.data ? event.data.text() : 'Nouvelle notification de Francis',
-    icon: '/fiscalia-logo.svg',
-    badge: '/fiscalia-logo.svg',
+    icon: '/francis-favicon.svg',
+    badge: '/francis-favicon.svg',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -84,12 +102,12 @@ self.addEventListener('push', function(event) {
       {
         action: 'explore',
         title: 'Voir',
-        icon: '/fiscalia-logo.svg'
+        icon: '/francis-favicon.svg'
       },
       {
         action: 'close',
         title: 'Fermer',
-        icon: '/fiscalia-logo.svg'
+        icon: '/francis-favicon.svg'
       }
     ]
   };

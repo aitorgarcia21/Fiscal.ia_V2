@@ -1335,12 +1335,12 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
                 print(f"DEBUG: Customer Stripe existant trouvé: {customer_id}")
         except Exception as stripe_error:
             print(f"DEBUG: Erreur lors de la recherche du customer Stripe: {stripe_error}")
-        
+
         if not customer_id:
             try:
                 print(f"DEBUG: Création d'un nouveau customer Stripe avec email={customer_email}")
-                customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
-                customer_id = customer.id
+            customer = stripe.Customer.create(email=customer_email, metadata={"user_id": user_id})
+            customer_id = customer.id
                 print(f"DEBUG: Nouveau customer Stripe créé: {customer_id}")
             except Exception as create_error:
                 print(f"DEBUG: Erreur lors de la création du customer Stripe: {create_error}")
@@ -1349,12 +1349,12 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
         # 3. Créer la session du portail
         try:
             print(f"DEBUG: Création de la session portal pour customer_id={customer_id}")
-            portal_session = stripe.billing_portal.Session.create(
-                customer=customer_id,
-                return_url=return_url,
-            )
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=return_url,
+        )
             print(f"DEBUG: Session portal créée avec succès: {portal_session.url}")
-            return {"url": portal_session.url}
+        return {"url": portal_session.url}
         except Exception as portal_error:
             print(f"DEBUG: Erreur lors de la création de la session portal: {portal_error}")
             raise HTTPException(status_code=400, detail=f"Erreur lors de la création de la session portal: {str(portal_error)}")
@@ -2105,13 +2105,13 @@ async def transcribe_streaming(request: dict):
         # Mode streaming ultra-fluide
         if streaming:
             def generate_ultra_fluid_stream():
-                try:
+            try:
                     start_time = time.time()
                     
                     # Chunks plus petits pour latence réduite
                     chunk_size = max(len(audio_data) // 8, 1024)  # 8 chunks minimum
-                    chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
-                    
+                chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
+                
                     for i, result in enumerate(whisper_service.transcribe_streaming(chunks)):
                         # Ajouter métadonnées de performance
                         current_time = time.time()
@@ -2140,24 +2140,24 @@ async def transcribe_streaming(request: dict):
                     }
                     yield f"data: {json.dumps(final_result)}\n\n"
                     
-                except Exception as e:
+            except Exception as e:
                     error_result = {
                         "error": str(e), 
                         "is_final": True,
                         "streaming": True
                     }
-                    yield f"data: {json.dumps(error_result)}\n\n"
-            
-            return StreamingResponse(
+                yield f"data: {json.dumps(error_result)}\n\n"
+        
+        return StreamingResponse(
                 generate_ultra_fluid_stream(),
                 media_type="text/event-stream",
-                headers={
-                    "Cache-Control": "no-cache",
-                    "Connection": "keep-alive",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
                     "Content-Type": "text/event-stream",
                     "X-Streaming": "ultra-fluid"
-                }
-            )
+            }
+        )
         
         # Mode normal (compatibilité)
         else:
@@ -2455,7 +2455,7 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
         whisper_service = get_whisper_service()
         if not whisper_service:
             raise HTTPException(status_code=503, detail="Service Whisper non disponible")
-        
+            
         # Déterminer le format audio
         audio_format = "webm"  # Par défaut
         if audio.content_type == "audio/wav":
@@ -2468,15 +2468,15 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
         
         if result.get("error"):
             raise HTTPException(status_code=500, detail=f"Erreur de transcription: {result['error']}")
-        
+            
         transcription = result.get("text", "").strip()
-        
-        if transcription:
-            print(f"✅ Transcription réussie: {transcription[:100]}...")
+            
+            if transcription:
+                print(f"✅ Transcription réussie: {transcription[:100]}...")
             return TranscriptionResponse(**result)
-        else:
-            print("⚠️ Aucun texte détecté")
-            raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
+            else:
+                print("⚠️ Aucun texte détecté")
+                raise HTTPException(status_code=400, detail="Aucun texte détecté dans l'audio")
                 
     except HTTPException:
         raise
