@@ -26,6 +26,7 @@ interface SpeechRecognitionErrorEvent extends Event {
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot, Monitor, Zap } from 'lucide-react';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
+import { PWAInstallButton } from '../components/PWAInstallButton';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -650,6 +651,9 @@ export function ProDashboardPage() {
               </div>
             </button>
           </div>
+
+          {/* Bouton d'installation PWA pour utilisateurs connectés */}
+          <PWAInstallButton className="mt-6" />
         </div>
       </div>
 

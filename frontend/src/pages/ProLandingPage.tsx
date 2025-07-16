@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Zap, Sparkles, Play, Download, TrendingUp, Timer, Monitor } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { PWAInstallButton } from '../components/PWAInstallButton';
 
 
 const features = [
@@ -216,31 +217,22 @@ const ProLandingPage = () => {
                   Plus besoin de changer d'application, Francis travaille directement dans Teams !
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                  <button
-                    onClick={() => window.open('/chrome_extension/install-super-simple.html', '_blank')}
-                    className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl text-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-3"
-                  >
-                    <Zap className="h-5 w-5" />
-                    ⚡ Installer Francis Automatiquement
-                  </button>
-                  
-                  <button
-                    onClick={() => window.open('/chrome_extension/francis-teams-automatic.zip', '_blank')}
-                    className="px-8 py-4 border-2 border-[#c5a572] text-[#c5a572] rounded-xl text-lg font-semibold hover:bg-[#c5a572]/10 transition-all duration-300 flex items-center gap-3"
-                  >
-                    <Download className="h-5 w-5" />
-                    📦 Télécharger Manuellement
-                  </button>
-                </div>
-                
-                <div className="mt-6 text-sm text-gray-400">
-                  <p>✅ Compatible Windows, macOS, Linux</p>
-                  <p>✅ Installation automatique en 30 secondes</p>
-                  <p>✅ Fonctionne avec Google Chrome</p>
-                </div>
+                <button
+                  onClick={() => window.open('/chrome_extension/install-super-simple.html', '_blank')}
+                  className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl text-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-3 mx-auto"
+                >
+                  <Zap className="h-5 w-5" />
+                  ⚡ Installer Francis Automatiquement
+                </button>
               </div>
             </div>
+
+            {/* Bouton d'installation PWA pour utilisateurs connectés */}
+            {isAuthenticated && (
+              <div className="mt-8">
+                <PWAInstallButton />
+              </div>
+            )}
 
           </div>
         </section>
