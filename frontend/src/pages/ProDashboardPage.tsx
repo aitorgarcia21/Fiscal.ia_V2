@@ -395,7 +395,7 @@ export function ProDashboardPage() {
               {professionalName}
             </span>
             {/* Bouton PWA dans le header */}
-            <PWAInstallButton />
+            <PWAInstallButton forceShow={true} />
           </div>
         </div>
       </div>

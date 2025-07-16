@@ -3,9 +3,10 @@ import { Download, CheckCircle, X } from 'lucide-react';
 
 interface PWAInstallButtonProps {
   className?: string;
+  forceShow?: boolean; // Nouvelle prop pour forcer l'affichage
 }
 
-export function PWAInstallButton({ className = '' }: PWAInstallButtonProps) {
+export function PWAInstallButton({ className = '', forceShow = false }: PWAInstallButtonProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstallButton, setShowInstallButton] = useState(false);
@@ -42,7 +43,11 @@ export function PWAInstallButton({ className = '' }: PWAInstallButtonProps) {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      // Si pas de prompt disponible, afficher un message d'aide
+      alert('Pour installer Francis, utilisez le menu de votre navigateur (⋮) et sélectionnez "Ajouter à l\'écran d\'accueil"');
+      return;
+    }
 
     // Afficher le prompt d'installation
     deferredPrompt.prompt();
@@ -61,34 +66,34 @@ export function PWAInstallButton({ className = '' }: PWAInstallButtonProps) {
     setShowInstallButton(false);
   };
 
-  // Ne pas afficher si l'app est déjà installée ou si l'installation n'est pas disponible
-  if (isInstalled || !showInstallButton) {
+  // Afficher si forcé, si l'app n'est pas installée et si l'installation est disponible ou forcée
+  if (isInstalled || (!showInstallButton && !forceShow)) {
     return null;
   }
 
   return (
-    <div className={`bg-gradient-to-br from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm p-6 rounded-2xl border border-[#c5a572]/30 shadow-xl hover:shadow-2xl hover:shadow-[#c5a572]/20 transition-all duration-500 ${className}`}>
+    <div className={`bg-gradient-to-br from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm p-4 rounded-xl border border-[#c5a572]/30 shadow-xl hover:shadow-2xl hover:shadow-[#c5a572]/20 transition-all duration-500 ${className}`}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center shadow-lg">
-            <Download className="h-6 w-6 text-[#162238]" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center shadow-lg">
+            <Download className="h-5 w-5 text-[#162238]" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white mb-1">
-              Installer Francis sur votre appareil
+            <h3 className="text-sm font-bold text-white">
+              Installer Francis
             </h3>
-            <p className="text-gray-300 text-sm">
-              Accédez à Francis depuis votre écran d'accueil
+            <p className="text-gray-300 text-xs">
+              Accédez depuis votre écran d'accueil
             </p>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleInstallClick}
-            className="px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-lg text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-1"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3 w-3" />
             Installer
           </button>
           
@@ -97,7 +102,7 @@ export function PWAInstallButton({ className = '' }: PWAInstallButtonProps) {
             className="text-gray-400 hover:text-white transition-colors"
             title="Fermer"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       </div>
