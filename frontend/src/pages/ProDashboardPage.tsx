@@ -24,7 +24,7 @@ interface SpeechRecognitionErrorEvent extends Event {
   message: string;
 }
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot, Monitor, Zap } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot, Zap } from 'lucide-react';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import { PWAInstallButton } from '../components/PWAInstallButton';
 import apiClient from '../services/apiClient';
@@ -582,7 +582,7 @@ export function ProDashboardPage() {
           </div>
 
           {/* Actions rapides */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             <button
               onClick={() => navigate('/pro/chat')}
               className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
@@ -596,23 +596,6 @@ export function ProDashboardPage() {
                     Chat Francis
                   </h3>
                   <p className="text-sm text-gray-400">Posez vos questions</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => navigate('/pro/extension')}
-              className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
-                  <Monitor className="w-6 h-6 text-[#162238]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
-                    Installer Francis
-                  </h3>
-                  <p className="text-sm text-gray-400">Extension Teams</p>
                 </div>
               </div>
             </button>
