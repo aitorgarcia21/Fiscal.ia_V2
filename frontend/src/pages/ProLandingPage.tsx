@@ -189,14 +189,7 @@ const ProLandingPage = () => {
                     </div>
                   </div>
                   
-                  {/* Flèche de connexion (sauf pour le dernier) */}
-                  {index < processSteps.length - 1 && (
-                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                      <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center shadow-lg">
-                        <ChevronRight className="w-4 h-4 text-[#162238]" />
-                      </div>
-                    </div>
-                  )}
+
                 </div>
               ))}
             </div>
