@@ -5,7 +5,7 @@ import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
-import { ProfileSelector, ClientProfile as ProfileType } from '../components/ProfileSelector';
+
 import { ParticulierForm } from '../components/profile-forms/ParticulierForm';
 
 interface ProCreateClientFormState {
@@ -168,14 +168,12 @@ export function ProCreateClientPage() {
   const [formData, setFormData] = useState<ProCreateClientFormState>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileType | null>(null);
+
   const [showVoiceInput, setShowVoiceInput] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
 
-  const handleProfileSelect = (profile: ProfileType) => {
-    setSelectedProfile(profile);
-  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -235,9 +233,7 @@ export function ProCreateClientPage() {
   };
 
   const renderFormByProfile = () => {
-    if (!selectedProfile) return null;
-
-    // Retourner le formulaire général complet pour tous les profils
+    // Formulaire généraliste unique (sans sélection de profil)
     return (
       <div className="space-y-8">
         {/* Informations personnelles */}
@@ -691,10 +687,7 @@ export function ProCreateClientPage() {
             </p>
           </div>
 
-          {/* Sélecteur de profil */}
-          <div className="mb-8">
-            <ProfileSelector onProfileSelect={handleProfileSelect} />
-          </div>
+
 
           {/* Assistant vocal */}
           {(
@@ -803,10 +796,9 @@ export function ProCreateClientPage() {
                 </div>
           )}
 
-          {/* Formulaire adaptatif */}
-          {(
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {renderFormByProfile()}
+          {/* Formulaire généraliste */}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {renderFormByProfile()}
               
               {error && (
                 <p className="text-sm text-red-400 mt-6 text-center py-2 px-4 bg-red-900/30 rounded-md border border-red-700">
@@ -830,7 +822,6 @@ export function ProCreateClientPage() {
                 </button>
               </div>
             </form>
-          )}
         </div>
       </div>
     </div>
