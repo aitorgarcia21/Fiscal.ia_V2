@@ -453,7 +453,7 @@ const BlogPage = () => {
         "name": "Francis",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://fiscal-ia.net/fiscalia-logo.svg"
+          "url": "https://fiscal-ia.net/favicon.svg"
         }
       },
       "blogPost": blogPosts.map(post => ({

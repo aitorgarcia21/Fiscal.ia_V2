@@ -10,7 +10,7 @@ Ce dossier contient tous les fichiers nécessaires pour faire de Francis une Pro
 - `favicon.svg` - Favicon vectoriel moderne
 - `favicon.ico` - Favicon traditionnel pour compatibilité
 - `sw.js` - Service Worker pour fonctionnement hors ligne
-- `icon-*x*.png` - Icônes dans toutes les tailles requises
+- `favicon.svg` - Logo officiel Francis (toutes tailles supportées)
 
 ### Génération des icônes
 
