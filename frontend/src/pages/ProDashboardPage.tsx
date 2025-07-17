@@ -629,13 +629,8 @@ export function ProDashboardPage() {
             title="Parler à Francis"
           >
             <div className="relative inline-flex items-center justify-center group">
-<<<<<<< HEAD
               <MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
               <Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
-=======
-              <MessageSquareIcon className="h-8 w-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="h-5 w-5 text-[#162238] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
             </div>
           </button>
         )}
@@ -648,13 +643,8 @@ export function ProDashboardPage() {
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
 <div className="relative inline-flex items-center justify-center group">
-<<<<<<< HEAD
 <MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
 <Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
-=======
-<MessageSquareIcon className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-<Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -738,7 +728,6 @@ aria-label="Fermer le chat"
                     className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors"
                     disabled={isLoadingMessage}
                   />
-<<<<<<< HEAD
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
                     <button
                       type="button"
@@ -757,8 +746,6 @@ aria-label="Fermer le chat"
                       {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
                     </button>
                   </div>
-=======
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
                 </div>
                 <button
                   onClick={sendMessage}
