@@ -1337,7 +1337,7 @@ export function Dashboard() {
                 <div className="flex items-center gap-2">
                   <div className="relative inline-flex items-center justify-center group">
                     <MessageSquare className="w-5 h-5 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                    <Euro className="w-3.5 h-3.5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#1a2332] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                    <Euro className="w-3.5 h-3.5 text-[#c5a572] absolute -bottom-1 -right-1 transition-transform group-hover:scale-110 duration-300" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-white">Francis</h3>
@@ -1365,7 +1365,7 @@ export function Dashboard() {
                   <h4 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
                     <div className="relative inline-flex items-center justify-center group">
                       <MessageSquare className="w-5 h-5 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                      <Euro className="w-3.5 h-3.5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                      <Euro className="w-3.5 h-3.5 text-[#c5a572] absolute -bottom-1 -right-1 transition-transform group-hover:scale-110 duration-300" />
                     </div>
                     Discussion vocale avec Francis
                   </h4>
