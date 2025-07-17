@@ -172,6 +172,8 @@ export function ProCreateClientPage() {
   const [showVoiceInput, setShowVoiceInput] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
+  const [isOptimizationAnalyzing, setIsOptimizationAnalyzing] = useState(false);
+  const [optimizationResults, setOptimizationResults] = useState<string>('');
 
 
 
@@ -511,10 +513,87 @@ Répondez uniquement avec un objet JSON valide contenant les champs détectés, 
       // Montrer un message de succès
       console.log('Analyse terminée, champs remplis:', extractedData);
       
+      // Déclencher automatiquement l'analyse d'optimisation fiscale
+      if (Object.keys(extractedData).length > 0) {
+        setTimeout(() => {
+          analyzeOptimizationOpportunities();
+        }, 1000); // Petite pause pour que l'user voit l'auto-fill
+      }
+      
     } catch (error) {
       setIsAIAnalyzing(false);
       console.error('Error analyzing transcript:', error);
       setError('Erreur lors de l\'analyse avec Francis');
+    }
+  };
+
+  // Fonction d'analyse d'optimisation fiscale
+  const analyzeOptimizationOpportunities = async () => {
+    setIsOptimizationAnalyzing(true);
+    
+    try {
+      // Construire un profil complet du client à partir des données du formulaire
+      const clientProfile = {
+        nom: formData.nom_client,
+        prenom: formData.prenom_client,
+        situation_maritale: formData.situation_maritale_client,
+        nombre_enfants: formData.nombre_enfants_a_charge_client,
+        profession: formData.profession_client1,
+        statut_professionnel: formData.statut_professionnel_client1,
+        revenus_annuels: formData.revenu_net_annuel_client1,
+        revenus_conjoint: formData.revenu_net_annuel_client2,
+        revenus_fonciers: formData.revenus_fonciers_annuels_bruts_foyer,
+        epargne: formData.comptes_courants_solde_total_estime,
+        objectifs_fiscaux: formData.objectifs_fiscaux_client,
+        objectifs_patrimoniaux: formData.objectifs_patrimoniaux_client,
+        notes: formData.notes_internes_pro
+      };
+      
+      // Créer un prompt d'analyse d'optimisation fiscale
+      const optimizationPrompt = `Tu es Francis, expert fiscal français. Analyse ce profil client complet et propose des optimisations fiscales personnalisées et des leads fiscaux.
+
+PROFIL CLIENT:
+- Nom: ${clientProfile.nom} ${clientProfile.prenom}
+- Situation: ${clientProfile.situation_maritale}, ${clientProfile.nombre_enfants} enfants
+- Profession: ${clientProfile.profession} (${clientProfile.statut_professionnel})
+- Revenus annuels: ${clientProfile.revenus_annuels}€
+- Revenus conjoint: ${clientProfile.revenus_conjoint}€
+- Revenus fonciers: ${clientProfile.revenus_fonciers}€
+- Épargne: ${clientProfile.epargne}€
+- Objectifs fiscaux: ${clientProfile.objectifs_fiscaux}
+- Objectifs patrimoniaux: ${clientProfile.objectifs_patrimoniaux}
+- Notes: ${clientProfile.notes}
+
+ANALYSE DEMANDÉE:
+1. OPTIMISATIONS FISCALES IMMÉDIATES (niches fiscales, réductions d'impôts, optimisation revenus)
+2. LEADS FISCAUX (investissements recommandés, stratégies patrimoniales)
+3. OPPORTUNITÉS SPÉCIFIQUES selon sa profession et situation
+4. RECOMMANDATIONS PRIORITAIRES avec montants d'économies estimés
+
+Réponds de manière structurée et professionnelle, avec des conseils concrets et chiffrés.`;
+      
+      const response = await fetch('/api/test-francis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: optimizationPrompt
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'analyse d\'optimisation');
+      }
+      
+      const result = await response.json();
+      setOptimizationResults(result.response || 'Analyse terminée');
+      
+    } catch (error) {
+      console.error('Error analyzing optimization opportunities:', error);
+      setOptimizationResults('Erreur lors de l\'analyse d\'optimisation fiscale');
+    } finally {
+      setIsOptimizationAnalyzing(false);
     }
   };
 
@@ -1096,6 +1175,47 @@ Répondez uniquement avec un objet JSON valide contenant les champs détectés, 
                 </div>
                 </div>
               )}
+              
+              {/* Résultats d'optimisation fiscale */}
+              {optimizationResults && (
+                <div className="mt-6 p-6 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 rounded-xl border border-[#c5a572]/30">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                      <Brain className="w-4 h-4 text-[#162238]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#c5a572]">
+                      Analyse Francis - Optimisations & Leads Fiscaux
+                    </h3>
+                  </div>
+                  
+                  <div className="bg-[#0E2444] rounded-lg p-4 border border-[#c5a572]/20">
+                    <div className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
+                      {isOptimizationAnalyzing ? (
+                        <div className="flex items-center gap-2 text-[#c5a572]">
+                          <div className="w-4 h-4 border-2 border-transparent border-t-[#c5a572] rounded-full animate-spin"></div>
+                          <span>Francis analyse votre profil pour identifier les optimisations fiscales...</span>
+                        </div>
+                      ) : (
+                        optimizationResults
+                      )}
+                    </div>
+                  </div>
+                  
+                  {!isOptimizationAnalyzing && (
+                    <div className="mt-4 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={analyzeOptimizationOpportunities}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-medium rounded-lg hover:shadow-lg transition-all duration-300 text-sm"
+                      >
+                        <Brain className="w-4 h-4" />
+                        Nouvelle analyse
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
                 </div>
           )}
 
