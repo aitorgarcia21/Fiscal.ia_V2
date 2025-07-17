@@ -200,18 +200,321 @@ export function ProCreateClientPage() {
     
     setIsAIAnalyzing(true);
     try {
-      // Ici on appellerait l'API pour analyser la transcription
-      // et remplir automatiquement le formulaire
-      console.log('Analyzing transcript:', transcript);
+      // Créer un prompt pour Francis pour analyser la transcription
+      const analysisPrompt = `Analysez cette transcription d'un entretien client et extrayez les informations suivantes au format JSON :
+
+Transcription: "${transcript}"
+
+Extrayez et structurez les informations suivantes :
+- Informations personnelles (nom, prénom, civilité, âge, situation familiale, nombre d'enfants, profession, etc.)
+- Informations financières (revenus, patrimoine, investissements, etc.)
+- Objectifs et projets
+
+Répondez uniquement avec un objet JSON valide contenant les champs détectés, sans texte additionnel.`;
       
-      // Simulation d'analyse
-      setTimeout(() => {
-        setIsAIAnalyzing(false);
-        // Ici on mettrait à jour formData avec les résultats
-      }, 2000);
+      const response = await fetch('/api/test-francis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: analysisPrompt })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'analyse');
+      }
+      
+      const result = await response.json();
+      
+      // Tenter d'extraire un JSON de la réponse de Francis
+      let extractedData: Partial<ProCreateClientFormState> = {};
+      try {
+        // Chercher un JSON dans la réponse (sans flag 's' pour compatibilité)
+        const jsonMatch = result.response.match(/\{[^}]+\}/);
+        if (jsonMatch) {
+          extractedData = JSON.parse(jsonMatch[0]);
+        }
+      } catch (parseError) {
+        console.log('Pas de JSON valide détecté, extraction manuelle...');
+        
+        // EXTRACTION COMPLÈTE ET EXHAUSTIVE depuis la transcription
+        const text = transcript.toLowerCase();
+        const originalText = transcript; // Garder le texte original pour certaines extractions
+        
+        // === INFORMATIONS PERSONNELLES ===
+        
+        // Détecter nom et prénom
+        const nomPrenomMatch = text.match(/(?:je m'appelle|mon nom est|c'est)\s+([a-zA-ZÀ-ÿ]+)\s+([a-zA-ZÀ-ÿ]+)/i);
+        if (nomPrenomMatch) {
+          extractedData.prenom_client = nomPrenomMatch[1].charAt(0).toUpperCase() + nomPrenomMatch[1].slice(1);
+          extractedData.nom_client = nomPrenomMatch[2].toUpperCase();
+        }
+        
+        // Détecter civilité
+        if (text.includes('monsieur') || text.includes('m.')) {
+          extractedData.civilite_client = 'M';
+        } else if (text.includes('madame') || text.includes('mme')) {
+          extractedData.civilite_client = 'Mme';
+        } else if (text.includes('mademoiselle') || text.includes('mlle')) {
+          extractedData.civilite_client = 'Mlle';
+        }
+        
+        // Détecter email
+        const emailMatch = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
+        if (emailMatch) {
+          extractedData.email_client = emailMatch[1];
+        }
+        
+        // Détecter âge et calculer date de naissance approximative
+        const ageMatch = text.match(/(\d+)\s*ans?/i);
+        if (ageMatch) {
+          const age = parseInt(ageMatch[1]);
+          const currentYear = new Date().getFullYear();
+          const birthYear = currentYear - age;
+          extractedData.date_naissance_client = `${birthYear}-01-01`; // Approximatif
+        }
+        
+        // Détecter nationalité
+        const nationalites = ['française', 'français', 'belge', 'suisse', 'italienne', 'espagnole', 'allemande', 'portugaise'];
+        for (const nat of nationalites) {
+          if (text.includes(nat)) {
+            extractedData.nationalite_client = nat.charAt(0).toUpperCase() + nat.slice(1);
+            break;
+          }
+        }
+        
+        // Détecter adresse
+        const adresseMatch = text.match(/(?:j'habite|je vis|domicilié)\s+(?:au|à|dans)?\s*([0-9]+[^,]*)/i);
+        if (adresseMatch) {
+          extractedData.adresse_postale_client = adresseMatch[1];
+        }
+        
+        // Détecter code postal et ville
+        const codePostalMatch = text.match(/(\d{5})\s+([a-zA-ZÀ-ÿ\s-]+)/i);
+        if (codePostalMatch) {
+          extractedData.code_postal_client = codePostalMatch[1];
+          extractedData.ville_client = codePostalMatch[2].trim();
+        }
+        
+        // Détecter téléphone
+        const telMatch = text.match(/((?:0[1-9]|\+33)[0-9\s.-]{8,})/i);
+        if (telMatch) {
+          extractedData.telephone_principal_client = telMatch[1].replace(/\s/g, '');
+        }
+        
+        // === SITUATION FAMILIALE ===
+        
+        // Détecter situation maritale
+        if (text.includes('marié') || text.includes('mariée') || text.includes('époux') || text.includes('épouse') || text.includes('conjoint') || text.includes('femme') || text.includes('mari')) {
+          extractedData.situation_maritale_client = 'Marié(e)';
+        } else if (text.includes('divorcé') || text.includes('divorcée')) {
+          extractedData.situation_maritale_client = 'Divorcé(e)';
+        } else if (text.includes('veuf') || text.includes('veuve')) {
+          extractedData.situation_maritale_client = 'Veuf(ve)';
+        } else if (text.includes('pacsé') || text.includes('pacs')) {
+          extractedData.situation_maritale_client = 'Pacsé(e)';
+        } else if (text.includes('célibataire')) {
+          extractedData.situation_maritale_client = 'Célibataire';
+        } else if (text.includes('concubin') || text.includes('union libre')) {
+          extractedData.situation_maritale_client = 'Concubin(e)';
+        }
+        
+        // Détecter nombre d'enfants (formats variés)
+        const enfantsPatterns = [
+          /(\d+)\s*enfants?/i,
+          /(?:un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s*enfants?/i,
+          /(?:pas d'enfant|aucun enfant|sans enfant)/i
+        ];
+        
+        for (const pattern of enfantsPatterns) {
+          const match = text.match(pattern);
+          if (match) {
+            if (match[0].includes('pas') || match[0].includes('aucun') || match[0].includes('sans')) {
+              extractedData.nombre_enfants_a_charge_client = '0';
+            } else if (match[1]) {
+              extractedData.nombre_enfants_a_charge_client = match[1];
+            } else {
+              // Convertir les mots en chiffres
+              const mots = ['un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix'];
+              const mot = match[0].toLowerCase();
+              for (let i = 0; i < mots.length; i++) {
+                if (mot.includes(mots[i])) {
+                  extractedData.nombre_enfants_a_charge_client = (i + 1).toString();
+                  break;
+                }
+              }
+            }
+            break;
+          }
+        }
+        
+        // === INFORMATIONS PROFESSIONNELLES ===
+        
+        // Détecter profession (liste exhaustive)
+        const professions = [
+          'dentiste', 'médecin', 'avocat', 'comptable', 'ingénieur', 'professeur', 'commercial', 'cadre',
+          'directeur', 'manager', 'consultant', 'architecte', 'pharmacien', 'infirmier', 'kinésithérapeute',
+          'vétérinaire', 'notaire', 'huissier', 'expert-comptable', 'banquier', 'assureur', 'agent immobilier',
+          'entrepreneur', 'artisan', 'commerçant', 'agriculteur', 'ouvrier', 'employé', 'fonctionnaire',
+          'enseignant', 'chercheur', 'journaliste', 'développeur', 'informaticien', 'chef d\'entreprise',
+          'retraité', 'étudiant', 'demandeur d\'emploi', 'femme au foyer', 'homme au foyer'
+        ];
+        
+        for (const prof of professions) {
+          if (text.includes(prof)) {
+            extractedData.profession_client1 = prof.charAt(0).toUpperCase() + prof.slice(1);
+            break;
+          }
+        }
+        
+        // Détecter statut professionnel
+        if (text.includes('salarié') || text.includes('employé')) {
+          extractedData.statut_professionnel_client1 = 'Salarié';
+        } else if (text.includes('indépendant') || text.includes('freelance') || text.includes('auto-entrepreneur')) {
+          extractedData.statut_professionnel_client1 = 'Indépendant';
+        } else if (text.includes('fonctionnaire')) {
+          extractedData.statut_professionnel_client1 = 'Fonctionnaire';
+        } else if (text.includes('retraité')) {
+          extractedData.statut_professionnel_client1 = 'Retraité';
+        } else if (text.includes('chef d\'entreprise') || text.includes('dirigeant')) {
+          extractedData.statut_professionnel_client1 = 'Chef d\'entreprise';
+        }
+        
+        // Détecter nom d'employeur/entreprise
+        const employeurMatch = text.match(/(?:travaille chez|employé chez|dans l'entreprise|chez)\s+([a-zA-ZÀ-ÿ0-9\s&-]+)/i);
+        if (employeurMatch) {
+          extractedData.nom_employeur_entreprise_client1 = employeurMatch[1].trim();
+        }
+        
+        // === REVENUS ET FINANCES ===
+        
+        // Détecter revenus (formats variés)
+        const revenusPatterns = [
+          /(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)[\s]*(?:par an|annuel|par année)/i,
+          /(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)[\s]*(?:par mois|mensuel|par mois)/i,
+          /(\d+(?:\.\d+)?(?:k|mille))[\s]*(?:€|euros?)[\s]*(?:par an|annuel)/i
+        ];
+        
+        for (const pattern of revenusPatterns) {
+          const match = text.match(pattern);
+          if (match) {
+            let montant = match[1];
+            // Convertir les formats
+            if (montant.includes('k')) {
+              montant = montant.replace('k', '000');
+            } else if (pattern.toString().includes('mois')) {
+              // Convertir mensuel en annuel
+              montant = (parseInt(montant) * 12).toString();
+            } else if (!montant.includes('000') && parseInt(montant) < 1000) {
+              montant = montant + '000';
+            }
+            extractedData.revenu_net_annuel_client1 = montant;
+            break;
+          }
+        }
+        
+        // Détecter revenus fonciers
+        const foncierMatch = text.match(/(?:loyer|revenus? fonciers?|location)[\s]*(?:de)?[\s]*(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)/i);
+        if (foncierMatch) {
+          const montant = foncierMatch[1];
+          extractedData.revenus_fonciers_annuels_bruts_foyer = montant.includes('000') ? montant : montant + '000';
+        }
+        
+        // Détecter patrimoine immobilier
+        const patrimoinePatterns = [
+          /(?:maison|résidence|appartement|bien immobilier)[\s]*(?:qui vaut|valeur|prix|estimé à)?[\s]*(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)/i,
+          /(?:patrimoine immobilier|biens immobiliers)[\s]*(?:de|d'environ|estimé à)?[\s]*(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)/i
+        ];
+        
+        for (const pattern of patrimoinePatterns) {
+          const match = text.match(pattern);
+          if (match) {
+            const valeur = match[1];
+            const montant = valeur.includes('000') ? valeur : valeur + '000';
+            extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\nPatrimoine immobilier: ${montant} €`;
+            break;
+          }
+        }
+        
+        // Détecter épargne et placements
+        const epargneMatch = text.match(/(?:épargne|livret|compte épargne|placements?)[\s]*(?:de|d'environ)?[\s]*(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)/i);
+        if (epargneMatch) {
+          const montant = epargneMatch[1];
+          extractedData.comptes_courants_solde_total_estime = montant.includes('000') ? montant : montant + '000';
+        }
+        
+        // Détecter assurance vie
+        const assuranceVieMatch = text.match(/(?:assurance vie|assurance-vie)[\s]*(?:de|d'environ)?[\s]*(\d+(?:\.\d+)?(?:000)?)[\s]*(?:€|euros?)/i);
+        if (assuranceVieMatch) {
+          const montant = assuranceVieMatch[1];
+          extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\nAssurance vie: ${montant.includes('000') ? montant : montant + '000'} €`;
+        }
+        
+        // === OBJECTIFS ET PROJETS ===
+        
+        // Détecter objectifs fiscaux
+        const objectifsFiscaux = [
+          'optimisation fiscale', 'réduction d\'impôt', 'défiscalisation', 'économie d\'impôt',
+          'investissement locatif', 'placement défiscalisé', 'niche fiscale'
+        ];
+        
+        for (const objectif of objectifsFiscaux) {
+          if (text.includes(objectif)) {
+            extractedData.objectifs_fiscaux_client = (extractedData.objectifs_fiscaux_client || '') + objectif + '; ';
+          }
+        }
+        
+        // Détecter objectifs patrimoniaux
+        const objectifsPatrimoniaux = [
+          'préparer la retraite', 'constituer un patrimoine', 'transmission', 'donation',
+          'achat immobilier', 'investir', 'épargner', 'placement', 'constitution de patrimoine'
+        ];
+        
+        for (const objectif of objectifsPatrimoniaux) {
+          if (text.includes(objectif)) {
+            extractedData.objectifs_patrimoniaux_client = (extractedData.objectifs_patrimoniaux_client || '') + objectif + '; ';
+          }
+        }
+        
+        // === NOTES GÉNÉRALES ===
+        
+        // Ajouter tous les éléments non structurés dans les notes internes
+        const motsCles = [
+          'projet', 'objectif', 'problème', 'question', 'besoin', 'demande', 'souhaite',
+          'voudrait', 'aimerait', 'préoccupation', 'inquiétude', 'conseil'
+        ];
+        
+        for (const motCle of motsCles) {
+          if (text.includes(motCle)) {
+            // Extraire la phrase contenant le mot-clé
+            const phrases = originalText.split(/[.!?]/);
+            for (const phrase of phrases) {
+              if (phrase.toLowerCase().includes(motCle)) {
+                extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\n${phrase.trim()}`;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      // Mettre à jour les champs du formulaire avec les données extraites
+      if (Object.keys(extractedData).length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          ...extractedData
+        }));
+      }
+      
+      setIsAIAnalyzing(false);
+      
+      // Montrer un message de succès
+      console.log('Analyse terminée, champs remplis:', extractedData);
+      
     } catch (error) {
       setIsAIAnalyzing(false);
       console.error('Error analyzing transcript:', error);
+      setError('Erreur lors de l\'analyse avec Francis');
     }
   };
 

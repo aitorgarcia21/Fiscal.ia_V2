@@ -401,16 +401,7 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
         </div>
       )}
       
-      {/* Indicateur de transcription en cours */}
-      {isRecording && currentTranscript && (
-        <div className="mt-3 p-3 bg-[#1a2332]/60 border border-[#c5a572]/20 rounded-lg">
-          <div className="text-xs text-[#c5a572] mb-1">Transcription en temps réel:</div>
-          <div className="text-sm text-gray-300 whitespace-pre-wrap">
-            {currentTranscript}
-            <span className="inline-block w-1 h-4 bg-[#c5a572] ml-1 animate-pulse"></span>
-          </div>
-        </div>
-      )}
+      {/* Transcription cachée - affichage géré par le composant parent */}
       
       {isRecording && (
         <div className="absolute -top-2 -right-2 flex items-center justify-center w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
