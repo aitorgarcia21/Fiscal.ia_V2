@@ -1,13 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
-  <!-- Fond noir - exact de l'image utilisateur -->
-  <rect width="48" height="48" fill="#000000" rx="8"/>
-  
-  <!-- MessageSquareIcon - exact de l'image utilisateur -->
-  <path d="M12 16h16l4 4v8a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <!-- Euro Icon - exact de l'image utilisateur -->
-  <circle cx="36" cy="36" r="8" fill="none" stroke="#FFFFFF" stroke-width="2"/>
-  <path d="M32 34a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M30 36h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-  <path d="M30 38h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="120.000000pt" height="114.000000pt" viewBox="0 0 120.000000 114.000000"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,114.000000) scale(0.100000,-0.100000)"
+fill="#c5a572" stroke="none">
+<path d="M0 570 l0 -570 600 0 600 0 0 570 0 570 -600 0 -600 0 0 -570z m891
+321 l29 -29 0 -136 0 -136 -30 0 -30 0 0 116 c0 63 -5 124 -10 135 -10 18 -24
+19 -251 19 -147 0 -248 -4 -260 -10 -18 -10 -19 -24 -19 -247 l0 -236 50 47
+49 46 105 0 106 0 -17 -35 -17 -35 -81 0 -81 0 -64 -65 c-44 -44 -71 -65 -85
+-63 -19 3 -20 12 -23 301 l-2 298 29 30 29 29 272 0 272 0 29 -29z m59 -411
+c49 -14 88 -46 74 -60 -8 -8 -20 -6 -45 9 -19 12 -50 21 -69 21 -36 0 -95 -30
+-117 -59 -10 -14 -2 -17 80 -21 73 -4 92 -8 92 -20 0 -12 -19 -16 -97 -18 -89
+-2 -98 -5 -98 -22 0 -17 9 -19 68 -22 52 -2 67 -6 67 -18 0 -11 -14 -16 -57
+-18 -60 -3 -66 -8 -45 -34 41 -51 107 -62 171 -27 25 13 42 17 48 11 27 -27
+-72 -78 -130 -67 -56 10 -111 43 -132 78 -11 18 -30 34 -42 37 -29 7 -35 30
+-9 37 12 3 21 13 21 23 0 10 -9 20 -21 23 -29 8 -19 31 14 35 15 2 27 9 27 15
+0 20 57 77 92 92 40 17 62 18 108 5z"/>
+</g>
 </svg>
