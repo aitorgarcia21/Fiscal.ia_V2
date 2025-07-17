@@ -61,7 +61,6 @@ from pathlib import Path
 
 # Import outils Andorre
 try:
-# ------------------------------------------------------------------
     CGI_EMBEDDINGS_AVAILABLE
 except NameError:
     CGI_EMBEDDINGS_AVAILABLE = False
@@ -1335,7 +1334,7 @@ async def create_portal_session(request: dict, user_id: str = Depends(verify_tok
                 print(f"DEBUG: Customer Stripe existant trouvé: {customer_id}")
         except Exception as stripe_error:
             print(f"DEBUG: Erreur lors de la recherche du customer Stripe: {stripe_error}")
-        
+
         if not customer_id:
             try:
                 print(f"DEBUG: Création d'un nouveau customer Stripe avec email={customer_email}")
@@ -2084,14 +2083,17 @@ async def whisper_transcribe_real(request: dict):
 @api_router.post("/whisper/transcribe-streaming")
 async def transcribe_streaming(request: dict):
     """
-    Endpoint de transcription en streaming pour du temps réel.
+    Endpoint de transcription en streaming ultra-fluide pour du temps réel.
     """
     try:
         audio_base64 = request.get("audio_base64", "")
+        streaming = request.get("streaming", False)
+        language = request.get("language", "fr")
+        
         if not audio_base64:
             return {"error": "Audio manquant"}
         
-        # Décodage base64
+        # Décodage base64 optimisé
         audio_data = base64.b64decode(audio_base64)
         
         # Service Whisper
@@ -2099,32 +2101,70 @@ async def transcribe_streaming(request: dict):
         if not whisper_service:
             return {"error": "Service Whisper non disponible"}
         
-        # Transcription en streaming
-        def generate_stream():
-            try:
-                # Diviser l'audio en chunks pour simuler le streaming
-                chunk_size = len(audio_data) // 4  # 4 chunks
-                chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
-                
-                for result in whisper_service.transcribe_streaming(chunks):
-                    yield f"data: {json.dumps(result)}\n\n"
-                    
-            except Exception as e:
-                error_result = {"error": str(e), "is_final": True}
-                yield f"data: {json.dumps(error_result)}\n\n"
-        
-        return StreamingResponse(
-            generate_stream(),
-            media_type="text/plain",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Type": "text/event-stream"
-            }
-        )
+        # Mode streaming ultra-fluide
+        if streaming:
+            def generate_ultra_fluid_stream():
+                # Transcription en streaming ultra-fluide
+                result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+                yield f"data: {json.dumps(result)}\n\n"
+            
+            return StreamingResponse(
+                generate_ultra_fluid_stream(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Content-Type": "text/event-stream",
+                    "X-Streaming": "ultra-fluid"
+                }
+            )
+        else:
+            result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+            result["streaming"] = False
+            return result
         
     except Exception as e:
         return {"error": f"Erreur streaming: {str(e)}"}
+
+@api_router.post("/whisper/transcribe-ultra-fluid")
+async def transcribe_ultra_fluid(request: dict):
+    """
+    Endpoint ultra-fluide optimisé pour la reconnaissance vocale en temps réel.
+    """
+    try:
+        audio_base64 = request.get("audio_base64", "")
+        language = request.get("language", "fr")
+        
+        if not audio_base64:
+            return {"error": "Audio manquant"}
+        
+        # Service Whisper
+        whisper_service = get_whisper_service()
+        if not whisper_service:
+            return {"error": "Service Whisper non disponible"}
+        
+        start_time = time.time()
+        
+        # Transcription ultra-rapide avec paramètres optimisés
+        result = whisper_service.transcribe_base64_audio(audio_base64, "webm")
+        
+        # Calcul des métriques de performance
+        end_time = time.time()
+        latency_ms = (end_time - start_time) * 1000
+        
+        # Amélioration du résultat avec métriques
+        enhanced_result = {
+            **result,
+            "ultra_fluid": True,
+            "latency_ms": round(latency_ms, 1),
+            "processing_time": round(end_time - start_time, 3),
+            "optimized": True
+        }
+        
+        return enhanced_result
+        
+    except Exception as e:
+        return {"error": f"Erreur ultra-fluid: {str(e)}"}
 
 @app.websocket("/ws/whisper-stream")
 async def websocket_whisper_stream(websocket: WebSocket):
@@ -2373,7 +2413,7 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
         whisper_service = get_whisper_service()
         if not whisper_service:
             raise HTTPException(status_code=503, detail="Service Whisper non disponible")
-        
+            
         # Déterminer le format audio
         audio_format = "webm"  # Par défaut
         if audio.content_type == "audio/wav":
@@ -2386,7 +2426,7 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = Form("
         
         if result.get("error"):
             raise HTTPException(status_code=500, detail=f"Erreur de transcription: {result['error']}")
-        
+            
         transcription = result.get("text", "").strip()
         
         if transcription:

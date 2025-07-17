@@ -24,11 +24,13 @@ interface SpeechRecognitionErrorEvent extends Event {
   message: string;
 }
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Plus, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot } from 'lucide-react';
+import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot, Zap } from 'lucide-react';
+import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
 import { useCountry } from '../contexts/CountryContext';
+import { Logo } from '../components/ui/Logo';
 
 
 const ITEMS_PER_PAGE = 8;
@@ -414,7 +416,7 @@ export function ProDashboardPage() {
                 onClick={() => navigate('/pro/clients/new')}
                 className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
               >
-                <Plus className="w-5 h-5" />
+                <PlusCircle className="w-5 h-5" />
                 Nouveau Client
               </button>
             </div>
@@ -579,7 +581,7 @@ export function ProDashboardPage() {
           </div>
 
           {/* Actions rapides */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             <button
               onClick={() => navigate('/pro/chat')}
               className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
@@ -597,21 +599,19 @@ export function ProDashboardPage() {
               </div>
             </button>
 
-
-
             <button
               onClick={() => navigate('/pro/settings')}
               className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-[#162238]" />
+                  <Settings className="w-6 h-6 text-[#162238]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-white group-hover:text-[#162238] transition-colors">
                     Paramètres
                   </h3>
-                  <p className="text-sm text-gray-400">Configurez votre compte</p>
+                  <p className="text-sm text-gray-400">Configurer Francis</p>
                 </div>
               </div>
             </button>
@@ -629,8 +629,13 @@ export function ProDashboardPage() {
             title="Parler à Francis"
           >
             <div className="relative inline-flex items-center justify-center group">
+<<<<<<< HEAD
               <MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
               <Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
+=======
+              <MessageSquareIcon className="h-8 w-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-5 w-5 text-[#162238] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+>>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
             </div>
           </button>
         )}
@@ -643,8 +648,13 @@ export function ProDashboardPage() {
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
 <div className="relative inline-flex items-center justify-center group">
+<<<<<<< HEAD
 <MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
 <Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
+=======
+<MessageSquareIcon className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+<Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+>>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -664,10 +674,12 @@ aria-label="Fermer le chat"
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="relative inline-flex items-center justify-center w-12 h-12 mx-auto mb-4">
-                    <MessageSquareIcon className="w-12 h-12 text-[#c5a572]" />
-                    <Euro className="w-7 h-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5" />
-                   </div>
+                  <div className="flex justify-center mb-4">
+                    <div className="relative inline-flex items-center justify-center group">
+                      <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                      <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                    </div>
+                  </div>
                   <h4 className="text-white font-semibold mb-2">Bonjour ! Je suis Francis</h4>
                   <p className="text-gray-400 text-sm">
                     Posez-moi vos questions sur la fiscalité, vos clients, ou demandez-moi de l'aide pour optimiser vos stratégies.
@@ -713,7 +725,7 @@ aria-label="Fermer le chat"
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Zone de saisie améliorée avec bouton vocal plus visible */}
+            {/* Zone de saisie simplifiée sans micro */}
             <div className="p-4 border-t border-[#c5a572]/20 bg-[#1a2332]">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -723,9 +735,10 @@ aria-label="Fermer le chat"
                     onChange={(e) => setCurrentMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Posez votre question à Francis..."
-                    className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors pr-12"
+                    className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572]/50 transition-colors"
                     disabled={isLoadingMessage}
                   />
+<<<<<<< HEAD
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
                     <button
                       type="button"
@@ -744,6 +757,8 @@ aria-label="Fermer le chat"
                       {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
                     </button>
                   </div>
+=======
+>>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
                 </div>
                 <button
                   onClick={sendMessage}
@@ -755,18 +770,10 @@ aria-label="Fermer le chat"
                   <Send className="w-5 h-5" />
                 </button>
               </div>
-              {isRecording && (
-                <div className="mt-2 text-center">
-                  <div className="inline-flex items-center px-3 py-1 bg-red-500/10 rounded-full">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                    <span className="text-xs text-red-400">En écoute... Parlez maintenant</span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

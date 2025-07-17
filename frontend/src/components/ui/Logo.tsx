@@ -16,16 +16,32 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
   return (
     <div className={`relative inline-flex items-center justify-center group ${className}`}>
       <svg 
-        className={`${sizeClasses[size]} text-[#c5a572] transition-transform group-hover:scale-110 duration-300`}
-        viewBox="0 0 36 36" 
+        className={`${sizeClasses[size]} transition-transform group-hover:scale-110 duration-300`}
+        viewBox="0 0 48 48" 
         fill="none" 
         xmlns="http://www.w3.org/2000/svg"
       >
+        {/* Fond avec gradient bleu Francis */}
+        <defs>
+          <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#162238" stopOpacity="1" />
+            <stop offset="100%" stopColor="#1E3253" stopOpacity="1" />
+          </linearGradient>
+        </defs>
+        
+        {/* Fond bleu */}
+        <rect width="48" height="48" fill="url(#bgGradient)"/>
+        
+        {/* Bulle de chat simple */}
         <path 
-          d="M18 1.8C9.0826 1.8 1.8 9.0826 1.8 18C1.8 20.5665 2.57676 22.9665 3.95616 24.9622L1.8 27L5.03784 24.8438C7.03353 26.2232 9.43353 27 12 27C20.9174 27 28.2 19.7174 28.2 10.8C28.2 1.8826 20.9174 1.8 12 1.8ZM9.13333 19.6L8.46667 18.9333C7.46667 18.1333 6.8 17.3333 6.8 15.9333C6.8 14.3333 7.93333 13.3333 9.13333 12.6C9.93333 12.2 10.6 11.8 10.6 11.0667C10.6 10.3333 10.0667 9.8 9.33333 9.8C8.6 9.8 7.86667 10.2667 7.06667 10.8C6.33333 11.3333 5.66667 10.7333 6.13333 9.73333C7.13333 8.73333 8.46667 7.93333 9.66667 7.93333C10.9333 7.93333 11.8667 8.73333 11.8667 10.2667C11.8667 11.5333 10.8667 12.5333 9.66667 13.3333C8.93333 13.7333 8.26667 14.2667 8.26667 14.8667C8.26667 15.6667 8.73333 16.1333 9.33333 16.1333C10 16.1333 10.8 15.7333 11.6 15.2L12.3333 15.7333C11.3333 16.7333 10 17.6 9.13333 17.6V19.6ZM17.8667 19.6V18.0667C18.8667 17.2 19.6 16.3333 19.6 14.9333C19.6 13.3333 18.5333 12.3333 17.4667 11.6C16.6667 11.2 16 10.8 16 10.0667C16 9.33333 16.5333 8.8 17.2667 8.8C17.9333 8.8 18.6667 9.2 19.3333 9.66667L20.0667 9.06667C19.0667 8.13333 17.7333 7.4 16.5333 7.4C15.2667 7.4 14.4 8.2 14.4 9.73333C14.4 11 15.3333 12 16.5333 12.8C17.2667 13.2 17.8667 13.7333 17.8667 14.3333V19.6Z" 
-          transform="translate(3 3)" 
-          fill="currentColor"
+          d="M8 12C8 9.79086 9.79086 8 12 8H28C30.2091 8 32 9.79086 32 12V24C32 26.2091 30.2091 28 28 28H20L16 32L12 28H8C5.79086 28 4 26.2091 4 24V12C4 9.79086 5.79086 8 8 8Z" 
+          fill="none" 
+          stroke="#c5a572" 
+          strokeWidth="2"
         />
+        
+        {/* Symbole euro simple */}
+        <text x="20" y="22" fontFamily="Arial, sans-serif" fontSize="12" fill="#c5a572" textAnchor="middle">€</text>
       </svg>
     </div>
   );

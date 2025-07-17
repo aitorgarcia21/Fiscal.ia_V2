@@ -1,581 +1,517 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2, Activity, Download, Euro, AlertCircle, Play, Pause, Volume2, MessageSquare, UserCheck, BarChart } from 'lucide-react';
+import { 
+  Bot, User, Brain, Cpu, TrendingUp, CheckCircle, Loader2, Clock, Target, 
+  AlertTriangle, Send, Mic, Briefcase, FileText, BarChart2, Activity, 
+  Download, Euro, AlertCircle, Play, Pause, Volume2, MessageSquare, 
+  UserCheck, BarChart, Zap, Sparkles, Eye, Ear, FileDown, Lightbulb,
+  Calculator, PieChart, ArrowRight, Timer, Shield, Star
+} from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 
-interface ClientProfile {
+interface DemoStep {
   id: string;
-  nom: string;
-  age: number;
-  situation: string;
-  revenus: number;
-  patrimoine: number;
-}
-
-interface AnalyseDetail {
-  id: string;
-  type: string;
+  title: string;
   description: string;
-  statut: 'en_cours' | 'terminee';
-  resultat?: string;
-  economie?: number;
-  temps: string;
+  icon: any;
+  duration: number;
+  status: 'pending' | 'active' | 'completed';
+  data?: any;
 }
 
-const DemoMessage = ({ message, visible }: { message: any, visible: boolean }) => {
-  if (!visible) return null;
+const ProDemoSection = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [transcription, setTranscription] = useState('');
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [pdfGenerated, setPdfGenerated] = useState(false);
+  const [leadsGenerated, setLeadsGenerated] = useState(false);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="mb-4"
-    >
-      {/* Message système */}
-      {message.type === 'system' && (
-        <div className="text-center text-gray-400 text-sm flex items-center justify-center gap-2">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          {message.content}
-        </div>
-      )}
-
-      {/* Audio utilisateur */}
-      {message.type === 'user_audio' && (
-        <div className="flex items-start gap-3 justify-end">
-          <div className="bg-[#c5a572] text-[#162238] rounded-2xl rounded-br-none p-4 max-w-md">
-            <div className="flex items-center gap-3 mb-2">
-              <Volume2 className="w-5 h-5" />
-              <span className="font-semibold">Entretien client</span>
-              <span className="text-sm opacity-75">{message.duration}</span>
-            </div>
-            <p className="text-sm italic">"{message.content}"</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
-            <User className="w-6 h-6 text-white" />
-          </div>
-        </div>
-      )}
-
-      {/* Message Francis */}
-      {message.type === 'francis' && (
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] flex items-center justify-center">
-            <Bot className="w-6 h-6 text-[#162238]" />
-          </div>
-          <div className="bg-[#1E3253] text-gray-200 rounded-2xl rounded-bl-none p-4 max-w-md">
-            <p className="font-semibold text-[#c5a572] mb-1">Francis</p>
-            <p className="text-sm">{message.content}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Analyse Francis */}
-      {message.type === 'francis_analysis' && (
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] flex items-center justify-center">
-            <Bot className="w-6 h-6 text-[#162238]" />
-          </div>
-          <div className="bg-[#1E3253] text-gray-200 rounded-2xl rounded-bl-none p-4 max-w-md">
-            <p className="text-sm mb-3">{message.content}</p>
-            <div className="space-y-2">
-              {message.items.map((item: any, index: number) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: (item.delay - message.delay) / 1000 }}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span>{item.text}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Résultat Francis */}
-      {message.type === 'francis_result' && (
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] flex items-center justify-center">
-            <Bot className="w-6 h-6 text-[#162238]" />
-          </div>
-          <div className="bg-[#1E3253] text-gray-200 rounded-2xl rounded-bl-none p-4 max-w-lg">
-            <p className="font-semibold text-[#c5a572] mb-3">{message.content}</p>
-            <div className="space-y-3">
-              {message.optimizations.map((opt: any, index: number) => (
-                <div key={index} className="bg-[#162238]/50 rounded-lg p-3">
-                  <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-semibold text-white">{opt.title}</h4>
-                    <span className="text-green-400 font-bold">{opt.saving}</span>
-                  </div>
-                  <p className="text-xs text-gray-400">{opt.description}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-700">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Économie totale estimée :</span>
-                <span className="text-xl font-bold text-[#c5a572]">{message.totalSaving}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Intervention conseiller */}
-      {message.type === 'conseiller' && (
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#c5a572] flex items-center justify-center">
-            <UserCheck className="w-6 h-6 text-[#162238]" />
-          </div>
-          <div className="bg-[#1E3253] text-gray-200 rounded-2xl rounded-bl-none p-4 max-w-md">
-            <p className="font-semibold text-[#c5a572] mb-1">Conseiller</p>
-            <p className="text-sm">{message.content}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Réponse client */}
-      {message.type === 'client' && (
-        <div className="flex items-start gap-3 justify-end">
-          <div className="bg-[#c5a572] text-[#162238] rounded-2xl rounded-br-none p-4 max-w-md">
-            <p className="font-semibold mb-1">Client</p>
-            <p className="text-sm">{message.content}</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
-            <User className="w-6 h-6 text-white" />
-          </div>
-        </div>
-      )}
-
-      {/* Messages système d'interruption Francis */}
-      {(message.type === 'francis_interrupt' || message.type === 'recording_start' || message.type === 'recording_end') && (
-        <div className="text-center text-gray-400 text-sm flex items-center justify-center gap-2">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          {message.content}
-        </div>
-      )}
-    </motion.div>
-  );
-};
-
-// Vrai entretien client format Q/R
-const demoConversation = [
-  {
-    type: 'recording_start',
-    content: "Début de l'enregistrement de l'entretien",
-    delay: 500
-  },
-  {
-    type: 'conseiller',
-    content: "Bonjour Monsieur Durand, merci de prendre le temps pour faire le point sur votre situation. Pouvez-vous me rappeler votre âge et votre situation familiale ?",
-    delay: 1000
-  },
-  {
-    type: 'client',
-    content: "Bonjour, j'ai 42 ans, je suis marié et nous avons 2 enfants de 8 et 12 ans.",
-    delay: 2500
-  },
-  {
-    type: 'conseiller',
-    content: "Très bien. Et concernant votre situation professionnelle et vos revenus ?",
-    delay: 3500
-  },
-  {
-    type: 'client',
-    content: "Je suis ingénieur chez Airbus, mon salaire net annuel est de 85 000€. Ma femme est professeure, elle gagne environ 35 000€ net par an.",
-    delay: 5000
-  },
-  {
-    type: 'conseiller',
-    content: "D'accord. Avez-vous des revenus complémentaires ou du patrimoine immobilier ?",
-    delay: 6500
-  },
-  {
-    type: 'client',
-    content: "Oui, nous avons notre résidence principale estimée à 380 000€, et un appartement que nous louons 900€ par mois à Toulouse, acheté 150 000€ il y a 5 ans.",
-    delay: 8000
-  },
-  {
-    type: 'conseiller',
-    content: "Et comment déclarez-vous actuellement ces revenus locatifs ?",
-    delay: 9500
-  },
-  {
-    type: 'client',
-    content: "En micro-foncier, c'est plus simple. Mais je me demande si c'est le plus avantageux...",
-    delay: 10500
-  },
-  {
-    type: 'francis_interrupt',
-    content: "Francis a détecté une opportunité d'optimisation",
-    delay: 11500
-  },
-  {
-    type: 'recording_end',
-    content: "Fin de l'enregistrement - Analyse en cours...",
-    delay: 12000
-  }
-];
-
-const ConversationView = ({ onComplete }: { onComplete: () => void }) => {
-  const [visibleMessages, setVisibleMessages] = useState<number[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isRecording, setIsRecording] = useState(false);
-
-  useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-    demoConversation.forEach((msg, index) => {
-      const timer = setTimeout(() => {
-        setVisibleMessages(prev => [...prev, index]);
-        if (msg.type === 'recording_start') {
-          setIsRecording(true);
-        }
-        if (msg.type === 'recording_end') {
-          setIsRecording(false);
-        }
-        if (index === demoConversation.length - 1) {
-          setTimeout(() => onComplete(), 2000);
-        }
-      }, msg.delay);
-      timers.push(timer);
-    });
-
-    return () => timers.forEach(timer => clearTimeout(timer));
-  }, []);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  const steps: DemoStep[] = [
+    {
+      id: 'listen',
+      title: 'Écoute en temps réel',
+      description: '',
+      icon: Ear,
+      duration: 3000,
+      status: 'pending'
+    },
+    {
+      id: 'transcribe',
+      title: 'Transcription instantanée',
+      description: '',
+      icon: FileText,
+      duration: 2500,
+      status: 'pending'
+    },
+    {
+      id: 'analyze',
+      title: 'Analyse IA avancée',
+      description: '',
+      icon: Brain,
+      duration: 4000,
+      status: 'pending'
+    },
+    {
+      id: 'generate',
+      title: 'Génération automatique',
+      description: '',
+      icon: FileDown,
+      duration: 2000,
+      status: 'pending'
     }
-  }, [visibleMessages]);
+  ];
 
-  return (
-    <>
-      <div className="p-6 h-[65vh] max-h-[500px] overflow-y-auto" ref={scrollRef}>
-        <div className="text-center mb-6">
-          <p className="text-gray-400 text-sm">Démonstration d'un entretien client avec Francis</p>
-        </div>
-        {demoConversation.map((msg, index) => (
-          <DemoMessage 
-            key={index} 
-            message={msg} 
-            visible={visibleMessages.includes(index)}
-          />
-        ))}
-      </div>
-      {/* Footer interactif supprimé pour la démo automatisée */}
-    </>
-  );
-};
+  const demoAudio = [
+    "Bonjour Monsieur Martin, je suis ravi de vous rencontrer aujourd'hui.",
+    "Pouvez-vous me parler de votre situation familiale et professionnelle ?",
+    "J'ai 45 ans, je suis marié avec 2 enfants. Je travaille comme directeur commercial.",
+    "Quel est votre revenu net annuel et celui de votre épouse ?",
+    "Mon salaire net est de 95 000€ par an, ma femme gagne 42 000€.",
+    "Avez-vous des biens immobiliers ?",
+    "Nous avons notre résidence principale à 450 000€ et un appartement en location.",
+    "Quels sont vos objectifs fiscaux et patrimoniaux ?",
+    "Je souhaite optimiser ma fiscalité et préparer ma retraite."
+  ];
 
-const ClientView = ({ onComplete }: { onComplete: () => void }) => {
-  const [step, setStep] = useState(0);
+  const analysisResults = {
+    optimizations: [
+      {
+        title: "PER (Plan d'Épargne Retraite)",
+        saving: "2 550€",
+        description: "Réduction d'impôt immédiate (art. 163 quinquies CGI)",
+        priority: "Haute",
+        details: "Versement de 8 500€ = réduction d'impôt immédiate de 2 550€ (30%) + épargne retraite (Loi PACTE 2019)"
+      },
+      {
+        title: "Investissement Pinel Toulouse",
+        saving: "3 000€",
+        description: "Réduction d'impôt 12% (art. 199 sexdecies CGI)",
+        priority: "Haute",
+        details: "Appartement 2 pièces 250 000€ = 30 000€ de réduction sur 9 ans (3 000€/an)"
+      },
+      {
+        title: "Assurance-vie transmission",
+        saving: "1 200€",
+        description: "Optimisation transmission (art. 757 CGI)",
+        priority: "Moyenne",
+        details: "Contrat en faveur des enfants avec abattement de 152 500€ (art. 757 CGI)"
+      },
+      {
+        title: "Donation-partage anticipée",
+        saving: "1 500€",
+        description: "Transmission avec abattements (art. 779 CGI)",
+        priority: "Moyenne",
+        details: "Donation de 100 000€ par enfant avec abattement de 100 000€ (art. 779 CGI)"
+      }
+    ],
+    totalSaving: "8 250€",
+    timeToImplement: "1-2 mois",
+    riskLevel: "Faible"
+  };
+
+  const leadsData = [
+    {
+      title: "PER BNP Paribas - Taux optimal",
+      description: "Taux de réduction d'impôt de 30% + fonds en euros 3.5%",
+      contact: "Marie Dubois - Conseillère patrimoniale",
+      phone: "01 42 34 56 78",
+      email: "m.dubois@bnpparibas.fr",
+      priority: "Urgent",
+      opportunity: "Ouverture possible sous 48h avec versement immédiat de 8 500€"
+    },
+    {
+      title: "Programme Pinel Toulouse - Quartier Compans",
+      description: "Appartement neuf 2 pièces 250 000€ avec 12% de réduction",
+      contact: "Pierre Martin - Promoteur immobilier",
+      phone: "05 61 23 45 67",
+      email: "p.martin@promoteur-toulouse.fr",
+      priority: "Haute",
+      opportunity: "Livraison 2025, réduction d'impôt de 3 000€/an sur 9 ans"
+    },
+    {
+      title: "Assurance-vie AXA - Fonds euros + UC",
+      description: "Fonds en euros 3.2% + unités de compte performantes",
+      contact: "Sophie Bernard - Conseillère en investissement",
+      phone: "01 45 67 89 12",
+      email: "s.bernard@axa.fr",
+      priority: "Normale",
+      opportunity: "Contrat optimisé pour la transmission aux enfants (abattement 152 500€)"
+    }
+  ];
 
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-    [1,2,3,4].forEach((s, idx) => {
-      const t = setTimeout(() => setStep(s), (idx + 1) * 1500);
-      timers.push(t);
-    });
-    const doneTimer = setTimeout(onComplete, 6500);
-    timers.push(doneTimer);
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    if (isPlaying) {
+      startDemo();
+    }
+  }, [isPlaying]);
 
-  return (
-    <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
-      <h3 className="text-2xl font-bold text-white mb-6">Profil Client Généré</h3>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Informations personnelles */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: step >= 1 ? 1 : 0, y: step >= 1 ? 0 : 10 }}
-          transition={{ duration: 0.4 }}
-          className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]"
-        >
-          <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-            <User className="w-5 h-5" />
-            M. Durand Jean-Pierre
-          </h4>
-          <div className="space-y-2 text-sm">
-            <p><span className="text-gray-400">Âge:</span> 42 ans</p>
-            <p><span className="text-gray-400">Situation familiale:</span> Marié, 2 enfants</p>
-            <p><span className="text-gray-400">Profession:</span> Ingénieur</p>
-            <p><span className="text-gray-400">Revenus annuels:</span> 85 000 €</p>
-          </div>
-        </motion.div>
-
-        {/* Patrimoine */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: step >= 2 ? 1 : 0, y: step >= 2 ? 0 : 10 }}
-          transition={{ duration: 0.4 }}
-          className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]"
-        >
-          <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-            <Euro className="w-5 h-5" />
-            Patrimoine
-          </h4>
-          <div className="space-y-2 text-sm">
-            <p><span className="text-gray-400">Total:</span> 320 000 €</p>
-            <p><span className="text-gray-400">Résidence principale:</span> 220 000 €</p>
-            <p><span className="text-gray-400">Appartement locatif:</span> 100 000 €</p>
-            <p><span className="text-gray-400">Revenus locatifs:</span> 800 €/mois</p>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Points d'attention */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: step >= 3 ? 1 : 0, y: step >= 3 ? 0 : 10 }}
-        transition={{ duration: 0.4 }}
-        className="mt-6 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]"
-      >
-        <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5" />
-          Points d'attention identifiés
-        </h4>
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-            <div>
-              <p className="font-medium">TMI élevé (30%)</p>
-              <p className="text-sm text-gray-400">Opportunités de défiscalisation importantes</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-            <div>
-              <p className="font-medium">Revenus fonciers non optimisés</p>
-              <p className="text-sm text-gray-400">Micro-foncier moins avantageux que le réel</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
-            <div>
-              <p className="font-medium">Absence de PER</p>
-              <p className="text-sm text-gray-400">Potentiel de déduction important non exploité</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Actions suivantes */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: step >= 4 ? 1 : 0, y: step >= 4 ? 0 : 10 }}
-        transition={{ duration: 0.4 }}
-        className="mt-6 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 p-4 rounded-xl border border-[#c5a572]/30"
-      >
-        <p className="text-sm text-gray-300">
-          <strong className="text-[#c5a572]">Prochaines étapes :</strong> Demander l'avis d'imposition et les charges de l'appartement locatif pour affiner les calculs.
-        </p>
-      </motion.div>
-    </div>
-  );
-};
-
-const ReportView = () => (
-  <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
-    <h3 className="text-2xl font-bold text-white mb-6">Documents Générés</h3>
+  const startDemo = async () => {
+    // Étape 1: Écoute
+    setCurrentStep(0);
+    steps[0].status = 'active';
     
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {/* Rapport PDF */}
-      <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C] hover:border-[#c5a572] transition-colors cursor-pointer">
-        <div className="flex items-start justify-between mb-4">
-          <FileText className="w-12 h-12 text-[#c5a572]" />
-          <span className="text-xs text-gray-400">Généré il y a 2 min</span>
-        </div>
-        <h4 className="font-semibold text-white mb-2">Rapport d'Optimisation Fiscale</h4>
-        <p className="text-sm text-gray-400 mb-4">Document PDF complet avec toutes les stratégies détaillées</p>
-        <button className="flex items-center gap-2 text-[#c5a572] hover:text-[#e8cfa0] text-sm font-medium">
-          <Download className="w-4 h-4" />
-          Télécharger PDF
-        </button>
-      </div>
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simulation de l'écoute avec audio en temps réel
+    for (let i = 0; i < demoAudio.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setTranscription(prev => prev + (prev ? '\n' : '') + demoAudio[i]);
+    }
 
-      {/* Export Excel */}
-      <div className="bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C] hover:border-[#c5a572] transition-colors cursor-pointer">
-        <div className="flex items-start justify-between mb-4">
-          <FileText className="w-12 h-12 text-green-400" />
-          <span className="text-xs text-gray-400">Généré il y a 2 min</span>
-        </div>
-        <h4 className="font-semibold text-white mb-2">Tableaux de Calcul</h4>
-        <p className="text-sm text-gray-400 mb-4">Fichier Excel avec tous les calculs détaillés et simulations</p>
-        <button className="flex items-center gap-2 text-green-400 hover:text-green-300 text-sm font-medium">
-          <Download className="w-4 h-4" />
-          Télécharger Excel
-        </button>
-      </div>
-    </div>
+    // Étape 2: Transcription
+    setCurrentStep(1);
+    steps[0].status = 'completed';
+    steps[1].status = 'active';
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    {/* Synthèse email */}
-    <div className="mt-6 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
-      <h4 className="font-semibold text-[#c5a572] mb-4">Email de Synthèse</h4>
-      <div className="bg-[#162238]/50 rounded-lg p-4 text-sm">
-        <p className="text-gray-400 mb-2">Objet: Optimisation fiscale - Économie potentielle de 2 847€/an</p>
-        <p className="text-gray-300">
-          Bonjour M. Durand,<br/><br/>
-          Suite à notre entretien, j'ai le plaisir de vous présenter les optimisations fiscales identifiées...
-        </p>
-      </div>
-      <button className="mt-4 text-[#c5a572] hover:text-[#e8cfa0] text-sm font-medium">
-        Envoyer l'email au client →
-      </button>
-    </div>
+    // Étape 3: Analyse
+    setCurrentStep(2);
+    steps[1].status = 'completed';
+    steps[2].status = 'active';
+    
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setAnalysis(analysisResults);
 
-    {/* Analyse détaillée */}
-    <div className="mt-8 bg-[#1E3253]/80 p-6 rounded-xl border border-[#2A3F6C]">
-      <h4 className="font-semibold text-[#c5a572] mb-4 flex items-center gap-2">
-        <BarChart className="w-5 h-5" /> Analyse détaillée (extrait)
-      </h4>
-      <p className="text-sm text-gray-300 mb-4">
-        Francis a identifié <span className="text-[#c5a572] font-semibold">5 axes d'optimisation</span> prioritaires :
-      </p>
-      <ul className="list-disc list-inside space-y-2 text-sm text-gray-400 mb-6">
-        <li>Ponction PER maximale : déduction jusqu'à 9 690 €</li>
-        <li>Passage LMNP réel : économie d'impôt estimée à 1 250 €</li>
-        <li>Dons IFI réallocation : réduction supplémentaire de 700 €</li>
-        <li>Arbitrage dividendes versus rémunération : gain social potentiel 1 100 €</li>
-        <li>Immobilier Pinel +: réduction d'impôt de 4 000 €/an sur 6 ans</li>
-      </ul>
-
-      <p className="text-sm text-gray-300 mb-2 font-semibold">Éléments manquants pour une analyse approfondie :</p>
-      <ul className="list-disc list-inside space-y-1 text-sm text-red-400 mb-4">
-        <li>Montant exact des charges locatives 2024</li>
-        <li>Relevés d'investissements financiers (PEA, CTO)</li>
-        <li>Capital restant dû sur emprunts immobiliers</li>
-      </ul>
-
-      <button className="mt-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
-        Voir l'analyse complète
-      </button>
-    </div>
-  </div>
-);
-
-const updates = [
-    { title: "Réforme de la plus-value immobilière", description: "Nouvelles règles de calcul pour les résidences secondaires.", impactedClients: ["Martin", "Bernard"] },
-    { title: "Plafond PER 2024 augmenté", description: "Le plafond de déduction a été réévalué de 2%.", impactedClients: ["Durand", "Petit"] },
-    { title: "Fin du dispositif Pinel", description: "Analyse d'impact et alternatives pour les investissements locatifs.", impactedClients: ["Leroy"] },
-];
-
-const UpdatesView = () => (
-    <div className="p-8 h-[65vh] max-h-[600px] overflow-y-auto">
-        <h3 className="text-2xl font-bold text-white mb-6">Veille Législative & Mises à Jour</h3>
-        <div className="space-y-4">
-            {updates.map((update, index) => (
-                <div key={index} className="bg-[#1E3253]/80 p-4 rounded-xl border border-[#2A3F6C] hover:border-[#c5a572] transition-colors">
-                    <h4 className="font-semibold text-white mb-2">{update.title}</h4>
-                    <p className="text-gray-400 text-sm mb-3">{update.description}</p>
-                    <div className="text-xs">
-                        <span className="text-gray-500">Clients impactés : </span>
-                        {update.impactedClients.map(client => <span key={client} className="inline-block bg-[#c5a572]/20 text-[#c5a572] rounded-full px-2 py-0.5 mr-1">{client}</span>)}
-                  </div>
-                </div>
-            ))}
-                          </div>
-                        </div>
-);
-
-const tabs = [
-    { id: 'chat', label: 'Entretien Client', icon: Mic },
-    { id: 'client', label: 'Profil Généré', icon: User },
-    { id: 'report', label: 'Documents', icon: FileText }
-];
-
-export function ProDemoSection() {
-  const [activeTab, setActiveTab] = useState('chat');
-  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '-100px' });
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => { if (inView) setStarted(true); }, [inView]);
-
-  const handleChatDone = () => setActiveTab('client');
-  const handleClientDone = () => setActiveTab('report');
-
-  const renderContent = () => {
-    if (activeTab === 'chat') return <ConversationView onComplete={handleChatDone} />;
-    if (activeTab === 'client') return <ClientView onComplete={handleClientDone} />;
-    return <ReportView />;
+    // Étape 4: Génération
+    setCurrentStep(3);
+    steps[2].status = 'completed';
+    steps[3].status = 'active';
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setPdfGenerated(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setLeadsGenerated(true);
+    
+    steps[3].status = 'completed';
+    setShowResults(true);
+    setIsPlaying(false);
   };
 
   return (
-    <div className="py-20 px-4" ref={ref}>
-      <div className="max-w-5xl mx-auto text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Voyez Francis en action
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          Découvrez Francis en <span className="text-[#c5a572]">action</span>
         </h2>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          De l'entretien client au rapport complet en quelques minutes. 
-          Découvrez comment Francis transforme votre pratique.
+          Une démo spectaculaire du processus complet : de l'écoute à la génération de leads
         </p>
-        {!started && (
-          <div className="mt-6">
-            <button
-              onClick={() => setStarted(true)}
-              className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
-            >
-              Lancer la démo
-            </button>
-          </div>
-        )}
       </div>
 
-      {started && (
-        <div className="max-w-5xl mx-auto bg-[#0F1E36] rounded-2xl shadow-2xl border border-[#2A3F6C]/50 overflow-hidden">
-          {/* Onglets */}
-          <div className="flex border-b border-[#2A3F6C]/50 bg-[#162238]">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 p-4 text-sm font-medium transition-all ${
-                  activeTab === tab.id 
-                    ? 'text-[#c5a572] bg-[#1E3253] border-b-2 border-[#c5a572]' 
-                    : 'text-gray-400 hover:text-gray-300 hover:bg-[#1E3253]/50'
-                }`}
+      {/* Contrôles */}
+      <div className="flex justify-center mb-12">
+        <button
+          onClick={() => {
+            setIsPlaying(true);
+            setTranscription('');
+            setAnalysis(null);
+            setPdfGenerated(false);
+            setLeadsGenerated(false);
+            setShowResults(false);
+            steps.forEach(step => step.status = 'pending');
+          }}
+          disabled={isPlaying}
+          className={`flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
+            isPlaying 
+              ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:scale-105'
+          }`}
+        >
+          {isPlaying ? (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin" />
+              Démo en cours...
+            </>
+          ) : (
+            <>
+              <Play className="w-6 h-6" />
+              Lancer la démo
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Étapes du processus */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        {steps.map((step, index) => (
+          <motion.div
+            key={step.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className={`relative p-6 rounded-xl border-2 transition-all duration-500 ${
+              step.status === 'active'
+                ? 'border-[#c5a572] bg-[#c5a572]/10 shadow-lg shadow-[#c5a572]/20'
+                : step.status === 'completed'
+                ? 'border-green-500 bg-green-500/10'
+                : 'border-gray-600 bg-[#1E3253]/60'
+            }`}
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                step.status === 'active'
+                  ? 'bg-[#c5a572] text-[#162238] animate-pulse'
+                  : step.status === 'completed'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-600 text-gray-400'
+              }`}>
+                {step.status === 'completed' ? (
+                  <CheckCircle className="w-6 h-6" />
+                ) : (
+                  <step.icon className="w-6 h-6" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">{step.title}</h3>
+                <p className="text-sm text-gray-400">{step.description}</p>
+              </div>
+            </div>
+            
+            {step.status === 'active' && (
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ duration: step.duration / 1000, ease: 'linear' }}
+                className="h-1 bg-[#c5a572] rounded-full"
+              />
+            )}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Zone de démonstration */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Transcription en temps réel */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-[#1E3253]/60 rounded-xl p-6 border border-[#2A3F6C]/30"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Mic className="w-6 h-6 text-[#c5a572]" />
+            <h3 className="text-xl font-semibold text-white">Transcription en temps réel</h3>
+          </div>
+          
+          <div className="bg-[#162238] rounded-lg p-4 h-64 overflow-y-auto">
+            <AnimatePresence>
+              {transcription && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-gray-300 text-sm leading-relaxed"
+                >
+                  {transcription.split('\n').map((line, index) => (
+                    <motion.p
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="mb-2"
+                    >
+                      {line}
+                    </motion.p>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* Analyse IA */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-[#1E3253]/60 rounded-xl p-6 border border-[#2A3F6C]/30"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Brain className="w-6 h-6 text-[#c5a572]" />
+            <h3 className="text-xl font-semibold text-white">Analyse IA Francis</h3>
+          </div>
+          
+          <AnimatePresence>
+            {analysis && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-4"
               >
-                <tab.icon className="w-5 h-5" />
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Contenu */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {renderContent()}
-            </motion.div>
+                <div className="bg-[#162238] rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-gray-400">Économie totale estimée</span>
+                    <span className="text-2xl font-bold text-[#c5a572]">{analysis.totalSaving}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-400">Temps d'implémentation</span>
+                      <p className="text-white font-semibold">{analysis.timeToImplement}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Niveau de risque</span>
+                      <p className="text-green-400 font-semibold">{analysis.riskLevel}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {analysis.optimizations.map((opt: any, index: number) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-[#162238] rounded-lg p-3"
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="font-semibold text-white text-sm">{opt.title}</h4>
+                        <span className="text-green-400 font-bold text-sm">{opt.saving}</span>
+                      </div>
+                      <p className="text-xs text-gray-400 mb-2">{opt.description}</p>
+                      <div className="bg-green-500/10 border border-green-500/20 rounded p-2">
+                        <p className="text-xs text-green-400 font-medium">📊 Détails</p>
+                        <p className="text-xs text-gray-300">{opt.details}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
-        </div>
-      )}
+        </motion.div>
+      </div>
 
-      {started && (
-        <>
-          <div className="mt-12 text-center">
-            <p className="text-gray-300 mb-4">
-              Prêt à transformer votre cabinet ?
-            </p>
-            <button className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
-              Commencer maintenant !
-            </button>
-          </div>
-        </>
-      )}
+      {/* Résultats finaux */}
+      <AnimatePresence>
+        {showResults && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12"
+          >
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold text-white mb-4">
+                🎉 Résultats générés automatiquement !
+              </h3>
+              <p className="text-gray-300">
+                Francis a créé votre rapport complet et identifié les meilleurs leads
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* PDF Généré */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-[#1E3253]/60 rounded-xl p-6 border border-[#2A3F6C]/30"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <FileDown className="w-6 h-6 text-[#c5a572]" />
+                  <h3 className="text-xl font-semibold text-white">Rapport PDF généré</h3>
+                </div>
+                
+                <div className="bg-[#162238] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-white font-semibold">Analyse_Fiscal_Martin.pdf</span>
+                    <span className="text-green-400 text-sm">✓ Généré</span>
+                  </div>
+                  <div className="space-y-2 text-sm text-gray-300">
+                    <div className="flex justify-between">
+                      <span>Pages</span>
+                      <span>12</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Taille</span>
+                      <span>2.4 MB</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Optimisations identifiées</span>
+                      <span>4</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Économie potentielle</span>
+                      <span className="text-[#c5a572] font-bold">8 250€</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Leads générés */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="bg-[#1E3253]/60 rounded-xl p-6 border border-[#2A3F6C]/30"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <UserCheck className="w-6 h-6 text-[#c5a572]" />
+                  <h3 className="text-xl font-semibold text-white">Leads d'optimisation</h3>
+                </div>
+                
+                <div className="space-y-3">
+                  {leadsData.map((lead, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + index * 0.1 }}
+                      className="bg-[#162238] rounded-lg p-3"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold text-white text-sm">{lead.title}</h4>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          lead.priority === 'Urgent' ? 'bg-red-500/20 text-red-400' :
+                          lead.priority === 'Haute' ? 'bg-orange-500/20 text-orange-400' :
+                          'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {lead.priority}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 mb-2">{lead.description}</p>
+                      <p className="text-xs text-[#c5a572] mb-1">{lead.contact}</p>
+                      <p className="text-xs text-gray-400 mb-2">{lead.phone} • {lead.email}</p>
+                      <div className="bg-[#c5a572]/10 border border-[#c5a572]/20 rounded p-2">
+                        <p className="text-xs text-[#c5a572] font-medium">💡 Opportunité</p>
+                        <p className="text-xs text-gray-300">{lead.opportunity}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+
+            {/* CTA Final */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center mt-12"
+            >
+              <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/20 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Prêt à transformer votre pratique ?
+                </h3>
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                  Rejoignez les conseillers qui automatisent leur paperasse et génèrent plus de leads grâce à Francis.
+                </p>
+                <Link
+                  to="/pro/signup"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+                >
+                  <Zap className="w-5 h-5" />
+                  Commencer maintenant
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-} 
+};
+
+export default ProDemoSection; 

@@ -3,7 +3,7 @@ import { ArrowRight, Shield, Sparkles, TrendingUp, Send, Bot, Zap, Crown, Star, 
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Transition } from '../components/ui/Transition';
-import { ProDemoSection } from '../components/demo/ProDemoSection';
+import ProDemoSection from '../components/demo/ProDemoSection';
 
 export function DemoPage() {
   const [question, setQuestion] = useState('');

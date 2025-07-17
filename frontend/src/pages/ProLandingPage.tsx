@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Zap, Sparkles, Play, Download, TrendingUp, Timer } from 'lucide-react';
+import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Sparkles, Play, Download, TrendingUp, Timer } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { ProDemoSection } from '../components/demo/ProDemoSection';
+import { PWAInstallButton } from '../components/PWAInstallButton';
 
 
 const features = [
@@ -10,29 +10,29 @@ const features = [
     icon: BrainCircuit,
     title: "Analyse fiscale instantanée",
     description: "Francis analyse vos entretiens et identifie automatiquement les optimisations possibles.",
-    color: "from-blue-500 to-cyan-500",
-    bgColor: "bg-blue-500/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   },
   {
     icon: Clock,
     title: "Gain de temps",
     description: "Automatisez la prise de notes et la génération de rapports. Plus de saisie manuelle.",
-    color: "from-green-500 to-emerald-500",
-    bgColor: "bg-green-500/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   },
   {
     icon: Users,
     title: "Suivi client simplifié",
     description: "Tous vos clients et leurs données fiscales centralisés dans un seul outil.",
-    color: "from-purple-500 to-pink-500",
-    bgColor: "bg-purple-500/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   },
   {
     icon: Shield,
     title: "Sécurité maximale",
     description: "Vos données sont chiffrées et hébergées en France. Conformité RGPD garantie.",
-    color: "from-orange-500 to-red-500",
-    bgColor: "bg-orange-500/10"
+    color: "from-[#c5a572] to-[#e8cfa0]",
+    bgColor: "bg-[#c5a572]/10"
   }
 ];
 
@@ -66,7 +66,7 @@ const processSteps = [
     step: "04",
     title: "Exportez en 1 clic",
     subtitle: "Format de votre choix",
-    description: "PDF pour le client, Excel pour vos calculs, CSV pour votre logiciel. Plus de saisie manuelle !",
+    description: "PDF pour le client, Excel pour vos calculs, CSV pour votre logiciel. Intégration Harvest et d'autres CRM préféré prochainement !",
     icon: Download,
     benefit: "Export multi-format automatique"
   }
@@ -130,18 +130,12 @@ const ProLandingPage = () => {
             Concentrez-vous sur vos clients, pas sur la paperasse.
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+          <div className="flex justify-center mb-16">
             <button
               onClick={() => handleAuth('signup')}
               className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-lg transition-all duration-300"
             >
               Commencer maintenant !
-            </button>
-            <button
-              onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border-2 border-[#c5a572] text-[#c5a572] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#c5a572]/10 transition-all duration-300"
-            >
-              Voir la démo
             </button>
           </div>
         </main>
@@ -158,53 +152,60 @@ const ProLandingPage = () => {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {processSteps.map((step, index) => (
-                <div key={index} className="relative">
-                  {index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-8 left-full w-full h-px bg-gradient-to-r from-[#c5a572]/20 to-transparent z-0"></div>
-                  )}
-                  <div className="bg-[#1E3253]/60 backdrop-blur-sm p-6 rounded-xl border border-[#2A3F6C]/30 hover:border-[#c5a572]/40 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-[#c5a572]/10">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-lg flex items-center justify-center text-[#162238] font-semibold text-sm">
-                        {step.step}
+                <div key={index} className="group relative">
+                  <div className="bg-gradient-to-br from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/30 hover:border-[#c5a572]/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#c5a572]/20">
+                    {/* Header avec numéro et icône */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center text-[#162238] font-bold text-lg shadow-lg">
+                          {step.step}
+                        </div>
+
                       </div>
-                      <step.icon className="w-6 h-6 text-[#c5a572]" />
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-1 group-hover:text-[#c5a572] transition-colors duration-300">
+                          {step.title}
+                        </h3>
+                        <p className="text-[#c5a572] text-sm font-medium">
+                          {step.subtitle}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-                    <p className="text-[#c5a572] text-sm font-medium mb-2">{step.subtitle}</p>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-3">{step.description}</p>
-                    <div className="bg-[#c5a572]/10 border border-[#c5a572]/20 rounded-lg p-2">
-                      <p className="text-[#c5a572] text-xs font-semibold uppercase tracking-wide">
-                        {step.benefit}
-                      </p>
+                    
+                    {/* Description */}
+                    <p className="text-gray-300 text-base leading-relaxed mb-6">
+                      {step.description}
+                    </p>
+                    
+                    {/* Bénéfice avec design moderne */}
+                    <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 border border-[#c5a572]/30 rounded-xl p-4 backdrop-blur-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-pulse"></div>
+                        <p className="text-[#c5a572] font-semibold text-sm">
+                          {step.benefit}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                  
+
                 </div>
               ))}
             </div>
 
-            <div className="mt-12 text-center">
-              <div className="inline-flex items-center gap-2 text-gray-300 bg-[#1E3253]/60 backdrop-blur-sm p-4 rounded-xl border border-[#2A3F6C]/30">
-                <Timer className="w-5 h-5 text-[#c5a572]" />
-                <span>Temps total : <span className="text-[#c5a572] font-semibold">moins de 5 minutes</span> après votre entretien</span>
+            {/* Bouton d'installation PWA pour utilisateurs connectés */}
+            {isAuthenticated && (
+              <div className="mt-8">
+                <PWAInstallButton />
               </div>
-              <div className="mt-4 text-center">
-                <p className="text-gray-400 text-sm">
-                  <span className="text-[#c5a572] font-semibold">Avant Francis :</span> 2-3 heures de saisie et d'analyse manuelle
-                </p>
-                <p className="text-gray-400 text-sm">
-                  <span className="text-[#c5a572] font-semibold">Avec Francis :</span> 5 minutes d'export automatique
-                </p>
-              </div>
-            </div>
+            )}
+
           </div>
         </section>
 
-        {/* Démo Section */}
-        <section id="demo" className="pb-20">
-          <ProDemoSection />
-        </section>
+
 
         {/* Features modernes */}
         <section id="features" className="container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
@@ -271,7 +272,7 @@ const ProLandingPage = () => {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
-                  Jusqu'à 20 clients
+                  50 questions Francis / mois
                 </li>
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
@@ -305,7 +306,7 @@ const ProLandingPage = () => {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
-                  Jusqu'à 50 clients
+                  100 questions Francis / mois
                 </li>
                 <li className="flex items-center text-gray-300">
                   <Check className="w-5 h-5 text-[#c5a572] mr-3" />
@@ -329,6 +330,26 @@ const ProLandingPage = () => {
             </div>
           </div>
         </section>
+
+        {/* Intégration O2S Harvest - Version visible et attrayante */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="flex items-center justify-center gap-6 bg-gradient-to-r from-[#1E3253]/80 to-[#2A3F6C]/80 backdrop-blur-sm rounded-xl border border-[#c5a572]/30 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#33ee87]/20 rounded-full p-2">
+                <span className="text-[#33ee87] text-sm font-bold">NOUVEAU</span>
+              </div>
+              <img
+                src="/images/logo_harvest.svg"
+                alt="Logo Harvest"
+                className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
+              />
+              <div className="text-center">
+                <h4 className="text-white font-semibold text-lg">Intégration O2S de Harvest</h4>
+                <p className="text-gray-300 text-sm">Compatible avec l'offre Succès</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* CTA Final */}
         <section className="pb-20">
