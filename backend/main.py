@@ -61,7 +61,6 @@ from pathlib import Path
 
 # Import outils Andorre
 try:
-# ------------------------------------------------------------------
     CGI_EMBEDDINGS_AVAILABLE
 except NameError:
     CGI_EMBEDDINGS_AVAILABLE = False
