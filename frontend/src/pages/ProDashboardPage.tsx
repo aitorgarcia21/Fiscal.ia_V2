@@ -379,8 +379,8 @@ export function ProDashboardPage() {
             {/* Logo Francis (bulle + euro) */}
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group">
-                <MessageSquareIcon className="h-10 w-10 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#162238] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#c5a572] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
