@@ -1,20 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
-  <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0A192F" stop-opacity="1" />
-      <stop offset="100%" stop-color="#162238" stop-opacity="1" />
-    </linearGradient>
-  </defs>
+  <!-- Fond noir - exact de l'image utilisateur -->
+  <rect width="48" height="48" fill="#000000" rx="8"/>
   
-  <!-- Fond bleu Francis -->
-  <rect width="48" height="48" fill="url(#bgGradient)" rx="12"/>
+  <!-- MessageSquareIcon - exact de l'image utilisateur -->
+  <path d="M12 16h16l4 4v8a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   
-  <!-- MessageSquareIcon identique au header -->
-  <path d="M12 10h18l4 4v12a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2z" fill="none" stroke="#c5a572" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <!-- Euro Icon - identique au header avec fond circulaire -->
-  <circle cx="36" cy="36" r="6" fill="#162238" stroke="#c5a572" stroke-width="1.5"/>
-  <path d="M34 32c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="none" stroke="#c5a572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M32 34h6" stroke="#c5a572" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M32 36h6" stroke="#c5a572" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Euro Icon - exact de l'image utilisateur -->
+  <circle cx="36" cy="36" r="8" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+  <path d="M32 34a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M30 36h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30 38h8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
 </svg>
