@@ -158,13 +158,16 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+    <div class="logo" style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
+      <!-- MessageSquareIcon identique au header -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c5a572" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.12 0 2.2-.18 3.21-.53L22 22l-1.79-6.79C20.82 14.2 21 13.12 21 12c0-5.52-4.48-10-10-10z"/>
-        <text x="12" y="16" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="currentColor">€</text>
+      <!-- Euro Icon identique au header avec fond circulaire -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5a572" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; bottom: -4px; right: -4px; background: #162238; border-radius: 50%; padding: 2px;">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <text x="12" y="16" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#c5a572">€</text>
       </svg>
     </div>
     <div class="title">Francis Teams</div>

@@ -9,10 +9,12 @@
   <!-- Fond bleu Francis -->
   <rect width="48" height="48" fill="url(#bgGradient)" rx="12"/>
   
-  <!-- MessageSquare Icon - Bulle de message principale -->
-  <path d="M36 18a2 2 0 0 1-2 2H22l-4 4V12a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="#c5a572" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- MessageSquareIcon identique au header -->
+  <path d="M12 10h18l4 4v12a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2z" fill="none" stroke="#c5a572" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   
-  <!-- Euro Icon - Cercle + symbole € en bas à droite -->
-  <circle cx="37" cy="37" r="7" fill="#162238" stroke="#c5a572" stroke-width="2"/>
-  <text x="37" y="41" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#c5a572" text-anchor="middle">€</text>
+  <!-- Euro Icon - identique au header avec fond circulaire -->
+  <circle cx="36" cy="36" r="6" fill="#162238" stroke="#c5a572" stroke-width="1.5"/>
+  <path d="M34 32c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="none" stroke="#c5a572" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 34h6" stroke="#c5a572" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 36h6" stroke="#c5a572" stroke-width="1.5" stroke-linecap="round"/>
 </svg>
