@@ -668,7 +668,7 @@ export function ProCreateClientPage() {
               <div className="relative inline-flex items-center justify-center">
                 <MessageSquare className="h-8 w-8 text-[#c5a572]" />
                 <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-          </div>
+              </div>
               <span className="text-lg font-bold text-white">Francis</span>
         </div>
       </div>
