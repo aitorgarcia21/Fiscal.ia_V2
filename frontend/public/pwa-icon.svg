@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <clipPath id="roundedRect">
+      <rect x="0" y="0" width="512" height="512" rx="85" ry="85"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#roundedRect)">
+    <!-- Background -->
+    <rect width="512" height="512" fill="#0A192F"/>
+    
+    <!-- Main MessageSquare icon -->
+    <g transform="translate(156, 156) scale(10, 10)">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" 
+            fill="#c5a572" 
+            stroke="#c5a572" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"/>
+    </g>
+    
+    <!-- Euro symbol positioned in bottom-right -->
+    <g transform="translate(320, 320) scale(8, 8)">
+      <path d="C6 2a6 6 0 0 0-5 9l.5 1a6 6 0 0 0 5 3h13a6 6 0 0 0 5-3l.5-1a6 6 0 0 0-5-9H6z" 
+            fill="#c5a572"/>
+      <path d="M7 7h5M7 10h5M12 7v6" 
+            stroke="#0A192F" 
+            stroke-width="2" 
+            stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
