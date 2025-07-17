@@ -379,8 +379,7 @@ export function ProDashboardPage() {
             {/* Logo Francis (bulle + euro) */}
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group">
-                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#c5a572] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                <img src="/favicon.svg" alt="Francis Logo" className="h-10 w-10 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
@@ -588,7 +587,7 @@ export function ProDashboardPage() {
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
-                  <MessageSquareIcon className="w-6 h-6 text-[#162238]" />
+                  <img src="/favicon.svg" alt="Francis Logo" className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-white group-hover:text-[#162238] transition-colors">
@@ -629,7 +628,7 @@ export function ProDashboardPage() {
             title="Parler à Francis"
           >
             <div className="relative inline-flex items-center justify-center group">
-              <MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+              <img src="/favicon.svg" alt="Francis Logo" className="w-8 h-8 transition-transform group-hover:scale-110 duration-300" />
               <Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
           </button>
@@ -666,7 +665,7 @@ aria-label="Fermer le chat"
                 <div className="text-center py-8">
                   <div className="flex justify-center mb-4">
                     <div className="relative inline-flex items-center justify-center group">
-                      <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                      <img src="/favicon.svg" alt="Francis Logo" className="h-10 w-10 transition-transform group-hover:scale-110 duration-300" />
                       <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                     </div>
                   </div>
