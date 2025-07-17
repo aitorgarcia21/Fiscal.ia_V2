@@ -377,12 +377,12 @@ export function ProDashboardPage() {
             {/* Logo Francis (bulle + euro) */}
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group">
-                <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                <MessageSquareIcon className="h-10 w-10 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#162238] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
-                <p className="text-sm text-[#c5a572] font-medium">Votre copilote</p>
+                <p className="text-sm text-[#162238] font-medium">Votre copilote</p>
               </div>
             </div>
           </div>
@@ -472,7 +472,7 @@ export function ProDashboardPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleViewClient(client.id)}
-                        className="flex-1 bg-[#1a2332] text-[#c5a572] px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
+                        className="flex-1 bg-[#1a2332] text-[#162238] px-3 py-2 rounded-lg text-sm hover:bg-[#223c63] transition-colors"
                       >
                         Voir
                       </button>
@@ -589,7 +589,7 @@ export function ProDashboardPage() {
                   <MessageSquareIcon className="w-6 h-6 text-[#162238]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
+                  <h3 className="font-semibold text-white group-hover:text-[#162238] transition-colors">
                     Chat Francis
                   </h3>
                   <p className="text-sm text-gray-400">Posez vos questions</p>
@@ -608,7 +608,7 @@ export function ProDashboardPage() {
                   <Shield className="w-6 h-6 text-[#162238]" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors">
+                  <h3 className="font-semibold text-white group-hover:text-[#162238] transition-colors">
                     Paramètres
                   </h3>
                   <p className="text-sm text-gray-400">Configurez votre compte</p>
@@ -625,12 +625,12 @@ export function ProDashboardPage() {
         {!isChatOpen && (
           <button
             onClick={() => setIsChatOpen(true)}
-            className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
+            className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] w-16 h-16 rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
             title="Parler à Francis"
           >
             <div className="relative inline-flex items-center justify-center group">
-              <MessageSquareIcon className="w-8 h-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
+              <MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
           </button>
         )}
@@ -643,8 +643,8 @@ export function ProDashboardPage() {
 <div className="flex items-center justify-between p-4 border-b border-[#c5a572]/20">
 <div className="flex items-center gap-3">
 <div className="relative inline-flex items-center justify-center group">
-<MessageSquareIcon className="w-8 h-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-<Euro className="w-5 h-5 text-[#c5a572] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
+<MessageSquareIcon className="w-8 h-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+<Euro className="w-5 h-5 text-[#162238] absolute -bottom-1.5 -right-1.5 transition-transform group-hover:scale-110 duration-300" />
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -737,7 +737,7 @@ aria-label="Fermer le chat"
                           startRecording();
                         }
                       }}
-                      className={`p-2 rounded-full transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-[#c5a572] hover:bg-[#c5a572]/10'}`}
+                      className={`p-2 rounded-full transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-[#162238] hover:bg-[#c5a572]/10'}`}
                       title={isRecording ? 'Arrêter l\'enregistrement' : 'Parler à Francis'}
                       disabled={isLoadingMessage}
                     >
