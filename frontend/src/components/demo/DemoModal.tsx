@@ -127,7 +127,10 @@ export function DemoModal({ onClose, onStart }: DemoModalProps) {
               >
                 <div className="relative flex-shrink-0">
                   <div className="relative w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center shadow-lg border border-white/20">
-                    <MessageSquare className="w-6 h-6 text-[#162238]" />
+                    <div className="relative inline-flex items-center justify-center group">
+                      <MessageSquare className="w-6 h-6 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
+                      <Euro className="w-4 h-4 text-[#162238] absolute -bottom-1 -right-1 bg-[#c5a572] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                    </div>
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-[#0A1628]" />
                   </div>
                 </div>
