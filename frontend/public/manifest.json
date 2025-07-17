@@ -1,78 +1,33 @@
 {
-<<<<<<< HEAD
   "name": "Francis - Conseiller Fiscal IA",
   "short_name": "Francis",
   "description": "Votre assistant fiscal intelligent powered by IA pour l'optimisation fiscale",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A192F",
-=======
-  "name": "Francis - Assistant Fiscal Intelligent",
-  "short_name": "Francis Fiscal",
-  "description": "Assistant fiscal intelligent powered by IA pour optimiser vos impôts",
-  "start_url": "/login",
-  "display": "standalone",
-  "background_color": "#0A1628",
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
-  "theme_color": "#1a2942",
+  "background_color": "#162238",
+  "theme_color": "#c5a572",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "fr",
-<<<<<<< HEAD
   "categories": ["finance", "business", "productivity"],
   "icons": [
     {
-      "src": "/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-192x192.png",
+      "src": "/favicon.svg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     },
     {
-      "src": "/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-512x512.png",
+      "src": "/favicon.svg",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
@@ -83,8 +38,9 @@
       "url": "/chat",
       "icons": [
         {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
+          "src": "/favicon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
         }
       ]
     },
@@ -95,88 +51,13 @@
       "url": "/pro-dashboard",
       "icons": [
         {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
-=======
-  "dir": "ltr",
-  "categories": ["finance", "productivity", "business"],
-  "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/favicon.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
-    }
-  ],
-  "screenshots": [
-    {
-<<<<<<< HEAD
-      "src": "/screenshot-wide.png",
-=======
-      "src": "/screenshot-desktop.png",
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-<<<<<<< HEAD
-      "src": "/screenshot-narrow.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ]
-}
-=======
-      "src": "/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "Accédez à votre dashboard Francis",
-      "url": "/dashboard",
-      "icons": [
-        {
           "src": "/favicon.svg",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Chat Francis",
-      "short_name": "Chat",
-      "description": "Discutez avec Francis",
-      "url": "/chat",
-      "icons": [
-        {
-          "src": "/favicon.svg",
-          "sizes": "96x96"
+          "sizes": "192x192",
+          "type": "image/svg+xml"
         }
       ]
     }
   ],
   "related_applications": [],
   "prefer_related_applications": false
-} 
->>>>>>> 7c8d861ef7da8ecc10302c4493cdab2c4a80d171
+}
