@@ -691,7 +691,10 @@ export function ProCreateClientPage() {
             </p>
           </div>
 
-
+          {/* Sélecteur de profil */}
+          <div className="mb-8">
+            <ProfileSelector onProfileSelect={handleProfileSelect} />
+          </div>
 
           {/* Assistant vocal */}
           {(
