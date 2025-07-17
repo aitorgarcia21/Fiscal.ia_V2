@@ -190,7 +190,10 @@ export function ChatPage() {
         <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Logo size="lg" />
+              <div className="relative inline-flex items-center justify-center group">
+                <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+              </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Chat</h1>
                 <p className="text-sm text-gray-400">Posez vos questions à Francis</p>
@@ -242,8 +245,9 @@ export function ChatPage() {
               >
                 <div className="flex items-start space-x-2">
                   {message.role === 'assistant' && (
-                    <div className="flex-shrink-0">
-                      <Logo size="sm" />
+                    <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
+                      <MessageSquare className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                      <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                     </div>
                   )}
                   <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
@@ -259,8 +263,9 @@ export function ChatPage() {
           {isLoading && (
             <div className="flex justify-start p-4">
                 <div className="flex items-center space-x-2">
-                    <div className="flex-shrink-0">
-                        <Logo size="sm" />
+                    <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
+                        <MessageSquare className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                        <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                     </div>
                     <div className="flex items-center space-x-3 bg-[#223c63]/80 p-4 rounded-lg rounded-bl-none shadow-md">
                         <span className="text-gray-300 text-sm">Francis réfléchit...</span>
