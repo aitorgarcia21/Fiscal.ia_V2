@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check } from 'lucide-react';
+import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 
@@ -231,15 +231,15 @@ export function ProCreateClientPage() {
       highlight: "voice-input"
     },
     {
-      title: " Auto-fill magique",
-      description: "Francis extrait automatiquement toutes les informations et remplit le formulaire pour vous. Plus de 25 champs détectés !",
-      icon: <User className="w-8 h-8 text-[#c5a572]" />,
+      title: 'Création du profil complet',
+      description: 'Francis extrait automatiquement toutes les informations et remplit le formulaire pour vous. Plus de 25 champs détectés ! Il établit le profil complet de votre client.',
+      icon: <Target className="w-6 h-6 text-[#c5a572]" />,
       highlight: "form-fields"
     },
     {
-      title: " Optimisations fiscales personnalisées",
-      description: "Après l'auto-fill, Francis analyse le profil complet et propose des optimisations fiscales sur mesure.",
-      icon: <Target className="w-8 h-8 text-[#c5a572]" />,
+      title: 'Optimisation fiscale intelligente',
+      description: 'Après la création du profil, Francis analyse le profil complet et propose des optimisations fiscales sur mesure.',
+      icon: <TrendingUp className="w-6 h-6 text-[#c5a572]" />,
       highlight: "optimization-results"
     },
     {
