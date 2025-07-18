@@ -225,9 +225,9 @@ export function ProCreateClientPage() {
       highlight: null
     },
     {
-      title: " Transcription vocale intelligente",
-      description: "Parlez naturellement à Francis. Il va transcrire et comprendre tout ce que vous dites sur votre client.",
-      icon: <Mic className="w-8 h-8 text-[#c5a572]" />,
+      title: 'Transcription vocale intelligente',
+      description: 'Francis écoute et transcrit votre entretien avec le client en temps réel. Parlez naturellement pendant votre rendez-vous.',
+      icon: <Mic className="w-6 h-6 text-[#c5a572]" />,
       highlight: "voice-input"
     },
     {
@@ -724,11 +724,12 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                   <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
                     <Mic className="w-4 h-4 text-[#162238]" />
                   </div>
-                  <span className="text-[#c5a572] font-medium">Exemple de transcription :</span>
+                  <span className="text-[#c5a572] font-medium">Exemple d'entretien client :</span>
                 </div>
                 <p className="text-sm text-gray-300 italic">
-                  "Bonjour, je m'appelle Jean Dupont, je suis dentiste, je gagne 50000 euros par an, 
-                  je suis marié avec deux enfants, j'ai une maison qui vaut 300000 euros..."
+                  "Bonjour M. Dupont, pouvez-vous me parler de votre situation ? — Je m'appelle Jean Dupont, 
+                  je suis dentiste, je gagne 50000 euros par an, je suis marié avec deux enfants, 
+                  j'ai une maison qui vaut 300000 euros..."
                 </p>
               </div>
             )}
@@ -1304,7 +1305,7 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                     <div>
                       <h3 className="text-xl font-semibold text-white">Assistant Francis</h3>
                       <p className="text-sm text-gray-300 mt-1">
-                        Parlez naturellement et Francis analysera votre discours pour remplir automatiquement le profil client
+                        Francis écoute votre entretien client et remplit automatiquement le profil en temps réel
                       </p>
                     </div>
                   </div>
