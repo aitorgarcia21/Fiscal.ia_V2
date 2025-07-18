@@ -313,78 +313,159 @@ Répondez uniquement avec un objet JSON valide contenant les champs détectés, 
       } catch (parseError) {
         console.log('Pas de JSON valide détecté, extraction manuelle...');
         
-        // === VALIDATION STRICTE POUR ÉVITER LES FAUX POSITIFS ===
+        // === EXTRACTION INTELLIGENTE AVEC SCORING DE CONFIANCE ===
         
-        // Vérifier si la transcription contient au moins des éléments exploitables
-        const minWords = 10;
+        const minWords = 8; // Plus permissif mais toujours sûr
         const words = transcript.trim().split(/\s+/);
-        const hasUsefulContent = transcript.length > 50 && words.length >= minWords;
         
-        // Vérifier si c'est vraiment un entretien client (mots-clés contextuels)
-        const clientKeywords = ['client', 'fiscale', 'revenus', 'situation', 'famille', 'profession', 'domicile', 'contact'];
-        const identityKeywords = ['appelle', 'nom', 'prénom', 'âge', 'marié', 'enfant', 'travaille', 'habite'];
-        const allKeywords = [...clientKeywords, ...identityKeywords];
+        // === SCORING DE CONFIANCE MULTI-NIVEAUX ===
+        let confidenceScore = 0;
         
-        const foundKeywords = allKeywords.filter(keyword => 
-          transcript.toLowerCase().includes(keyword)
-        ).length;
+        // Bonus longueur (0-30 points)
+        if (transcript.length > 30) confidenceScore += 10;
+        if (transcript.length > 80) confidenceScore += 10;
+        if (words.length >= minWords) confidenceScore += 10;
         
-        const hasClientContext = foundKeywords >= 2;
+        // === DÉTECTION CONTEXTUELLE AVANCÉE (0-70 points) ===
+        
+        // Mots-clés entretien client (20 points max)
+        const clientContext = [
+          'client', 'conseiller', 'entretien', 'rendez-vous', 'consultation',
+          'fiscale', 'fiscal', 'impôts', 'revenus', 'déclaration', 'optimisation'
+        ];
+        const clientScore = Math.min(20, clientContext.filter(k => 
+          transcript.toLowerCase().includes(k)).length * 4);
+        confidenceScore += clientScore;
+        
+        // Mots-clés identité (25 points max)
+        const identityContext = [
+          'appelle', 'nom', 'prénom', 'suis', 'moi', 'je', 'âge', 'ans',
+          'marié', 'mariée', 'célibataire', 'enfant', 'famille', 'domicile', 'habite'
+        ];
+        const identityScore = Math.min(25, identityContext.filter(k => 
+          transcript.toLowerCase().includes(k)).length * 3);
+        confidenceScore += identityScore;
+        
+        // Mots-clés professionnels (25 points max)  
+        const profContext = [
+          'travaille', 'profession', 'métier', 'emploi', 'entreprise', 'société',
+          'salaire', 'revenus', 'contact', 'téléphone', 'email', 'adresse'
+        ];
+        const profScore = Math.min(25, profContext.filter(k => 
+          transcript.toLowerCase().includes(k)).length * 3);
+        confidenceScore += profScore;
+        
+        console.log(`🎯 Score de confiance extraction: ${confidenceScore}/100`);
         
         let extractedData: any = {};
         
-        if (hasUsefulContent && hasClientContext) {
-          // === EXTRACTION SÉCURISÉE AVEC VALIDATION CONTEXTUELLE ===
+        // === SEUILS DE CONFIANCE ADAPTATIFS ===
+        if (confidenceScore >= 40) { // Seuil d'extraction
           const text = transcript.toLowerCase();
           
-          // Détecter nom et prénom - AVEC CONTEXTE STRICT
+          // === PATTERNS AVANCÉS MULTI-FORMATS ===
+          
+          // Nom/Prénom - PATTERNS ÉTENDUS
           const nomPrenomPatterns = [
-            /(?:je m'appelle|mon nom est|je suis)\s+([a-zA-ZÀ-ÿ-]{2,})\s+([a-zA-ZÀ-ÿ-]{2,})/i,
-            /(?:moi c'est|c'est)\s+([a-zA-ZÀ-ÿ-]{2,})\s+([a-zA-ZÀ-ÿ-]{2,})(?:\s|,|\.|$)/i
+            // Formats standards
+            /(?:je m'appelle|mon nom (?:est|c'est)|je suis|moi c'est)\s+([a-zA-ZÀ-ÿ-]{2,})\s+([a-zA-ZÀ-ÿ-]{2,})/i,
+            /(?:client|monsieur|madame)\s+([a-zA-ZÀ-ÿ-]{2,})\s+([a-zA-ZÀ-ÿ-]{2,})/i,
+            // Formats inversés
+            /([a-zA-ZÀ-ÿ-]{2,})\s+([a-zA-ZÀ-ÿ-]{2,})\s+(?:ici|présent|à l'appareil)/i
           ];
           
           for (const pattern of nomPrenomPatterns) {
             const match = transcript.match(pattern);
             if (match && match[1].length >= 2 && match[2].length >= 2) {
-              extractedData.prenom_client = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
-              extractedData.nom_client = match[2].toUpperCase();
+              // Validation anti-mots communs
+              const commonWords = ['alors', 'donc', 'bien', 'voilà', 'peut', 'être', 'faire', 'avoir'];
+              if (!commonWords.includes(match[1].toLowerCase()) && 
+                  !commonWords.includes(match[2].toLowerCase())) {
+                extractedData.prenom_client = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+                extractedData.nom_client = match[2].toUpperCase();
+                break;
+              }
+            }
+          }
+          
+          // Email - VALIDATION RENFORCÉE
+          const emailMatch = transcript.match(/\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/i);
+          if (emailMatch && emailMatch[1].includes('.') && !emailMatch[1].startsWith('.')) {
+            extractedData.email_client = emailMatch[1].toLowerCase();
+          }
+          
+          // Téléphone - FORMATS MULTIPLES
+          const telPatterns = [
+            /\b(0[1-9](?:[\s.-]?\d{2}){4})\b/, // Format français
+            /\b(\+33[\s.-]?[1-9](?:[\s.-]?\d{2}){4})\b/, // International
+            /\b(0[1-9]\d{8})\b/ // Compact
+          ];
+          
+          for (const pattern of telPatterns) {
+            const match = transcript.match(pattern);
+            if (match) {
+              extractedData.telephone_principal_client = match[1].replace(/[\s.-]/g, '');
               break;
             }
           }
           
-          // Email - PATTERN STRICT
-          const emailMatch = transcript.match(/\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/i);
-          if (emailMatch) {
-            extractedData.email_client = emailMatch[1];
-          }
+          // Âge - FORMATS ÉTENDUS
+          const agePatterns = [
+            /(?:j'ai|âgé? de|age de)\s*(\d{1,2})\s*ans?/i,
+            /(\d{1,2})\s*ans/i,
+            /né[e]?\s*en\s*(19|20)(\d{2})/i // Année de naissance
+          ];
           
-          // Téléphone - PATTERN STRICT FRANÇAIS
-          const telMatch = transcript.match(/\b(0[1-9](?:[\s.-]?\d{2}){4})\b/);
-          if (telMatch) {
-            extractedData.telephone_principal_client = telMatch[1].replace(/[\s.-]/g, '');
-          }
-          
-          // Âge - AVEC CONTEXTE
-          const ageMatch = transcript.match(/(?:j'ai|âgé de|age de)\s*(\d{1,2})\s*ans?/i);
-          if (ageMatch) {
-            const age = parseInt(ageMatch[1]);
-            if (age >= 16 && age <= 100) { // Validation réaliste
-              const currentYear = new Date().getFullYear();
-              const birthYear = currentYear - age;
-              extractedData.date_naissance_client = `${birthYear}-01-01`;
+          for (const pattern of agePatterns) {
+            const match = transcript.match(pattern);
+            if (match) {
+              let age;
+              if (match[2]) { // Année de naissance
+                const birthYear = parseInt(`${match[1]}${match[2]}`);
+                age = new Date().getFullYear() - birthYear;
+              } else {
+                age = parseInt(match[1]);
+              }
+              
+              if (age >= 16 && age <= 100) {
+                const currentYear = new Date().getFullYear();
+                const birthYear = currentYear - age;
+                extractedData.date_naissance_client = `${birthYear}-01-01`;
+                break;
+              }
             }
           }
           
-          // Code postal et ville - PATTERN STRICT
-          const codePostalMatch = transcript.match(/\b(\d{5})\s+([a-zA-ZÀ-ÿ\s-]{2,})(?:\s|,|\.|$)/i);
-          if (codePostalMatch && codePostalMatch[2].trim().length >= 2) {
-            extractedData.code_postal_client = codePostalMatch[1];
-            extractedData.ville_client = codePostalMatch[2].trim();
+          // Ville/Code postal - PATTERNS INTELLIGENTS
+          const locationPatterns = [
+            /(?:habite|domicilié|réside)\s*(?:à|dans|sur)?\s*([a-zA-ZÀ-ÿ\s-]{2,})\s*(\d{5})?/i,
+            /(\d{5})\s+([a-zA-ZÀ-ÿ\s-]{2,})(?:\s|,|\.|$)/i,
+            /(?:ville|commune)\s*(?:de|d')?\s*([a-zA-ZÀ-ÿ\s-]{2,})/i
+          ];
+          
+          for (const pattern of locationPatterns) {
+            const match = transcript.match(pattern);
+            if (match) {
+              if (match[2] && /^\d{5}$/.test(match[2])) {
+                // Pattern: ville + code postal
+                extractedData.ville_client = match[1].trim();
+                extractedData.code_postal_client = match[2];
+              } else if (match[1] && /^\d{5}$/.test(match[1])) {
+                // Pattern: code postal + ville  
+                extractedData.code_postal_client = match[1];
+                extractedData.ville_client = match[2]?.trim();
+              } else if (match[1]) {
+                // Pattern: ville seulement
+                extractedData.ville_client = match[1].trim();
+              }
+              break;
+            }
           }
+          
+          console.log(`✅ Extraction réussie avec ${Object.keys(extractedData).length} champs détectés`);
         } else {
-          // Transcription trop courte ou sans contexte client
-          console.log('⚠️ Transcription rejetée: contenu insuffisant ou hors contexte client');
-          extractedData = {}; // Aucune extraction
+          console.log(`⚠️ Score insuffisant (${confidenceScore}/100) - Extraction ignorée pour éviter les faux positifs`);
+          extractedData = {};
         }
       }
       
