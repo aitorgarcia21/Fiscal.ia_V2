@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
-import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target } from 'lucide-react';
+import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
 
@@ -165,6 +165,42 @@ const buttonPrimaryStyles = "px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cf
 export function ProCreateClientPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const selectedProfile = searchParams.get('profile') || 'generaliste';
+  
+  // Check if user has seen onboarding
+  useEffect(() => {
+    const hasSeenOnboardingStorage = localStorage.getItem('francis_onboarding_seen');
+    if (!hasSeenOnboardingStorage) {
+      setShowOnboarding(true);
+      setHasSeenOnboarding(false);
+    } else {
+      setHasSeenOnboarding(true);
+    }
+  }, []);
+  
+  // Handle onboarding completion
+  const completeOnboarding = () => {
+    localStorage.setItem('francis_onboarding_seen', 'true');
+    setShowOnboarding(false);
+    setHasSeenOnboarding(true);
+    setOnboardingStep(0);
+  };
+  
+  // Navigate onboarding steps
+  const nextOnboardingStep = () => {
+    if (onboardingStep < onboardingSteps.length - 1) {
+      setOnboardingStep(onboardingStep + 1);
+    } else {
+      completeOnboarding();
+    }
+  };
+  
+  const prevOnboardingStep = () => {
+    if (onboardingStep > 0) {
+      setOnboardingStep(onboardingStep - 1);
+    }
+  };
+
   const [formData, setFormData] = useState<ProCreateClientFormState>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -175,7 +211,44 @@ export function ProCreateClientPage() {
   const [isOptimizationAnalyzing, setIsOptimizationAnalyzing] = useState(false);
   const [optimizationResults, setOptimizationResults] = useState<string>('');
 
+  // Onboarding states
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
 
+  // Onboarding steps
+  const onboardingSteps = [
+    {
+      title: "Bienvenue dans Francis ! ",
+      description: "Découvrez comment Francis peut révolutionner votre création de profils clients grâce à l'intelligence artificielle.",
+      icon: <Brain className="w-8 h-8 text-[#c5a572]" />,
+      highlight: null
+    },
+    {
+      title: " Transcription vocale intelligente",
+      description: "Parlez naturellement à Francis. Il va transcrire et comprendre tout ce que vous dites sur votre client.",
+      icon: <Mic className="w-8 h-8 text-[#c5a572]" />,
+      highlight: "voice-input"
+    },
+    {
+      title: " Auto-fill magique",
+      description: "Francis extrait automatiquement toutes les informations et remplit le formulaire pour vous. Plus de 25 champs détectés !",
+      icon: <User className="w-8 h-8 text-[#c5a572]" />,
+      highlight: "form-fields"
+    },
+    {
+      title: " Optimisations fiscales personnalisées",
+      description: "Après l'auto-fill, Francis analyse le profil complet et propose des optimisations fiscales sur mesure.",
+      icon: <Target className="w-8 h-8 text-[#c5a572]" />,
+      highlight: "optimization-results"
+    },
+    {
+      title: " Prêt à commencer !",
+      description: "Vous maîtrisez maintenant Francis ! Essayez dès maintenant avec un vrai cas client.",
+      icon: <Check className="w-8 h-8 text-[#c5a572]" />,
+      highlight: null
+    }
+  ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -612,6 +685,154 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Render onboarding overlay
+  const renderOnboarding = () => {
+    if (!showOnboarding) return null;
+    
+    const currentStep = onboardingSteps[onboardingStep];
+    const isLastStep = onboardingStep === onboardingSteps.length - 1;
+    
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-[#162238] rounded-2xl max-w-2xl w-full mx-4 border border-[#c5a572]/30 shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-[#c5a572]/20">
+            <div className="flex items-center gap-3">
+              {currentStep.icon}
+              <h2 className="text-xl font-bold text-white">{currentStep.title}</h2>
+            </div>
+            <button
+              onClick={completeOnboarding}
+              className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#c5a572]/10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {/* Content */}
+          <div className="p-6">
+            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              {currentStep.description}
+            </p>
+            
+            {/* Demo content based on step */}
+            {onboardingStep === 1 && (
+              <div className="bg-[#0E2444] rounded-xl p-4 border border-[#c5a572]/20 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                    <Mic className="w-4 h-4 text-[#162238]" />
+                  </div>
+                  <span className="text-[#c5a572] font-medium">Exemple de transcription :</span>
+                </div>
+                <p className="text-sm text-gray-300 italic">
+                  "Bonjour, je m'appelle Jean Dupont, je suis dentiste, je gagne 50000 euros par an, 
+                  je suis marié avec deux enfants, j'ai une maison qui vaut 300000 euros..."
+                </p>
+              </div>
+            )}
+            
+            {onboardingStep === 2 && (
+              <div className="bg-[#0E2444] rounded-xl p-4 border border-[#c5a572]/20 mb-6">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">Nom: Jean Dupont</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">Profession: Dentiste</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">Revenus: 50000€</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">Situation: Marié(e)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">Enfants: 2</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-400" />
+                    <span className="text-gray-300">Patrimoine: 300000€</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {onboardingStep === 3 && (
+              <div className="bg-[#0E2444] rounded-xl p-4 border border-[#c5a572]/20 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
+                    <Target className="w-4 h-4 text-[#162238]" />
+                  </div>
+                  <span className="text-[#c5a572] font-medium">Recommandations Francis :</span>
+                </div>
+                <ul className="space-y-2 text-sm text-gray-300">
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="w-4 h-4 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                    <span>Optimisation PERP pour dentistes (-2000€ d'impôts)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="w-4 h-4 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                    <span>Investissement locatif Pinel (-1500€ d'impôts)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <ArrowRight className="w-4 h-4 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                    <span>Défiscalisation via SCI familiale</span>
+                  </li>
+                </ul>
+              </div>
+            )}
+            
+            {/* Progress bar */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-400">Étape {onboardingStep + 1} sur {onboardingSteps.length}</span>
+                <span className="text-sm text-[#c5a572]">{Math.round(((onboardingStep + 1) / onboardingSteps.length) * 100)}%</span>
+              </div>
+              <div className="w-full bg-[#0E2444] rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${((onboardingStep + 1) / onboardingSteps.length) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="flex justify-between items-center p-6 border-t border-[#c5a572]/20">
+            <button
+              onClick={prevOnboardingStep}
+              disabled={onboardingStep === 0}
+              className="inline-flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Précédent
+            </button>
+            
+            <button
+              onClick={completeOnboarding}
+              className="text-sm text-gray-400 hover:text-[#c5a572] transition-colors"
+            >
+              Passer l'introduction
+            </button>
+            
+            <button
+              onClick={nextOnboardingStep}
+              className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-lg hover:shadow-lg transition-all duration-300"
+            >
+              {isLastStep ? 'Commencer !' : 'Suivant'}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderFormByProfile = () => {
@@ -1052,8 +1273,8 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                 <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
               </div>
               <span className="text-lg font-bold text-white">Francis</span>
-        </div>
-      </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -1088,15 +1309,31 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowVoiceInput(!showVoiceInput)}
-                    className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
-                      showVoiceInput 
-                        ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
-                        : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
-                    }`}
-                  >
+                  <div className="flex gap-3">
+                    {hasSeenOnboarding && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowOnboarding(true);
+                          setOnboardingStep(0);
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-400 hover:text-[#c5a572] transition-colors border border-[#c5a572]/20 rounded-lg hover:bg-[#c5a572]/10"
+                        title="Revoir l'introduction Francis"
+                      >
+                        <Play className="w-4 h-4" />
+                        Guide
+                      </button>
+                    )}
+                    
+                    <button
+                      type="button"
+                      onClick={() => setShowVoiceInput(!showVoiceInput)}
+                      className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                        showVoiceInput 
+                          ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
+                          : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
+                      }`}
+                    >
                     {showVoiceInput ? (
                       <>
                         <X className="w-4 h-4" />
@@ -1108,7 +1345,8 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                         Activer Francis
                       </>
                     )}
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1247,6 +1485,9 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
             </form>
         </div>
       </div>
+      
+      {/* Onboarding Overlay */}
+      {renderOnboarding()}
     </div>
   );
 }
