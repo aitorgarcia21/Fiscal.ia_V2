@@ -462,7 +462,173 @@ Répondez uniquement avec un objet JSON valide contenant les champs détectés, 
             }
           }
           
-          console.log(`✅ Extraction réussie avec ${Object.keys(extractedData).length} champs détectés`);
+          // === EXTRACTION AVANCÉE STATUT FAMILIAL ===
+          const statutFamilialPatterns = [
+            /(?:je suis|suis)\s*(?:marié|mariée)(?:e)?/i,
+            /(?:je suis|suis)\s*(?:célibataire|divorcé|divorcée|veuf|veuve)/i,
+            /(?:en couple|pacsé|pacsée|concubinage)/i
+          ];
+          
+          for (const pattern of statutFamilialPatterns) {
+            const match = transcript.match(pattern);
+            if (match) {
+              const statut = match[0].toLowerCase();
+              if (statut.includes('marié')) {
+                extractedData.situation_maritale_client = 'Marié(e)';
+              } else if (statut.includes('célibataire')) {
+                extractedData.situation_maritale_client = 'Célibataire';
+              } else if (statut.includes('divorcé')) {
+                extractedData.situation_maritale_client = 'Divorcé(e)';
+              } else if (statut.includes('veuf') || statut.includes('veuve')) {
+                extractedData.situation_maritale_client = 'Veuf/Veuve';
+              } else if (statut.includes('pacsé') || statut.includes('couple')) {
+                extractedData.situation_maritale_client = 'PACS/Concubinage';
+              }
+              break;
+            }
+          }
+          
+          // === EXTRACTION ENFANTS ===
+          const enfantsPatterns = [
+            /(?:j'ai|nous avons)\s*(\d+)\s*enfants?/i,
+            /(\d+)\s*enfants?/i,
+            /(?:pas d'enfant|sans enfant|aucun enfant)/i
+          ];
+          
+          for (const pattern of enfantsPatterns) {
+            const match = transcript.match(pattern);
+            if (match) {
+              if (match[0].toLowerCase().includes('pas') || match[0].toLowerCase().includes('sans') || match[0].toLowerCase().includes('aucun')) {
+                extractedData.nombre_enfants_foyer = '0';
+              } else if (match[1]) {
+                const nbEnfants = parseInt(match[1]);
+                if (nbEnfants >= 0 && nbEnfants <= 10) {
+                  extractedData.nombre_enfants_foyer = nbEnfants.toString();
+                }
+              }
+              break;
+            }
+          }
+          
+          // === EXTRACTION REVENUS INTELLIGENTE ===
+          const revenusPatterns = [
+            // Revenus annuels
+            /(?:gagne|revenus?|salaire)\s*(?:de|d'environ)?\s*(\d+(?:\.\d+)?(?:k|000)?)\s*(?:€|euros?)\s*(?:par an|annuel|par année)/i,
+            // Revenus mensuels
+            /(?:gagne|revenus?|salaire)\s*(?:de|d'environ)?\s*(\d+(?:\.\d+)?(?:k|000)?)\s*(?:€|euros?)\s*(?:par mois|mensuel)/i,
+            // Format K (50k par an)
+            /(\d+(?:\.\d+)?)\s*k\s*(?:€|euros?)?\s*(?:par an|annuel)?/i
+          ];
+          
+          for (const pattern of revenusPatterns) {
+            const match = transcript.match(pattern);
+            if (match && match[1]) {
+              let montant = parseFloat(match[1]);
+              const matchText = match[0].toLowerCase();
+              
+              // Conversion selon le format
+              if (matchText.includes('k') && montant < 1000) {
+                montant = montant * 1000;
+              } else if (matchText.includes('mois') && montant < 100000) {
+                montant = montant * 12; // Convertir mensuel en annuel
+              } else if (!matchText.includes('k') && montant < 1000 && !matchText.includes('mois')) {
+                montant = montant * 1000; // Assumer que c'est en milliers
+              }
+              
+              if (montant >= 1000 && montant <= 1000000) { // Validation réaliste
+                extractedData.revenu_net_annuel_client1 = Math.round(montant).toString();
+                break;
+              }
+            }
+          }
+          
+          // === EXTRACTION PROFESSION ===
+          const professionPatterns = [
+            /(?:je suis|je travaille comme|mon métier|ma profession|je fais)\s*(?:un|une|du|de la)?\s*([a-zA-ZÀ-ÿ\s-]{3,25})/i,
+            /(?:dans|chez)\s*([a-zA-ZÀ-ÿ\s-]{3,25})(?:\s|,|\.|$)/i
+          ];
+          
+          for (const pattern of professionPatterns) {
+            const match = transcript.match(pattern);
+            if (match && match[1]) {
+              const profession = match[1].trim();
+              // Éviter les mots trop génériques
+              const genericWords = ['travail', 'boulot', 'truc', 'chose', 'alors', 'donc', 'bien'];
+              if (!genericWords.some(word => profession.toLowerCase().includes(word)) && profession.length >= 3) {
+                extractedData.profession_client = profession;
+                break;
+              }
+            }
+          }
+          
+          // === EXTRACTION PATRIMOINE ===
+          const patrimoinePatterns = [
+            /(?:maison|appartement|résidence)\s*(?:de|d'environ|valeur)?\s*(\d+(?:\.\d+)?(?:k|000)?)\s*(?:€|euros?)/i,
+            /(?:patrimoine|biens?)\s*(?:de|d'environ)?\s*(\d+(?:\.\d+)?(?:k|000)?)\s*(?:€|euros?)/i,
+            /(?:épargne|livret|compte)\s*(?:de|d'environ)?\s*(\d+(?:\.\d+)?(?:k|000)?)\s*(?:€|euros?)/i
+          ];
+          
+          for (const pattern of patrimoinePatterns) {
+            const match = transcript.match(pattern);
+            if (match && match[1]) {
+              let montant = parseFloat(match[1]);
+              const matchText = match[0].toLowerCase();
+              
+              if (matchText.includes('k') && montant < 10000) {
+                montant = montant * 1000;
+              } else if (!matchText.includes('k') && montant < 10000) {
+                montant = montant * 1000;
+              }
+              
+              if (montant >= 1000 && montant <= 50000000) {
+                if (matchText.includes('maison') || matchText.includes('appartement') || matchText.includes('résidence')) {
+                  extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\nPatrimoine immobilier: ${Math.round(montant).toLocaleString()} €`;
+                } else if (matchText.includes('épargne') || matchText.includes('livret') || matchText.includes('compte')) {
+                  extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\nÉpargne: ${Math.round(montant).toLocaleString()} €`;
+                } else {
+                  extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\nPatrimoine: ${Math.round(montant).toLocaleString()} €`;
+                }
+                break;
+              }
+            }
+          }
+          
+          // === EXTRACTION OBJECTIFS FISCAUX ===
+          const objectifsFiscaux = [
+            'réduire les impôts', 'optimisation fiscale', 'défiscalisation', 'économiser',
+            'investissement locatif', 'loi pinel', 'girardin', 'malraux', 'denormandie',
+            'placement défiscalisé', 'fip', 'fcpi', 'sofica', 'plan épargne retraite'
+          ];
+          
+          const objectifsDetectes = [];
+          for (const objectif of objectifsFiscaux) {
+            if (transcript.toLowerCase().includes(objectif)) {
+              objectifsDetectes.push(objectif);
+            }
+          }
+          
+          if (objectifsDetectes.length > 0) {
+            extractedData.objectifs_fiscaux_client = objectifsDetectes.join('; ');
+          }
+          
+          // === ANALYSE DE SENTIMENT ET URGENCE ===
+          const urgenceKeywords = ['urgent', 'rapidement', 'vite', 'pressé', 'bientôt', 'avant la fin'];
+          const motivationKeywords = ['économiser', 'optimiser', 'réduire', 'gagner', 'investir', 'préparer'];
+          
+          let sentimentScore = 0;
+          urgenceKeywords.forEach(keyword => {
+            if (transcript.toLowerCase().includes(keyword)) sentimentScore += 2;
+          });
+          motivationKeywords.forEach(keyword => {
+            if (transcript.toLowerCase().includes(keyword)) sentimentScore += 1;
+          });
+          
+          if (sentimentScore > 0) {
+            const priorite = sentimentScore >= 4 ? 'HAUTE' : sentimentScore >= 2 ? 'MOYENNE' : 'NORMALE';
+            extractedData.notes_internes_pro = (extractedData.notes_internes_pro || '') + `\n🎯 Priorité: ${priorite} (score: ${sentimentScore})`;
+          }
+          
+          console.log(`✅ Extraction ultra-avancée réussie avec ${Object.keys(extractedData).length} champs détectés (Score: ${confidenceScore}/100)`);
         } else {
           console.log(`⚠️ Score insuffisant (${confidenceScore}/100) - Extraction ignorée pour éviter les faux positifs`);
           extractedData = {};
