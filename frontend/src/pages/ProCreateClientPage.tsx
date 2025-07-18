@@ -206,6 +206,7 @@ export function ProCreateClientPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [showVoiceInput, setShowVoiceInput] = useState(false);
+  const [autoStartVoice, setAutoStartVoice] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
   const [isOptimizationAnalyzing, setIsOptimizationAnalyzing] = useState(false);
@@ -1328,7 +1329,12 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                     
                     <button
                       type="button"
-                      onClick={() => setShowVoiceInput(!showVoiceInput)}
+                      onClick={() => {
+                        if (!showVoiceInput) {
+                          setAutoStartVoice(true);
+                        }
+                        setShowVoiceInput(!showVoiceInput);
+                      }}
                       className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
                         showVoiceInput 
                           ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
@@ -1362,6 +1368,12 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                           className="mb-0"
                           streamingMode={true}
                           realTimeMode={true}
+                          autoStart={autoStartVoice}
+                          onListeningChange={(isListening) => {
+                            if (isListening && autoStartVoice) {
+                              setAutoStartVoice(false); // Reset flag after auto-start
+                            }
+                          }}
                         />
                       </div>
 
