@@ -40,8 +40,8 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
           strokeWidth="2"
         />
         
-        {/* Symbole euro simple */}
-        <text x="20" y="22" fontFamily="Arial, sans-serif" fontSize="12" fill="#c5a572" textAnchor="middle">€</text>
+        {/* Symbole euro simple - Corrigé pour visibilité */}
+        <text x="24" y="24" fontFamily="Arial, sans-serif" fontSize="14" fill="#c5a572" textAnchor="middle" dominantBaseline="central">€</text>
       </svg>
     </div>
   );

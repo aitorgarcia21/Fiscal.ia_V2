@@ -376,11 +376,11 @@ export function ProDashboardPage() {
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Logo Francis (bulle + euro) */}
+            {/* Logo Francis (bulle + euro) - Corrigé pour visibilité */}
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center group">
+              <div className="relative inline-flex items-center justify-center group w-12 h-12">
                 <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-1 border border-[#c5a572]/30 transition-transform group-hover:scale-110 duration-300 shadow-lg" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
