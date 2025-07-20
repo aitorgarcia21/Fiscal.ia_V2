@@ -5,6 +5,7 @@ import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
+import { clientDataEncryption } from '../utils/ClientDataEncryption';
 
 import { ParticulierForm } from '../components/profile-forms/ParticulierForm';
 
@@ -738,11 +739,23 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
     setError(null);
 
     try {
-      const response = await apiClient('/pro/clients', { data: formData });
+      // 🔒 CHIFFREMENT MILITAIRE AES-256 DES DONNÉES SENSIBLES
+      console.log('🔒 Chiffrement des données client avec AES-256...');
+      const encryptedFormData = clientDataEncryption.encryptClientData(formData);
+      
+      // Log des données masquées pour debug (sans exposer les vraies données)
+      const maskedData = clientDataEncryption.maskSensitiveData(formData);
+      console.log('📊 Données masquées pour debug:', maskedData);
+      
+      // Envoi des données chiffrées vers l'API
+      const response = await apiClient('/pro/clients', { data: encryptedFormData });
+      
       if (response && (response as any).success) {
+        console.log('✅ Client créé avec succès - données protégées par chiffrement AES-256');
         navigate('/pro/dashboard');
       }
     } catch (error: any) {
+      console.error('❌ Erreur lors de la création du client:', error);
       setError(error.data?.detail || error.message || 'Erreur lors de la création du client');
     } finally {
       setIsLoading(false);
