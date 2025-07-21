@@ -1375,8 +1375,12 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
 
 
 
-          {/* Assistant vocal */}
-          <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
+          {/* Form wrapper */}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {renderFormByProfile()}
+            
+            {/* Assistant vocal */}
+            <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
               <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] p-6 border-b border-[#c5a572]/20">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
@@ -1458,11 +1462,10 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                   )}
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
-      
       {/* Onboarding Overlay */}
       {renderOnboarding()}
     </div>
