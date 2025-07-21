@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
@@ -183,10 +183,10 @@ export function ProCreateClientPage() {
   
   // Handle onboarding completion
   const completeOnboarding = () => {
-    localStorage.setItem('francis_onboarding_seen', 'true');
     setShowOnboarding(false);
     setHasSeenOnboarding(true);
     setOnboardingStep(0);
+    localStorage.setItem('francis-onboarding-seen', 'true');
   };
   
   // Navigate onboarding steps
@@ -210,10 +210,55 @@ export function ProCreateClientPage() {
 
   const [showVoiceInput, setShowVoiceInput] = useState(false);
   const [autoStartVoice, setAutoStartVoice] = useState(false);
-  const [transcript, setTranscript] = useState('');
 
-  // Voice-driven profile filling
-  const { profile, suggestions, handleTranscript } = useVoiceFiller({});
+  // 🎤 FRANCIS TRANSCRIPTION & AUTO-FILLING
+  const [currentTranscription, setCurrentTranscription] = useState<string>('');
+  const [transcriptionHistory, setTranscriptionHistory] = useState<string[]>([]);
+  const [isListening, setIsListening] = useState(false);
+
+  const { profile: voiceProfile, suggestions: voiceSuggestions, handleTranscript } = useVoiceFiller({});
+
+  const handleTranscriptionUpdate = useCallback((text: string) => {
+    setCurrentTranscription(text);
+    // Traitement en temps réel pour extraction d'entités
+    handleTranscript(text);
+  }, [handleTranscript]);
+
+  const handleTranscriptionComplete = useCallback((finalText: string) => {
+    if (finalText.trim()) {
+      setTranscriptionHistory(prev => [...prev, finalText]);
+      // Traitement final pour extraction d'entités
+      handleTranscript(finalText);
+      setCurrentTranscription('');
+    }
+  }, [handleTranscript]);
+
+  const handleVoiceError = useCallback((error: string) => {
+    console.error('Erreur transcription Francis:', error);
+    setError(`Erreur transcription: ${error}`);
+  }, []);
+
+  // 🤖 FRANCIS: Synchronisation profil vocal → formulaire
+  useEffect(() => {
+    if (voiceProfile && Object.keys(voiceProfile).length > 0) {
+      setFormData(prev => {
+        const updated = { ...prev };
+        
+        // Mapping des champs du profil vocal vers le formulaire
+        if (voiceProfile.nom_client) updated.nom_client = voiceProfile.nom_client;
+        if (voiceProfile.prenom_client) updated.prenom_client = voiceProfile.prenom_client;
+        if (voiceProfile.numero_fiscal_client) updated.numero_fiscal_client = voiceProfile.numero_fiscal_client;
+        if (voiceProfile.situation_maritale_client) updated.situation_maritale_client = voiceProfile.situation_maritale_client;
+        if (voiceProfile.regime_matrimonial_client) updated.regime_matrimonial_client = voiceProfile.regime_matrimonial_client;
+        if (voiceProfile.nombre_enfants_a_charge_client) updated.nombre_enfants_a_charge_client = voiceProfile.nombre_enfants_a_charge_client.toString();
+        if (voiceProfile.revenu_net_annuel_client1) updated.revenu_net_annuel_client1 = voiceProfile.revenu_net_annuel_client1.toString();
+        if (voiceProfile.profession_client1) updated.profession_client1 = voiceProfile.profession_client1;
+        
+        return updated;
+      });
+    }
+  }, [voiceProfile]);
+
   const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
   const [isOptimizationAnalyzing, setIsOptimizationAnalyzing] = useState(false);
   const [optimizationResults, setOptimizationResults] = useState<string>('');
@@ -1491,18 +1536,35 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                       <h5 className="text-green-400 font-semibold text-sm">✅ Rempli automatiquement</h5>
                     </div>
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-300">Nom :</span>
-                        <span className="text-green-400 font-medium">Jean Dupont</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-300">Situation :</span>
-                        <span className="text-green-400 font-medium">Marié</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-300">Enfants :</span>
-                        <span className="text-green-400 font-medium">2</span>
-                      </div>
+                      {formData.nom_client && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Nom :</span>
+                          <span className="text-green-400 font-medium">{formData.prenom_client} {formData.nom_client}</span>
+                        </div>
+                      )}
+                      {formData.situation_maritale_client && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Situation :</span>
+                          <span className="text-green-400 font-medium">{formData.situation_maritale_client}</span>
+                        </div>
+                      )}
+                      {formData.nombre_enfants_a_charge_client && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Enfants :</span>
+                          <span className="text-green-400 font-medium">{formData.nombre_enfants_a_charge_client}</span>
+                        </div>
+                      )}
+                      {formData.profession_client1 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Profession :</span>
+                          <span className="text-green-400 font-medium">{formData.profession_client1}</span>
+                        </div>
+                      )}
+                      {!formData.nom_client && !formData.situation_maritale_client && !formData.nombre_enfants_a_charge_client && (
+                        <div className="text-gray-400 text-center py-2 italic text-xs">
+                          En attente de transcription...
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1513,18 +1575,48 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                       <h5 className="text-orange-400 font-semibold text-sm">⚠️ Informations manquantes</h5>
                     </div>
                     <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                        <span className="text-gray-300">Âge des enfants</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                        <span className="text-gray-300">Date de naissance</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                        <span className="text-gray-300">Régime matrimonial</span>
-                      </div>
+                      {!formData.date_naissance_client && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                          <span className="text-gray-300">Date de naissance</span>
+                        </div>
+                      )}
+                      {!formData.details_enfants_client_json_str && formData.nombre_enfants_a_charge_client && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                          <span className="text-gray-300">Âge des enfants</span>
+                        </div>
+                      )}
+                      {!formData.regime_matrimonial_client && formData.situation_maritale_client === 'Marié(e)' && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                          <span className="text-gray-300">Régime matrimonial</span>
+                        </div>
+                      )}
+                      {!formData.email_client && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                          <span className="text-gray-300">Email</span>
+                        </div>
+                      )}
+                      {!formData.telephone_principal_client && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                          <span className="text-gray-300">Téléphone</span>
+                        </div>
+                      )}
+                      {!formData.profession_client1 && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                          <span className="text-gray-300">Profession</span>
+                        </div>
+                      )}
+                      {/* Si aucune info manquante */}
+                      {formData.date_naissance_client && formData.email_client && formData.telephone_principal_client && formData.profession_client1 && (formData.situation_maritale_client !== 'Marié(e)' || formData.regime_matrimonial_client) && (
+                        <div className="text-green-400 text-center py-2 italic text-xs">
+                          ✓ Profil complet pour cette étape
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1535,8 +1627,30 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                       <h5 className="text-blue-400 font-semibold text-sm">💡 Suggestions Francis</h5>
                     </div>
                     <div className="space-y-2 text-xs text-gray-300">
-                      <p>"Demandez l'âge des enfants pour calculer les réductions d'impôts"</p>
-                      <p>"Explorez le régime matrimonial pour optimiser la fiscalité"</p>
+                      {!formData.details_enfants_client_json_str && formData.nombre_enfants_a_charge_client && (
+                        <p>"Demandez l'âge des enfants pour calculer les réductions d'impôts"</p>
+                      )}
+                      {!formData.regime_matrimonial_client && formData.situation_maritale_client === 'Marié(e)' && (
+                        <p>"Explorez le régime matrimonial pour optimiser la fiscalité"</p>
+                      )}
+                      {!formData.date_naissance_client && (
+                        <p>"La date de naissance est essentielle pour les calculs fiscaux"</p>
+                      )}
+                      {!formData.profession_client1 && (
+                        <p>"Identifiez la profession pour les optimisations spécifiques"</p>
+                      )}
+                      {formData.profession_client1 && formData.profession_client1.toLowerCase().includes('libéral') && (
+                        <p>"Profession libérale : explorez PERP et loi Madelin"</p>
+                      )}
+                      {formData.nombre_enfants_a_charge_client && parseInt(formData.nombre_enfants_a_charge_client) >= 3 && (
+                        <p>"Famille nombreuse : quotient familial avantageux"</p>
+                      )}
+                      {/* Suggestions par défaut si aucune spécifique */}
+                      {!formData.nombre_enfants_a_charge_client && !formData.situation_maritale_client && !formData.profession_client1 && (
+                        <div className="text-gray-400 text-center py-2 italic">
+                          En attente d'informations pour générer des suggestions...
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1548,12 +1662,51 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                     <h5 className="text-[#c5a572] font-semibold">🎤 Transcription en temps réel</h5>
                   </div>
                   <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/10">
-                    <p className="text-gray-300 text-sm italic">
-                      "Alors, nous avons deux enfants, ma fille a 8 ans et mon fils a 12 ans. Nous sommes mariés sous le régime de la communauté..."
-                    </p>
+                    {/* 🎤 VRAIE TRANSCRIPTION LIVE */}
+                    {isListening ? (
+                      <div className="space-y-3">
+                        {/* Transcription en cours */}
+                        {currentTranscription && (
+                          <div className="bg-[#0E2444] rounded-lg p-3 border border-[#c5a572]/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                              <span className="text-green-400 text-xs font-medium">En cours de transcription...</span>
+                            </div>
+                            <p className="text-gray-300 text-sm italic">"{currentTranscription}"</p>
+                          </div>
+                        )}
+                        
+                        {/* Historique des transcriptions */}
+                        {transcriptionHistory.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-[#c5a572] text-xs font-medium">Transcriptions complétées :</div>
+                            {transcriptionHistory.slice(-3).map((text, index) => (
+                              <div key={index} className="bg-[#1a2332] rounded-lg p-2 border border-[#c5a572]/10">
+                                <p className="text-gray-400 text-xs italic">"{text}"</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {!currentTranscription && transcriptionHistory.length === 0 && (
+                          <div className="text-gray-400 text-center py-2 italic text-sm">
+                            🎤 Francis écoute... Parlez maintenant
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-gray-400 text-center py-4 italic text-sm">
+                        🎤 Francis prêt à écouter
+                        <br />
+                        <span className="text-xs">Cliquez sur "Activer l'assistant" pour commencer</span>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#c5a572]/10">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-400 text-xs font-medium">Francis détecte et remplit automatiquement</span>
+                      <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-green-400 animate-pulse' : 'bg-blue-400'}`}></div>
+                      <span className={`text-xs font-medium ${isListening ? 'text-green-400' : 'text-blue-400'}`}>
+                        {isListening ? 'Francis analyse et remplit automatiquement' : 'Francis prêt à écouter et analyser'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1571,6 +1724,39 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                     <TrendingUp className="w-4 h-4" />
                     Passer à l'étape 3 : Revenus
                   </button>
+                </div>
+                
+                {/* 🎤 COMPOSANT TRANSCRIPTION FRANCIS */}
+                <div className="bg-[#0E2444] rounded-xl p-5 border border-[#c5a572]/20">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Mic className="w-5 h-5 text-[#c5a572]" />
+                    <h5 className="text-[#c5a572] font-semibold">🎤 Contrôle vocal Francis</h5>
+                  </div>
+                  <UltraFluidVoiceRecorder
+                    onTranscriptionUpdate={handleTranscriptionUpdate}
+                    onTranscriptionComplete={handleTranscriptionComplete}
+                    onError={handleVoiceError}
+                    onListeningChange={setIsListening}
+                    autoStart={autoStartVoice}
+                    realTimeMode={true}
+                    streamingMode={true}
+                    className="w-full"
+                  />
+                  
+                  {/* Suggestions vocales */}
+                  {voiceSuggestions.length > 0 && (
+                    <div className="mt-4 p-3 bg-[#162238] rounded-lg border border-orange-500/20">
+                      <div className="text-orange-400 text-xs font-medium mb-2">⚠️ Suggestions Francis :</div>
+                      <ul className="space-y-1">
+                        {voiceSuggestions.map((suggestion, index) => (
+                          <li key={index} className="text-gray-300 text-xs flex items-center gap-2">
+                            <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
+                            {suggestion}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
