@@ -58,29 +58,84 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = true;
-    recognitionRef.current.lang = 'fr-FR';
-    recognitionRef.current.maxAlternatives = 1;
+    
+    // 🚀 PARAMÈTRES ULTRA-FLUIDES pour capture complète
+    recognitionRef.current.continuous = true;           // Écoute continue OBLIGATOIRE
+    recognitionRef.current.interimResults = true;       // Résultats intermédiaires pour fluidité
+    recognitionRef.current.lang = 'fr-FR';              // Français optimisé
+    recognitionRef.current.maxAlternatives = 3;         // Plus d'alternatives pour meilleure précision
+    recognitionRef.current.grammars = null;             // Pas de limitation grammaticale
+    
+    // 🎯 PARAMÈTRES AVANCÉS pour éviter les coupures
+    if ('serviceURI' in recognitionRef.current) {
+      recognitionRef.current.serviceURI = null;         // Service par défaut (plus stable)
+    }
+    
+    console.log('🎤 Francis Voice: Configuration ultra-fluide activée');
 
     recognitionRef.current.onerror = (event: any) => {
-      console.error('Erreur reconnaissance vocale:', event.error);
-      if (event.error !== 'no-speech') {
-        onError(`Erreur: ${event.error}`);
+      console.log('🔧 Francis Voice: Gestion erreur', event.error);
+      
+      // 🛡️ GESTION INTELLIGENTE DES ERREURS - Ne pas arrêter pour des erreurs mineures
+      const minorErrors = ['no-speech', 'audio-capture', 'network', 'aborted'];
+      
+      if (minorErrors.includes(event.error)) {
+        console.log('⚠️ Francis Voice: Erreur mineure ignorée:', event.error);
+        // Relancer automatiquement après erreur mineure
+        if (isRecordingRef.current) {
+          setTimeout(() => {
+            try {
+              if (recognitionRef.current && isRecordingRef.current) {
+                recognitionRef.current.start();
+                console.log('🔄 Francis Voice: Relance automatique après erreur mineure');
+              }
+            } catch (restartError) {
+              console.error('Erreur de relance:', restartError);
+            }
+          }, 100); // Délai court pour éviter les conflits
+        }
+        return; // Ne pas traiter comme une vraie erreur
       }
+      
+      // Erreurs critiques seulement
+      console.error('❌ Francis Voice: Erreur critique:', event.error);
+      onError(`Erreur critique: ${event.error}`);
       setIsRecording(false);
       isRecordingRef.current = false;
     };
 
     recognitionRef.current.onend = () => {
+      console.log('🔄 Francis Voice: Session terminée, relance automatique...');
+      
       if (isRecordingRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch (error) {
-          console.error('Erreur de relance de la reconnaissance:', error);
-          setIsRecording(false);
-          isRecordingRef.current = false;
-        }
+        // 🚀 RELANCE ULTRA-RAPIDE avec retry intelligent
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        const attemptRestart = () => {
+          try {
+            if (recognitionRef.current && isRecordingRef.current) {
+              recognitionRef.current.start();
+              console.log(`✅ Francis Voice: Relance réussie (tentative ${retryCount + 1})`);
+            }
+          } catch (error) {
+            retryCount++;
+            console.warn(`⚠️ Francis Voice: Échec relance (tentative ${retryCount}):`, error);
+            
+            if (retryCount < maxRetries && isRecordingRef.current) {
+              // Retry avec délai progressif
+              setTimeout(attemptRestart, retryCount * 200);
+            } else {
+              console.error('❌ Francis Voice: Échec définitif de relance');
+              setIsRecording(false);
+              isRecordingRef.current = false;
+              onError('Impossible de maintenir l\'enregistrement continu');
+            }
+          }
+        };
+        
+        // Démarrer la première tentative immédiatement
+        setTimeout(attemptRestart, 50); // Délai minimal pour éviter les conflits
       }
     };
 
@@ -90,16 +145,39 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
       let interimTranscript = '';
       let finalTranscript = '';
       let maxConfidence = 0;
+      let allAlternatives: string[] = [];
 
+      // 🚀 CAPTURE ULTRA-COMPLÈTE - Analyser TOUS les résultats et alternatives
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        const confidence = event.results[i][0].confidence || 0;
-        maxConfidence = Math.max(maxConfidence, confidence);
+        const result = event.results[i];
         
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
+        // Prendre la meilleure alternative (plus de précision)
+        let bestTranscript = result[0].transcript;
+        let bestConfidence = result[0].confidence || 0;
+        
+        // Analyser toutes les alternatives pour trouver la meilleure
+        for (let j = 0; j < Math.min(result.length, 3); j++) {
+          const alternative = result[j];
+          const altConfidence = alternative.confidence || 0;
+          const altTranscript = alternative.transcript;
+          
+          allAlternatives.push(altTranscript);
+          
+          // Si cette alternative est plus fiable, l'utiliser
+          if (altConfidence > bestConfidence || (altConfidence === bestConfidence && altTranscript.length > bestTranscript.length)) {
+            bestTranscript = altTranscript;
+            bestConfidence = altConfidence;
+          }
+        }
+        
+        maxConfidence = Math.max(maxConfidence, bestConfidence);
+        
+        if (result.isFinal) {
+          finalTranscript += bestTranscript + ' ';
+          console.log(`✅ Francis Voice: Texte final capturé: "${bestTranscript}" (confiance: ${(bestConfidence * 100).toFixed(1)}%)`);
         } else {
-          interimTranscript += transcript;
+          interimTranscript += bestTranscript;
+          console.log(`🔄 Francis Voice: Texte intermédiaire: "${bestTranscript}" (confiance: ${(bestConfidence * 100).toFixed(1)}%)`);
         }
       }
 
@@ -109,17 +187,27 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
       setLatency(currentLatency);
       setConfidence(maxConfidence);
 
+      // 🎯 MISE À JOUR INTELLIGENTE - Toujours garder le texte le plus complet
       if (finalTranscript) {
-        accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + finalTranscript).trim();
+        const newFinalText = finalTranscript.trim();
+        accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + newFinalText).trim();
         const currentText = accumulatedTextRef.current;
         lastResultRef.current = currentText;
         setCurrentTranscript(currentText);
         onTranscriptionUpdate(currentText);
+        console.log(`🎤 Francis Voice: Texte accumulé total: "${currentText}"`);
       } else if (interimTranscript) {
         const fullText = accumulatedTextRef.current + (accumulatedTextRef.current ? ' ' : '') + interimTranscript;
         lastResultRef.current = interimTranscript;
         setCurrentTranscript(fullText);
         onTranscriptionUpdate(fullText);
+        // Ne pas logger les intermédiaires pour éviter le spam
+      }
+      
+      // 📊 STATISTIQUES DE CAPTURE
+      if (finalTranscript || interimTranscript) {
+        const totalLength = (accumulatedTextRef.current + ' ' + (finalTranscript || interimTranscript)).length;
+        console.log(`📊 Francis Voice: Longueur totale capturée: ${totalLength} caractères`);
       }
     };
 
@@ -192,18 +280,23 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
           audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-            sampleRate: 16000,
+            // 🚀 PARAMÈTRES AUDIO ULTRA-OPTIMISÉS pour capture complète
+            echoCancellation: true,           // Suppression écho
+            noiseSuppression: false,          // DÉSACTIVÉ pour garder toute la voix
+            autoGainControl: true,            // Gain automatique
+            sampleRate: 48000,                // Qualité maximale (48kHz au lieu de 16kHz)
+            channelCount: 1,                  // Mono pour optimiser
+            // Paramètres optimisés pour capture complète (paramètres standards uniquement)
           } 
         });
         
         streamRef.current = stream;
         
         const mediaRecorder = new MediaRecorder(stream, {
+          // 🎯 CONFIGURATION ULTRA-FLUIDE MediaRecorder
           mimeType: 'audio/webm;codecs=opus',
-          audioBitsPerSecond: 16000,
+          audioBitsPerSecond: 128000,           // Qualité élevée (128kbps au lieu de 16kbps)
+          bitsPerSecond: 128000,                // Débit global élevé
         });
         
         mediaRecorderRef.current = mediaRecorder;
