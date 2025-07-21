@@ -1375,93 +1375,231 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
 
 
 
+          {/* Assistant vocal */}
+          <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
+            <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] p-6 border-b border-[#c5a572]/20">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 rounded-xl border border-[#c5a572]/30">
+                    <Mic className="w-6 h-6 text-[#c5a572]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-white">Assistant Francis</h3>
+                    <p className="text-sm text-gray-300 mt-1">
+                      Francis écoute votre entretien client et remplit automatiquement le profil en temps réel
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  {hasSeenOnboarding && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowOnboarding(true);
+                        setOnboardingStep(0);
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-400 hover:text-[#c5a572] transition-colors border border-[#c5a572]/20 rounded-lg hover:bg-[#c5a572]/10"
+                      title="Revoir l'introduction Francis"
+                    >
+                      <Play className="w-4 h-4" />
+                      Guide
+                    </button>
+                  )}
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!showVoiceInput) {
+                        setAutoStartVoice(true);
+                      }
+                      setShowVoiceInput(!showVoiceInput);
+                    }}
+                    className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                      showVoiceInput 
+                        ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
+                        : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
+                    }`}
+                  >
+                  {showVoiceInput ? (
+                    <>
+                      <X className="w-4 h-4" />
+                      Fermer l'assistant
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-4 h-4" />
+                      Activer l'assistant
+                    </>
+                  )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Voice Input UI - This will expand when showVoiceInput is true */}
+            {showVoiceInput && (
+              <div className="p-6 space-y-6">
+                {/* Step-by-Step Interview Progress */}
+                <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] rounded-xl p-6 border border-[#c5a572]/30">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+                      <h4 className="text-[#c5a572] font-bold text-lg">🎤 Francis - Copilote Actif</h4>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[#c5a572] font-semibold">Étape 2/6</div>
+                      <div className="text-gray-400 text-sm">Situation familiale</div>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Steps */}
+                  <div className="grid grid-cols-6 gap-2 mb-6">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">✓</div>
+                      <span className="text-xs text-green-400 mt-1">Identité</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 bg-[#c5a572] rounded-full flex items-center justify-center text-white text-sm font-bold animate-pulse">2</div>
+                      <span className="text-xs text-[#c5a572] mt-1">Famille</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-sm font-bold">3</div>
+                      <span className="text-xs text-gray-400 mt-1">Revenus</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-sm font-bold">4</div>
+                      <span className="text-xs text-gray-400 mt-1">Patrimoine</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-sm font-bold">5</div>
+                      <span className="text-xs text-gray-400 mt-1">Objectifs</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 text-sm font-bold">📊</div>
+                      <span className="text-xs text-gray-400 mt-1">Synthèse</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Real-time Status Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* Live Field Filling */}
+                  <div className="bg-[#0E2444] rounded-xl p-5 border border-green-500/20">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                      <h5 className="text-green-400 font-semibold text-sm">✅ Rempli automatiquement</h5>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Nom :</span>
+                        <span className="text-green-400 font-medium">Jean Dupont</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Situation :</span>
+                        <span className="text-green-400 font-medium">Marié</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Enfants :</span>
+                        <span className="text-green-400 font-medium">2</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Missing Critical Info */}
+                  <div className="bg-[#0E2444] rounded-xl p-5 border border-orange-500/20">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
+                      <h5 className="text-orange-400 font-semibold text-sm">⚠️ Informations manquantes</h5>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                        <span className="text-gray-300">Âge des enfants</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                        <span className="text-gray-300">Date de naissance</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                        <span className="text-gray-300">Régime matrimonial</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Smart Suggestions */}
+                  <div className="bg-[#0E2444] rounded-xl p-5 border border-blue-500/20">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+                      <h5 className="text-blue-400 font-semibold text-sm">💡 Suggestions Francis</h5>
+                    </div>
+                    <div className="space-y-2 text-xs text-gray-300">
+                      <p>"Demandez l'âge des enfants pour calculer les réductions d'impôts"</p>
+                      <p>"Explorez le régime matrimonial pour optimiser la fiscalité"</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Transcription */}
+                <div className="bg-[#0E2444] rounded-xl p-5 border border-[#c5a572]/20">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Mic className="w-5 h-5 text-[#c5a572]" />
+                    <h5 className="text-[#c5a572] font-semibold">🎤 Transcription en temps réel</h5>
+                  </div>
+                  <div className="bg-[#162238] rounded-lg p-4 border border-[#c5a572]/10">
+                    <p className="text-gray-300 text-sm italic">
+                      "Alors, nous avons deux enfants, ma fille a 8 ans et mon fils a 12 ans. Nous sommes mariés sous le régime de la communauté..."
+                    </p>
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#c5a572]/10">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-green-400 text-xs font-medium">Francis détecte et remplit automatiquement</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Next Step Guidance */}
+                <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/5 rounded-xl p-5 border border-[#c5a572]/30">
+                  <div className="flex items-center gap-3 mb-3">
+                    <TrendingUp className="w-5 h-5 text-[#c5a572]" />
+                    <h5 className="text-[#c5a572] font-semibold">🎯 Prochaine étape recommandée</h5>
+                  </div>
+                  <p className="text-gray-300 text-sm mb-3">
+                    "Parfait ! Maintenant explorons la situation professionnelle et les revenus pour identifier les optimisations fiscales possibles."
+                  </p>
+                  <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#c5a572] text-[#162238] rounded-lg font-medium text-sm hover:bg-[#e8cfa0] transition-colors">
+                    <TrendingUp className="w-4 h-4" />
+                    Passer à l'étape 3 : Revenus
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Form wrapper */}
           <form onSubmit={handleSubmit} className="space-y-8">
             {renderFormByProfile()}
             
-            {/* Assistant vocal */}
-            <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
-              <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] p-6 border-b border-[#c5a572]/20">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 rounded-xl border border-[#c5a572]/30">
-                      <Mic className="w-6 h-6 text-[#c5a572]" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-white">Assistant Francis</h3>
-                      <p className="text-sm text-gray-300 mt-1">
-                        Francis écoute votre entretien client et remplit automatiquement le profil en temps réel
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    {hasSeenOnboarding && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowOnboarding(true);
-                          setOnboardingStep(0);
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-400 hover:text-[#c5a572] transition-colors border border-[#c5a572]/20 rounded-lg hover:bg-[#c5a572]/10"
-                        title="Revoir l'introduction Francis"
-                      >
-                        <Play className="w-4 h-4" />
-                        Guide
-                      </button>
-                    )}
-                    
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!showVoiceInput) {
-                          setAutoStartVoice(true);
-                        }
-                        setShowVoiceInput(!showVoiceInput);
-                      }}
-                      className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
-                        showVoiceInput 
-                          ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
-                          : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
-                      }`}
-                    >
-                    {showVoiceInput ? (
-                      <>
-                        <X className="w-4 h-4" />
-                        Fermer l'assistant
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="w-4 h-4" />
-                        Activer l'assistant
-                      </>
-                    )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              {error && (
-                <p className="text-sm text-red-400 mt-6 text-center py-2 px-4 bg-red-900/30 rounded-md border border-red-700">
-                  {error}
-                </p>
-              )}
-              
-              <div className="pt-8 flex justify-end">
-                <button type="submit" disabled={isLoading} className={buttonPrimaryStyles}>
-                  {isLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-transparent border-t-[#162238] rounded-full animate-spin mr-2"></div>
-                      Enregistrement...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5 mr-2" />
-                      Enregistrer le client
-                    </>
-                  )}
-                </button>
-              </div>
+            {error && (
+              <p className="text-sm text-red-400 mt-6 text-center py-2 px-4 bg-red-900/30 rounded-md border border-red-700">
+                {error}
+              </p>
+            )}
+            
+            <div className="pt-8 flex justify-end">
+              <button type="submit" disabled={isLoading} className={buttonPrimaryStyles}>
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-transparent border-t-[#162238] rounded-full animate-spin mr-2"></div>
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    Enregistrer le client
+                  </>
+                )}
+              </button>
             </div>
           </form>
         </div>
