@@ -21,7 +21,7 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
   /**
    * RegEx helpers
    */
-  const regexps: Array<{ key: keyof ClientProfile; pattern: RegExp; transform?: (m: RegExpMatchArray) => any }> = [
+  const regexps: Array<{ key: keyof ClientProfile; pattern: RegExp; transform?: (m: RegExpMatchArray) => string | number }> = [
     { key: 'nom_client', pattern: /(?:je m'?appelle|nom est)\s+([A-ZÉÈÀÂÇÎÔÛÏÜËÖ][a-zA-ZÀ-ÖØ-öø-ÿ' -]{2,})/i, transform: m => m[1].toUpperCase() },
     { key: 'prenom_client', pattern: /(?:je m'?appelle|prénom est)\s+[A-ZÉÈÀÂÇÎÔÛÏÜËÖ][a-zà-öø-ÿ' -]+\s+([A-ZÉÈÀÂÇÎÔÛÏÜËÖ][a-zà-öø-ÿ' -]+)/i, transform: m => m[1] },
     { key: 'numero_fiscal_client', pattern: /(num(éro)?\s*fiscal|n°\s*fiscal)\s*(?:est\s*)?(\d{7,13})/i, transform: m => m[3] },
@@ -80,7 +80,8 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
       regexps.forEach(({ key, pattern, transform }) => {
         const res = text.match(pattern);
         if (res) {
-          updated[key] = transform ? transform(res) : res[1];
+          const value = transform ? transform(res) : res[1];
+          (updated as any)[key] = value;
           matched = true;
         }
       });
