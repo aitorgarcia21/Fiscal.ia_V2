@@ -5,6 +5,8 @@ import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
+import { useVoiceFiller } from '../hooks/useVoiceFiller';
+import { ProfileStatusPanel } from '../components/ProfileStatusPanel';
 import { clientDataEncryption } from '../utils/ClientDataEncryption';
 
 import { ParticulierForm } from '../components/profile-forms/ParticulierForm';
@@ -209,6 +211,9 @@ export function ProCreateClientPage() {
   const [showVoiceInput, setShowVoiceInput] = useState(false);
   const [autoStartVoice, setAutoStartVoice] = useState(false);
   const [transcript, setTranscript] = useState('');
+
+  // Voice-driven profile filling
+  const { profile, suggestions, handleTranscript } = useVoiceFiller({});
   const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
   const [isOptimizationAnalyzing, setIsOptimizationAnalyzing] = useState(false);
   const [optimizationResults, setOptimizationResults] = useState<string>('');
@@ -261,10 +266,12 @@ export function ProCreateClientPage() {
   };
 
   const handleVoiceTranscription = (text: string) => {
+    handleTranscript(text);
     setTranscript(text);
   };
 
   const handleFinalTranscription = (text: string) => {
+    handleTranscript(text);
     setTranscript(text);
   };
 
@@ -1369,8 +1376,7 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
 
 
           {/* Assistant vocal */}
-          {(
-            <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
+          <div className="mb-8 rounded-xl overflow-hidden border border-[#c5a572]/20 shadow-xl bg-gradient-to-br from-[#162238] to-[#1a2332]">
               <div className="bg-gradient-to-r from-[#0E2444] to-[#162238] p-6 border-b border-[#c5a572]/20">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
@@ -1423,130 +1429,13 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                     ) : (
                       <>
                         <Mic className="w-4 h-4" />
-                        Activer Francis
+                        Activer l'assistant
                       </>
                     )}
                     </button>
                   </div>
                 </div>
               </div>
-
-              {showVoiceInput && (
-                <div className="bg-gradient-to-br from-[#0E2444] to-[#162238] p-6 border-t border-[#c5a572]/20">
-                    <div className="max-w-5xl mx-auto">
-                    <div className="mb-6">
-                        <UltraFluidVoiceRecorder
-                          onTranscriptionUpdate={handleVoiceTranscription}
-                          onTranscriptionComplete={handleFinalTranscription}
-                          onError={handleVoiceError}
-                          className="mb-0"
-                          streamingMode={true}
-                          realTimeMode={true}
-                          autoStart={autoStartVoice}
-                          onListeningChange={(isListening) => {
-                            if (isListening && autoStartVoice) {
-                              setAutoStartVoice(false); // Reset flag after auto-start
-                            }
-                          }}
-                        />
-                      </div>
-
-                    <div className="bg-[#1a2332] rounded-xl border border-[#c5a572]/20 p-5 shadow-lg">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-[#c5a572] animate-pulse"></div>
-                            <span className="text-sm font-medium text-[#c5a572]">Assistant actif</span>
-                          </div>
-                          <div className="text-xs text-gray-400">• En écoute continue</div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setTranscript('')}
-                          className="text-xs text-gray-400 hover:text-[#c5a572] transition-colors px-3 py-1 rounded-lg hover:bg-[#c5a572]/10 border border-[#c5a572]/20"
-                          >
-                          Effacer
-                          </button>
-                        </div>
-                      <div className="bg-[#0E2444] rounded-lg p-4 min-h-[120px] max-h-[250px] overflow-y-auto border border-[#c5a572]/20">
-                        <p className="text-sm whitespace-pre-wrap text-gray-200 leading-relaxed">
-                          {transcript || "Parlez maintenant pour que Francis commence à écouter..."}
-                        </p>
-                        </div>
-                      
-                      {transcript && (
-                        <div className="mt-4 flex justify-center">
-                          <button
-                            type="button"
-                            onClick={processTranscript}
-                            disabled={isAIAnalyzing}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isAIAnalyzing ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-transparent border-t-[#162238] rounded-full animate-spin"></div>
-                                Analyse en cours...
-                              </>
-                            ) : (
-                              <>
-                                <Brain className="w-4 h-4" />
-                                Analyser avec Francis
-                </>
-              )}
-                          </button>
-            </div>
-                      )}
-                </div>
-                </div>
-                </div>
-              )}
-              
-              {/* Résultats d'optimisation fiscale */}
-              {optimizationResults && (
-                <div className="mt-6 p-6 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 rounded-xl border border-[#c5a572]/30">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full flex items-center justify-center">
-                      <Brain className="w-4 h-4 text-[#162238]" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-[#c5a572]">
-                      Analyse Francis - Optimisations & Leads Fiscaux
-                    </h3>
-                  </div>
-                  
-                  <div className="bg-[#0E2444] rounded-lg p-4 border border-[#c5a572]/20">
-                    <div className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">
-                      {isOptimizationAnalyzing ? (
-                        <div className="flex items-center gap-2 text-[#c5a572]">
-                          <div className="w-4 h-4 border-2 border-transparent border-t-[#c5a572] rounded-full animate-spin"></div>
-                          <span>Francis analyse votre profil pour identifier les optimisations fiscales...</span>
-                        </div>
-                      ) : (
-                        optimizationResults
-                      )}
-                    </div>
-                  </div>
-                  
-                  {!isOptimizationAnalyzing && (
-                    <div className="mt-4 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={analyzeOptimizationOpportunities}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-medium rounded-lg hover:shadow-lg transition-all duration-300 text-sm"
-                      >
-                        <Brain className="w-4 h-4" />
-                        Nouvelle analyse
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-                </div>
-          )}
-
-          {/* Formulaire généraliste */}
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {renderFormByProfile()}
               
               {error && (
                 <p className="text-sm text-red-400 mt-6 text-center py-2 px-4 bg-red-900/30 rounded-md border border-red-700">
@@ -1570,6 +1459,7 @@ Réponds de manière structurée et professionnelle, avec des conseils concrets 
                 </button>
               </div>
             </form>
+          </div>
         </div>
       </div>
       
