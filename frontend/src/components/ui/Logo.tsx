@@ -32,13 +32,6 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
         {/* Fond bleu */}
         <rect width="48" height="48" fill="url(#bgGradient)"/>
         
-        {/* Bulle de chat simple */}
-        <path 
-          d="M8 12C8 9.79086 9.79086 8 12 8H28C30.2091 8 32 9.79086 32 12V24C32 26.2091 30.2091 28 28 28H20L16 32L12 28H8C5.79086 28 4 26.2091 4 24V12C4 9.79086 5.79086 8 8 8Z" 
-          fill="none" 
-          stroke="#c5a572" 
-          strokeWidth="2"
-        />
         
         {/* Symbole euro simple - Corrigé pour visibilité */}
         <text x="24" y="24" fontFamily="Arial, sans-serif" fontSize="14" fill="#c5a572" textAnchor="middle" dominantBaseline="central">€</text>
