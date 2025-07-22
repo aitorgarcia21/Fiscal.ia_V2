@@ -143,19 +143,33 @@ export const WhisperVoiceRecorder: React.FC<WhisperVoiceRecorderProps> = ({
             throw new Error(result.error);
           }
 
-          // Mise à jour de la transcription
-          const newText = result.text || '';
-          if (newText.trim()) {
+          // Mise à jour de la transcription avec déduplication
+          const newText = (result.text || '').trim();
+          if (newText) {
+            // Déduplication : vérifier si le nouveau texte n'est pas déjà dans l'accumulation
+            const currentAccumulated = accumulatedTextRef.current.toLowerCase();
+            const newTextLower = newText.toLowerCase();
+            
+            // Si c'est un traitement final, ou si le nouveau texte n'est pas déjà présent
+            const isNewContent = isFinal || !currentAccumulated.includes(newTextLower);
+            
             if (isFinal) {
-              accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + newText).trim();
+              // Traitement final : seulement ajouter si vraiment nouveau
+              if (isNewContent && newText.length > 2) {
+                accumulatedTextRef.current = (accumulatedTextRef.current + ' ' + newText).trim();
+              }
               setCurrentTranscript(accumulatedTextRef.current);
               onTranscriptionComplete(accumulatedTextRef.current);
-              console.log('✅ Francis Whisper (FINAL):', accumulatedTextRef.current);
+              console.log(' Francis Whisper (FINAL):', accumulatedTextRef.current);
             } else {
-              const tempText = (accumulatedTextRef.current + ' ' + newText).trim();
-              setCurrentTranscript(tempText);
-              onTranscriptionUpdate(tempText);
-              console.log('🎯 Francis Whisper (TEMP):', newText);
+              // Traitement temporaire : remplacer le contenu temporaire au lieu d'accumuler
+              if (isNewContent && newText.length > 2) {
+                setCurrentTranscript(accumulatedTextRef.current + ' [ ] ' + newText);
+                onTranscriptionUpdate(accumulatedTextRef.current + ' ' + newText);
+                console.log(' Francis Whisper (TEMP - NOUVEAU):', newText);
+              } else {
+                console.log(' Francis Whisper (TEMP - DUPLIQUÉ):', newText);
+              }
             }
           }
 
