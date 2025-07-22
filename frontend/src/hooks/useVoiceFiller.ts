@@ -36,7 +36,36 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
       pattern: /(?:(?:je m'?appelle|nom(?:\s+(?:de\s+)?famille)?|je suis|c'est|moi c'est|alors moi|bon alors|euh|bon|voilà|donc)\s*(?:c'est|est|alors)?\s*|^)([A-ZÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ][a-zA-ZàâäæçéèêëïîôùûüÿñÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ' -]{1,30})(?:\s|$)/i, 
       transform: (m: RegExpMatchArray) => {
         try {
-          return m[1]?.trim()?.toUpperCase() || '';
+          const captured = m[1]?.trim() || '';
+          
+          // 🧠 FILTRE INTELLIGENT : Rejeter les expressions non-noms
+          const invalidExpressions = [
+            /^(ah|oh|euh|hein|quoi|non|mais|oui|si|alors|donc|voilà|ben|bah|pfff|tss|grrr|argh)$/i,
+            /^(c'est quoi|qu'est[- ]ce|comment|pourquoi|aberrant|bizarre|étrange|wtf|lol|mdr)$/i,
+            /^(jour|heure|minute|seconde|temps|date|année|mois|semaine|maintenant)$/i,
+            /^[^a-zA-ZàâäæçéèêëïîôùûüÿñÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ]*$/,  // Pas de lettres
+            /^.{0,1}$/,  // Trop court
+            /^.{31,}$/   // Trop long
+          ];
+          
+          // Vérifier si c'est une expression invalide
+          for (const invalidPattern of invalidExpressions) {
+            if (invalidPattern.test(captured)) {
+              console.log(`🚫 Francis rejette nom invalide: "${captured}"`);
+              return '';
+            }
+          }
+          
+          // Validation supplémentaire : au moins 50% de lettres
+          const letterCount = (captured.match(/[a-zA-ZàâäæçéèêëïîôùûüÿñÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ]/g) || []).length;
+          const totalLength = captured.length;
+          if (letterCount / totalLength < 0.5) {
+            console.log(`🚫 Francis rejette nom avec trop peu de lettres: "${captured}"`);
+            return '';
+          }
+          
+          console.log(`✅ Francis accepte nom valide: "${captured}"`);
+          return captured.toUpperCase();
         } catch (e) {
           console.error('Erreur transformation nom:', e);
           return '';
@@ -51,7 +80,36 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
       pattern: /(?:prénom|je m'appelle|moi c'est|alors|appelle[z]?[- ]moi)\s*(?:c'est|est)?\s*([A-ZÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ][a-zA-ZàâäæçéèêëïîôùûüÿñÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ' -]{1,25})(?:\s|$)/i, 
       transform: (m: RegExpMatchArray) => {
         try {
-          return m[1]?.trim() || '';
+          const captured = m[1]?.trim() || '';
+          
+          // 🧠 FILTRE INTELLIGENT : Rejeter les expressions non-prénoms
+          const invalidExpressions = [
+            /^(ah|oh|euh|hein|quoi|non|mais|oui|si|alors|donc|voilà|ben|bah|pfff|tss|grrr|argh)$/i,
+            /^(c'est quoi|qu'est[- ]ce|comment|pourquoi|aberrant|bizarre|étrange|wtf|lol|mdr)$/i,
+            /^(jour|heure|minute|seconde|temps|date|année|mois|semaine|maintenant)$/i,
+            /^[^a-zA-ZàâäæçéèêëïîôùûüÿñÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ]*$/,  // Pas de lettres
+            /^.{0,1}$/,  // Trop court
+            /^.{26,}$/   // Trop long pour un prénom
+          ];
+          
+          // Vérifier si c'est une expression invalide
+          for (const invalidPattern of invalidExpressions) {
+            if (invalidPattern.test(captured)) {
+              console.log(`🚫 Francis rejette prénom invalide: "${captured}"`);
+              return '';
+            }
+          }
+          
+          // Validation supplémentaire : au moins 50% de lettres
+          const letterCount = (captured.match(/[a-zA-ZàâäæçéèêëïîôùûüÿñÀÂÄÆÇÉÈÊËÏÎÔÙÛÜŸÑ]/g) || []).length;
+          const totalLength = captured.length;
+          if (letterCount / totalLength < 0.5) {
+            console.log(`🚫 Francis rejette prénom avec trop peu de lettres: "${captured}"`);
+            return '';
+          }
+          
+          console.log(`✅ Francis accepte prénom valide: "${captured}"`);
+          return captured.charAt(0).toUpperCase() + captured.slice(1).toLowerCase();
         } catch (e) {
           console.error('Erreur transformation prénom:', e);
           return '';
