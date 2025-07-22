@@ -59,56 +59,33 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
     
-    // 🚀 PARAMÈTRES ENTRETIEN PROFESSIONNEL ULTRA-CONTINU
-    recognitionRef.current.continuous = true;           // ÉCOUTE PERMANENTE - JAMAIS D'INTERRUPTION
-    recognitionRef.current.interimResults = true;       // Feedback temps réel pour l'utilisateur
-    recognitionRef.current.lang = 'fr-FR';              // Français professionnel optimisé
-    recognitionRef.current.maxAlternatives = 5;         // Plus d'alternatives pour précision maximale
-    
-    // 🕰️ PARAMÈTRES ENTRETIEN LONGUE DURÉE (30-60 min)
-    if ('audioTracks' in recognitionRef.current) {
-      recognitionRef.current.audioTracks = true;        // Optimisation audio continue
-    }
-    
-    // 🎯 STABILITÉ MAXIMALE pour entretiens professionnels
-    // Pas de grammaires spécifiques (liberté totale d'expression)
-    
-    // 🎯 PARAMÈTRES AVANCÉS pour éviter les coupures
-    if ('serviceURI' in recognitionRef.current) {
-      recognitionRef.current.serviceURI = null;         // Service par défaut (plus stable)
-    }
+    // 🚀 PARAMÈTRES OPTIMISÉS POUR PRÉCISION MAXIMALE
+    recognitionRef.current.continuous = true;           // ÉCOUTE CONTINUE
+    recognitionRef.current.interimResults = true;       // Feedback temps réel
+    recognitionRef.current.lang = 'fr-FR';              // Français
+    recognitionRef.current.maxAlternatives = 1;         // Une seule alternative pour plus de précision
     
     console.log('🎤 Francis Voice: Configuration ultra-fluide activée');
 
     recognitionRef.current.onerror = (event: any) => {
-      console.log('🔧 Francis Voice: Gestion erreur', event.error);
+      console.log('🔧 Francis Voice: Erreur détectée:', event.error);
       
-      // 🛡️ GESTION INTELLIGENTE DES ERREURS - Ne pas arrêter pour des erreurs mineures
-      const minorErrors = ['no-speech', 'audio-capture', 'network', 'aborted'];
+      // 🛡️ GESTION SIMPLE DES ERREURS
+      const minorErrors = ['no-speech', 'aborted'];
       
       if (minorErrors.includes(event.error)) {
         console.log('⚠️ Francis Voice: Erreur mineure ignorée:', event.error);
-        // Relancer automatiquement après erreur mineure
-        if (isRecordingRef.current) {
-          setTimeout(() => {
-            try {
-              if (recognitionRef.current && isRecordingRef.current) {
-                recognitionRef.current.start();
-                console.log('🔄 Francis Voice: Relance automatique après erreur mineure');
-              }
-            } catch (restartError) {
-              console.error('Erreur de relance:', restartError);
-            }
-          }, 100); // Délai court pour éviter les conflits
-        }
-        return; // Ne pas traiter comme une vraie erreur
+        // Pas de relance automatique pour éviter les boucles
+        return;
       }
       
-      // Erreurs critiques seulement
-      console.error('❌ Francis Voice: Erreur critique:', event.error);
-      onError(`Erreur critique: ${event.error}`);
+      // Erreur majeure - arrêter et signaler
+      const errorMessage = `Erreur de reconnaissance: ${event.error}`;
+      setError(errorMessage);
+      onError(errorMessage);
       setIsRecording(false);
       isRecordingRef.current = false;
+      setIsProcessing(false);
     };
 
     recognitionRef.current.onend = () => {

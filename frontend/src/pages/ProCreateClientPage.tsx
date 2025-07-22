@@ -271,19 +271,19 @@ export function ProCreateClientPage() {
   // Onboarding steps
   const onboardingSteps = [
     {
-      title: "Bienvenue dans Francis ! ",
+      title: "ÉTAPE 1 : Bienvenue dans Francis !",
       description: "Découvrez comment Francis peut révolutionner votre création de profils clients grâce à l'intelligence artificielle.",
       icon: <Brain className="w-8 h-8 text-[#c5a572]" />,
       highlight: null
     },
     {
-      title: 'Transcription vocale intelligente',
+      title: 'ÉTAPE 2 : Transcription vocale intelligente',
       description: 'Francis écoute et transcrit votre entretien avec le client en temps réel. Parlez naturellement pendant votre rendez-vous.',
       icon: <Mic className="w-6 h-6 text-[#c5a572]" />,
       highlight: "voice-input"
     },
     {
-      title: 'Création du profil complet',
+      title: 'ÉTAPE 3 : Création du profil complet',
       description: 'Francis extrait automatiquement toutes les informations et remplit le formulaire pour vous. Plus de 25 champs détectés ! Il établit le profil complet de votre client.',
       icon: <Target className="w-6 h-6 text-[#c5a572]" />,
       highlight: "form-fields"
