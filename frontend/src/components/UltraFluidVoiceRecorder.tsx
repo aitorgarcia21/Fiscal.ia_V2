@@ -461,32 +461,10 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
   return (
     <div className="relative">
       <div className="flex items-center gap-3">
-        <button
-          onClick={handleButtonClick}
-          disabled={disabled || isProcessing}
-          className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full transition-all ${
-            isRecording
-              ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30'
-              : 'bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/30'
-          } ${disabled || isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'} ${className}`}
-          aria-label={isRecording ? 'Arrêter l\'enregistrement' : 'Démarrer l\'enregistrement'}
-        >
-          {isProcessing && !isRecording ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : isRecording ? (
-            <div className="flex items-center justify-center w-6 h-6">
-              <div className="absolute w-4 h-4 bg-white rounded-full animate-ping"></div>
-              <MicOff size={20} className="relative" />
-            </div>
-          ) : (
-            <Mic size={20} />
-          )}
-        </button>
+
         
         <div className="flex-1">
-          <div className="text-sm text-gray-300 mb-1">
-            {isRecording ? 'Enregistrement ultra-fluide...' : 'Appuyez pour dicter'}
-          </div>
+
           
 
         </div>
