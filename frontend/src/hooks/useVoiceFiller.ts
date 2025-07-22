@@ -441,11 +441,22 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
           - age_client: chiffres + ans/âge
           - profession_client: métiers/jobs (pas générique comme "travail")
           
-          EXEMPLE CONTEXTUEL:
+          📝 EXEMPLES OBLIGATOIRES - APPRENDS CES PATTERNS :
+          
+          💒 STATUT MATRIMONIAL :
+          "vous êtes mariés" → {"situation_maritale_client": "Marié(e)"}
+          "nous sommes mariés" → {"situation_maritale_client": "Marié(e)"}
+          "je suis marié" → {"situation_maritale_client": "Marié(e)"}
+          "mariée depuis" → {"situation_maritale_client": "Marié(e)"}
+          "célibataire" → {"situation_maritale_client": "Célibataire"}
+          "divorcé" → {"situation_maritale_client": "Divorcé(e)"}
+          "pacsé" → {"situation_maritale_client": "Pacsé(e)"}
+          
+          💼 NOMS :
           Contexte: "Je suis... euh... comment dire" | Actuel: "Jean Dupont"
           → {"prenom_client": "Jean", "nom_client": "DUPONT"}
           
-          FORMAT RÉPONSE: JSON pur seulement
+          FORMAT RÉPONSE: JSON pur seulement - PAS DE TEXTE EN PLUS
           SI AUCUNE INFO FISCALE VALIDE: {}
           
           SOIS LE MEILLEUR LINGUISTE CONTEXTUEL AU MONDE ! 🔥`
