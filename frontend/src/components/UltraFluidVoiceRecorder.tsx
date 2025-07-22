@@ -64,7 +64,7 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
     recognitionRef.current.interimResults = true;       // Résultats intermédiaires pour fluidité
     recognitionRef.current.lang = 'fr-FR';              // Français optimisé
     recognitionRef.current.maxAlternatives = 3;         // Plus d'alternatives pour meilleure précision
-    recognitionRef.current.grammars = null;             // Pas de limitation grammaticale
+    // Pas de grammaires spécifiques (comportement par défaut)
     
     // 🎯 PARAMÈTRES AVANCÉS pour éviter les coupures
     if ('serviceURI' in recognitionRef.current) {
