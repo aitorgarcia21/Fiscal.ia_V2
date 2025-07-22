@@ -4,8 +4,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
-import { ContinuousWhisperRecorder } from '../components/ContinuousWhisperRecorder';
-import { LiveTranscriptionDisplay } from '../components/LiveTranscriptionDisplay';
+import { UltraSimpleLiveRecorder } from '../components/UltraSimpleLiveRecorder';
 import { useVoiceFiller } from '../hooks/useVoiceFiller';
 import { ProfileStatusPanel } from '../components/ProfileStatusPanel';
 import { clientDataEncryption } from '../utils/ClientDataEncryption';
@@ -1195,13 +1194,15 @@ export function ProCreateClientPage() {
                     {/* 🎤 VRAIE TRANSCRIPTION LIVE */}
                     {isListening ? (
                       <div className="space-y-3">
-                        {/* 🔥 AFFICHAGE LIVE TRANSCRIPTION avec effet de frappe */}
-                        <LiveTranscriptionDisplay
-                          currentTranscription={currentTranscription}
-                          isListening={isListening}
-                          isProcessing={false}
-                          className="mb-4"
-                        />
+                        {/* 🔥 TRANSCRIPTION LIVE QUI FONCTIONNE VRAIMENT */}
+                        <div className="text-center mb-4">
+                          <p className="text-lg font-medium text-green-400 mb-2">
+                            FRANCIS ÉCOUTE EN TEMPS RÉEL
+                          </p>
+                          <p className="text-sm text-gray-300">
+                            Le texte apparaît instantanément pendant que vous parlez
+                          </p>
+                        </div>
                         
                         {/* Historique des transcriptions complétées */}
                         {transcriptionHistory.length > 0 && (
@@ -1258,8 +1259,9 @@ export function ProCreateClientPage() {
                 {/* 🎤 COMPOSANT TRANSCRIPTION FRANCIS */}
                 <div className="bg-[#0E2444] rounded-xl p-5 border border-[#c5a572]/20">
 
-                  <ContinuousWhisperRecorder
+                  <UltraSimpleLiveRecorder
                     onTranscription={(text, isFinal) => {
+                      console.log('🎤 TRANSCRIPTION REÇUE:', text, isFinal ? 'FINAL' : 'LIVE');
                       if (isFinal) {
                         handleTranscriptionComplete(text);
                       } else {
