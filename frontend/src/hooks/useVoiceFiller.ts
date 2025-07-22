@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ClientProfile } from '../types/ClientProfile';
+import { ClientProfile } from '../types/clientProfile';
 
 export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
   const [profile, setProfile] = useState<Partial<ClientProfile>>(initialProfile);
@@ -13,15 +13,108 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
    * Comprendrai TOUT avec l'IA contextuelle multi-tour !
    */
 
-  const computeSuggestions = useCallback((currentProfile: Partial<ClientProfile>): string[] => {
+  /**
+   * 🎯 FRANCIS COACH PROACTIF - SUGGESTIONS INTELLIGENTES ÉTAPES GUIDÉES
+   */
+  const computeProactiveSuggestions = useCallback((currentProfile: Partial<ClientProfile>): {
+    nextQuestions: string[];
+    completionRate: number;
+    inconsistencies: string[];
+    stage: string;
+  } => {
     const suggestions: string[] = [];
+    const inconsistencies: string[] = [];
+    let filledFields = 0;
+    const totalFields = 12; // Nombre total de champs principaux
     
-    if (!currentProfile.nom_client) suggestions.push("Demandez le nom de famille");
-    if (!currentProfile.prenom_client) suggestions.push("Demandez le prénom");
-    if (!currentProfile.situation_maritale_client) suggestions.push("Demandez la situation maritale");
-    if (!currentProfile.revenu_net_annuel_client1) suggestions.push("Demandez les revenus annuels");
+    // 📋 ÉTAPES GUIDÉES INTELLIGENTES
     
-    return suggestions;
+    // 1️⃣ IDENTITÉ
+    if (!currentProfile.nom_client) {
+      suggestions.push("👤 Demandez : 'Pouvez-vous me dire votre nom de famille ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.prenom_client) {
+      suggestions.push("👤 Demandez : 'Et votre prénom ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.date_naissance_client) {
+      suggestions.push("🎂 Demandez : 'Quelle est votre date de naissance ?'");
+    } else filledFields++;
+    
+    // 2️⃣ SITUATION FAMILIALE
+    if (!currentProfile.situation_maritale_client) {
+      suggestions.push("💒 Demandez : 'Êtes-vous marié(e), célibataire, divorcé(e) ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.nombre_enfants_a_charge_client) {
+      suggestions.push("👶 Demandez : 'Avez-vous des enfants à charge ?'");
+    } else filledFields++;
+    
+    // 3️⃣ ACTIVITÉ PROFESSIONNELLE
+    if (!currentProfile.profession_client1) {
+      suggestions.push("💼 Demandez : 'Quelle est votre profession ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.revenu_net_annuel_client1) {
+      suggestions.push("💰 Demandez : 'Quels sont vos revenus nets annuels ?'");
+    } else filledFields++;
+    
+    // 4️⃣ PATRIMOINE IMMOBILIER
+    if (!currentProfile.residence_principale_details) {
+      suggestions.push("🏠 Demandez : 'Quelle est la valeur de votre résidence principale ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.autres_biens_immobiliers_details) {
+      suggestions.push("🏢 Demandez : 'Avez-vous d'autres biens immobiliers (locatif, terrain) ?'");
+    } else filledFields++;
+    
+    // 5️⃣ SITUATION FINANCIÈRE
+    if (!currentProfile.comptes_courants_solde_total_estime && !currentProfile.livrets_epargne_details) {
+      suggestions.push("💳 Demandez : 'Quel montant avez-vous en épargne (livrets, comptes) ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.assurance_vie_details && !currentProfile.compte_titres_valeur_estimee) {
+      suggestions.push("📈 Demandez : 'Avez-vous des investissements (actions, assurance-vie, SCPI) ?'");
+    } else filledFields++;
+    
+    if (!currentProfile.credits_consommation_encours_total) {
+      suggestions.push("🏦 Demandez : 'Avez-vous des crédits en cours (immobilier, conso) ?'");
+    } else filledFields++;
+    
+    // 🚨 DÉTECTION D'INCOHÉRENCES INTELLIGENTES
+    if (currentProfile.situation_maritale_client === 'Célibataire' && 
+        currentProfile.nombre_enfants_a_charge_client && 
+        currentProfile.nombre_enfants_a_charge_client > 0) {
+      inconsistencies.push('⚠️ Vérifiez : Célibataire avec enfants (parent solo ?)');
+    }
+    
+    // Vérification des revenus vs patrimoine
+    if (currentProfile.revenu_net_annuel_client1 && 
+        typeof currentProfile.revenu_net_annuel_client1 === 'number' &&
+        currentProfile.revenu_net_annuel_client1 < 30000 && 
+        (currentProfile.compte_titres_valeur_estimee && 
+         typeof currentProfile.compte_titres_valeur_estimee === 'number' &&
+         currentProfile.compte_titres_valeur_estimee > 50000)) {
+      inconsistencies.push('⚠️ Vérifiez : Revenus modestes mais gros investissements');
+    }
+    
+    // 📊 ÉTAPES INTELLIGENTES
+    let stage = 'Début d\'entretien';
+    const completionRate = (filledFields / totalFields) * 100;
+    
+    if (completionRate < 25) stage = '1️⃣ Identité et situation';
+    else if (completionRate < 50) stage = '2️⃣ Activité professionnelle';
+    else if (completionRate < 75) stage = '3️⃣ Patrimoine immobilier';
+    else if (completionRate < 90) stage = '4️⃣ Situation financière';
+    else stage = '✅ Profil complet - Analyse fiscale';
+    
+    return {
+      nextQuestions: suggestions.slice(0, 3), // Limite à 3 suggestions max
+      completionRate: Math.round(completionRate),
+      inconsistencies,
+      stage
+    };
   }, []);
 
   /**
@@ -69,14 +162,19 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
           - Non-sens: aberrant, bizarre, wtf, expressions émotionnelles
           - Hésitations pures sans contenu informatif
           
-          🎯 CHAMPS AUTORISÉS:
+          🎯 CHAMPS AUTORISÉS ULTRA-COMPLETS:
           - nom_client: NOMS DE FAMILLE français (même déformés phonétiquement)
           - prenom_client: PRÉNOMS français (même mal articulés)
           - situation_maritale_client: "Marié(e)", "Célibataire", "Divorcé(e)", "Pacsé(e)", "Veuf/Veuve"
           - revenu_net_annuel_client1: chiffres + mots revenus/salaire/euros
           - nombre_enfants_client: chiffres + mots enfant/gosse/petit
-          - age_client: chiffres + ans/âge
-          - profession_client: métiers/jobs (pas générique comme "travail")
+          - date_naissance_client: date de naissance format DD/MM/YYYY
+          - profession_client1: métiers/jobs (pas générique comme "travail")
+          - residence_principale_details: chiffres + mots maison/appartement/résidence/immobilier
+          - credits_consommation_encours_total: chiffres + mots crédit/prêt/emprunt/dette
+          - comptes_courants_solde_total_estime: chiffres + mots épargne/livret/compte/économies
+          - assurance_vie_details: chiffres + mots actions/assurance-vie/SCPI/bourse
+          - autres_biens_immobiliers_details: chiffres + mots locatif/investissement/terrain/propriété
           
           📝 EXEMPLES OBLIGATOIRES - APPRENDS CES PATTERNS :
           
@@ -176,7 +274,16 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
         if (matched) {
           console.log('🎯 Francis IA CONTEXTUELLE met à jour le profil:', matchDetails);
           setProfile(updated);
-          setSuggestions(computeSuggestions(updated));
+          const proactiveData = computeProactiveSuggestions(updated);
+          setSuggestions(proactiveData.nextQuestions);
+          
+          // Log coaching proactif
+          console.log('🎯 Francis COACH PROACTIF:', {
+            stage: proactiveData.stage,
+            completion: proactiveData.completionRate + '%',
+            suggestions: proactiveData.nextQuestions,
+            inconsistencies: proactiveData.inconsistencies
+          });
         } else {
           console.log('🧠 Francis IA CONTEXTUELLE: Aucune information fiscale pertinente détectée dans ce contexte');
         }
@@ -184,7 +291,7 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
         console.error('Erreur Francis IA CONTEXTUELLE:', e);
       }
     },
-    [profile, computeSuggestions, analyzeWithFrancisAI, conversationHistory, setConversationHistory, MAX_CONTEXT_TURNS]
+    [profile, computeProactiveSuggestions, analyzeWithFrancisAI, conversationHistory, setConversationHistory, MAX_CONTEXT_TURNS]
   );
 
   return { profile, suggestions, handleTranscript };
