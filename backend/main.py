@@ -30,7 +30,7 @@ from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
-from elevenlabs_proxy import router as eleven_router
+# from elevenlabs_proxy import router as eleven_router  # DÉSACTIVÉ temporairement - problème d'import
 import concurrent.futures
 from sqlalchemy.orm import Session
 import re
@@ -2653,7 +2653,7 @@ initialize_embeddings()
 app.include_router(api_router)
 app.include_router(api_router, prefix="/api")  # alias pour compatibilité frontend
 app.include_router(whisper_router.router, prefix="/api")  # 🎯 WHISPER LOCAL FONCTIONNEL
-app.include_router(eleven_router)
+# app.include_router(eleven_router)  # DÉSACTIVÉ temporairement - eleven_router indisponible
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
 

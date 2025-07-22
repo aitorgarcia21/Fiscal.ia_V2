@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
-import { VoiceRecorder } from '../components/VoiceRecorder';
+
 import { useCountry, Country } from '../contexts/CountryContext';
 
 
@@ -27,11 +27,9 @@ export function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+
   const [isTyping, setIsTyping] = useState(false);
-  const [voiceInput, setVoiceInput] = useState("");
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [isVoiceMode, setIsVoiceMode] = useState(false);
+
   const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -49,7 +47,7 @@ export function ChatPage() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    setVoiceError(null);
+
 
     // Scroll immédiat vers le bas
     setTimeout(() => {
@@ -113,35 +111,7 @@ export function ChatPage() {
     }
   };
 
-  const handleVoiceUpdate = (text: string) => {
-    setVoiceInput(text);
-    setInput(text); // Met à jour le champ de texte en temps réel
-  };
 
-  const handleVoiceComplete = (text: string) => {
-    setVoiceInput(text);
-    setInput(text);
-    // Optionnel: Envoyer automatiquement le message à la fin de la dictée
-    // if (text.trim()) {
-    //   handleSubmit(new Event('submit') as any);
-    // }
-    setShowVoiceRecorder(false);
-  };
-
-  const handleVoiceError = (error: string) => {
-    setVoiceError(error);
-    setTimeout(() => setVoiceError(null), 5000);
-  };
-
-  const toggleVoiceMode = () => {
-    setIsVoiceMode(!isVoiceMode);
-    setShowVoiceRecorder(false);
-    setVoiceError(null);
-    
-    if (!isVoiceMode) {
-      setShowVoiceRecorder(true);
-    }
-  };
 
   useEffect(() => {
     // Scroll fluide vers le bas quand de nouveaux messages arrivent
@@ -283,47 +253,20 @@ export function ChatPage() {
 
         {/* Input */}
         <form onSubmit={handleSend} className="p-4 border-t border-[#c5a572]/20 flex-shrink-0">
-          {/* Message d'erreur vocal */}
-          {voiceError && (
-            <div className="mb-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              {voiceError}
-            </div>
-          )}
-          
-          {/* Mode vocal activé */}
-          {isVoiceMode && (
-            <div className="mb-3 p-3 bg-[#c5a572]/20 border border-[#c5a572]/30 rounded-lg text-[#c5a572] text-sm flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Mode vocal activé - Francis vous écoute automatiquement
-            </div>
-          )}
+
           
           <div className="flex space-x-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isVoiceMode ? "Francis écoute votre voix..." : "Posez votre question à Francis..."}
+              placeholder="Posez votre question à Francis..."
               className="flex-1 px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572] transition-colors"
               disabled={isLoading}
               onKeyDown={handleKeyPress}
             />
             
-            {/* Bouton mode vocal */}
-            <button
-              type="button"
-              onClick={toggleVoiceMode}
-              disabled={isLoading}
-              className={`p-3 rounded-lg transition-all duration-300 flex items-center justify-center shadow-md border ${
-                isVoiceMode 
-                  ? 'bg-[#c5a572] text-[#1a2942] border-[#c5a572]' 
-                  : 'bg-[#1a2942] text-[#c5a572] border-[#c5a572]/30 hover:bg-[#223c63]'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-              aria-label={isVoiceMode ? "Désactiver le mode vocal" : "Activer le mode vocal"}
-            >
-              {isVoiceMode ? <Volume2 className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            </button>
+
             
             <button
               type="submit"
@@ -335,39 +278,7 @@ export function ChatPage() {
             </button>
           </div>
           
-          {/* Enregistreur vocal optimisé */}
-          {showVoiceRecorder && (
-            <div className="mt-4 p-4 bg-[#1a2942]/30 border border-[#c5a572]/20 rounded-lg">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-[#c5a572] flex items-center gap-2">
-                  <Mic className="w-4 h-4" />
-                  {isVoiceMode ? "Mode vocal Francis" : "Enregistrement vocal"}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowVoiceRecorder(false);
-                    setIsVoiceMode(false);
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-              <VoiceRecorder
-                onTranscriptionUpdate={handleVoiceUpdate}
-                onTranscriptionComplete={handleVoiceComplete}
-                onError={handleVoiceError}
-                disabled={isLoading}
-                className="flex justify-center"
-              />
-              {voiceInput && (
-                <p className="mt-2 text-sm text-gray-300">
-                  <span className="font-semibold">Texte dicté:</span> {voiceInput}
-                </p>
-              )}
-            </div>
-          )}
+
         </form>
       </div>
     </div>

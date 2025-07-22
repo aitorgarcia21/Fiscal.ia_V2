@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Users, MapPin, Briefcase, Home, TrendingUp, MessageCircle, Plus, Mic, MicOff, Volume2, Sparkles, AlertCircle, ChevronRight, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { VoiceRecorder } from '../components/VoiceRecorder';
+
 
 interface UserCardProps {
   name: string;
@@ -77,34 +77,8 @@ const UserCard: React.FC<UserCardProps> = ({ name, location, job, situation, goa
 const GuidedQuestionCard: React.FC<{
   question: GuidedQuestion;
   onAnswer: (id: string, answer: string) => void;
-  onVoiceComplete: (id: string, text: string) => void;
-  isRecording: boolean;
-  setIsRecording: (recording: boolean) => void;
-  allowVoice: boolean;
-}> = ({ question, onAnswer, onVoiceComplete, isRecording, setIsRecording, allowVoice }) => {
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
+}> = ({ question, onAnswer }) => {
 
-  const handleVoiceComplete = (text: string) => {
-    onVoiceComplete(question.id, text);
-    setShowVoiceRecorder(false);
-    setIsRecording(false);
-  };
-
-  const handleVoiceError = (error: string) => {
-    setVoiceError(error);
-    setTimeout(() => setVoiceError(null), 5000);
-  };
-
-  const toggleVoiceRecorder = () => {
-    if (showVoiceRecorder) {
-      setShowVoiceRecorder(false);
-      setIsRecording(false);
-    } else {
-      setShowVoiceRecorder(true);
-      setIsRecording(true);
-    }
-  };
 
   return (
     <div className={`bg-[#1a2942]/80 backdrop-blur-sm rounded-xl p-6 border transition-colors ${
@@ -138,57 +112,10 @@ const GuidedQuestionCard: React.FC<{
             />
             
             {/* Bouton dictée vocale */}
-            {allowVoice && (
-            <button
-              type="button"
-              onClick={toggleVoiceRecorder}
-              className={`p-3 rounded-lg transition-all duration-300 flex items-center justify-center shadow-md border ${
-                isRecording 
-                  ? 'bg-[#c5a572] text-[#1a2942] border-[#c5a572]' 
-                  : 'bg-[#1a2942] text-[#c5a572] border-[#c5a572]/30 hover:bg-[#223c63]'
-              }`}
-              aria-label={isRecording ? "Arrêter la dictée" : "Commencer la dictée"}
-            >
-              {isRecording ? <Volume2 className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-            </button>
-          )}
+
           </div>
 
-          {/* Enregistreur vocal */}
-          {allowVoice && showVoiceRecorder && (
-            <div className="p-4 bg-[#1a2942]/30 border border-[#c5a572]/20 rounded-lg">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-[#c5a572] flex items-center gap-2">
-                  <Mic className="w-4 h-4" />
-                  Dictée vocale
-                </h4>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowVoiceRecorder(false);
-                    setIsRecording(false);
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              {voiceError && (
-                <div className="mb-3 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {voiceError}
-                </div>
-              )}
-              
-              <VoiceRecorder
-                onTranscriptionUpdate={(text) => onAnswer(question.id, text)}
-                onTranscriptionComplete={handleVoiceComplete}
-                onError={handleVoiceError}
-                className="flex justify-center"
-              />
-            </div>
-          )}
+
 
           {/* Bouton de validation */}
           {question.answer.trim() && (
@@ -214,7 +141,7 @@ const GuidedQuestionCard: React.FC<{
 export function DiscoverPage() {
   const navigate = useNavigate();
   const { isProfessional } = useAuth();
-  const [isRecording, setIsRecording] = useState(false);
+
   
   // Questions guidées pour les particuliers
   const [guidedQuestions, setGuidedQuestions] = useState<GuidedQuestion[]>([
@@ -254,7 +181,7 @@ export function DiscoverPage() {
       id: '5',
       question: "Quel est votre niveau de connaissance fiscale ?",
       placeholder: "Ex: Débutant, intermédiaire, avancé...",
-      type: 'voice',
+      type: 'text',
       completed: false,
       answer: ''
     }
@@ -268,12 +195,11 @@ export function DiscoverPage() {
     ));
   };
 
-  const handleVoiceComplete = (id: string, text: string) => {
-    handleAnswer(id, text);
   };
 
-  const completedQuestions = guidedQuestions.filter(q => q.completed).length;
-  const totalQuestions = guidedQuestions.length;
+  // Questions supprimées - nettoyage vocal complet
+  const completedQuestions = 0;
+  const totalQuestions = 0;
   
   // Données factices pour les utilisateurs (pros uniquement)
   const users = [
@@ -444,13 +370,10 @@ export function DiscoverPage() {
             {/* Questions guidées */}
             <div className="space-y-6">
               {guidedQuestions.map((question) => (
-                <GuidedQuestionCard allowVoice={isProfessional}
+                <GuidedQuestionCard
                   key={question.id}
                   question={question}
                   onAnswer={handleAnswer}
-                  onVoiceComplete={handleVoiceComplete}
-                  isRecording={isRecording}
-                  setIsRecording={setIsRecording}
                 />
               ))}
             </div>

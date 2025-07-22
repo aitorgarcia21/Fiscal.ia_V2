@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, ArrowRight, Building2, Target, Zap, Home, Globe, Clock, TrendingUp, Mic, MicOff, X, CheckCircle } from 'lucide-react';
-import { VoiceRecorder } from './VoiceRecorder';
+
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useVoiceFlow } from '../hooks/useVoiceFlow';
+
 
 interface InitialData {
   activite_principale?: string;
@@ -31,13 +31,8 @@ interface InitialProfileQuestionsProps {
 export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<InitialData>({});
-  const [showVoiceInput, setShowVoiceInput] = useState(false);
-  const [voiceText, setVoiceText] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [isAIAnalyzing, setIsAIAnalyzing] = useState(false);
-  const [aiAnalysisResult, setAiAnalysisResult] = useState<string>('');
-  const [dictatedText, setDictatedText] = useState('');
-  const [finalTranscript, setFinalTranscript] = useState('');
+
+
   const [dictationError, setDictationError] = useState<string | null>(null);
 
   const questions = [
@@ -167,145 +162,6 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
     return processed;
   };
 
-  const handleVoiceTranscription = async (text: string) => {
-    setVoiceText(text);
-    console.log('🎤 Texte reçu:', text);
-    
-    // Logique de mapping INTELLIGENT pour chaque question
-    const lowerText = text.toLowerCase();
-    let matched = false;
-    
-    switch (currentQ.id) {
-      case 'activite_principale':
-        // Mapping direct par mots-clés
-        if (lowerText.includes('salarié') || lowerText.includes('salarie') || lowerText.includes('cdi') || lowerText.includes('employé')) {
-          handleAnswer('salarie_cdi');
-          matched = true;
-        } else if (lowerText.includes('fonctionnaire') || lowerText.includes('fonction publique') || lowerText.includes('état')) {
-          handleAnswer('fonctionnaire');
-          matched = true;
-        } else if (lowerText.includes('dirigeant') && (lowerText.includes('sasu') || lowerText.includes('sas'))) {
-          handleAnswer('dirigeant_sasu');
-          matched = true;
-        } else if (lowerText.includes('dirigeant') && lowerText.includes('sarl')) {
-          handleAnswer('dirigeant_sarl');
-          matched = true;
-        } else if (lowerText.includes('auto') || lowerText.includes('entrepreneur') || lowerText.includes('micro')) {
-          handleAnswer('autoentrepreneur');
-          matched = true;
-        } else if (lowerText.includes('libéral') || lowerText.includes('liberal') || lowerText.includes('profession')) {
-          handleAnswer('profession_liberale');
-          matched = true;
-        } else if (lowerText.includes('retraité') || lowerText.includes('retraite') || lowerText.includes('pensionné')) {
-          handleAnswer('retraite');
-          matched = true;
-        } else if (lowerText.includes('sans activité') || lowerText.includes('chômage') || lowerText.includes('inactive')) {
-          handleAnswer('sans_activite');
-          matched = true;
-        }
-        
-        // Si pas de correspondance directe, utiliser l'IA
-        if (!matched) {
-          await analyzeWithAI(text, currentQ.id);
-        }
-        break;
-        
-      case 'revenus_complementaires':
-        const revenus = [];
-        if (lowerText.includes('immobilier') || lowerText.includes('locatif') || lowerText.includes('loyer')) {
-          revenus.push('immobilier_locatif');
-        }
-        if (lowerText.includes('dividende') || lowerText.includes('actions') || lowerText.includes('société')) {
-          revenus.push('dividendes');
-        }
-        if (lowerText.includes('plus-value') || lowerText.includes('mobilier') || lowerText.includes('bourse')) {
-          revenus.push('plus_values');
-        }
-        if (lowerText.includes('crypto') || lowerText.includes('bitcoin') || lowerText.includes('ethereum')) {
-          revenus.push('crypto');
-        }
-        if (lowerText.includes('scpi') || lowerText.includes('pierre papier')) {
-          revenus.push('scpi');
-        }
-        if (lowerText.includes('lmnp') || lowerText.includes('meublé') || lowerText.includes('location meublée')) {
-          revenus.push('lmnp');
-        }
-        if (lowerText.includes('aucun') || lowerText.includes('pas de') || lowerText.includes('rien')) {
-          revenus.push('aucun');
-        }
-        
-        if (revenus.length > 0) {
-          handleAnswer(revenus);
-          matched = true;
-        } else {
-          await analyzeWithAI(text, currentQ.id);
-        }
-        break;
-        
-      case 'statuts_juridiques':
-        const statuts = [];
-        if (lowerText.includes('sasu') || lowerText.includes('sas')) {
-          statuts.push('SASU');
-        }
-        if (lowerText.includes('sarl')) {
-          statuts.push('SARL');
-        }
-        if (lowerText.includes('sci') || lowerText.includes('société civile')) {
-          statuts.push('SCI');
-        }
-        if (lowerText.includes('holding') || lowerText.includes('société mère')) {
-          statuts.push('holding');
-        }
-        if (lowerText.includes('eurl') || lowerText.includes('entreprise unipersonnelle')) {
-          statuts.push('EURL');
-        }
-        if (lowerText.includes('aucune') || lowerText.includes('pas de') || lowerText.includes('rien')) {
-          statuts.push('aucune');
-        }
-        
-        if (statuts.length > 0) {
-          handleAnswer(statuts);
-          matched = true;
-        } else {
-          await analyzeWithAI(text, currentQ.id);
-        }
-        break;
-        
-      case 'residence_fiscale':
-        if (lowerText.includes('france') && !lowerText.includes('dom') && !lowerText.includes('tom')) {
-          handleAnswer('france');
-          matched = true;
-        } else if (lowerText.includes('dom') || lowerText.includes('tom') || lowerText.includes('martinique') || lowerText.includes('guadeloupe') || lowerText.includes('réunion')) {
-          handleAnswer('dom_tom');
-          matched = true;
-        } else if (lowerText.includes('portugal')) {
-          handleAnswer('portugal');
-          matched = true;
-        } else if (lowerText.includes('belgique')) {
-          handleAnswer('belgique');
-          matched = true;
-        } else if (lowerText.includes('suisse')) {
-          handleAnswer('suisse');
-          matched = true;
-        } else if (lowerText.includes('luxembourg')) {
-          handleAnswer('luxembourg');
-          matched = true;
-        } else if (lowerText.includes('europe') || lowerText.includes('union européenne')) {
-          handleAnswer('autre_ue');
-          matched = true;
-        } else {
-          await analyzeWithAI(text, currentQ.id);
-        }
-        break;
-        
-      case 'patrimoine_situation':
-        if (lowerText.includes('primo') || lowerText.includes('première fois') || lowerText.includes('premier achat')) {
-          handleAnswer('primo_accedant');
-          matched = true;
-        } else if (lowerText.includes('propriétaire') && (lowerText.includes('résidence') || lowerText.includes('principale'))) {
-          handleAnswer('proprietaire_rp');
-          matched = true;
-        } else if (lowerText.includes('multi') || lowerText.includes('plusieurs') || lowerText.includes('investisseur')) {
           handleAnswer('multi_proprietaire');
           matched = true;
         } else if (lowerText.includes('million') || lowerText.includes('1m') || lowerText.includes('patrimoine important')) {
@@ -480,7 +336,7 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
     }
   };
 
-  const handleVoiceError = (error: string) => {
+
     console.error('Erreur dictée:', error);
     // Optionnel: afficher un message d'erreur à l'utilisateur
   };
@@ -499,13 +355,13 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
   const handleDictation = (text: string) => {
     // Logique pour gérer la transcription en temps réel
     console.log('🎤 Texte dicté:', text);
-    handleVoiceTranscription(text);
+
   };
 
   const IconComponent = currentQ.icon;
 
   // --- Mode vocal continu ---
-  const voiceFlow = useVoiceFlow({
+
     questions: questions.map(q => q.title),
     onAnswer: (idx, text) => handleDictation(text),
   });
