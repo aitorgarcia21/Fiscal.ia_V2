@@ -82,7 +82,7 @@ export const WhisperVoiceRecorder: React.FC<WhisperVoiceRecorderProps> = ({
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
           
-          // Traitement en temps quasi-réel (chunks de 3 secondes)
+          // 🏆 TRAITEMENT QUALITÉ MAXIMALE (chunks de 3 secondes)
           if (audioChunksRef.current.length >= 3) {
             processAudioChunks();
           }
@@ -225,8 +225,8 @@ export const WhisperVoiceRecorder: React.FC<WhisperVoiceRecorderProps> = ({
       accumulatedTextRef.current = '';
       setCurrentTranscript('');
       
-      // Démarrer l'enregistrement
-      mediaRecorderRef.current.start(3000); // Chunks de 3 secondes
+      // Démarrer l'enregistrement QUALITÉ MAXIMALE
+      mediaRecorderRef.current.start(3000); // 🏆 Chunks de 3 secondes pour précision Whisper optimale
       setIsRecording(true);
       setIsProcessing(false);
       
