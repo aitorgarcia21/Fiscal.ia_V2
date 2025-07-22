@@ -162,18 +162,29 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
         let bestTranscript = result[0].transcript;
         let bestConfidence = result[0].confidence || 0;
         
-        // Analyser toutes les alternatives pour trouver la meilleure
-        for (let j = 0; j < Math.min(result.length, 3); j++) {
+        // 🚀 ANALYSE ULTRA-COMPLÈTE pour débits rapides - JAMAIS RATER UN MOT
+        const maxAlternatives = Math.min(result.length, 5); // Analyser jusqu'à 5 alternatives
+        for (let j = 0; j < maxAlternatives; j++) {
           const alternative = result[j];
           const altConfidence = alternative.confidence || 0;
-          const altTranscript = alternative.transcript;
+          const altTranscript = alternative.transcript?.trim() || '';
           
-          allAlternatives.push(altTranscript);
-          
-          // Si cette alternative est plus fiable, l'utiliser
-          if (altConfidence > bestConfidence || (altConfidence === bestConfidence && altTranscript.length > bestTranscript.length)) {
-            bestTranscript = altTranscript;
-            bestConfidence = altConfidence;
+          if (altTranscript.length > 0) {
+            allAlternatives.push(altTranscript);
+            
+            // 🎯 CRITÈRES INTELLIGENTS pour débits rapides:
+            // 1. Confiance élevée
+            // 2. Longueur plus importante (plus de mots captés)
+            // 3. Mots complets (pas de troncature)
+            const isLonger = altTranscript.length > bestTranscript.length;
+            const hasMoreWords = altTranscript.split(' ').length > bestTranscript.split(' ').length;
+            const higherConfidence = altConfidence > bestConfidence;
+            
+            if (higherConfidence || 
+                (altConfidence >= bestConfidence * 0.9 && (isLonger || hasMoreWords))) {
+              bestTranscript = altTranscript;
+              bestConfidence = altConfidence;
+            }
           }
         }
         
@@ -181,10 +192,16 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
         
         if (result.isFinal) {
           finalTranscript += bestTranscript + ' ';
-          console.log(`✅ Francis Voice: Texte final capturé: "${bestTranscript}" (confiance: ${(bestConfidence * 100).toFixed(1)}%)`);
+          console.log(`✅ Francis Voice (FINAL): "${bestTranscript}" | Confiance: ${(bestConfidence * 100).toFixed(1)}% | Alternatives: ${allAlternatives.length}`);
+          
+          // 🚀 SÉCURITÉ DÉBIT RAPIDE: Vérifier si des mots ont pu être ratés
+          if (bestConfidence < 0.7 && allAlternatives.length > 1) {
+            console.log(`⚠️ Francis Voice: Confiance faible détectée, alternatives disponibles:`, allAlternatives);
+          }
         } else {
           interimTranscript += bestTranscript;
-          console.log(`🔄 Francis Voice: Texte intermédiaire: "${bestTranscript}" (confiance: ${(bestConfidence * 100).toFixed(1)}%)`);
+          // 🚀 CAPTURE TEMPS RÉEL pour débits rapides - feedback immédiat
+          console.log(`🔄 Francis Voice (INTERIM): "${bestTranscript}" | Confiance: ${(bestConfidence * 100).toFixed(1)}% | Mots: ${bestTranscript.split(' ').length}`);
         }
       }
 
@@ -471,27 +488,7 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
             {isRecording ? 'Enregistrement ultra-fluide...' : 'Appuyez pour dicter'}
           </div>
           
-          {/* Indicateurs de performance en temps réel */}
-          {isRecording && (
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${latency < 100 ? 'bg-green-400' : latency < 300 ? 'bg-yellow-400' : 'bg-red-400'}`}></div>
-                <span className="text-gray-400">Latence: {latency.toFixed(0)}ms</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${confidence > 0.8 ? 'bg-green-400' : confidence > 0.6 ? 'bg-yellow-400' : 'bg-red-400'}`}></div>
-                <span className="text-gray-400">Confiance: {(confidence * 100).toFixed(0)}%</span>
-              </div>
-              
-              {streamingMode && (
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
-                  <span className="text-gray-400">Streaming Whisper</span>
-                </div>
-              )}
-            </div>
-          )}
+
         </div>
       </div>
       

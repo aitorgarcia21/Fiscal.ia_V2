@@ -1257,10 +1257,7 @@ export function ProCreateClientPage() {
                 
                 {/* 🎤 COMPOSANT TRANSCRIPTION FRANCIS */}
                 <div className="bg-[#0E2444] rounded-xl p-5 border border-[#c5a572]/20">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Mic className="w-5 h-5 text-[#c5a572]" />
-                    <h5 className="text-[#c5a572] font-semibold">🎤 Contrôle vocal Francis</h5>
-                  </div>
+
                   <UltraFluidVoiceRecorder
                     onTranscriptionUpdate={handleTranscriptionUpdate}
                     onTranscriptionComplete={handleTranscriptionComplete}
