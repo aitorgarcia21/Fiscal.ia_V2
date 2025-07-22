@@ -162,222 +162,22 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
     return processed;
   };
 
-          handleAnswer('multi_proprietaire');
-          matched = true;
-        } else if (lowerText.includes('million') || lowerText.includes('1m') || lowerText.includes('patrimoine important')) {
-          handleAnswer('patrimoine_important');
-          matched = true;
-        } else if (lowerText.includes('ifi') || lowerText.includes('impôt fortune')) {
-          handleAnswer('ifi_concerne');
-          matched = true;
-        } else if (lowerText.includes('locataire') || lowerText.includes('loue')) {
-          handleAnswer('locataire');
-          matched = true;
-        } else {
-          await analyzeWithAI(text, currentQ.id);
-        }
-        break;
-        
-      default:
-        await analyzeWithAI(text, currentQ.id);
-    }
-    
-    if (matched) {
-      console.log('✅ Correspondance trouvée par mapping direct');
-    }
-  };
-
-  // Fonction d'analyse IA intelligente pour extraction automatique
-  const analyzeWithAI = async (text: string, questionId: string) => {
-    try {
-      console.log('🤖 Analyse IA intelligente du texte:', text);
-      setIsAIAnalyzing(true);
-      setAiAnalysisResult('Francis analyse votre profil...');
-      
-      const response = await fetch('/api/ai/analyze-profile-text', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: text,
-          context: `Question: ${currentQ.title}`,
-          question_type: questionId,
-          extract_all: true  // Demander d'extraire TOUTES les informations possibles
-        }),
-      });
-
-      if (response.ok) {
-        const aiResult = await response.json();
-        console.log('🤖 Résultat IA complet:', aiResult);
-        
-        if (aiResult.success && aiResult.data) {
-          const extractedData = aiResult.data;
-          
-          // Remplir TOUS les champs détectés, pas seulement celui de la question actuelle
-          const updatedAnswers = { ...answers };
-          let fieldsUpdated = 0;
-          let detectedFields: string[] = [];
-          
-          // Mapper TOUTES les informations extraites
-          if (extractedData.activite_principale) {
-            updatedAnswers.activite_principale = extractedData.activite_principale;
-            fieldsUpdated++;
-            detectedFields.push('Activité principale');
-            console.log('✅ Activité détectée:', extractedData.activite_principale);
-          }
-          
-          if (extractedData.revenus_complementaires && extractedData.revenus_complementaires.length > 0) {
-            updatedAnswers.revenus_complementaires = extractedData.revenus_complementaires;
-            fieldsUpdated++;
-            detectedFields.push('Revenus complémentaires');
-            console.log('✅ Revenus complémentaires détectés:', extractedData.revenus_complementaires);
-          }
-          
-          if (extractedData.statuts_juridiques && extractedData.statuts_juridiques.length > 0) {
-            updatedAnswers.statuts_juridiques = extractedData.statuts_juridiques;
-            fieldsUpdated++;
-            detectedFields.push('Statuts juridiques');
-            console.log('✅ Statuts juridiques détectés:', extractedData.statuts_juridiques);
-          }
-          
-          if (extractedData.residence_fiscale) {
-            updatedAnswers.residence_fiscale = extractedData.residence_fiscale;
-            fieldsUpdated++;
-            detectedFields.push('Résidence fiscale');
-            console.log('✅ Résidence fiscale détectée:', extractedData.residence_fiscale);
-          }
-          
-          if (extractedData.patrimoine_situation) {
-            updatedAnswers.patrimoine_situation = extractedData.patrimoine_situation;
-            fieldsUpdated++;
-            detectedFields.push('Patrimoine');
-            console.log('✅ Patrimoine détecté:', extractedData.patrimoine_situation);
-          }
-          
-          // Informations supplémentaires détectées
-          if (extractedData.age) {
-            updatedAnswers.age = extractedData.age;
-            detectedFields.push('Âge');
-            console.log('✅ Âge détecté:', extractedData.age);
-          }
-          
-          if (extractedData.pays_residence) {
-            updatedAnswers.pays_residence = extractedData.pays_residence;
-            detectedFields.push('Pays de résidence');
-            console.log('✅ Pays de résidence détecté:', extractedData.pays_residence);
-          }
-          
-          if (extractedData.patrimoine_immobilier !== null) {
-            updatedAnswers.patrimoine_immobilier = extractedData.patrimoine_immobilier;
-            detectedFields.push('Patrimoine immobilier');
-            console.log('✅ Patrimoine immobilier détecté:', extractedData.patrimoine_immobilier);
-          }
-          
-          if (extractedData.revenus_passifs && extractedData.revenus_passifs.length > 0) {
-            updatedAnswers.revenus_passifs = extractedData.revenus_passifs;
-            detectedFields.push('Revenus passifs');
-            console.log('✅ Revenus passifs détectés:', extractedData.revenus_passifs);
-          }
-          
-          // Mettre à jour l'état avec TOUTES les informations détectées
-          setAnswers(updatedAnswers);
-          
-          // Afficher un message de succès
-          if (fieldsUpdated > 0) {
-            const resultMessage = `🎯 Francis a détecté et rempli automatiquement : ${detectedFields.join(', ')}`;
-            setAiAnalysisResult(resultMessage);
-            console.log(`🎯 IA a détecté et rempli ${fieldsUpdated} champs automatiquement`);
-            
-            // Si on a détecté l'information pour la question actuelle, passer à la suivante
-            const currentFieldDetected = extractedData[questionId as keyof typeof extractedData];
-            if (currentFieldDetected && 
-                (typeof currentFieldDetected === 'string' || 
-                 (Array.isArray(currentFieldDetected) && currentFieldDetected.length > 0))) {
-              
-              // Attendre un peu pour que l'utilisateur voie les changements
-              setTimeout(() => {
-                if (currentQuestion < questions.length - 1) {
-                  setCurrentQuestion(currentQuestion + 1);
-                  setAiAnalysisResult('');
-                }
-              }, 2000);
-            } else {
-              // Effacer le message après 3 secondes
-              setTimeout(() => setAiAnalysisResult(''), 3000);
-            }
-          } else {
-            // Aucune information détectée, sauvegarder en texte libre
-            setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
-            setAiAnalysisResult('📝 Francis n\'a pas détecté d\'informations structurées, sauvegarde en texte libre');
-            console.log('📝 Aucune information structurée détectée, sauvegarde en texte libre');
-            setTimeout(() => setAiAnalysisResult(''), 3000);
-          }
-          
-        } else {
-          console.log('❌ IA n\'a pas pu analyser, saisie libre');
-          setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
-          setAiAnalysisResult('❌ Erreur d\'analyse, sauvegarde en texte libre');
-          setTimeout(() => setAiAnalysisResult(''), 3000);
-        }
-      } else {
-        console.log('❌ Erreur API IA, saisie libre');
-        setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
-        setAiAnalysisResult('❌ Erreur de connexion, sauvegarde en texte libre');
-        setTimeout(() => setAiAnalysisResult(''), 3000);
-      }
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'analyse IA:', error);
-      setAnswers(prev => ({ ...prev, [`${questionId}_libre`]: text }));
-      setAiAnalysisResult('❌ Erreur technique, sauvegarde en texte libre');
-      setTimeout(() => setAiAnalysisResult(''), 3000);
-    } finally {
-      setIsAIAnalyzing(false);
-    }
-  };
-
-
-    console.error('Erreur dictée:', error);
-    // Optionnel: afficher un message d'erreur à l'utilisateur
-  };
-
-  const handleTranscriptionUpdate = (text: string) => {
-    setDictatedText(text);
-  };
-
-  const handleTranscriptionComplete = async (text: string) => {
-    setFinalTranscript(text);
-    if (text) {
-      handleDictation(text);
-    }
-  };
-
   const handleDictation = (text: string) => {
-    // Logique pour gérer la transcription en temps réel
+    // Fonction simplifiée pour compatibilité
     console.log('🎤 Texte dicté:', text);
-
   };
 
   const IconComponent = currentQ.icon;
 
-  // --- Mode vocal continu ---
-
-    questions: questions.map(q => q.title),
-    onAnswer: (idx, text) => handleDictation(text),
-  });
+  // --- Mode vocal supprimé ---
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6">
-      {!voiceFlow.started && (
-        <div className="text-center mb-8">
-          <button
-            onClick={voiceFlow.start}
-            className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-300"
-          >
-            Lancer la découverte vocale
-          </button>
+      <div className="text-center mb-8">
+        <div className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg opacity-50">
+          <span>Mode vocal désactivé</span>
         </div>
-      )}
+      </div>
 
       {/* Progress Bar */}
       <div className="mb-6 sm:mb-8">
@@ -414,92 +214,13 @@ export function InitialProfileQuestions({ onComplete }: InitialProfileQuestionsP
           {/* Assistant Francis Vocal */}
           <div className="mt-6">
             <button
-              onClick={() => setShowVoiceInput(!showVoiceInput)}
-              className={`inline-flex items-center gap-3 px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
-                showVoiceInput 
-                  ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40' 
-                  : 'bg-[#1a2332] text-white hover:bg-[#223c63] border border-[#c5a572]/30 hover:border-[#c5a572]/50'
-              }`}
+              disabled
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-500 text-gray-300 cursor-not-allowed opacity-50"
             >
-              {showVoiceInput ? (
-                <>
-                  <X className="w-4 h-4" />
-                  Fermer l'assistant vocal
-                </>
-              ) : (
-                <>
-                  <Mic className="w-4 h-4" />
-                  Activer l'assistant vocal Francis
-                </>
-              )}
+              <MicOff className="w-4 h-4" />
+              Assistant vocal désactivé
             </button>
           </div>
-          
-          {/* Interface de dictée améliorée */}
-          {showVoiceInput && (
-            <div className="mt-6 p-6 bg-gradient-to-br from-[#162238] to-[#1a2332] rounded-xl border border-[#c5a572]/20 shadow-xl">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#c5a572]/20 to-[#e8cfa0]/10 border border-[#c5a572]/30 mb-4">
-                  <div className="relative">
-                    <Mic className="w-7 h-7 text-[#c5a572]" />
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[#c5a572] rounded-full animate-pulse"></div>
-                  </div>
-                </div>
-                <h4 className="text-lg font-semibold text-white mb-2">
-                  Francis vous écoute
-                </h4>
-                <p className="text-sm text-gray-300 max-w-lg mx-auto">
-                  Parlez naturellement. Francis analysera votre réponse et sélectionnera automatiquement la meilleure option.
-                </p>
-              </div>
-              
-              <div className="mb-6">
-                <VoiceRecorder
-                  onTranscriptionUpdate={handleTranscriptionUpdate}
-                  onTranscriptionComplete={handleTranscriptionComplete}
-                  onError={(err) => setDictationError(err)}
-                />
-              </div>
-
-              <div className="bg-[#0E2444] rounded-lg border border-[#c5a572]/20 p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#c5a572] animate-pulse"></div>
-                      <span className="text-sm font-medium text-[#c5a572]">Assistant actif</span>
-                    </div>
-                    <div className="text-xs text-gray-400">• En écoute continue</div>
-                  </div>
-                </div>
-                <div className="bg-[#1a2332] rounded-lg p-4 min-h-[100px] max-h-[200px] overflow-y-auto border border-[#c5a572]/20">
-                  <p className="text-sm whitespace-pre-wrap text-gray-200 leading-relaxed">
-                    {dictatedText || "Parlez maintenant pour que Francis commence à écouter..."}
-                  </p>
-                </div>
-              </div>
-              
-              {/* Indicateur d'analyse IA */}
-              {isAIAnalyzing && (
-                <div className="mt-4 p-4 bg-[#1a2332] rounded-lg border border-[#c5a572]/20">
-                  <div className="flex items-center gap-3 text-[#c5a572]">
-                    <div className="w-4 h-4 border-2 border-[#c5a572] border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm font-medium">Francis analyse votre réponse...</span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Résultat de l'analyse IA */}
-              {aiAnalysisResult && !isAIAnalyzing && (
-                <div className="mt-4 p-4 bg-[#1a2332] rounded-lg border border-[#c5a572]/20">
-                  <div className="flex items-center gap-2 text-[#c5a572] mb-2">
-                    <CheckCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">Francis a analysé votre réponse</span>
-                  </div>
-                  <div className="text-sm text-gray-200">{aiAnalysisResult}</div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         <div className="space-y-2 sm:space-y-3">
