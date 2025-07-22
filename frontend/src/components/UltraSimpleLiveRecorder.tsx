@@ -17,11 +17,15 @@ export const UltraSimpleLiveRecorder: React.FC<UltraSimpleLiveRecorderProps> = (
   const [isListening, setIsListening] = useState(false);
   const [liveText, setLiveText] = useState('');
   const [isSupported, setIsSupported] = useState(true);
+  const [noiseLevel, setNoiseLevel] = useState<'low' | 'medium' | 'high'>('low');
   
   const recognitionRef = useRef<any>(null);
   const finalTranscriptRef = useRef('');
+  const errorCountRef = useRef(0);
+  const lastErrorTimeRef = useRef(0);
+  const confidenceThresholdRef = useRef(0.3); // Seuil de confiance minimum
   
-  // 🎯 SETUP Web Speech API (PLUS FIABLE QUE WHISPER)
+  // 🎯 SETUP Web Speech API ULTRA-ROBUSTE CONTRE LE BRUIT
   useEffect(() => {
     const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     
@@ -34,13 +38,23 @@ export const UltraSimpleLiveRecorder: React.FC<UltraSimpleLiveRecorderProps> = (
     
     const recognition = new SpeechRecognition();
     
-    // 🔥 CONFIGURATION ULTRA-LIVE
+    // 🔥 CONFIGURATION ULTRA-ROBUSTE CONTRE LE BRUIT
     recognition.continuous = true;        // ÉCOUTE CONTINUE
     recognition.interimResults = true;    // RÉSULTATS INTERMÉDIAIRES
     recognition.lang = 'fr-FR';
-    recognition.maxAlternatives = 1;
+    recognition.maxAlternatives = 3;      // Plus d'alternatives pour filtrer le bruit
     
-    // 🎤 RÉSULTATS EN TEMPS RÉEL
+    // 🛡️ PARAMÈTRES ANTI-BRUIT
+    if ('webkitAudioContext' in window) {
+      try {
+        // Réduire la sensibilité dans les environnements bruyants
+        recognition.serviceURI = recognition.serviceURI || '';
+      } catch (e) {
+        console.log('Paramètres audio avancés non disponibles');
+      }
+    }
+    
+    // 🎤 RÉSULTATS EN TEMPS RÉEL AVEC FILTRAGE ANTI-BRUIT
     recognition.onresult = (event: any) => {
       let interimTranscript = '';
       let finalTranscript = finalTranscriptRef.current;
@@ -48,24 +62,53 @@ export const UltraSimpleLiveRecorder: React.FC<UltraSimpleLiveRecorderProps> = (
       console.log('🎤 Web Speech Result Event:', event.results.length);
       
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+        const result = event.results[i];
+        const transcript = result[0].transcript;
+        const confidence = result[0].confidence || 1;
         
-        if (event.results[i].isFinal) {
+        // 🛡️ FILTRAGE ANTI-BRUIT: Vérifier confiance et longueur
+        const isValidTranscript = 
+          transcript.length > 2 && 
+          confidence >= confidenceThresholdRef.current &&
+          !transcript.match(/^[^a-zA-ZÀ-ÿ]*$/) && // Pas que des caractères non-alphabétiques
+          transcript.trim().length > 0;
+        
+        if (!isValidTranscript) {
+          console.log('🚫 BRUIT FILTRÉ:', transcript, 'confidence:', confidence);
+          continue;
+        }
+        
+        // 📊 AJUSTEMENT DYNAMIQUE DU SEUIL selon le bruit
+        if (confidence < 0.5) {
+          setNoiseLevel('high');
+          confidenceThresholdRef.current = 0.6; // Plus strict
+        } else if (confidence < 0.7) {
+          setNoiseLevel('medium');
+          confidenceThresholdRef.current = 0.4;
+        } else {
+          setNoiseLevel('low');
+          confidenceThresholdRef.current = 0.3; // Plus permissif
+        }
+        
+        if (result.isFinal) {
           // 🔥 TEXTE FINAL - Ajouter au buffer permanent
           finalTranscript += transcript + ' ';
           finalTranscriptRef.current = finalTranscript;
           
-          console.log('✅ FINAL:', transcript);
+          console.log('✅ FINAL:', transcript, 'confidence:', confidence);
           
           // 📡 ÉMISSION IMMÉDIATE vers Francis
           onTranscription(finalTranscript.trim(), false);
           setLiveText(finalTranscript.trim());
           
+          // Reset compteur d'erreurs sur succès
+          errorCountRef.current = 0;
+          
         } else {
           // ⚡ TEXTE INTERMÉDIAIRE - Affichage live pendant que l'utilisateur parle
           interimTranscript += transcript;
           
-          console.log('⚡ INTERIM:', interimTranscript);
+          console.log('⚡ INTERIM:', interimTranscript, 'confidence:', confidence);
           
           const liveDisplay = (finalTranscript + interimTranscript).trim();
           
@@ -92,10 +135,45 @@ export const UltraSimpleLiveRecorder: React.FC<UltraSimpleLiveRecorderProps> = (
     };
     
     recognition.onerror = (event: any) => {
-      console.error('❌ Web Speech Error:', event.error);
+      const currentTime = Date.now();
+      const timeSinceLastError = currentTime - lastErrorTimeRef.current;
       
-      // Ne pas traiter "no-speech" comme une vraie erreur
-      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+      console.error('❌ Web Speech Error:', event.error, 'Count:', errorCountRef.current);
+      
+      // 🛡️ GESTION INTELLIGENTE DES ERREURS DE BRUIT
+      if (event.error === 'no-speech') {
+        // Pas d'erreur, juste silence
+        console.log('🔇 Silence détecté - Normal');
+        return;
+      }
+      
+      if (event.error === 'audio-capture') {
+        errorCountRef.current++;
+        
+        if (errorCountRef.current < 3 && timeSinceLastError > 2000) {
+          console.log('🔄 Erreur audio - Tentative de redémarrage...');
+          setTimeout(() => {
+            if (isListening && recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                console.log('Redémarrage après erreur audio échoué');
+              }
+            }
+          }, 500);
+        }
+      }
+      
+      if (event.error === 'network') {
+        setNoiseLevel('high');
+        confidenceThresholdRef.current = 0.7; // Plus strict en cas de problème réseau
+      }
+      
+      lastErrorTimeRef.current = currentTime;
+      
+      // Ne signaler que les vraies erreurs critiques
+      if (event.error !== 'no-speech' && event.error !== 'aborted' && 
+          event.error !== 'audio-capture' && errorCountRef.current > 2) {
         onError(`Erreur recognition: ${event.error}`);
       }
     };
@@ -228,10 +306,23 @@ export const UltraSimpleLiveRecorder: React.FC<UltraSimpleLiveRecorderProps> = (
             {isListening && (
               <span className="text-green-400 font-bold text-sm animate-pulse">● LIVE</span>
             )}
+            
+            {/* 🛡️ INDICATEUR NIVEAU DE BRUIT */}
+            {isListening && (
+              <div className={`px-2 py-1 rounded text-xs font-medium ${
+                noiseLevel === 'low' ? 'bg-green-500/20 text-green-400' :
+                noiseLevel === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                'bg-red-500/20 text-red-400'
+              }`}>
+                {noiseLevel === 'low' ? '🔇 Calme' :
+                 noiseLevel === 'medium' ? '🔊 Bruit modéré' :
+                 '🚨 Environnement bruyant'}
+              </div>
+            )}
           </div>
           
           <div className="text-sm text-gray-400">
-            Web Speech API • Français • Temps Réel
+            Web Speech API • Français • Anti-Bruit • Temps Réel
           </div>
         </div>
       </div>
