@@ -238,24 +238,101 @@ export function ProCreateClientPage() {
     setError(`Erreur transcription: ${error}`);
   }, []);
 
-  // 🤖 FRANCIS: Synchronisation profil vocal → formulaire
+  // 🤖 FRANCIS: Synchronisation profil vocal → formulaire ULTRA-RÉACTIVE
   useEffect(() => {
+    console.log('🔄 Francis Sync Check:', { 
+      voiceProfileExists: !!voiceProfile, 
+      voiceProfileKeys: Object.keys(voiceProfile || {}),
+      voiceProfileContent: voiceProfile 
+    });
+    
     if (voiceProfile && Object.keys(voiceProfile).length > 0) {
+      console.log('🚀 FRANCIS REMPLISSAGE AUTO-FORMULAIRE !', voiceProfile);
+      
       setFormData(prev => {
         const updated = { ...prev };
+        let changesApplied: string[] = [];
         
-        // Mapping des champs du profil vocal vers le formulaire
-        if (voiceProfile.nom_client) updated.nom_client = voiceProfile.nom_client;
-        if (voiceProfile.prenom_client) updated.prenom_client = voiceProfile.prenom_client;
-        if (voiceProfile.numero_fiscal_client) updated.numero_fiscal_client = voiceProfile.numero_fiscal_client;
-        if (voiceProfile.situation_maritale_client) updated.situation_maritale_client = voiceProfile.situation_maritale_client;
-        if (voiceProfile.regime_matrimonial_client) updated.regime_matrimonial_client = voiceProfile.regime_matrimonial_client;
-        if (voiceProfile.nombre_enfants_a_charge_client) updated.nombre_enfants_a_charge_client = voiceProfile.nombre_enfants_a_charge_client.toString();
-        if (voiceProfile.revenu_net_annuel_client1) updated.revenu_net_annuel_client1 = voiceProfile.revenu_net_annuel_client1.toString();
-        if (voiceProfile.profession_client1) updated.profession_client1 = voiceProfile.profession_client1;
+        // 🎯 MAPPING ULTRA-INTELLIGENT des champs du profil vocal vers le formulaire
+        if (voiceProfile.nom_client && voiceProfile.nom_client.trim()) {
+          updated.nom_client = voiceProfile.nom_client.trim();
+          changesApplied.push(`nom: ${voiceProfile.nom_client}`);
+        }
+        
+        if (voiceProfile.prenom_client && voiceProfile.prenom_client.trim()) {
+          updated.prenom_client = voiceProfile.prenom_client.trim();
+          changesApplied.push(`prénom: ${voiceProfile.prenom_client}`);
+        }
+        
+        if (voiceProfile.email_client && voiceProfile.email_client.trim()) {
+          updated.email_client = voiceProfile.email_client.trim();
+          changesApplied.push(`email: ${voiceProfile.email_client}`);
+        }
+        
+        if (voiceProfile.numero_fiscal_client && voiceProfile.numero_fiscal_client.trim()) {
+          updated.numero_fiscal_client = voiceProfile.numero_fiscal_client.trim();
+          changesApplied.push(`numéro fiscal: ${voiceProfile.numero_fiscal_client}`);
+        }
+        
+        // 💒 SITUATION MARITALE - MAPPING INTELLIGENT
+        if (voiceProfile.situation_maritale_client && voiceProfile.situation_maritale_client.trim()) {
+          const situationValue = voiceProfile.situation_maritale_client.trim();
+          updated.situation_maritale_client = situationValue;
+          changesApplied.push(`situation: ${situationValue}`);
+        }
+        
+        if (voiceProfile.regime_matrimonial_client && voiceProfile.regime_matrimonial_client.trim()) {
+          updated.regime_matrimonial_client = voiceProfile.regime_matrimonial_client.trim();
+          changesApplied.push(`régime: ${voiceProfile.regime_matrimonial_client}`);
+        }
+        
+        // 👶 ENFANTS - CONVERSION INTELLIGENTE
+        if (voiceProfile.nombre_enfants_a_charge_client !== undefined && voiceProfile.nombre_enfants_a_charge_client !== null) {
+          const enfantsValue = Number(voiceProfile.nombre_enfants_a_charge_client);
+          if (!isNaN(enfantsValue) && enfantsValue >= 0) {
+            updated.nombre_enfants_a_charge_client = enfantsValue.toString();
+            changesApplied.push(`enfants: ${enfantsValue}`);
+          }
+        }
+        
+        // 💰 REVENUS - CONVERSION INTELLIGENTE
+        if (voiceProfile.revenu_net_annuel_client1 !== undefined && voiceProfile.revenu_net_annuel_client1 !== null) {
+          const revenuValue = Number(voiceProfile.revenu_net_annuel_client1);
+          if (!isNaN(revenuValue) && revenuValue > 0) {
+            updated.revenu_net_annuel_client1 = revenuValue.toString();
+            changesApplied.push(`revenu: ${revenuValue}€`);
+          }
+        }
+        
+        // 💼 PROFESSION
+        if (voiceProfile.profession_client1 && voiceProfile.profession_client1.trim()) {
+          updated.profession_client1 = voiceProfile.profession_client1.trim();
+          changesApplied.push(`profession: ${voiceProfile.profession_client1}`);
+        }
+        
+        // 📞 TÉLÉPHONE
+        if (voiceProfile.telephone_principal_client && voiceProfile.telephone_principal_client.trim()) {
+          updated.telephone_principal_client = voiceProfile.telephone_principal_client.trim();
+          changesApplied.push(`téléphone: ${voiceProfile.telephone_principal_client}`);
+        }
+        
+        // 🏠 ADRESSE
+        if (voiceProfile.adresse_postale_client && voiceProfile.adresse_postale_client.trim()) {
+          updated.adresse_postale_client = voiceProfile.adresse_postale_client.trim();
+          changesApplied.push(`adresse: ${voiceProfile.adresse_postale_client}`);
+        }
+        
+        if (changesApplied.length > 0) {
+          console.log('✅ FRANCIS A REMPLI AUTOMATIQUEMENT:', changesApplied);
+          console.log('📋 FORMULAIRE MIS À JOUR:', updated);
+        } else {
+          console.log('⚠️ FRANCIS: Aucun champ valide trouvé à remplir');
+        }
         
         return updated;
       });
+    } else {
+      console.log('🔍 Francis: Pas de données de profil vocal à synchroniser');
     }
   }, [voiceProfile]);
 
