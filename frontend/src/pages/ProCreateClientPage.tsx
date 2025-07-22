@@ -4,7 +4,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
-import { WhisperLocalVoiceRecorder } from '../components/WhisperLocalVoiceRecorder';
+import { ContinuousWhisperRecorder } from '../components/ContinuousWhisperRecorder';
 import { useVoiceFiller } from '../hooks/useVoiceFiller';
 import { ProfileStatusPanel } from '../components/ProfileStatusPanel';
 import { clientDataEncryption } from '../utils/ClientDataEncryption';
@@ -1258,11 +1258,15 @@ export function ProCreateClientPage() {
                 {/* 🎤 COMPOSANT TRANSCRIPTION FRANCIS */}
                 <div className="bg-[#0E2444] rounded-xl p-5 border border-[#c5a572]/20">
 
-                  <WhisperLocalVoiceRecorder
-                    onTranscriptionUpdate={handleTranscriptionUpdate}
-                    onTranscriptionComplete={handleTranscriptionComplete}
+                  <ContinuousWhisperRecorder
+                    onTranscription={(text, isFinal) => {
+                      if (isFinal) {
+                        handleTranscriptionComplete(text);
+                      } else {
+                        handleTranscriptionUpdate(text);
+                      }
+                    }}
                     onError={handleVoiceError}
-                    onListeningChange={setIsListening}
                     autoStart={autoStartVoice}
                     className="w-full"
                   />
