@@ -66,10 +66,7 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
     recognitionRef.current.maxAlternatives = 1;         // Une seule alternative
     
     // 🎯 OPTIMISATIONS SPÉCIFIQUES FRANÇAIS
-    if ('grammars' in recognitionRef.current) {
-      // Pas de grammaires spécifiques pour laisser plus de liberté
-      recognitionRef.current.grammars = null;
-    }
+    // Pas de grammaires spécifiques - utilisation du comportement par défaut
     
     // 🔧 PARAMÈTRES DE QUALITÉ
     if ('serviceURI' in recognitionRef.current) {
