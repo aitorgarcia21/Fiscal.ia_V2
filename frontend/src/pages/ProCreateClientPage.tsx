@@ -5,6 +5,7 @@ import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { ContinuousWhisperRecorder } from '../components/ContinuousWhisperRecorder';
+import { LiveTranscriptionDisplay } from '../components/LiveTranscriptionDisplay';
 import { useVoiceFiller } from '../hooks/useVoiceFiller';
 import { ProfileStatusPanel } from '../components/ProfileStatusPanel';
 import { clientDataEncryption } from '../utils/ClientDataEncryption';
@@ -1194,34 +1195,40 @@ export function ProCreateClientPage() {
                     {/* 🎤 VRAIE TRANSCRIPTION LIVE */}
                     {isListening ? (
                       <div className="space-y-3">
-                        {/* Transcription en cours */}
-                        {currentTranscription && (
-                          <div className="bg-[#0E2444] rounded-lg p-3 border border-[#c5a572]/20">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                              <span className="text-green-400 text-xs font-medium">En cours de transcription...</span>
-                            </div>
-                            <p className="text-gray-300 text-sm italic">"{currentTranscription}"</p>
-                          </div>
-                        )}
+                        {/* 🔥 AFFICHAGE LIVE TRANSCRIPTION avec effet de frappe */}
+                        <LiveTranscriptionDisplay
+                          currentTranscription={currentTranscription}
+                          isListening={isListening}
+                          isProcessing={false}
+                          className="mb-4"
+                        />
                         
-                        {/* Historique des transcriptions */}
+                        {/* Historique des transcriptions complétées */}
                         {transcriptionHistory.length > 0 && (
-                          <div className="space-y-2">
-                            <div className="text-[#c5a572] text-xs font-medium">Transcriptions complétées :</div>
-                            {transcriptionHistory.slice(-3).map((text, index) => (
-                              <div key={index} className="bg-[#1a2332] rounded-lg p-2 border border-[#c5a572]/10">
-                                <p className="text-gray-400 text-xs italic">"{text}"</p>
-                              </div>
-                            ))}
+                          <div className="bg-[#0A192F] rounded-xl p-4 border border-[#c5a572]/10 mb-4">
+                            <div className="text-[#c5a572] text-sm font-medium mb-3 flex items-center gap-2">
+                              <div className="w-2 h-2 bg-[#c5a572] rounded-full"></div>
+                              Transcriptions complétées ({transcriptionHistory.length})
+                            </div>
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                              {transcriptionHistory.slice(-5).map((text, index) => (
+                                <div key={index} className="bg-[#162238] rounded-lg p-3 border border-[#c5a572]/5">
+                                  <p className="text-gray-300 text-sm">"{text}"</p>
+                                  <div className="text-xs text-gray-500 mt-1 text-right">
+                                    #{transcriptionHistory.length - transcriptionHistory.slice(-5).length + index + 1}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                         
-                        {!currentTranscription && transcriptionHistory.length === 0 && (
-                          <div className="text-gray-400 text-center py-2 italic text-sm">
-                            🎤 Francis écoute... Parlez maintenant
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#c5a572]/10">
+                          <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-green-400 animate-pulse' : 'bg-blue-400'}`}></div>
+                          <span className={`text-xs font-medium ${isListening ? 'text-green-400' : 'text-blue-400'}`}>
+                            {isListening ? 'Francis analyse et remplit automatiquement' : 'Francis prêt à écouter et analyser'}
+                          </span>
+                        </div>
                       </div>
                     ) : (
                       <div className="text-gray-400 text-center py-4 italic text-sm">
@@ -1230,13 +1237,6 @@ export function ProCreateClientPage() {
                         <span className="text-xs">Cliquez sur "Activer l'assistant" pour commencer</span>
                       </div>
                     )}
-                    
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#c5a572]/10">
-                      <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-green-400 animate-pulse' : 'bg-blue-400'}`}></div>
-                      <span className={`text-xs font-medium ${isListening ? 'text-green-400' : 'text-blue-400'}`}>
-                        {isListening ? 'Francis analyse et remplit automatiquement' : 'Francis prêt à écouter et analyser'}
-                      </span>
-                    </div>
                   </div>
                 </div>
 

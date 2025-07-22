@@ -74,16 +74,17 @@ export const ContinuousWhisperRecorder: React.FC<ContinuousWhisperRecorderProps>
     }
   }, [onError]);
 
-  // 🎯 TRAITEMENT CONTINU avec Whisper
+  // 🎯 TRAITEMENT ULTRA-FRÉQUENT avec Whisper pour affichage LIVE
   const processContinuousAudio = useCallback(async () => {
     if (audioChunksRef.current.length === 0 || !isListeningRef.current) return;
 
     try {
       setIsProcessing(true);
       
-      // Prendre les chunks disponibles
+      // Prendre seulement les nouveaux chunks pour traitement immédiat
       const audioBlob = new Blob([...audioChunksRef.current], { type: 'audio/webm' });
-      audioChunksRef.current = []; // Reset pour le prochain cycle
+      // Garder les 2 derniers chunks pour continuité, vider le reste
+      audioChunksRef.current = audioChunksRef.current.slice(-2);
       
       // Convertir en base64
       const reader = new FileReader();
@@ -130,13 +131,26 @@ export const ContinuousWhisperRecorder: React.FC<ContinuousWhisperRecorderProps>
           }
           
           const newText = (result.text || '').trim();
-          if (newText && newText.length > 2) {
-            // Éviter la duplication
-            if (!transcriptBuffer.toLowerCase().includes(newText.toLowerCase())) {
-              const updatedBuffer = (transcriptBuffer + ' ' + newText).trim();
+          if (newText && newText.length > 1) { // Seuil plus bas pour réactivité
+            // Déduplication intelligente avec détection de nouveaux mots
+            const newWords = newText.split(' ');
+            const existingWords = transcriptBuffer.toLowerCase().split(' ');
+            const uniqueNewWords = newWords.filter(word => 
+              word.length > 1 && !existingWords.includes(word.toLowerCase())
+            );
+            
+            if (uniqueNewWords.length > 0) {
+              const updatedBuffer = (transcriptBuffer + ' ' + uniqueNewWords.join(' ')).trim();
               setTranscriptBuffer(updatedBuffer);
-              onTranscription(updatedBuffer, false); // Pas final, continue d'écouter
-              console.log('🎤 Whisper continu:', newText);
+              
+              // 🔥 ÉMISSION LIVE pour Francis - traitement immédiat
+              onTranscription(updatedBuffer, false);
+              console.log('🎤 Whisper LIVE:', uniqueNewWords.join(' '));
+              
+              // 🎯 ÉMISSION INTERMÉDIAIRE pour affichage temps réel
+              setTimeout(() => {
+                onTranscription(updatedBuffer + '...', false);
+              }, 100);
             }
           }
           
@@ -177,13 +191,17 @@ export const ContinuousWhisperRecorder: React.FC<ContinuousWhisperRecorderProps>
         const transcript = event.results[i][0].transcript;
         
         if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-          setTranscriptBuffer(finalTranscript);
-          onTranscription(finalTranscript, false);
-          console.log('🎤 Web Speech Final:', transcript);
+          finalTranscript += ' ' + transcript;
+          setTranscriptBuffer(finalTranscript.trim());
+          // 🔥 ÉMISSION IMMÉDIATE pour Francis
+          onTranscription(finalTranscript.trim(), false);
+          console.log('🎤 Web Speech Final LIVE:', transcript);
         } else {
           interimTranscript += transcript;
-          onTranscription(finalTranscript + interimTranscript, false);
+          const liveText = (finalTranscript + ' ' + interimTranscript).trim();
+          // 🎯 AFFICHAGE LIVE pendant que l'utilisateur parle
+          onTranscription(liveText, false);
+          console.log('🎤 Web Speech INTERIM:', interimTranscript);
         }
       }
     };
@@ -216,8 +234,8 @@ export const ContinuousWhisperRecorder: React.FC<ContinuousWhisperRecorderProps>
     
     await setupContinuousListening();
     
-    // Traitement audio toutes les 2 secondes
-    processIntervalRef.current = setInterval(processContinuousAudio, 2000);
+    // 🔥 TRAITEMENT ULTRA-RAPIDE toutes les 800ms pour affichage LIVE
+    processIntervalRef.current = setInterval(processContinuousAudio, 800);
     
   }, [setupContinuousListening, processContinuousAudio]);
 
