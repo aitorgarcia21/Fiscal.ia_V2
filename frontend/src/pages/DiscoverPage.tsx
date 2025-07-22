@@ -78,8 +78,6 @@ const GuidedQuestionCard: React.FC<{
   question: GuidedQuestion;
   onAnswer: (id: string, answer: string) => void;
 }> = ({ question, onAnswer }) => {
-
-
   return (
     <div className={`bg-[#1a2942]/80 backdrop-blur-sm rounded-xl p-6 border transition-colors ${
       question.completed 
@@ -111,11 +109,15 @@ const GuidedQuestionCard: React.FC<{
               className="flex-1 px-4 py-3 bg-[#1a2942]/50 border border-[#c5a572]/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
             />
             
-            {/* Bouton dictée vocale */}
-
+            {/* Bouton dictée vocale désactivé */}
+            <button
+              disabled
+              className="px-4 py-3 bg-gray-600/50 text-gray-400 rounded-lg cursor-not-allowed flex items-center justify-center"
+              title="Fonction vocale temporairement désactivée"
+            >
+              <Mic className="w-4 h-4" />
+            </button>
           </div>
-
-
 
           {/* Bouton de validation */}
           {question.answer.trim() && (
@@ -193,8 +195,6 @@ export function DiscoverPage() {
         ? { ...q, answer, completed: answer.trim().length > 0 }
         : q
     ));
-  };
-
   };
 
   // Questions supprimées - nettoyage vocal complet
@@ -403,3 +403,5 @@ export function DiscoverPage() {
     </div>
   );
 }
+
+export default DiscoverPage;
