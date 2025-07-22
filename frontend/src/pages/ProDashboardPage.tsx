@@ -25,7 +25,7 @@ interface SpeechRecognitionErrorEvent extends Event {
 }
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot, Zap } from 'lucide-react';
-import { UltraFluidVoiceRecorder } from '../components/UltraFluidVoiceRecorder';
+import { WhisperVoiceRecorder } from '../components/WhisperVoiceRecorder';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useAuth } from '../contexts/AuthContext';
