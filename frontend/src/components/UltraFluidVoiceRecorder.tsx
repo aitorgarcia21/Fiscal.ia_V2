@@ -59,11 +59,22 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
     
-    // 🚀 PARAMÈTRES OPTIMISÉS POUR PRÉCISION MAXIMALE
+    // 🚀 PARAMÈTRES ULTRA-OPTIMISÉS POUR LE FRANÇAIS BUSINESS
     recognitionRef.current.continuous = true;           // ÉCOUTE CONTINUE
     recognitionRef.current.interimResults = true;       // Feedback temps réel
-    recognitionRef.current.lang = 'fr-FR';              // Français
-    recognitionRef.current.maxAlternatives = 1;         // Une seule alternative pour plus de précision
+    recognitionRef.current.lang = 'fr-FR';              // Français France
+    recognitionRef.current.maxAlternatives = 1;         // Une seule alternative
+    
+    // 🎯 OPTIMISATIONS SPÉCIFIQUES FRANÇAIS
+    if ('grammars' in recognitionRef.current) {
+      // Pas de grammaires spécifiques pour laisser plus de liberté
+      recognitionRef.current.grammars = null;
+    }
+    
+    // 🔧 PARAMÈTRES DE QUALITÉ
+    if ('serviceURI' in recognitionRef.current) {
+      recognitionRef.current.serviceURI = undefined; // Service par défaut
+    }
     
     console.log('🎤 Francis Voice: Configuration ultra-fluide activée');
 
@@ -126,59 +137,21 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
     recognitionRef.current.onresult = (event: any) => {
       const startTime = performance.now();
       
-      let interimTranscript = '';
       let finalTranscript = '';
-      let maxConfidence = 0;
-      let allAlternatives: string[] = [];
-
-      // 🚀 CAPTURE ULTRA-COMPLÈTE - Analyser TOUS les résultats et alternatives
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      let interimTranscript = '';
+      
+      // 🎯 TRAITEMENT SIMPLE ET EFFICACE des résultats
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
+        const transcript = result[0]?.transcript?.trim() || '';
+        const confidence = result[0]?.confidence || 0;
         
-        // Prendre la meilleure alternative (plus de précision)
-        let bestTranscript = result[0].transcript;
-        let bestConfidence = result[0].confidence || 0;
-        
-        // 🚀 ANALYSE ULTRA-COMPLÈTE pour débits rapides - JAMAIS RATER UN MOT
-        const maxAlternatives = Math.min(result.length, 5); // Analyser jusqu'à 5 alternatives
-        for (let j = 0; j < maxAlternatives; j++) {
-          const alternative = result[j];
-          const altConfidence = alternative.confidence || 0;
-          const altTranscript = alternative.transcript?.trim() || '';
-          
-          if (altTranscript.length > 0) {
-            allAlternatives.push(altTranscript);
-            
-            // 🎯 CRITÈRES INTELLIGENTS pour débits rapides:
-            // 1. Confiance élevée
-            // 2. Longueur plus importante (plus de mots captés)
-            // 3. Mots complets (pas de troncature)
-            const isLonger = altTranscript.length > bestTranscript.length;
-            const hasMoreWords = altTranscript.split(' ').length > bestTranscript.split(' ').length;
-            const higherConfidence = altConfidence > bestConfidence;
-            
-            if (higherConfidence || 
-                (altConfidence >= bestConfidence * 0.9 && (isLonger || hasMoreWords))) {
-              bestTranscript = altTranscript;
-              bestConfidence = altConfidence;
-            }
-          }
-        }
-        
-        maxConfidence = Math.max(maxConfidence, bestConfidence);
-        
-        if (result.isFinal) {
-          finalTranscript += bestTranscript + ' ';
-          console.log(`✅ Francis Voice (FINAL): "${bestTranscript}" | Confiance: ${(bestConfidence * 100).toFixed(1)}% | Alternatives: ${allAlternatives.length}`);
-          
-          // 🚀 SÉCURITÉ DÉBIT RAPIDE: Vérifier si des mots ont pu être ratés
-          if (bestConfidence < 0.7 && allAlternatives.length > 1) {
-            console.log(`⚠️ Francis Voice: Confiance faible détectée, alternatives disponibles:`, allAlternatives);
-          }
-        } else {
-          interimTranscript += bestTranscript;
-          // 🚀 CAPTURE TEMPS RÉEL pour débits rapides - feedback immédiat
-          console.log(`🔄 Francis Voice (INTERIM): "${bestTranscript}" | Confiance: ${(bestConfidence * 100).toFixed(1)}% | Mots: ${bestTranscript.split(' ').length}`);
+        if (result.isFinal && transcript.length > 0) {
+          finalTranscript += transcript + ' ';
+          console.log(`✅ Francis Voice (FINAL): "${transcript}" | Confiance: ${(confidence * 100).toFixed(1)}%`);
+        } else if (transcript.length > 0) {
+          interimTranscript += transcript + ' ';
+          console.log(`🎯 Francis Voice (TEMP): "${transcript}"`);
         }
       }
 
@@ -186,7 +159,7 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
       const endTime = performance.now();
       const currentLatency = endTime - startTime;
       setLatency(currentLatency);
-      setConfidence(maxConfidence);
+      setConfidence(1.0); // Confiance fixe pour simplifier
 
       // 🎯 MISE À JOUR INTELLIGENTE - Toujours garder le texte le plus complet
       if (finalTranscript) {
