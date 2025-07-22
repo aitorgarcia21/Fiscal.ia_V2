@@ -18,6 +18,10 @@ import { ClientProfile } from '../types/clientProfile';
 export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
   const [profile, setProfile] = useState<Partial<ClientProfile>>(initialProfile);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  
+  // 🧠 MÉMOIRE CONTEXTUELLE MULTI-TOUR - RÉVOLUTION IA
+  const [conversationHistory, setConversationHistory] = useState<string[]>([]);
+  const MAX_CONTEXT_TURNS = 3; // Garde les 3 dernières phrases
 
   /**
    * 🚀 SYSTÈME D'EXTRACTION ULTRA-ADAPTATIF - VERSION SANS FAILLES
@@ -381,85 +385,161 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile> = {}) {
   }, []);
   
   /**
-   * Traitement d'un snippet de transcript - VERSION ULTRA-ADAPTATIVE
+   * 🤖 FRANCIS IA SÉMANTIQUE - ANALYSE CONTEXTUELLE MULTI-TOUR
+   * Utilise l'historique des conversations pour une compréhension parfaite
+   */
+  const analyzeWithFrancisAI = useCallback(async (text: string, history: string[]): Promise<Partial<ClientProfile>> => {
+    try {
+      const contextWithHistory = history.length > 0 
+        ? history.join(' | ') + ' | ' + text
+        : text;
+      
+      console.log('🧠 Francis IA analyse avec contexte:', {
+        currentText: text,
+        history: history,
+        fullContext: contextWithHistory
+      });
+      
+      const response = await fetch('/api/test-francis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: `🧠 FRANCIS - EXPERT CONTEXTUEL MULTI-TOUR ULTRA-POINTU
+          
+          MISSION: Analyser cette conversation avec CONTEXTE COMPLET pour extraction parfaite.
+          
+          CONTEXTE CONVERSATIONNEL: "${contextWithHistory}"
+          PHRASE ACTUELLE: "${text}"
+          
+          🚀 INTELLIGENCE CONTEXTUELLE RÉVOLUTIONNAIRE:
+          ✅ ANALYSE NARRATIVE: comprend le fil de l'entretien sur plusieurs phrases
+          ✅ RECONSTITUTION: "Je suis..." + "euh..." + "Jean Dupont" = extraction complète
+          ✅ MÉMOIRE CONVERSATIONNELLE: utilise l'historique pour disambiguïser
+          ✅ CORRECTION CONTEXTUELLE: corrige avec l'aide du contexte précédent
+          
+          🧠 INTELLIGENCE MAXIMALE REQUISE:
+          ✅ TOLÈRE: erreurs articulation, accents, déformations phonétiques, liaisons ratées
+          ✅ CORRIGE: "Jean" même si entendu "Jhan", "Jehan", "Jan", "Jean-ne"
+          ✅ COMPREND: "Dupon" → "DUPONT", "Durand" → "DURAND", phonétique approximative
+          ✅ RECONNAÎT: "mariyé" → "Marié(e)", "céliba" → "Célibataire", "divorcé" même mal prononcé
+          ✅ DÉTECTE: revenus même avec "euh", "environ", "à peu près", chiffres approximatifs
+          ✅ RELIE: informations éparpillées sur plusieurs phrases du contexte
+          
+          🚫 REJETTE ABSOLUMENT:
+          - Interjections: ah, oh, euh, hein, quoi, bon, alors, voilà (SAUF si dans contexte informatif)
+          - Questions: c'est quoi, comment, pourquoi, qu'est-ce que
+          - Temporel: jour, heure, maintenant, aujourd'hui
+          - Non-sens: aberrant, bizarre, wtf, expressions émotionnelles
+          - Hésitations pures sans contenu informatif
+          
+          🎯 CHAMPS AUTORISÉS:
+          - nom_client: NOMS DE FAMILLE français (même déformés phonétiquement)
+          - prenom_client: PRÉNOMS français (même mal articulés)
+          - situation_maritale_client: "Marié(e)", "Célibataire", "Divorcé(e)", "Pacsé(e)", "Veuf/Veuve"
+          - revenu_net_annuel_client1: chiffres + mots revenus/salaire/euros
+          - nombre_enfants_client: chiffres + mots enfant/gosse/petit
+          - age_client: chiffres + ans/âge
+          - profession_client: métiers/jobs (pas générique comme "travail")
+          
+          EXEMPLE CONTEXTUEL:
+          Contexte: "Je suis... euh... comment dire" | Actuel: "Jean Dupont"
+          → {"prenom_client": "Jean", "nom_client": "DUPONT"}
+          
+          FORMAT RÉPONSE: JSON pur seulement
+          SI AUCUNE INFO FISCALE VALIDE: {}
+          
+          SOIS LE MEILLEUR LINGUISTE CONTEXTUEL AU MONDE ! 🔥`
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('Erreur API Francis IA:', response.status);
+        return {};
+      }
+      
+      const francisResponse = await response.json();
+      console.log('🤖 Réponse brute Francis:', francisResponse);
+      
+      // Extraire le JSON de la réponse de Francis
+      let extractedData = {};
+      try {
+        const jsonMatch = francisResponse.response?.match(/\{[^}]+\}/);
+        if (jsonMatch) {
+          extractedData = JSON.parse(jsonMatch[0]);
+          console.log('🎯 Francis IA a extrait:', extractedData);
+        } else {
+          console.log('🤖 Francis IA: Aucune donnée pertinente détectée');
+        }
+      } catch (parseError) {
+        console.log('🤖 Francis IA: Pas de JSON valide dans la réponse');
+      }
+      
+      return extractedData;
+    } catch (error) {
+      console.error('Erreur Francis IA:', error);
+      return {};
+    }
+  }, []);
+
+  /**
+   * Traitement d'un snippet de transcript - VERSION CONTEXTUELLE MULTI-TOUR
    */
   const handleTranscript = useCallback(
-    (text: string) => {
+    async (text: string) => {
       if (!text) return;
       
-      console.log('🎤 Francis analyse (ULTRA-ADAPTATIF):', text);
+      // 🧠 GESTION MÉMOIRE CONVERSATIONNELLE
+      const updatedHistory = [...conversationHistory];
+      
+      // Ajouter la nouvelle phrase et garder seulement les N dernières
+      updatedHistory.push(text);
+      if (updatedHistory.length > MAX_CONTEXT_TURNS) {
+        updatedHistory.shift(); // Supprimer la plus ancienne
+      }
+      
+      // Mettre à jour l'historique
+      setConversationHistory(updatedHistory);
+      
+      console.log('🧠 Francis IA analyse CONTEXTUELLE:', {
+        currentText: text,
+        conversationHistory: updatedHistory,
+        contextDepth: updatedHistory.length
+      });
+      
       let updated: Partial<ClientProfile> = { ...profile };
       let matched = false;
       let matchDetails: string[] = [];
 
       try {
-        // 🚀 PHASE 1: Extraction par patterns classiques
-        regexps.forEach(({ key, pattern, transform }) => {
-          try {
-            const res = text.match(pattern);
-            if (res) {
-              const value = transform ? transform(res) : res[1];
-              if (value !== undefined && value !== null && value !== '') {
-                (updated as any)[key] = value;
-                matched = true;
-                matchDetails.push(`✅ Pattern ${key}: ${value}`);
-                console.log(`✅ Francis (Pattern) a trouvé ${key}:`, value);
-              }
-            }
-          } catch (e) {
-            console.error(`Erreur pattern ${key}:`, e);
-          }
-        });
-
-        // 🧠 PHASE 2: Analyse contextuelle intelligente
-        const contextualData = analyzeContext(text);
-        Object.entries(contextualData).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
-            if (!(updated as any)[key]) {
-              (updated as any)[key] = value;
-              matched = true;
-              matchDetails.push(`🧠 Contexte ${key}: ${value}`);
-              console.log(`🧠 Francis (Contexte) a trouvé ${key}:`, value);
-            }
-          }
-        });
+        // 🧠 PHASE RÉVOLUTIONNAIRE: ANALYSE CONTEXTUELLE MULTI-TOUR
+        const aiExtractedData = await analyzeWithFrancisAI(text, updatedHistory);
         
-        // 🔍 PHASE 3: Analyse de mots-clés isolés
-        if (!matched) {
-          const isolatedKeywords: Record<string, { key: keyof ClientProfile; value: string }> = {
-            'célibataire': { key: 'situation_maritale_client', value: 'Célibataire' },
-            'marié': { key: 'situation_maritale_client', value: 'Marié(e)' },
-            'mariée': { key: 'situation_maritale_client', value: 'Marié(e)' },
-            'divorcé': { key: 'situation_maritale_client', value: 'Divorcé(e)' },
-            'divorcée': { key: 'situation_maritale_client', value: 'Divorcé(e)' },
-            'pacsé': { key: 'situation_maritale_client', value: 'Pacsé(e)' },
-            'pacsée': { key: 'situation_maritale_client', value: 'Pacsé(e)' },
-          };
-          
-          Object.entries(isolatedKeywords).forEach(([keyword, data]) => {
-            if (text.toLowerCase().includes(keyword)) {
-              (updated as any)[data.key] = data.value;
+        // Appliquer les données extraites par l'IA
+        Object.entries(aiExtractedData).forEach(([key, value]) => {
+          if (value && typeof value === 'string' && value.trim() !== '') {
+            const cleanValue = value.trim();
+            // Validation finale de sécurité
+            if (cleanValue.length >= 2 && cleanValue.length <= 50) {
+              (updated as any)[key] = cleanValue;
               matched = true;
-              matchDetails.push(`🔍 Mot-clé ${data.key}: ${data.value}`);
-              console.log(`🔍 Francis (Mot-clé) a trouvé ${data.key}:`, data.value);
+              matchDetails.push(`🤖 IA ${key}: ${cleanValue}`);
+              console.log(`🤖 Francis IA a trouvé ${key}:`, cleanValue);
             }
-          });
-        }
+          }
+        });
 
         if (matched) {
-          console.log('🎯 Francis met à jour le profil:', matchDetails);
+          console.log('🎯 Francis IA CONTEXTUELLE met à jour le profil:', matchDetails);
           setProfile(updated);
           setSuggestions(computeSuggestions(updated));
         } else {
-          console.log('❌ Francis n\'a rien trouvé dans:', text);
-          console.log('🔍 Mots détectés:', text.toLowerCase().split(/\s+/));
-          console.log('🔢 Nombres détectés:', text.match(/\d+/g) || []);
+          console.log('🧠 Francis IA CONTEXTUELLE: Aucune information fiscale pertinente détectée dans ce contexte');
         }
       } catch (e) {
-        console.error('Erreur handleTranscript:', e);
+        console.error('Erreur Francis IA CONTEXTUELLE:', e);
       }
     },
-    [profile, computeSuggestions, analyzeContext, regexps]
+    [profile, computeSuggestions, analyzeWithFrancisAI, conversationHistory, setConversationHistory, MAX_CONTEXT_TURNS]
   );
 
   return { profile, suggestions, handleTranscript };

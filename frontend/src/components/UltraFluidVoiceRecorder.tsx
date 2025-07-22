@@ -59,12 +59,19 @@ export const UltraFluidVoiceRecorder: React.FC<UltraFluidVoiceRecorderProps> = (
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
     
-    // 🚀 PARAMÈTRES ULTRA-FLUIDES pour capture complète
-    recognitionRef.current.continuous = true;           // Écoute continue OBLIGATOIRE
-    recognitionRef.current.interimResults = true;       // Résultats intermédiaires pour fluidité
-    recognitionRef.current.lang = 'fr-FR';              // Français optimisé
-    recognitionRef.current.maxAlternatives = 3;         // Plus d'alternatives pour meilleure précision
-    // Pas de grammaires spécifiques (comportement par défaut)
+    // 🚀 PARAMÈTRES ENTRETIEN PROFESSIONNEL ULTRA-CONTINU
+    recognitionRef.current.continuous = true;           // ÉCOUTE PERMANENTE - JAMAIS D'INTERRUPTION
+    recognitionRef.current.interimResults = true;       // Feedback temps réel pour l'utilisateur
+    recognitionRef.current.lang = 'fr-FR';              // Français professionnel optimisé
+    recognitionRef.current.maxAlternatives = 5;         // Plus d'alternatives pour précision maximale
+    
+    // 🕰️ PARAMÈTRES ENTRETIEN LONGUE DURÉE (30-60 min)
+    if ('audioTracks' in recognitionRef.current) {
+      recognitionRef.current.audioTracks = true;        // Optimisation audio continue
+    }
+    
+    // 🎯 STABILITÉ MAXIMALE pour entretiens professionnels
+    // Pas de grammaires spécifiques (liberté totale d'expression)
     
     // 🎯 PARAMÈTRES AVANCÉS pour éviter les coupures
     if ('serviceURI' in recognitionRef.current) {
