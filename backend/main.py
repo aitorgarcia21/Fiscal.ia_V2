@@ -30,7 +30,7 @@ from mistralai.models.chat_completion import ChatMessage
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
-from .elevenlabs_proxy import router as eleven_router
+from elevenlabs_proxy import router as eleven_router
 import concurrent.futures
 from sqlalchemy.orm import Session
 import re
@@ -79,6 +79,7 @@ try:
     from models_pro import BasePro
     from routers import pro_clients as pro_clients_router
     from routers import teams_assistant as teams_assistant_router
+    from routers import whisper_fix as whisper_router
     from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from whisper_service import get_whisper_service
 except ImportError:
@@ -90,6 +91,7 @@ except ImportError:
         from backend.models_pro import BasePro
         from backend.routers import pro_clients as pro_clients_router
         from backend.routers import teams_assistant as teams_assistant_router
+        from backend.routers import whisper_fix as whisper_router
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
     except ImportError:
@@ -104,6 +106,7 @@ except ImportError:
         from models_pro import BasePro
         from routers import pro_clients as pro_clients_router
         from routers import teams_assistant as teams_assistant_router
+        from routers import whisper_fix as whisper_router
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
 # --- Fin des imports relatifs corrigés ---
@@ -2649,6 +2652,7 @@ initialize_embeddings()
 
 app.include_router(api_router)
 app.include_router(api_router, prefix="/api")  # alias pour compatibilité frontend
+app.include_router(whisper_router.router, prefix="/api")  # 🎯 WHISPER LOCAL FONCTIONNEL
 app.include_router(eleven_router)
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)

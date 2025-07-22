@@ -4,7 +4,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ChevronLeft, Save, Brain, Mic, X, MessageSquare, Euro, User, Mail, Users, Briefcase, Target, Play, ArrowRight, Check, TrendingUp } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
-import { WhisperVoiceRecorder } from '../components/WhisperVoiceRecorder';
+import { WhisperLocalVoiceRecorder } from '../components/WhisperLocalVoiceRecorder';
 import { useVoiceFiller } from '../hooks/useVoiceFiller';
 import { ProfileStatusPanel } from '../components/ProfileStatusPanel';
 import { clientDataEncryption } from '../utils/ClientDataEncryption';
@@ -1258,7 +1258,7 @@ export function ProCreateClientPage() {
                 {/* 🎤 COMPOSANT TRANSCRIPTION FRANCIS */}
                 <div className="bg-[#0E2444] rounded-xl p-5 border border-[#c5a572]/20">
 
-                  <WhisperVoiceRecorder
+                  <WhisperLocalVoiceRecorder
                     onTranscriptionUpdate={handleTranscriptionUpdate}
                     onTranscriptionComplete={handleTranscriptionComplete}
                     onError={handleVoiceError}
