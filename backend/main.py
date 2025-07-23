@@ -238,9 +238,10 @@ async def test_francis(request: dict):
             return {"error": "Question manquante", "example": "Posez une question fiscale à Francis"}
         conversation_history = request.get("conversation_history", None)
         try:
-            # Francis vocal utilise Groq (gratuit, sans RAG)
-            from assistant_fiscal import get_francis_vocal_response
-            answer, sources, confidence = await run_with_timeout(get_francis_vocal_response, question, conversation_history, timeout=30)
+            # FALLBACK: Francis vocal utilise Mistral (Groq échoue complètement)
+            # Groq ne parvient pas à extraire les champs malgré tous les prompts testés
+            from assistant_fiscal import get_fiscal_response
+            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
             answer = clean_markdown_formatting(answer)
             return {
                 "answer": answer,
