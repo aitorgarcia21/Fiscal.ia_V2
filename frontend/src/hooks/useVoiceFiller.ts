@@ -191,6 +191,37 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
           Contexte: "Je suis... euh... comment dire" | Actuel: "Jean Dupont"
           → {"prenom_client": "Jean", "nom_client": "DUPONT"}
           
+          👶 ENFANTS :
+          "vous avez deux gosses" → {"nombre_enfants_a_charge_client": "2"}
+          "j'ai trois enfants" → {"nombre_enfants_a_charge_client": "3"}
+          "une fille" → {"nombre_enfants_a_charge_client": "1"}
+          "pas d'enfants" → {"nombre_enfants_a_charge_client": "0"}
+          "deux gamins" → {"nombre_enfants_a_charge_client": "2"}
+          "trois petits" → {"nombre_enfants_a_charge_client": "3"}
+          
+          🎂 DATE NAISSANCE :
+          "né le 1er mars 1980" → {"date_naissance_client": "01/03/1980"}
+          "1er janvier 1975" → {"date_naissance_client": "01/01/1975"}
+          "15 juin 1985" → {"date_naissance_client": "15/06/1985"}
+          "je suis né en 1980" → {"date_naissance_client": "01/01/1980"}
+          
+          🏠 PATRIMOINE IMMOBILIER :
+          "maison 300000" → {"residence_principale_details": "Maison principale 300000€"}
+          "appartement 250000" → {"residence_principale_details": "Appartement principal 250000€"}
+          "résidence vaut 400000" → {"residence_principale_details": "Résidence principale 400000€"}
+          "chez moi 500000 euros" → {"residence_principale_details": "Résidence principale 500000€"}
+          
+          💍 RÉGIME MATRIMONIAL :
+          "régime de la communauté" → {"regime_matrimonial_client": "Communauté réduite aux acquêts"}
+          "communauté" → {"regime_matrimonial_client": "Communauté réduite aux acquêts"}
+          "séparation de biens" → {"regime_matrimonial_client": "Séparation de biens"}
+          "communauté universelle" → {"regime_matrimonial_client": "Communauté universelle"}
+          
+          💰 REVENUS :
+          "je gagne 50000 euros" → {"revenu_net_annuel_client1": "50000"}
+          "salaire 3000 par mois" → {"revenu_net_annuel_client1": "36000"}
+          "revenus annuels 80000" → {"revenu_net_annuel_client1": "80000"}
+          
           FORMAT RÉPONSE: JSON pur seulement - PAS DE TEXTE EN PLUS
           SI AUCUNE INFO FISCALE VALIDE: {}
           
