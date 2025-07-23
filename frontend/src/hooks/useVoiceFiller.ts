@@ -162,19 +162,98 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
           - Non-sens: aberrant, bizarre, wtf, expressions émotionnelles
           - Hésitations pures sans contenu informatif
           
-          🎯 CHAMPS AUTORISÉS ULTRA-COMPLETS:
-          - nom_client: NOMS DE FAMILLE français (même déformés phonétiquement)
-          - prenom_client: PRÉNOMS français (même mal articulés)
+          🎯 CHAMPS AUTORISÉS ULTRA-COMPLETS (TOUS LES 80+ CHAMPS) :
+          
+          💼 IDENTITÉ :
+          - nom_client: noms de famille français
+          - prenom_client: prénoms français 
+          - civilite_client: "Monsieur", "Madame", "Mademoiselle"
+          - date_naissance_client: dates format DD/MM/YYYY
+          - lieu_naissance_client: villes de naissance
+          - nationalite_client: nationalités
+          - numero_fiscal_client: numéros fiscaux (13 chiffres)
+          
+          📍 COORDONNÉES :
+          - adresse_postale_client: adresses complètes
+          - code_postal_client: codes postaux (5 chiffres)
+          - ville_client: noms de villes
+          - pays_residence_fiscale_client: pays de résidence
+          - email_client: adresses email
+          - telephone_principal_client: numéros de téléphone
+          - telephone_secondaire_client: téléphones secondaires
+          
+          👨‍👩‍👧‍👦 FAMILLE :
           - situation_maritale_client: "Marié(e)", "Célibataire", "Divorcé(e)", "Pacsé(e)", "Veuf/Veuve"
-          - revenu_net_annuel_client1: chiffres + mots revenus/salaire/euros
-          - nombre_enfants_client: chiffres + mots enfant/gosse/petit
-          - date_naissance_client: date de naissance format DD/MM/YYYY
-          - profession_client1: métiers/jobs (pas générique comme "travail")
-          - residence_principale_details: chiffres + mots maison/appartement/résidence/immobilier
-          - credits_consommation_encours_total: chiffres + mots crédit/prêt/emprunt/dette
-          - comptes_courants_solde_total_estime: chiffres + mots épargne/livret/compte/économies
-          - assurance_vie_details: chiffres + mots actions/assurance-vie/SCPI/bourse
-          - autres_biens_immobiliers_details: chiffres + mots locatif/investissement/terrain/propriété
+          - date_mariage_pacs_client: dates mariage/PACS
+          - regime_matrimonial_client: régimes matrimoniaux
+          - nombre_enfants_a_charge_client: nombre d'enfants
+          - details_enfants_client: âges/détails enfants
+          - personnes_dependantes_client: personnes à charge
+          
+          💼 PROFESSION CLIENT 1 :
+          - profession_client1: métiers/professions
+          - statut_professionnel_client1: "Salarié", "Indépendant", "Fonctionnaire", "Retraité"
+          - nom_employeur_entreprise_client1: noms employeurs
+          - type_contrat_client1: "CDI", "CDD", "Freelance", "Stage"
+          - revenu_net_annuel_client1: revenus annuels
+          - autres_revenus_client1: revenus complémentaires
+          
+          💼 PROFESSION CLIENT 2 (CONJOINT) :
+          - profession_client2: profession conjoint
+          - statut_professionnel_client2: statut conjoint
+          - nom_employeur_entreprise_client2: employeur conjoint
+          - type_contrat_client2: contrat conjoint
+          - revenu_net_annuel_client2: revenus conjoint
+          - autres_revenus_client2: autres revenus conjoint
+          
+          💸 REVENUS FOYER :
+          - revenus_fonciers_annuels_bruts_foyer: revenus locatifs
+          - charges_foncieres_deductibles_foyer: charges déductibles
+          - revenus_capitaux_mobiliers_foyer: dividendes/intérêts
+          - plus_values_mobilieres_foyer: plus-values actions
+          - plus_values_immobilieres_foyer: plus-values immobilier
+          - benefices_industriels_commerciaux_foyer: BIC
+          - benefices_non_commerciaux_foyer: BNC
+          - pensions_retraites_percues_foyer: pensions retraite
+          - pensions_alimentaires_percues_foyer: pensions alimentaires
+          - autres_revenus_foyer_details: autres revenus
+          
+          🏠 PATRIMOINE IMMOBILIER :
+          - residence_principale_details: résidence principale
+          - residences_secondaires_details: résidences secondaires
+          - investissements_locatifs_details: investissements locatifs
+          - autres_biens_immobiliers_details: autres biens immobiliers
+          
+          💰 PATRIMOINE FINANCIER :
+          - comptes_courants_solde_total_estime: comptes courants
+          - livrets_epargne_details: livrets d'épargne
+          - assurance_vie_details: assurances vie
+          - pea_details: PEA
+          - compte_titres_valeur_estimee: comptes titres
+          - epargne_retraite_details: épargne retraite
+          - autres_placements_financiers_details: autres placements
+          - valeur_entreprise_parts_sociales: parts d'entreprises
+          - comptes_courants_associes_solde: comptes courants associés
+          - vehicules_valeur_estimee: véhicules
+          - objets_art_valeur_estimee: objets d'art
+          
+          💳 DETTES :
+          - credits_consommation_encours_total: crédits consommation
+          - autres_dettes_details: autres dettes
+          
+          🎯 OBJECTIFS :
+          - objectifs_fiscaux_client: objectifs fiscaux
+          - objectifs_patrimoniaux_client: objectifs patrimoniaux
+          - horizon_placement_client: horizon placement
+          - profil_risque_investisseur_client: profil de risque
+          - notes_objectifs_projets_client: notes objectifs
+          
+          📊 FISCAL :
+          - dernier_avis_imposition_details: dernier avis d'imposition
+          - tranche_marginale_imposition_estimee: TMI
+          - credits_reductions_impot_recurrents: crédits d'impôt
+          - ifi_concerne_client: concerné par l'IFI
+          - notes_fiscales_client: notes fiscales
           
           📝 EXEMPLES OBLIGATOIRES - APPRENDS CES PATTERNS :
           
@@ -221,6 +300,36 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
           "je gagne 50000 euros" → {"revenu_net_annuel_client1": "50000"}
           "salaire 3000 par mois" → {"revenu_net_annuel_client1": "36000"}
           "revenus annuels 80000" → {"revenu_net_annuel_client1": "80000"}
+          
+          📍 COORDONNÉES COMPLÈTES :
+          "j'habite 15 rue de la Paix" → {"adresse_postale_client": "15 rue de la Paix"}
+          "75001 Paris" → {"code_postal_client": "75001", "ville_client": "Paris"}
+          "email jean@gmail.com" → {"email_client": "jean@gmail.com"}
+          "téléphone 06 12 34 56 78" → {"telephone_principal_client": "06 12 34 56 78"}
+          "nationalité française" → {"nationalite_client": "Française"}
+          
+          💼 PROFESSION AVANCÉE :
+          "avocat chez Dupont" → {"profession_client1": "Avocat", "nom_employeur_entreprise_client1": "Dupont"}
+          "CDI Google" → {"type_contrat_client1": "CDI", "nom_employeur_entreprise_client1": "Google"}
+          "fonctionnaire" → {"statut_professionnel_client1": "Fonctionnaire"}
+          "ma femme médecin 80000" → {"profession_client2": "Médecin", "revenu_net_annuel_client2": "80000"}
+          
+          🏠 PATRIMOINE ÉTENDU :
+          "résidence secondaire Nice" → {"residences_secondaires_details": "Résidence secondaire Nice"}
+          "appartement locatif 200000" → {"investissements_locatifs_details": "Appartement locatif 200000€"}
+          "revenus locatifs 1000 mois" → {"revenus_fonciers_annuels_bruts_foyer": "12000"}
+          
+          💰 ÉPARGNE COMPLÈTE :
+          "livret A 50000" → {"livrets_epargne_details": "Livret A 50000€"}
+          "assurance vie 100000" → {"assurance_vie_details": "Assurance vie 100000€"}
+          "PEA 30000" → {"pea_details": "PEA 30000€"}
+          "actions Total" → {"compte_titres_valeur_estimee": "Actions Total"}
+          
+          🎯 OBJECTIFS :
+          "réduire impôts" → {"objectifs_fiscaux_client": "Réduction fiscale"}
+          "achat résidence" → {"objectifs_patrimoniaux_client": "Achat résidence"}
+          "placement long terme" → {"horizon_placement_client": "Long terme"}
+          "profil prudent" → {"profil_risque_investisseur_client": "Prudent"}
           
           FORMAT RÉPONSE: JSON pur seulement - PAS DE TEXTE EN PLUS
           SI AUCUNE INFO FISCALE VALIDE: {}
