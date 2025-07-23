@@ -380,7 +380,7 @@ export function ProDashboardPage() {
             <div className="flex items-center gap-3">
               <div className="relative inline-flex items-center justify-center group w-12 h-12">
                 <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-1 border border-[#c5a572]/30 transition-transform group-hover:scale-110 duration-300 shadow-lg" />
+                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Francis</h1>
@@ -630,7 +630,7 @@ export function ProDashboardPage() {
           >
             <div className="relative inline-flex items-center justify-center group">
               <MessageSquareIcon className="h-8 w-8 text-[#162238] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="h-5 w-5 text-[#162238] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-5 w-5 text-[#162238] absolute -bottom-1 -right-1 transition-transform group-hover:scale-110 duration-300" />
             </div>
           </button>
         )}
@@ -644,7 +644,7 @@ export function ProDashboardPage() {
 <div className="flex items-center gap-3">
 <div className="relative inline-flex items-center justify-center group">
 <MessageSquareIcon className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-<Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+<Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 transition-transform group-hover:scale-110 duration-300" />
 </div>
 <div>
 <h3 className="font-semibold text-white">Francis</h3>
@@ -667,7 +667,7 @@ aria-label="Fermer le chat"
                   <div className="flex justify-center mb-4">
                     <div className="relative inline-flex items-center justify-center group">
                       <MessageSquareIcon className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                      <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                      <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 transition-transform group-hover:scale-110 duration-300" />
                     </div>
                   </div>
                   <h4 className="text-white font-semibold mb-2">Bonjour ! Je suis Francis</h4>
