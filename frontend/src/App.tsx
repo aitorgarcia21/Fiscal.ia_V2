@@ -46,6 +46,7 @@ import { AccountPage } from './pages/AccountPage';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { ParticulierProtectedRoute } from './components/auth/ParticulierProtectedRoute';
 import { CompleteSignupPage } from './pages/CompleteSignupPage';
+import CGPWorkspace from './pages/CGPWorkspace';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -100,6 +101,7 @@ function App() {
 
           <Route element={<ProProtectedRoute />}>
             <Route path="/pro/dashboard" element={<ProDashboardPage />} />
+            <Route path="/pro/cgp" element={<CGPWorkspace />} />
             <Route path="/pro/clients/new" element={<ProCreateClientPage />} />
             <Route path="/pro/clients/:clientId" element={<ProClientDetailPage />} />
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
