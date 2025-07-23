@@ -373,6 +373,28 @@ class BankingAggregator {
     }));
   }
 
+  // Transformation comptes Budget Insight
+  private transformBudgetInsightAccounts(accounts: any[]): BankAccount[] {
+    return accounts.map(account => ({
+      id: account.id,
+      name: account.name || account.label,
+      type: this.mapAccountType(account.type),
+      bank: account.bank?.name || 'Budget Insight',
+      balance: account.balance || 0,
+      currency: account.currency || 'EUR',
+      iban: account.iban,
+      lastUpdate: new Date(account.last_update || Date.now()),
+      isActive: account.disabled !== true,
+      connectionStatus: 'ACTIVE',
+      transactions: [],
+      metadata: {
+        originalId: account.id,
+        provider: 'BUDGET_INSIGHT',
+        connectionId: account.id_connection
+      }
+    }));
+  }
+
   // Transformation positions Budget Insight
   private transformBudgetInsightPositions(positions: any[]): PatrimonialPosition[] {
     return positions.map(position => ({

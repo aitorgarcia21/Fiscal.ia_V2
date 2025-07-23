@@ -184,7 +184,7 @@ const InsightsPanel: React.FC = () => {
   };
 
   const getUniqueClients = () => {
-    const clientIds = [...new Set(insights.map(i => i.clientId))];
+    const clientIds = Array.from(new Set(insights.map(i => i.clientId)));
     return clientIds.map(id => ({
       id,
       name: `Client ${id.substring(0, 8)}` // Simplified for demo

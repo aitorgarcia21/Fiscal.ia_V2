@@ -64,6 +64,7 @@ const CGPDashboard: React.FC = () => {
   const [quickActions, setQuickActions] = useState<QuickAction[]>([]);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] = useState<'today' | 'week' | 'month'>('today');
+  const [activeTab, setActiveTab] = useState('insights');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -86,8 +87,8 @@ const CGPDashboard: React.FC = () => {
       ]);
 
       // Calcul des statistiques
-      const criticalAlerts = alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH').length;
-      const pendingActions = actions.filter(a => a.status === 'PENDING' || a.status === 'IN_PROGRESS').length;
+      const criticalAlerts = alerts.filter(a => a.priority === 'CRITIQUE' || a.priority === 'HAUTE').length;
+      const pendingActions = actions.filter(a => a.status === 'TODO' || a.status === 'IN_PROGRESS').length;
 
       setStats(prev => ({
         ...prev,
@@ -99,14 +100,17 @@ const CGPDashboard: React.FC = () => {
 
       // Actions rapides (top 5 par priorité)
       const topActions = actions
-        .filter(a => a.status !== 'COMPLETED')
-        .sort((a, b) => b.priority - a.priority)
+        .filter(a => a.status !== 'DONE')
+        .sort((a, b) => {
+          const priorityOrder = { 'CRITIQUE': 4, 'HAUTE': 3, 'MOYENNE': 2, 'FAIBLE': 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        })
         .slice(0, 5)
         .map(action => ({
           id: action.id,
           title: action.title,
           type: mapActionType(action.category),
-          priority: action.priority > 7 ? 'HIGH' : action.priority > 4 ? 'MEDIUM' : 'LOW',
+          priority: mapActionPriority(action.priority),
           dueDate: action.dueDate,
           clientName: action.assignedTo,
           estimatedDuration: action.estimatedDuration || 30
@@ -149,6 +153,16 @@ const CGPDashboard: React.FC = () => {
       case 'MEETING': return 'MEETING_PREP';
       case 'COMPLIANCE': return 'COMPLIANCE_CHECK';
       default: return 'DOCUMENT_REVIEW';
+    }
+  };
+
+  const mapActionPriority = (priority: string): QuickAction['priority'] => {
+    switch (priority) {
+      case 'CRITIQUE': return 'HIGH';
+      case 'HAUTE': return 'HIGH';
+      case 'MOYENNE': return 'MEDIUM';
+      case 'FAIBLE': return 'LOW';
+      default: return 'MEDIUM';
     }
   };
 
@@ -388,7 +402,7 @@ const CGPDashboard: React.FC = () => {
       {/* Onglets Modules */}
       <Card>
         <CardContent className="p-6">
-          <Tabs defaultValue="insights" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="insights" className="flex items-center">
                 <Brain className="h-4 w-4 mr-2" />

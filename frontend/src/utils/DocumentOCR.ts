@@ -304,7 +304,7 @@ class DocumentOCR {
   private async callTesseractOCR(file: File): Promise<string> {
     // Import dynamique de Tesseract.js pour éviter le bundle trop lourd
     // const Tesseract = await import('tesseract.js'); // Module non installé - utilisation simulation
-    const Tesseract = { recognize: () => Promise.resolve({ data: { text: 'Simulation OCR' } }) };
+    const Tesseract = { recognize: (file: any, lang: any, options: any) => Promise.resolve({ data: { text: 'Simulation OCR' } }) };
     
     const result = await Tesseract.recognize(file, 'fra', {
       logger: (m) => {

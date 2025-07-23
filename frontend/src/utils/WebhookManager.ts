@@ -666,6 +666,22 @@ class WebhookManager {
     this.subscriptions.clear();
   }
 
+  // Méthodes de gestion des événements bancaires
+  private async handleAccountSync(clientId: string, data: any): Promise<void> {
+    console.log(`Synchronisation compte pour client ${clientId}:`, data);
+    // Logique de synchronisation des comptes
+  }
+
+  private async handleNewTransaction(clientId: string, data: any): Promise<void> {
+    console.log(`Nouvelle transaction pour client ${clientId}:`, data);
+    // Logique de traitement des nouvelles transactions
+  }
+
+  private async handleBalanceChange(clientId: string, data: any): Promise<void> {
+    console.log(`Changement de solde pour client ${clientId}:`, data);
+    // Logique de traitement des changements de solde
+  }
+
   // Statistiques et monitoring
   getQueueStats(): {
     totalEvents: number;

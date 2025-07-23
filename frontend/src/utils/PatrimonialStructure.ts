@@ -56,7 +56,7 @@ interface PatrimonialPosition {
   };
 }
 
-interface PatrimonialStructure {
+interface PatrimonialStructureData {
   clientId: string;
   totalValue: number;
   lastUpdate: Date;
@@ -105,7 +105,7 @@ class PatrimonialStructure {
     bankAccounts: any[],
     positions: any[],
     manualAssets: any[] = []
-  ): Promise<PatrimonialStructure> {
+  ): Promise<PatrimonialStructureData> {
     try {
       const allPositions = await this.mergeAllSources(bankAccounts, positions, manualAssets);
       const enrichedPositions = await this.enrichPositions(allPositions);
@@ -283,7 +283,7 @@ class PatrimonialStructure {
   }
 
   private determineCategory(position: PatrimonialPosition): AssetCategory['type'] {
-    const typeMapping = {
+    const typeMapping: Record<string, AssetCategory['type']> = {
       'CHECKING': 'LIQUIDITES', 'SAVINGS': 'LIQUIDITES', 'ACTIONS': 'VALEURS_MOBILIERES',
       'OBLIGATIONS': 'VALEURS_MOBILIERES', 'PEA': 'VALEURS_MOBILIERES', 'ASSURANCE_VIE': 'ASSURANCE_VIE',
       'PER': 'RETRAITE', 'IMMOBILIER': 'IMMOBILIER', 'SCPI': 'IMMOBILIER'
@@ -292,7 +292,7 @@ class PatrimonialStructure {
   }
 
   private determineTaxRegime(type: string): PatrimonialPosition['taxInfo']['regime'] {
-    const regimeMapping = {
+    const regimeMapping: Record<string, PatrimonialPosition['taxInfo']['regime']> = {
       'PEA': 'PEA', 'ASSURANCE_VIE': 'ASSURANCE_VIE', 'PER': 'PER'
     };
     return regimeMapping[type as keyof typeof regimeMapping] || 'CTO';
@@ -307,7 +307,7 @@ class PatrimonialStructure {
     return names[type as keyof typeof names] || type;
   }
 
-  private async performDeepAnalysis(positions: PatrimonialPosition[], totalValue: number): Promise<PatrimonialStructure['analysis']> {
+  private async performDeepAnalysis(positions: PatrimonialPosition[], totalValue: number): Promise<PatrimonialStructureData['analysis']> {
     return {
       diversification: this.analyzeDiversification(positions, totalValue),
       risk: this.analyzeRisk(positions),
@@ -445,8 +445,8 @@ class PatrimonialStructure {
     return Math.round(impot);
   }
 
-  private generateRecommendations(analysis: PatrimonialStructure['analysis'], categories: AssetCategory[]): PatrimonialStructure['recommendations'] {
-    const recommendations: PatrimonialStructure['recommendations'] = [];
+  private generateRecommendations(analysis: PatrimonialStructureData['analysis'], categories: AssetCategory[]): PatrimonialStructureData['recommendations'] {
+    const recommendations: PatrimonialStructureData['recommendations'] = [];
 
     if (analysis.diversification.score < 60) {
       recommendations.push({

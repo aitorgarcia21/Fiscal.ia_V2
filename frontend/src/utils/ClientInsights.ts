@@ -193,7 +193,7 @@ class ClientInsights {
     console.log('🧠 ANALYSE PRÉDICTIVE CLIENTS:', this.clientProfiles.size, 'clients');
     
     try {
-      for (const [clientId, profile] of this.clientProfiles.entries()) {
+      for (const [clientId, profile] of Array.from(this.clientProfiles.entries())) {
         await this.analyzeClient(clientId, profile);
       }
       
@@ -573,7 +573,7 @@ Fournis 3 recommandations concrètes et spécifiques.
   async getAllInsights(): Promise<ClientInsight[]> {
     const allInsights: ClientInsight[] = [];
     
-    for (const insights of this.insights.values()) {
+    for (const insights of Array.from(this.insights.values())) {
       allInsights.push(...insights);
     }
     
@@ -605,8 +605,8 @@ Fournis 3 recommandations concrètes et spécifiques.
     return {
       summary,
       keyInsights,
-      recommendations: [...new Set(recommendations)].slice(0, 10),
-      riskFactors: [...new Set(riskFactors)].slice(0, 5)
+      recommendations: Array.from(new Set(recommendations)).slice(0, 10),
+      riskFactors: Array.from(new Set(riskFactors)).slice(0, 5)
     };
   }
 }

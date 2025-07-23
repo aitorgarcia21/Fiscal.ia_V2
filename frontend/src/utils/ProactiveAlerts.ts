@@ -531,7 +531,7 @@ Sois précis et actionnable.
     try {
       await this.saveAlert(alert);
       
-      for (const [channelType, channel] of this.channels.entries()) {
+      for (const [channelType, channel] of Array.from(this.channels.entries())) {
         if (channel.enabled && this.shouldUseChannel(channel, alert)) {
           await this.sendToChannel(channelType, channel, alert);
         }
@@ -591,7 +591,7 @@ Sois précis et actionnable.
   }
 
   private mapTriggerToCategory(triggerType: AlertTrigger['type']): SmartAlert['category'] {
-    const mapping = {
+    const mapping: Record<string, SmartAlert['category']> = {
       'CLIENT_BEHAVIOR': 'CLIENT_ACTION',
       'MARKET_CHANGE': 'MARKET_INSIGHT',
       'FISCAL_UPDATE': 'FISCAL_OPPORTUNITY',

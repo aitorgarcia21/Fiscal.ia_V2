@@ -155,8 +155,8 @@ const ComplianceAssistant: React.FC<ComplianceAssistantProps> = ({
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'fr-FR';
       
-      recognitionRef.current.onstart = () => setIsListening(true);
-      recognitionRef.current.onend = () => setIsListening(false);
+      recognitionRef.current.addEventListener('start', () => setIsListening(true));
+      recognitionRef.current.addEventListener('end', () => setIsListening(false));
       
       recognitionRef.current.onresult = (event) => {
         const transcript = Array.from(event.results)
