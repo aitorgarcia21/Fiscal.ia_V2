@@ -148,15 +148,20 @@ GOCARDLESS_ENV = os.getenv("GOCARDLESS_ENV", "sandbox")
 GOCARDLESS_WEBHOOK_SECRET = os.getenv("GOCARDLESS_WEBHOOK_SECRET")
 GOCARDLESS_BASE_URL = "https://api-sandbox.gocardless.com" if GOCARDLESS_ENV == "sandbox" else "https://api.gocardless.com"
 
-# Mistral
+# AI API Keys - Priorité à Groq (gratuit), fallback Mistral
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
-# Gestion plus souple : ne pas bloquer l'application si la clé n'est pas définie.
-if not MISTRAL_API_KEY:
-    print("⚠️  WARNING : MISTRAL_API_KEY non défini. Les fonctionnalités IA basées sur Mistral seront désactivées.")
-    mistral_client = None  # type: ignore
-else:
+# Gestion plus souple : ne pas bloquer l'application si aucune clé n'est définie.
+if GROQ_API_KEY:
+    print("🚀 Utilisation de Groq API (gratuit) pour Francis")
+    mistral_client = None  # Groq sera géré dans assistant_fiscal.py
+elif MISTRAL_API_KEY:
+    print("⚠️  Fallback vers Mistral API (payant)")
     mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
+else:
+    print("❌ WARNING : Aucune clé API disponible (GROQ_API_KEY ou MISTRAL_API_KEY). Les fonctionnalités IA seront désactivées.")
+    mistral_client = None  # type: ignore
 
 from middleware.security import SecurityHeadersMiddleware, RateLimitMiddleware
 
@@ -221,18 +226,21 @@ def clean_markdown_formatting(text: str) -> str:
 @api_router.post("/test-francis")
 async def test_francis(request: dict):
     try:
-        if not MISTRAL_API_KEY:
+        if not GROQ_API_KEY and not MISTRAL_API_KEY:
             return {
-                "error": "Service Mistral non disponible", 
-                "details": "MISTRAL_API_KEY non configurée",
-                "railway_help": "Configurez MISTRAL_API_KEY dans les variables d'environnement Railway"
+                "error": "Service IA non disponible", 
+                "details": "Aucune clé API configurée (GROQ_API_KEY ou MISTRAL_API_KEY)",
+                "railway_help": "Configurez GROQ_API_KEY (gratuit) ou MISTRAL_API_KEY dans les variables d'environnement Railway",
+                "groq_recommended": "🚀 Groq API est gratuit et recommandé ! Obtenez votre clé sur console.groq.com"
             }
         question = request.get("question", "")
         if not question:
             return {"error": "Question manquante", "example": "Posez une question fiscale à Francis"}
         conversation_history = request.get("conversation_history", None)
         try:
-            answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
+            # Francis vocal utilise Groq (gratuit, sans RAG)
+            from assistant_fiscal import get_francis_vocal_response
+            answer, sources, confidence = await run_with_timeout(get_francis_vocal_response, question, conversation_history, timeout=30)
             answer = clean_markdown_formatting(answer)
             return {
                 "answer": answer,

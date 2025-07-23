@@ -3,7 +3,8 @@ import json
 import asyncio
 import signal
 from typing import List, Dict, Tuple
-from mistralai.client import MistralClient
+from groq import Groq
+from mistralai.client import MistralClient  # Keep for fallback
 from mistralai.models.chat_completion import ChatMessage
 
 # Imports pour les embeddings
@@ -20,8 +21,22 @@ except ImportError:
     SWISS_RAG_AVAILABLE = False
 
 # Configuration
+# Configuration API hybride
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+
+# Chat principal = Mistral (besoin RAG/embeddings)
 client = MistralClient(api_key=MISTRAL_API_KEY) if MISTRAL_API_KEY else None
+
+# Client Groq pour Francis vocal uniquement
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
+
+if client:
+    print("🎯 Chat/RAG: Mistral API (avec embeddings)")
+if groq_client:
+    print("🚀 Francis vocal: Groq API (gratuit, sans RAG)")
+if not client and not groq_client:
+    print("❌ Aucune clé API disponible")
 
 # PII sanitizer
 from pii_sanitizer import sanitize_text
@@ -296,7 +311,7 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         # Création du prompt avec le contexte RAG officiel UNIQUEMENT (PII protégées)
         prompt = create_prompt(sanitized_query, similar_cgi_articles, similar_bofip_chunks, swiss_result, sanitized_history)
         
-        # Appel à Mistral avec le prompt complet
+        # Appel à Mistral pour chat/RAG (besoin embeddings)
         messages = [ChatMessage(role="user", content=prompt)]
         response = client.chat(
             model="mistral-large-latest",
@@ -332,6 +347,65 @@ def get_fiscal_response(query: str, conversation_history: List[Dict] = None) -> 
         print(f"Erreur lors du traitement de la question : {str(e)}")
         return ("Erreur lors de la consultation des sources officielles. "
                "Veuillez réessayer."), [], 0.0
+
+
+def get_francis_vocal_response(query: str, conversation_history: List[Dict] = None) -> Tuple[str, List[str], float]:
+    """
+    Fonction spécifique pour Francis vocal - utilise Groq (gratuit) pour l'extraction d'infos client.
+    Pas besoin de RAG/embeddings, juste de l'extraction sémantique pure.
+    """
+    if not groq_client:
+        # Fallback vers Mistral si Groq indisponible
+        if not client:
+            return ("Service IA non disponible. Configurez GROQ_API_KEY ou MISTRAL_API_KEY.", [], 0.0)
+        print("⚠️ Groq indisponible, fallback Mistral pour Francis vocal")
+        # Utiliser la fonction normale avec Mistral
+        return get_fiscal_response(query, conversation_history)
+    
+    try:
+        # Sanitize l'input pour Francis
+        sanitized_query = sanitize_text(query)
+        sanitized_history = None
+        if conversation_history:
+            sanitized_history = []
+            for m in conversation_history[-5:]:  # Limite historique pour vocal
+                sanitized_history.append({
+                    "role": m.get("role", "user"),
+                    "content": sanitize_text(m.get("content", ""))
+                })
+        
+        # Construction des messages pour Groq (OpenAI-compatible)
+        messages = [{"role": "user", "content": sanitized_query}]
+        
+        # Ajouter l'historique si disponible
+        if sanitized_history:
+            # Insérer l'historique avant la question actuelle
+            for msg in sanitized_history:
+                messages.insert(-1, msg)
+        
+        # Appel à Groq pour Francis vocal
+        response = groq_client.chat.completions.create(
+            model="llama3-8b-8192",  # Modèle Groq gratuit et performant
+            messages=messages,
+            temperature=0.15,  # Bas pour précision extraction
+            max_tokens=1024
+        )
+        
+        answer = response.choices[0].message.content.strip()
+        
+        # Sources pour Francis vocal (pas de RAG)
+        sources = ["Francis IA - Extraction vocale", "Groq Llama3-8B"]
+        confidence = 0.8  # Confiance élevée pour extraction pure
+        
+        return answer, sources, confidence
+        
+    except Exception as e:
+        print(f"Erreur Francis vocal (Groq): {str(e)}")
+        # Tentative de fallback vers Mistral
+        if client:
+            print("🔄 Fallback vers Mistral pour Francis vocal")
+            return get_fiscal_response(query, conversation_history)
+        return ("Erreur lors de l'extraction vocale Francis. Veuillez réessayer.", [], 0.0)
 
 def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None):
     """Version streaming qui utilise EXCLUSIVEMENT les sources officielles."""
