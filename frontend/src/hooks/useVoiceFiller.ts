@@ -201,17 +201,25 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
       let extractedData: Partial<ClientProfile> = {};
       
       if (response.ok) {
-        const result = await response.text();
-        console.log('🤖 Francis IA réponse brute:', result);
+        const result = await response.json();
+        console.log('🤖 Francis IA réponse complète:', result);
+        
+        // La réponse est maintenant un objet avec answer, sources, confidence
+        const francisAnswer = result.answer || '';
+        console.log('🤖 Francis IA answer:', francisAnswer);
         
         try {
-          const jsonMatch = result.match(/\{[^{}]*\}/);
+          // Chercher JSON dans la réponse Francis
+          const jsonMatch = francisAnswer.match(/\{[^{}]*\}/);
           if (jsonMatch) {
             extractedData = JSON.parse(jsonMatch[0]);
             console.log('🎯 Francis IA extraction réussie:', extractedData);
+          } else {
+            console.log('🤖 Francis IA: Aucun JSON trouvé dans:', francisAnswer);
           }
         } catch (e) {
-          console.log('🤖 Francis IA: Pas de JSON valide dans la réponse');
+          console.log('🤖 Francis IA: Erreur parsing JSON:', e);
+          console.log('🤖 Contenu à parser:', francisAnswer);
         }
       } else {
         console.error('Erreur API Francis:', response.status);
