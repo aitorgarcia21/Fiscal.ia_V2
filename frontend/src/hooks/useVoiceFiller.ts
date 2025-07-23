@@ -137,204 +137,30 @@ export function useVoiceFiller(initialProfile: Partial<ClientProfile>) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          question: `🧠 FRANCIS - EXPERT CONTEXTUEL MULTI-TOUR ULTRA-POINTU
-          
-          MISSION: Analyser cette conversation avec CONTEXTE COMPLET pour extraction parfaite.
-          
-          CONTEXTE CONVERSATIONNEL: "${contextWithHistory}"
-          PHRASE ACTUELLE: "${text}"
-          
-          🚀 INTELLIGENCE CONTEXTUELLE RÉVOLUTIONNAIRE:
-          ✅ ANALYSE NARRATIVE: comprend le fil de l'entretien sur plusieurs phrases
-          ✅ RECONSTITUTION: "Je suis..." + "euh..." + "Jean Dupont" = extraction complète
-          ✅ MÉMOIRE CONVERSATIONNELLE: utilise l'historique pour disambiguïser
-          ✅ CORRECTION CONTEXTUELLE: corrige avec l'aide du contexte précédent
-          
-          🧠 INTELLIGENCE MAXIMALE REQUISE:
-          Tu es le MEILLEUR LINGUISTE CONTEXTUEL au monde ! Ton travail est de comprendre
-          les conversations humaines même quand elles sont hésitantes, mal articulées,
-          coupées, avec des "euh", des répétitions, des corrections, etc.
-          
-          🚫 REJETTE ABSOLUMENT:
-          - Interjections: euh, ah, oh, hein, bon, alors, voilà, ben
-          - Questions: c'est quoi, comment, pourquoi, qu'est-ce que
-          - Temporel: jour, heure, maintenant, aujourd'hui
-          - Non-sens: aberrant, bizarre, wtf, expressions émotionnelles
-          - Hésitations pures sans contenu informatif
-          
-          🎯 CHAMPS AUTORISÉS ULTRA-COMPLETS (TOUS LES 80+ CHAMPS) :
-          
-          💼 IDENTITÉ :
-          - nom_client: noms de famille français
-          - prenom_client: prénoms français 
-          - civilite_client: "Monsieur", "Madame", "Mademoiselle"
-          - date_naissance_client: dates format DD/MM/YYYY
-          - lieu_naissance_client: villes de naissance
-          - nationalite_client: nationalités
-          - numero_fiscal_client: numéros fiscaux (13 chiffres)
-          
-          📍 COORDONNÉES :
-          - adresse_postale_client: adresses complètes
-          - code_postal_client: codes postaux (5 chiffres)
-          - ville_client: noms de villes
-          - pays_residence_fiscale_client: pays de résidence
-          - email_client: adresses email
-          - telephone_principal_client: numéros de téléphone
-          - telephone_secondaire_client: téléphones secondaires
-          
-          👨‍👩‍👧‍👦 FAMILLE :
-          - situation_maritale_client: "Marié(e)", "Célibataire", "Divorcé(e)", "Pacsé(e)", "Veuf/Veuve"
-          - date_mariage_pacs_client: dates mariage/PACS
-          - regime_matrimonial_client: régimes matrimoniaux
-          - nombre_enfants_a_charge_client: nombre d'enfants
-          - details_enfants_client: âges/détails enfants
-          - personnes_dependantes_client: personnes à charge
-          
-          💼 PROFESSION CLIENT 1 :
-          - profession_client1: métiers/professions
-          - statut_professionnel_client1: "Salarié", "Indépendant", "Fonctionnaire", "Retraité"
-          - nom_employeur_entreprise_client1: noms employeurs
-          - type_contrat_client1: "CDI", "CDD", "Freelance", "Stage"
-          - revenu_net_annuel_client1: revenus annuels
-          - autres_revenus_client1: revenus complémentaires
-          
-          💼 PROFESSION CLIENT 2 (CONJOINT) :
-          - profession_client2: profession conjoint
-          - statut_professionnel_client2: statut conjoint
-          - nom_employeur_entreprise_client2: employeur conjoint
-          - type_contrat_client2: contrat conjoint
-          - revenu_net_annuel_client2: revenus conjoint
-          - autres_revenus_client2: autres revenus conjoint
-          
-          💸 REVENUS FOYER :
-          - revenus_fonciers_annuels_bruts_foyer: revenus locatifs
-          - charges_foncieres_deductibles_foyer: charges déductibles
-          - revenus_capitaux_mobiliers_foyer: dividendes/intérêts
-          - plus_values_mobilieres_foyer: plus-values actions
-          - plus_values_immobilieres_foyer: plus-values immobilier
-          - benefices_industriels_commerciaux_foyer: BIC
-          - benefices_non_commerciaux_foyer: BNC
-          - pensions_retraites_percues_foyer: pensions retraite
-          - pensions_alimentaires_percues_foyer: pensions alimentaires
-          - autres_revenus_foyer_details: autres revenus
-          
-          🏠 PATRIMOINE IMMOBILIER :
-          - residence_principale_details: résidence principale
-          - residences_secondaires_details: résidences secondaires
-          - investissements_locatifs_details: investissements locatifs
-          - autres_biens_immobiliers_details: autres biens immobiliers
-          
-          💰 PATRIMOINE FINANCIER :
-          - comptes_courants_solde_total_estime: comptes courants
-          - livrets_epargne_details: livrets d'épargne
-          - assurance_vie_details: assurances vie
-          - pea_details: PEA
-          - compte_titres_valeur_estimee: comptes titres
-          - epargne_retraite_details: épargne retraite
-          - autres_placements_financiers_details: autres placements
-          - valeur_entreprise_parts_sociales: parts d'entreprises
-          - comptes_courants_associes_solde: comptes courants associés
-          - vehicules_valeur_estimee: véhicules
-          - objets_art_valeur_estimee: objets d'art
-          
-          💳 DETTES :
-          - credits_consommation_encours_total: crédits consommation
-          - autres_dettes_details: autres dettes
-          
-          🎯 OBJECTIFS :
-          - objectifs_fiscaux_client: objectifs fiscaux
-          - objectifs_patrimoniaux_client: objectifs patrimoniaux
-          - horizon_placement_client: horizon placement
-          - profil_risque_investisseur_client: profil de risque
-          - notes_objectifs_projets_client: notes objectifs
-          
-          📊 FISCAL :
-          - dernier_avis_imposition_details: dernier avis d'imposition
-          - tranche_marginale_imposition_estimee: TMI
-          - credits_reductions_impot_recurrents: crédits d'impôt
-          - ifi_concerne_client: concerné par l'IFI
-          - notes_fiscales_client: notes fiscales
-          
-          📝 EXEMPLES OBLIGATOIRES - APPRENDS CES PATTERNS :
-          
-          💒 STATUT MATRIMONIAL :
-          "vous êtes mariés" → {"situation_maritale_client": "Marié(e)"}
-          "nous sommes mariés" → {"situation_maritale_client": "Marié(e)"}
-          "je suis marié" → {"situation_maritale_client": "Marié(e)"}
-          "mariée depuis" → {"situation_maritale_client": "Marié(e)"}
-          "célibataire" → {"situation_maritale_client": "Célibataire"}
-          "divorcé" → {"situation_maritale_client": "Divorcé(e)"}
-          "pacsé" → {"situation_maritale_client": "Pacsé(e)"}
-          
-          💼 NOMS :
-          Contexte: "Je suis... euh... comment dire" | Actuel: "Jean Dupont"
-          → {"prenom_client": "Jean", "nom_client": "DUPONT"}
-          
-          👶 ENFANTS :
-          "vous avez deux gosses" → {"nombre_enfants_a_charge_client": "2"}
-          "j'ai trois enfants" → {"nombre_enfants_a_charge_client": "3"}
-          "une fille" → {"nombre_enfants_a_charge_client": "1"}
-          "pas d'enfants" → {"nombre_enfants_a_charge_client": "0"}
-          "deux gamins" → {"nombre_enfants_a_charge_client": "2"}
-          "trois petits" → {"nombre_enfants_a_charge_client": "3"}
-          
-          🎂 DATE NAISSANCE :
-          "né le 1er mars 1980" → {"date_naissance_client": "01/03/1980"}
-          "1er janvier 1975" → {"date_naissance_client": "01/01/1975"}
-          "15 juin 1985" → {"date_naissance_client": "15/06/1985"}
-          "je suis né en 1980" → {"date_naissance_client": "01/01/1980"}
-          
-          🏠 PATRIMOINE IMMOBILIER :
-          "maison 300000" → {"residence_principale_details": "Maison principale 300000€"}
-          "appartement 250000" → {"residence_principale_details": "Appartement principal 250000€"}
-          "résidence vaut 400000" → {"residence_principale_details": "Résidence principale 400000€"}
-          "chez moi 500000 euros" → {"residence_principale_details": "Résidence principale 500000€"}
-          
-          💍 RÉGIME MATRIMONIAL :
-          "régime de la communauté" → {"regime_matrimonial_client": "Communauté réduite aux acquêts"}
-          "communauté" → {"regime_matrimonial_client": "Communauté réduite aux acquêts"}
-          "séparation de biens" → {"regime_matrimonial_client": "Séparation de biens"}
-          "communauté universelle" → {"regime_matrimonial_client": "Communauté universelle"}
-          
-          💰 REVENUS :
-          "je gagne 50000 euros" → {"revenu_net_annuel_client1": "50000"}
-          "salaire 3000 par mois" → {"revenu_net_annuel_client1": "36000"}
-          "revenus annuels 80000" → {"revenu_net_annuel_client1": "80000"}
-          
-          📍 COORDONNÉES COMPLÈTES :
-          "j'habite 15 rue de la Paix" → {"adresse_postale_client": "15 rue de la Paix"}
-          "75001 Paris" → {"code_postal_client": "75001", "ville_client": "Paris"}
-          "email jean@gmail.com" → {"email_client": "jean@gmail.com"}
-          "téléphone 06 12 34 56 78" → {"telephone_principal_client": "06 12 34 56 78"}
-          "nationalité française" → {"nationalite_client": "Française"}
-          
-          💼 PROFESSION AVANCÉE :
-          "avocat chez Dupont" → {"profession_client1": "Avocat", "nom_employeur_entreprise_client1": "Dupont"}
-          "CDI Google" → {"type_contrat_client1": "CDI", "nom_employeur_entreprise_client1": "Google"}
-          "fonctionnaire" → {"statut_professionnel_client1": "Fonctionnaire"}
-          "ma femme médecin 80000" → {"profession_client2": "Médecin", "revenu_net_annuel_client2": "80000"}
-          
-          🏠 PATRIMOINE ÉTENDU :
-          "résidence secondaire Nice" → {"residences_secondaires_details": "Résidence secondaire Nice"}
-          "appartement locatif 200000" → {"investissements_locatifs_details": "Appartement locatif 200000€"}
-          "revenus locatifs 1000 mois" → {"revenus_fonciers_annuels_bruts_foyer": "12000"}
-          
-          💰 ÉPARGNE COMPLÈTE :
-          "livret A 50000" → {"livrets_epargne_details": "Livret A 50000€"}
-          "assurance vie 100000" → {"assurance_vie_details": "Assurance vie 100000€"}
-          "PEA 30000" → {"pea_details": "PEA 30000€"}
-          "actions Total" → {"compte_titres_valeur_estimee": "Actions Total"}
-          
-          🎯 OBJECTIFS :
-          "réduire impôts" → {"objectifs_fiscaux_client": "Réduction fiscale"}
-          "achat résidence" → {"objectifs_patrimoniaux_client": "Achat résidence"}
-          "placement long terme" → {"horizon_placement_client": "Long terme"}
-          "profil prudent" → {"profil_risque_investisseur_client": "Prudent"}
-          
-          FORMAT RÉPONSE: JSON pur seulement - PAS DE TEXTE EN PLUS
-          SI AUCUNE INFO FISCALE VALIDE: {}
-          
-          SOIS LE MEILLEUR LINGUISTE CONTEXTUEL AU MONDE ! 🔥`
+          question: `EXTRACTION FISCALE SIMPLE - GROQ OPTIMIZED
+
+TEXTE À ANALYSER: "${contextWithHistory}"
+
+TÂCHE: Extraire les informations fiscales/personnelles du texte français.
+
+FORMAT DE RÉPONSE: JSON uniquement, sans texte supplémentaire.
+
+EXEMPLES PRÉCIS:
+"David Bertrand" → {"prenom_client": "David", "nom_client": "BERTRAND"}
+"marié communauté" → {"situation_maritale_client": "Marié(e)", "regime_matrimonial_client": "Communauté réduite aux acquêts"}
+"communauté universelle" → {"regime_matrimonial_client": "Communauté universelle"}
+"deux enfants" → {"nombre_enfants_a_charge_client": "2"}
+"né le 1er mars 1980" → {"date_naissance_client": "01/03/1980"}
+"nationalité française" → {"nationalite_client": "Française"}
+"appartement 300000" → {"residence_principale_details": "Appartement 300000€"}
+"résidence secondaire 400000" → {"residences_secondaires_details": "Résidence secondaire 400000€"}
+"hébergez votre mère" → {"personnes_dependantes_client": "Mère à charge"}
+"avocat" → {"profession_client1": "Avocat"}
+"je gagne 50000" → {"revenu_net_annuel_client1": "50000"}
+
+SI AUCUNE INFO TROUVÉE: {}
+
+RÉPONSE (JSON seulement):`
         })
       });
 
