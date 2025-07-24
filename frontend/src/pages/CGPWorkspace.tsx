@@ -12,7 +12,9 @@ import {
   TrendingUp,
   Shield,
   HelpCircle,
-  Bell
+  Bell,
+  Database,
+  ExternalLink
 } from 'lucide-react';
 
 // Import des composants CGP
@@ -127,6 +129,28 @@ const CGPWorkspace: React.FC = () => {
                   )}
                 </Button>
               </div>
+
+              {/* API Management */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.open('/pro/api', '_blank')}
+                title="Gestion des APIs"
+              >
+                <Database className="h-4 w-4" />
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </Button>
+
+              {/* Security Dashboard */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.open('/pro/security', '_blank')}
+                title="Tableau de Bord Sécurité"
+              >
+                <Shield className="h-4 w-4" />
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </Button>
 
               {/* Paramètres */}
               <Button variant="outline" size="sm">

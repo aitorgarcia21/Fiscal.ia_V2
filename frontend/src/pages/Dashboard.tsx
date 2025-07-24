@@ -965,14 +965,11 @@ export function Dashboard() {
       <div className="bg-[#162238] border-b border-[#c5a572]/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative inline-flex items-center justify-center group">
-              <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-              <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+            <div className="relative inline-flex items-center justify-center">
+              <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+              <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <div>
-              <h1 className="text-lg font-semibold text-white">Francis</h1>
-              <p className="text-sm text-gray-400">Votre copilote</p>
-            </div>
+            <span className="text-xl font-bold text-white">Francis</span>
           </div>
           <div className="flex items-center gap-4">
             <button

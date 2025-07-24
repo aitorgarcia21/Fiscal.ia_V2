@@ -49,6 +49,8 @@ import { CompleteSignupPage } from './pages/CompleteSignupPage';
 import CGPWorkspace from './pages/CGPWorkspace';
 import ReportsManager from './components/reports/ReportsManager';
 import ClientPortal from './components/portal/ClientPortal';
+import APIDashboard from './components/api/APIDashboard';
+import SecurityDashboard from './components/security/SecurityDashboard';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -106,6 +108,8 @@ function App() {
             <Route path="/pro/dashboard" element={<ProDashboardPage />} />
             <Route path="/pro/cgp" element={<CGPWorkspace />} />
             <Route path="/pro/reports" element={<ReportsManager />} />
+            <Route path="/pro/api" element={<APIDashboard />} />
+            <Route path="/pro/security" element={<SecurityDashboard />} />
             <Route path="/pro/clients/new" element={<ProCreateClientPage />} />
             <Route path="/pro/clients/:clientId" element={<ProClientDetailPage />} />
             <Route path="/pro/clients/:clientId/edit" element={<ProEditClientPage />} />
