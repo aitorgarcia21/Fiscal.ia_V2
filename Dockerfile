@@ -66,4 +66,4 @@ ENV PORT=8080
 ENV PYTHONPATH=/app
 
 EXPOSE $PORT
-CMD ["/bin/sh", "-c", "nginx && python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT"] 
+CMD ["./start.sh"] 
