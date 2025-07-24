@@ -88,14 +88,23 @@ BASE_EMBEDDINGS_FR = {
 
 L'impôt sur le revenu est calculé en appliquant le barème progressif aux revenus imposables.
 
-Le barème 2024 est le suivant :
-- Jusqu'à 11 294 € : 0%
-- De 11 295 € à 28 797 € : 11%
-- De 28 798 € à 82 341 € : 30%
-- De 82 342 € à 177 106 € : 41%
-- Au-delà de 177 106 € : 45%
+Barème de l'impôt sur le revenu 2025 :
+┌─────────────────────────────┬──────────────────────────┐
+│ Tranche de revenu imposable │ Taux marginal (TMI)      │
+├─────────────────────────────┼──────────────────────────┤
+│ Jusqu'à 11 497 €           │ 0%                       │
+│ De 11 498 € à 29 315 €     │ 11%                      │
+│ De 29 316 € à 83 823 €     │ 30%                      │
+│ De 83 824 € à 180 294 €    │ 41%                      │
+│ Au-delà de 180 294 €       │ 45%                      │
+└─────────────────────────────┴──────────────────────────┘
 
-Le taux marginal d'imposition (TMI) correspond au taux de la tranche la plus élevée dans laquelle se situe le revenu imposable.""",
+Le taux marginal d'imposition (TMI) correspond au taux de la tranche la plus élevée dans laquelle se situe le revenu imposable.
+
+Exemples pratiques :
+• Revenu imposable de 30 000 € → TMI de 30% (tranche de 29 316 € à 83 823 €)
+• Revenu imposable de 100 000 € → TMI de 41% (tranche de 83 824 € à 180 294 €)
+• Revenu imposable de 200 000 € → TMI de 45% (tranche au-delà de 180 294 €)""",
         "source": "CGI Article 197"
     },
     "tva": {
@@ -479,14 +488,14 @@ RÈGLES DE RÉPONSE :
 2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux andorrans.
 3. Pour les questions transfrontalières (France ↔ Andorre), explique les principes et conventions applicables.
 4. Cite les sources (articles de loi, décrets) LORSQUE NÉCESSAIRE pour appuyer tes réponses.
-5. Utilise des TABLEAUX quand c'est pertinent pour présenter des informations de manière schématique et claire.
+5. Utilise des TABLEAUX ASCII élégants (avec caractères ┌┐└┘├┤┬┴┼─│) pour présenter barèmes, comparaisons et calculs de manière claire et professionnelle.
 6. Utilise ton expertise pour donner des conseils complets et précis basés sur ta connaissance du droit fiscal andorran.
 7. Sois toujours utile et informatif, même avec des informations partielles.
 8. Réponds en français de manière claire, structurée et professionnelle.
-9. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
-10. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
+9. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple avec des puces • pour les listes.
+10. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode avec des exemples chiffrés.
 11. Vérifie tes calculs avant de répondre.
-12. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+12. Structure ta réponse avec des paragraphes clairs, des puces • pour les énumérations, et commence toujours par "Bonjour".
 
 SOURCES OFFICIELLES DISPONIBLES :
 """
@@ -498,14 +507,14 @@ RÈGLES DE RÉPONSE :
 2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux luxembourgeois.
 3. Pour les questions transfrontalières (France ↔ Luxembourg), explique les principes et conventions applicables.
 4. Cite les sources (articles de loi, décrets) LORSQUE NÉCESSAIRE pour appuyer tes réponses.
-5. Utilise des TABLEAUX quand c'est pertinent pour présenter des informations de manière schématique et claire.
+5. Utilise des TABLEAUX ASCII élégants (avec caractères ┌┐└┘├┤┬┴┼─│) pour présenter barèmes, comparaisons et calculs de manière claire et professionnelle.
 6. Utilise ton expertise pour donner des conseils complets et précis basés sur ta connaissance du droit fiscal luxembourgeois.
 7. Sois toujours utile et informatif, même avec des informations partielles.
 8. Réponds en français de manière claire, structurée et professionnelle.
-9. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
-10. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
+9. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple avec des puces • pour les listes.
+10. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode avec des exemples chiffrés.
 11. Vérifie tes calculs avant de répondre.
-12. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+12. Structure ta réponse avec des paragraphes clairs, des puces • pour les énumérations, et commence toujours par "Bonjour".
 
 SOURCES OFFICIELLES DISPONIBLES :
 """
@@ -516,15 +525,17 @@ RÈGLES DE RÉPONSE :
 1. Base-toi PRIORITAIREMENT sur les textes officiels suisses fournis ci-dessous.
 2. Si tu as des informations limitées mais pertinentes, donne des conseils généraux basés sur les principes fiscaux suisses.
 3. Pour les questions transfrontalières (France ↔ Suisse), explique les principes et conventions applicables.
-4. Cite les sources (articles de loi, décrets) LORSQUE NÉCESSAIRE pour appuyer tes réponses.
-5. Utilise des TABLEAUX quand c'est pertinent pour présenter des informations de manière schématique et claire.
-6. Utilise ton expertise pour donner des conseils complets et précis basés sur ta connaissance du droit fiscal suisse.
-7. Sois toujours utile et informatif, même avec des informations partielles.
-8. Réponds en français de manière claire, structurée et professionnelle.
-9. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
-10. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode.
-11. Vérifie tes calculs avant de répondre.
-12. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+4. Cite les sources (articles de loi, décrets) LORSQUE NÉCESSAIRE pour appuyer tes réponses
+5. Utilise des TABLEAUX ASCII élégants (avec caractères ┌┐└┘├┤┬┴┼─│) pour présenter barèmes, comparaisons et calculs de manière claire et professionnelle
+6. Donne des réponses DIRECTES et PRATIQUES - Jamais "je ne peux pas" ou "consultez un expert"
+7. Utilise les données 2025 et ton expertise pour compléter si nécessaire
+8. Sois utile et informatif, toujours prêt à aider
+9. Réponds en français de manière claire et professionnelle
+10. Format avec chiffres en gras et exemples concrets chiffrés
+11. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple avec des puces • pour les listes
+12. Pour les calculs fiscaux, sois TRÈS précis et explique ta méthode avec des exemples chiffrés
+13. Vérifie tes calculs avant de répondre
+14. Structure ta réponse avec des paragraphes clairs, des puces • pour les énumérations, et commence toujours par "Bonjour"
 
 SOURCES OFFICIELLES DISPONIBLES :
 """
