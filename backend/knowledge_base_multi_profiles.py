@@ -999,8 +999,198 @@ class MultiProfileKnowledgeBase:
         self.knowledge_chunks.extend(chunks)
     
     def _load_commercant_artisan_knowledge(self):
-        """Connaissances Commerçants/Artisans"""
-        pass  # Implémentation similaire
+        """Connaissances Commerçants/Artisans ultra-spécialisées pour CGP"""
+        
+        chunks = [
+            KnowledgeChunk(
+                id="artisan_micro_reel_transition_001",
+                content="""
+                **TRANSITION MICRO-BIC → RÉEL SIMPLIFIÉ POUR ARTISANS**
+                
+                **SEUILS DE BASCULE 2024 :**
+                - **Micro-BIC** : CA < 188 700€ (vente) / 77 700€ (services)
+                - **Réel obligatoire** : dépassement seuils 2 années consécutives
+                - **Option réel** : possible même sous seuils (intérêt fiscal)
+                
+                **ANALYSE COÛT/BÉNÉFICE TRANSITION :**
+                
+                **EXEMPLE ARTISAN ÉLECTRICIEN (CA 85k€) :**
+                
+                **En Micro-BIC :**
+                - Abattement forfaitaire : 71% → CA imposable : 24 650€
+                - Charges réelles non déductibles : 45k€ (matériaux, véhicule, outils)
+                - **IR sur 24 650€ (TMI 30%) = 7 395€**
+                
+                **En Réel Simplifié :**
+                - CA : 85 000€
+                - Charges déductibles : 45 000€
+                - Bénéfice imposable : 40 000€
+                - **IR sur 40 000€ (TMI 30%) = 12 000€**
+                - **MAIS** : récupération TVA + amortissements
+                
+                **OPTIMISATION RÉEL :**
+                - **Amortissements véhicule** : 8k€/an → économie 2 400€
+                - **TVA récupérée** : 9k€ (20% sur 45k€ charges)
+                - **Charges déductibles supplémentaires** : formation, expertises, etc.
+                - **Économie nette : 15 000€/an**
+                
+                **STRATÉGIES AVANCÉES :**
+                1. **Timing optimal** : option réel avant gros investissements
+                2. **Régularisation TVA** : étalement sur 5 ans si défavorable
+                3. **Provision congés payés** : lissage charges sociales
+                4. **SCI pour locaux** : optimisation patrimoniale
+                
+                **CAS PRATIQUE - ARTISAN BOULANGER :**
+                CA 120k€, investissement fournil 80k€ :
+                - **Micro** : abattement 71% → 34 800€ imposable
+                - **Réel** : amortissement fournil 8k€/an + récup TVA 16k€
+                - **Gain transition : 25k€ première année**
+                """,
+                profile_type=ProfileType.ARTISAN,
+                regime_fiscal=RegimeFiscal.REEL_SIMPLIFIE,
+                theme_fiscal=ThemeFiscal.OPTIMISATION,
+                tags=["micro-BIC", "réel", "transition", "artisan", "seuils"],
+                context="Optimisation fiscale transition micro vers réel pour artisans",
+                examples=[
+                    "Électricien 85k€ : passage réel → économie 15k€/an",
+                    "Boulanger 120k€ + investissement 80k€ → gain 25k€ première année"
+                ]
+            ),
+            
+            KnowledgeChunk(
+                id="commercant_sarl_ou_sasu_001",
+                content="""
+                **COMMERÇANT : SARL vs SASU - ARBITRAGE AVANCÉ**
+                
+                **CRITÈRES DE CHOIX POUR COMMERÇANTS :**
+                
+                **1. PROTECTION SOCIALE :**
+                - **SARL (gérant majoritaire)** : TNS → RSI → charges 45% CA
+                - **SASU (président)** : Assimilé salarié → charges 75% rémunération
+                - **Impact** : SASU = meilleure protection, coût plus élevé
+                
+                **2. FLEXIBILITÉ DIVIDENDES :**
+                - **SARL** : distribution obligatoire égalitaire entre associés
+                - **SASU** : dividendes flexibles selon nombre d'actions
+                
+                **3. CESSION FACILITÉ :**
+                - **SARL** : agrément associés requis
+                - **SASU** : cession libre (sauf clauses statutaires)
+                
+                **CAS PRATIQUE - COMMERCE ALIMENTAIRE (CA 200k€) :**
+                
+                **OPTION SARL :**
+                - Bénéfice après IS (25%) : 150k€
+                - Rémunération gérant : 50k€
+                - Charges sociales TNS : 22 500€ (45%)
+                - Dividendes : 100k€ → Prélèvements sociaux 17,2% = 17 200€
+                - **Coût social total : 39 700€**
+                
+                **OPTION SASU :**
+                - Rémunération président : 50k€
+                - Charges sociales : 37 500€ (75%)
+                - Dividendes : 100k€ → PFU 30% = 30 000€
+                - **Coût social + fiscal total : 67 500€**
+                
+                **ARBITRAGE :**
+                - **SARL** : économie 27 800€/an mais protection moindre
+                - **SASU** : coût élevé mais retraite + chômage + maladie optimaux
+                
+                **STRATÉGIE HYBRIDE - SARL + CONTRAT MADELIN :**
+                - SARL classique + complémentaire Madelin
+                - Coût Madelin : 8k€/an déductible
+                - **Coût total : 47 700€ vs 67 500€ SASU**
+                - **Économie : 19 800€/an avec protection équivalente**
+                
+                **RECOMMANDATION CGP :**
+                - **CA < 150k€** : EI ou SARL + Madelin
+                - **CA 150-300k€** : SARL optimisée
+                - **CA > 300k€** : SASU (avantages > surcoûts)
+                - **Projet cession** : SASU obligatoire
+                """,
+                profile_type=ProfileType.COMMERCANT,
+                regime_fiscal=RegimeFiscal.IMPOT_SOCIETES,
+                theme_fiscal=ThemeFiscal.OPTIMISATION,
+                tags=["SARL", "SASU", "arbitrage", "commerce", "protection sociale"],
+                context="Choix structure juridique optimale pour commerçants",
+                examples=[
+                    "Commerce 200k€ CA : SARL économie 27k€/an vs SASU",
+                    "SARL + Madelin = protection SASU - 19k€/an"
+                ]
+            ),
+            
+            KnowledgeChunk(
+                id="franchise_tva_commercant_001",
+                content="""
+                **FRANCHISE TVA COMMERÇANT - OPTIMISATION AVANCÉE**
+                
+                **SEUILS FRANCHISE TVA 2024 :**
+                - **Ventes** : 91 900€ (dépassement → TVA obligatoire)
+                - **Services** : 36 800€
+                - **Mixte** : calcul prorata
+                
+                **STRATÉGIES DE MAINTIEN SOUS SEUILS :**
+                
+                **1. ÉCHELONNEMENT CA :**
+                - Report facturation décembre → janvier N+1
+                - Lissage CA sur 2 exercices
+                - **Gain** : maintien franchise 1 an supplémentaire
+                
+                **2. CRÉATION SCI POUR LOCAUX :**
+                - Local commercial → SCI dédiée
+                - Loyer SCI → réduction CA société
+                - **Double avantage** : franchise maintenue + optimisation IS
+                
+                **3. EXTERNALISATION SERVICES :**
+                - Comptabilité, nettoyage → sous-traitance
+                - CA facturation → CA prestation
+                - Optimisation classification activités
+                
+                **CAS PRATIQUE - COMMERCE TEXTILE :**
+                CA prévu : 95k€ (dépassement 3,1k€)
+                
+                **Solution 1 - Report facturation :**
+                - Report 5k€ factures décembre → janvier
+                - CA N : 90k€ (sous seuil)
+                - **Économie TVA** : maintien franchise
+                
+                **Solution 2 - SCI locaux :**
+                - Local 2k€/mois → SCI
+                - CA commerce : 95k€ - 24k€ = 71k€
+                - **Double bénéfice** : franchise + déduction IS loyers
+                
+                **ANALYSE COÛT/BÉNÉFICE ASSUJETTISSEMENT :**
+                Pour CA 100k€ marge 40% :
+                
+                **En franchise :**
+                - Prix TTC = prix HT
+                - Compétitivité maintenue
+                - **Pas de récupération TVA achats**
+                
+                **Assujetti TVA :**
+                - TVA collectée : 20k€
+                - TVA déductible : 12k€ (60k€ achats)
+                - **TVA nette à payer : 8k€**
+                - **MAIS** : avantage compétitif B2B
+                
+                **RECOMMANDATION :**
+                - **Clientèle B2C** : maintenir franchise maximum
+                - **Clientèle B2B** : option TVA souvent bénéfique
+                - **Investissements prévus** : opter TVA avant achat
+                """,
+                profile_type=ProfileType.COMMERCANT,
+                regime_fiscal=RegimeFiscal.REEL_SIMPLIFIE,
+                theme_fiscal=ThemeFiscal.TVA,
+                tags=["franchise TVA", "seuils", "optimisation", "B2B", "B2C"],
+                context="Stratégies optimisation franchise TVA commerçants",
+                examples=[
+                    "Commerce 95k€ : SCI locaux → maintien franchise",
+                    "Textile B2B : option TVA bénéfique malgré coût 8k€"
+                ]
+            )
+        ]
+        
+        self.knowledge_chunks.extend(chunks)
     
     def _load_optimisations_transversales(self):
         """Optimisations transversales"""
@@ -1032,6 +1222,273 @@ class MultiProfileKnowledgeBase:
                 context="Optimisation PER selon profil fiscal",
                 examples=[
                     "TNS 50k€ revenus : déduction PER 5k€ → économie IR 1,5k€ si TMI 30%"
+                ]
+            ),
+            
+            KnowledgeChunk(
+                id="multi_structure_holding_sci_001",
+                content="""
+                **MONTAGE MULTI-STRUCTURES : HOLDING + SCI + SASU OPÉRATIONNELLE**
+                
+                **ARCHITECTURE OPTIMISÉE POUR ENTREPRENEURS PATRIMONIAUX :**
+                
+                **NIVEAU 1 - HOLDING PATRIMONIALE (IS) :**
+                - Détention participations + immobilier de rapport
+                - Régime mère-fille : dividendes 95% exonérés
+                - IS réduit : 15% (jusqu'à 42 500€ bénéfices)
+                
+                **NIVEAU 2 - SCI FAMILIALE (IR) :**
+                - Immobilier professionnel + personnel
+                - Optimisation démembrement : usufruit/nue-propriété
+                - Transmission facilitée enfants
+                
+                **NIVEAU 3 - SASU OPÉRATIONNELLE (IS) :**
+                - Activité principale
+                - Dirigeant assimilé salarié
+                - Optimisation arbitrage salaire/dividendes
+                
+                **CAS PRATIQUE - CONSULTANT IT :**
+                Revenus 300k€/an, patrimoine immobilier 2M€
+                
+                **AVANT (EI + patrimoine personnel) :**
+                - IR consultation : 300k€ × 45% = 135k€
+                - IFI patrimoine : 2M€ × 1% = 20k€
+                - **Fiscalité totale : 155k€/an**
+                
+                **APRÈS (montage multi-structures) :**
+                
+                1. **SASU consultation** :
+                   - Salaire dirigeant : 80k€ (optimal charges sociales)
+                   - Dividendes SASU → Holding : 220k€ (exonérés 95%)
+                   - IS SASU : 220k€ × 25% = 55k€
+                
+                2. **Holding patrimoniale** :
+                   - Revenus locatifs SCI : 100k€
+                   - Dividendes SASU : 220k€ (209k€ nets)
+                   - IS Holding : 15% sur 42,5k€ + 25% sur 266,5k€ = 73k€
+                
+                3. **SCI familiale** :
+                   - Loyers holding : déductibles IR
+                   - Démembrement : réduction IFI 20-30%
+                   - IFI optimisé : 14k€ (au lieu de 20k€)
+                
+                **FISCALITÉ OPTIMISÉE TOTALE :**
+                - IS SASU : 55k€
+                - IS Holding : 73k€
+                - IR salaire dirigeant : 15k€
+                - IFI optimisé : 14k€
+                - **Total : 157k€ vs 155k€**
+                
+                **MAIS AVANTAGES QUALITATIFS :**
+                - **Protection sociale optimale** (dirigeant assimilé salarié)
+                - **Transmission facilitée** (SCI + holding)
+                - **Flexibilité patrimoniale** (réinvestissement via holding)
+                - **Optimisation future** (intégration fiscale, cession...)
+                
+                **STRATÉGIES AVANCÉES :**
+                1. **Intégration fiscale** : Holding + filiales
+                2. **LBO familial** : acquisition via holding avec effet de levier
+                3. **Internationalisation** : holdings européennes (Luxembourg, Pays-Bas)
+                4. **Démembrement évolutif** : usufruit temporaire
+                
+                **COÛTS DE MISE EN ŒUVRE :**
+                - Création structures : 5k€
+                - Gestion annuelle : 8k€
+                - Expertise fiscale : 15k€
+                - **Coût total : 28k€/an**
+                - **ROI** : avantages > coûts dès 500k€ revenus annuels
+                """,
+                profile_type=ProfileType.GROUPE_HOLDING,
+                regime_fiscal=RegimeFiscal.IMPOT_SOCIETES,
+                theme_fiscal=ThemeFiscal.OPTIMISATION,
+                tags=["holding", "SCI", "SASU", "multi-structures", "patrimoine"],
+                context="Montages multi-structures pour entrepreneurs patrimoniaux",
+                examples=[
+                    "Consultant 300k€ : montage holding+SCI+SASU = protection + transmission",
+                    "ROI montage : bénéfique dès 500k€ revenus annuels"
+                ]
+            ),
+            
+            KnowledgeChunk(
+                id="succession_anticipee_001",
+                content="""
+                **TRANSMISSION D'ENTREPRISE - STRATÉGIES FISCALES AVANCÉES**
+                
+                **OUTILS DE TRANSMISSION OPTIMISÉE :**
+                
+                **1. DÉMEMBREMENT DE PROPRIÉTÉ :**
+                - **Usufruit** : revenus + contrôle (dirigeant âgé)
+                - **Nue-propriété** : transmission enfants avec décote
+                - **Décote fiscale** : 30-60% selon âge usufruitier
+                
+                **2. PACTE DUTREIL :**
+                - **Exonération** : 75% droits succession/donation
+                - **Conditions** : conservation 6 ans + engagement collectif
+                - **Cumul possible** : avec autres réductions
+                
+                **3. HOLDING DE REPRISE :**
+                - **Leverage effect** : acquisition avec dette
+                - **Optimisation fiscale** : intérêts déductibles
+                - **Management package** : association équipe dirigeante
+                
+                **CAS PRATIQUE - PME FAMILIALE :**
+                Entreprise valorisée 5M€, dirigeant 65 ans, 2 enfants
+                
+                **STRATÉGIE CLASSIQUE (cession directe) :**
+                - Plus-value : 5M€ - 500k€ (prix acquisition) = 4,5M€
+                - IR plus-values : 4,5M€ × 30% = 1,35M€
+                - **Net vendeur : 3,65M€**
+                
+                **STRATÉGIE OPTIMISÉE (démembrement Dutreil) :**
+                
+                **Phase 1 - Démembrement (dirigeant 65 ans) :**
+                - Décote viager 65 ans : 40%
+                - Valeur nue-propriété : 5M€ × 60% = 3M€
+                - Donation nue-propriété enfants : 3M€
+                
+                **Phase 2 - Application Dutreil :**
+                - Exonération 75% : 3M€ × 75% = 2,25M€ exonéré
+                - Base taxable : 750k€
+                - Droits donation (après abattements) : 200k€
+                
+                **Phase 3 - Usufruit dirigeant :**
+                - Dirigeant conserve revenus + contrôle
+                - Extinction usufruit au décès (sans taxation)
+                - **Transmission totale pour 200k€ droits**
+                
+                **ÉCONOMIE FISCALE :**
+                - Cession classique : 1,35M€ impôts
+                - Transmission Dutreil : 200k€ droits
+                - **Économie : 1,15M€**
+                
+                **STRATÉGIE HOLDING LBO FAMILIAL :**
+                
+                Pour entreprise 10M€ :
+                
+                **Structure :**
+                - Holding familiale : acquisition 80% dette + 20% fonds propres
+                - Management : 10-20% participation
+                - Remboursement dette : dividendes entreprise
+                
+                **Avantages :**
+                - **Effet de levier** : acquisition avec faible apport
+                - **Optimisation fiscale** : intérêts déductibles IS
+                - **Motivation management** : participation au capital
+                - **Transmission progressive** : cession parts holding
+                
+                **TIMING OPTIMAL :**
+                - **Anticipation** : démembrement dès 60 ans
+                - **Valorisation** : avant forte croissance
+                - **Pacte Dutreil** : signature 2 ans avant transmission
+                - **Holding** : constitution progressive sur 5-10 ans
+                
+                **PIÈGES À ÉVITER :**
+                - **Abus de droit** : montages trop artificiels
+                - **Respect engagements** : Dutreil sur 6 ans minimum
+                - **Liquidités** : prévoir paiement droits
+                - **Management** : anticipation départ dirigeant
+                """,
+                profile_type=ProfileType.GERANT_SARL,
+                regime_fiscal=RegimeFiscal.IMPOT_SOCIETES,
+                theme_fiscal=ThemeFiscal.TRANSMISSION,
+                tags=["succession", "transmission", "Dutreil", "démembrement", "holding"],
+                context="Stratégies fiscales optimisées transmission entreprise",
+                examples=[
+                    "PME 5M€ : démembrement + Dutreil = économie 1,15M€ vs cession",
+                    "LBO familial 10M€ : effet levier + optimisation IS"
+                ]
+            ),
+            
+            KnowledgeChunk(
+                id="international_optimization_001",
+                content="""
+                **OPTIMISATION FISCALE INTERNATIONALE - STRUCTURES EUROPÉENNES**
+                
+                **CONTEXTE RÉGLEMENTAIRE POST-BEPS :**
+                - **Substance économique** : exigence réelle activité
+                - **Prix de transfert** : documentation obligatoire
+                - **Anti-BEPS** : limitation optimisations artificielles
+                
+                **HOLDING LUXEMBOURGEOISE - CAS D'USAGE :**
+                
+                **Structure recommandée :**
+                - **Holding Luxembourg** : détention participations
+                - **Filiales EU** : activités opérationnelles
+                - **Substance réelle** : bureau + salariés Luxembourg
+                
+                **Avantages fiscaux :**
+                - **Participation exemption** : dividendes/plus-values exonérés
+                - **Réseau de conventions** : limitation retenues à la source
+                - **IP Box** : régime propriété intellectuelle 5,76%
+                - **Liquidation** : plus-values exonérées sous conditions
+                
+                **CAS PRATIQUE - GROUPE TECH :**
+                CA consolidé 50M€, marges 20%, expansion internationale
+                
+                **Avant (structure française) :**
+                - IS France : 10M€ × 25% = 2,5M€
+                - Retenues à la source : 500k€ (dividendes filiales)
+                - **Fiscalité totale : 3M€**
+                
+                **Après (holding luxembourgeoise) :**
+                - Holding Luxembourg : exonération dividendes filiales
+                - IP Box Luxembourg : revenus IP à 5,76%
+                - Réduction retenues : conventions luxembourgeoises
+                - **Fiscalité optimisée : 1,8M€**
+                - **Économie : 1,2M€/an**
+                
+                **STRUCTURE PAYS-BAS (INNOVATION) :**
+                
+                **Innovation Box :**
+                - Revenus R&D : 9% IS (vs 25,8% standard)
+                - **Conditions** : développement interne + substance
+                - **Optimisation** : 16,8 points réduction IS
+                
+                **CAS FINTECH :**
+                Revenus logiciels 20M€, développement Paris
+                
+                **Structure optimisée :**
+                - **Holding Pays-Bas** : détention IP
+                - **Filiale France** : développement + substance
+                - **Redevances** : France → Pays-Bas (prix de marché)
+                - **Innovation Box** : 9% sur revenus IP aux Pays-Bas
+                
+                **CONFORMITÉ BEPS :**
+                1. **Substance économique** :
+                   - Bureau + équipe dédiée (2-3 personnes minimum)
+                   - Décisions stratégiques prises localement
+                   - Activité réelle (pas boîte aux lettres)
+                
+                2. **Prix de transfert** :
+                   - Documentation complète
+                   - Benchmarking indépendants
+                   - Accords préalables (APA) recommandés
+                
+                3. **Reporting** :
+                   - Country-by-Country reporting
+                   - Déclaration structures offshore
+                   - Conformité FATCA/CRS
+                
+                **COÛTS VS BÉNÉFICES :**
+                - **Setup** : 50k€ (structure + conseil)
+                - **Running costs** : 80k€/an (substance + compliance)
+                - **Seuil rentabilité** : 500k€ économie fiscale/an
+                - **ROI** : bénéfique dès 2-3M€ bénéfices récurrents
+                
+                **RISQUES ET MITIGATION :**
+                - **Contrôle fiscal** : documentation irréprochable
+                - **Changements législatifs** : veille réglementaire
+                - **Réputation** : transparence communication
+                - **Exit strategy** : plans rapatriement si nécessaire
+                """,
+                profile_type=ProfileType.GROUPE_HOLDING,
+                regime_fiscal=RegimeFiscal.IMPOT_SOCIETES,
+                theme_fiscal=ThemeFiscal.OPTIMISATION,
+                tags=["international", "Luxembourg", "Pays-Bas", "BEPS", "holding"],
+                context="Optimisations fiscales internationales conformes post-BEPS",
+                examples=[
+                    "Groupe tech 50M€ : holding Luxembourg = économie 1,2M€/an",
+                    "Fintech : Innovation Box Pays-Bas = IS 9% sur revenus IP"
                 ]
             )
         ]

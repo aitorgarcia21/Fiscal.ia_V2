@@ -282,11 +282,10 @@ export function ProDashboardPage() {
     setIsLoadingMessage(true);
 
     try {
-      const response = await apiClient('/api/chat/', {
+      const response = await apiClient('/api/test-francis', {
         method: 'POST',
         body: JSON.stringify({
-          message: currentMessage,
-          country: country || 'france'
+          question: currentMessage
         })
       });
 
