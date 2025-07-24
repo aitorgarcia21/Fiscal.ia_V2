@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   MessageSquare,
@@ -91,6 +91,16 @@ export function Dashboard() {
   // États pour l'enregistrement vocal
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+
+  // États pour le test de conscience fiscale
+  const [testQuestions, setTestQuestions] = useState<any>(null);
+  const [testReponses, setTestReponses] = useState<Record<string, string>>({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [showTestResults, setShowTestResults] = useState<boolean>(false);
+  const [testResult, setTestResult] = useState<any>(null);
+
+  // Ref pour le scroll automatique du chat
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Charger le profil utilisateur au montage
   useEffect(() => {

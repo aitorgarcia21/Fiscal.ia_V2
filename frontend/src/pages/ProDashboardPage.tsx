@@ -4,6 +4,7 @@ import {
   PlusCircle, 
   Search, 
   Eye, 
+  Edit2,
   Edit3, 
   Trash2, 
   MessageSquare as MessageSquareIcon, 
