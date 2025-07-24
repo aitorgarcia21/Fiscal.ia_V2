@@ -484,6 +484,7 @@ export function ProChatPage() {
                   <div className="text-sm mb-1 opacity-70">
                     {message.role === 'user' ? 'Vous' : 'Francis'}
                   </div>
+                  <div>
                     {message.content}
                   </div>
                 </div>
