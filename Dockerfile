@@ -66,4 +66,4 @@ ENV PORT=8080
 ENV PYTHONPATH=/app
 
 EXPOSE $PORT
-CMD ["./start.sh"] 
+CMD ["/bin/sh", "./start.sh"] 
