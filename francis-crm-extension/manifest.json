@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "Francis CRM Assistant",
+  "version": "1.0.0",
+  "description": "Extension Francis avec reconnaissance vocale pour l'injection automatique de réponses fiscales dans vos CRM",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.salesforce.com/*",
+    "https://*.hubspot.com/*", 
+    "https://*.pipedrive.com/*",
+    "https://*.zoho.com/*",
+    "https://*.monday.com/*",
+    "https://*.airtable.com/*",
+    "https://*.notion.so/*",
+    "https://*.clickup.com/*",
+    "https://*.fiscal.ia/*",
+    "http://localhost:*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.salesforce.com/*",
+        "https://*.hubspot.com/*",
+        "https://*.pipedrive.com/*",
+        "https://*.zoho.com/*",
+        "https://*.monday.com/*",
+        "https://*.airtable.com/*",
+        "https://*.notion.so/*",
+        "https://*.clickup.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Francis CRM Assistant",
+    "default_icon": {
+      "16": "icons/francis-16.png",
+      "32": "icons/francis-32.png",
+      "48": "icons/francis-48.png",
+      "128": "icons/francis-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/francis-16.png",
+    "32": "icons/francis-32.png", 
+    "48": "icons/francis-48.png",
+    "128": "icons/francis-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*", "francis-widget.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

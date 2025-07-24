@@ -108,6 +108,16 @@ const PROFESSIONAL_TEMPLATES: QuestionTemplate[] = [
   }
 ];
 
+interface ConversationHistory {
+  id: string;
+  clientId?: number;
+  clientName?: string;
+  title: string;
+  lastMessage: string;
+  timestamp: Date;
+  messages: ProMessage[];
+}
+
 export function ProChatPage() {
   // États principaux du chat
   const [messages, setMessages] = useState<ProMessage[]>([
@@ -120,6 +130,10 @@ export function ProChatPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // États pour l'historique et les clients
+  const [selectedClientForHistory, setSelectedClientForHistory] = useState<ClientProfile | null>(null);
+  const [currentConversationId, setCurrentConversationId] = useState<string>('default');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user, isAuthenticated, isProfessional } = useAuth();
@@ -140,7 +154,7 @@ export function ProChatPage() {
   const [isCompactMode, setIsCompactMode] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [bookmarkedMessages, setBookmarkedMessages] = useState<Set<number>>(new Set());
-  const [conversationHistory, setConversationHistory] = useState<ProMessage[][]>([]);
+  const [conversationHistoryList, setConversationHistoryList] = useState<ConversationHistory[]>([]);
 
   const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
 
@@ -289,7 +303,17 @@ export function ProChatPage() {
 
   const startNewConversation = useCallback(() => {
     if (messages.length > 1) {
-      setConversationHistory(prev => [...prev, messages]);
+      const conversationTitle = messages[1]?.content.slice(0, 50) + '...' || 'Nouvelle conversation';
+      const newConversation: ConversationHistory = {
+        id: currentConversationId,
+        clientId: selectedClientId || undefined,
+        clientName: selectedClientProfile?.nom_client || 'Client général',
+        title: conversationTitle,
+        lastMessage: messages[messages.length - 1]?.content.slice(0, 100) + '...' || '',
+        timestamp: new Date(),
+        messages: messages
+      };
+      setConversationHistoryList(prev => [newConversation, ...prev.slice(0, 9)]);
     }
     setMessages([{
       role: 'assistant',
@@ -299,7 +323,8 @@ export function ProChatPage() {
     }]);
     setInput('');
     setSelectedTemplate(null);
-  }, [messages]);
+    setCurrentConversationId(Date.now().toString());
+  }, [messages, currentConversationId, selectedClientId, selectedClientProfile]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -446,6 +471,55 @@ export function ProChatPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+            )}
+            
+            {/* Historique des conversations */}
+            {conversationHistoryList.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                    <History className="w-4 h-4 text-[#c5a572]" />
+                    Historique
+                  </h3>
+                  <button
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="text-xs text-[#c5a572] hover:text-white transition-colors"
+                  >
+                    {showHistory ? 'Masquer' : 'Voir tout'}
+                  </button>
+                </div>
+                
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {(showHistory ? conversationHistoryList : conversationHistoryList.slice(0, 3)).map((conversation) => (
+                    <button
+                      key={conversation.id}
+                      onClick={() => {
+                        setMessages(conversation.messages);
+                        setCurrentConversationId(conversation.id);
+                        if (conversation.clientId) {
+                          setSelectedClientId(conversation.clientId);
+                        }
+                      }}
+                      className="w-full text-left p-3 rounded-lg bg-[#0E2444]/50 border border-[#c5a572]/20 hover:border-[#c5a572]/40 hover:bg-[#0E2444]/80 transition-all group"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-[#c5a572] font-medium truncate">
+                          {conversation.clientName}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(conversation.timestamp).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <h4 className="text-sm text-white font-medium truncate mb-1 group-hover:text-[#c5a572] transition-colors">
+                        {conversation.title}
+                      </h4>
+                      <p className="text-xs text-gray-400 truncate">
+                        {conversation.lastMessage}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             

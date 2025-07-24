@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francis CRM Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="popup-body">
+    <div class="francis-popup">
+        <!-- Header avec logo Francis -->
+        <div class="popup-header">
+            <div class="francis-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <svg class="euro-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.5 2c0 6-4 12-4 12s4 6 4 12"/>
+                        <path d="M8.5 8h7"/>
+                        <path d="M8.5 16h7"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>Francis</h1>
+                    <p>CRM Assistant</p>
+                </div>
+            </div>
+            <div class="connection-status" id="connectionStatus">
+                <div class="status-dot"></div>
+                <span>Déconnecté</span>
+            </div>
+        </div>
+
+        <!-- Configuration API -->
+        <div class="config-section" id="configSection">
+            <h3>Configuration</h3>
+            <div class="input-group">
+                <label for="apiUrl">URL API Francis:</label>
+                <input type="url" id="apiUrl" placeholder="https://fiscal.ia/api" value="https://fiscal.ia/api">
+            </div>
+            <div class="input-group">
+                <label for="apiKey">Clé API (optionnel):</label>
+                <input type="password" id="apiKey" placeholder="Votre clé API">
+            </div>
+            <button class="btn-primary" id="saveConfig">Sauvegarder</button>
+        </div>
+
+        <!-- Zone de chat vocal -->
+        <div class="chat-section" id="chatSection" style="display: none;">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        <p>Bonjour ! Je suis Francis, votre assistant fiscal pour CRM. Posez-moi une question ou utilisez la reconnaissance vocale.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone de saisie avec reconnaissance vocale -->
+            <div class="input-section">
+                <div class="input-container">
+                    <input type="text" id="questionInput" placeholder="Posez votre question fiscale...">
+                    <div class="voice-controls">
+                        <button class="btn-voice" id="voiceBtn" title="Reconnaissance vocale">
+                            <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a4 4 0 0 0-4 4v7a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                            <svg class="mic-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                                <path d="M9 9v3a3 3 0 0 0 5.12 2.12L9 9z"/>
+                                <path d="M12 2a3 3 0 0 1 3 3v7M15 9.34V5a3 3 0 0 0-5.94-.6"/>
+                                <path d="M17 16.95A7 7 0 0 1 5 12v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="21"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                            </svg>
+                        </button>
+                        <button class="btn-send" id="sendBtn" title="Envoyer">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2l-20 10 9 4 4 9z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="voice-feedback" id="voiceFeedback" style="display: none;">
+                    <div class="voice-animation">
+                        <div class="voice-dot"></div>
+                        <div class="voice-dot"></div>
+                        <div class="voice-dot"></div>
+                    </div>
+                    <span class="voice-text">Écoute en cours...</span>
+                </div>
+            </div>
+
+            <!-- Boutons d'injection -->
+            <div class="injection-controls">
+                <button class="btn-inject" id="injectBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5l7 7-7 7"/>
+                        <path d="M19 12H5"/>
+                    </svg>
+                    Injecter dans CRM
+                </button>
+                <button class="btn-secondary" id="copyBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copier
+                </button>
+            </div>
+
+            <!-- Instructions CRM détectés -->
+            <div class="crm-info" id="crmInfo" style="display: none;">
+                <div class="info-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    <span>CRM Détecté</span>
+                </div>
+                <p id="crmInfoText">Francis peut injecter directement vos réponses dans les champs de texte.</p>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Francis réfléchit...</p>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
