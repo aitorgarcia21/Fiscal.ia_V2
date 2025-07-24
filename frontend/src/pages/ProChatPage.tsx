@@ -387,20 +387,25 @@ export function ProChatPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447] text-gray-100">
-      {/* Header moderne et compact */}
+      {/* Header Francis Pro simplifié et harmonisé */}
       <div className="bg-[#162238]/95 backdrop-blur-sm border-b border-[#c5a572]/20 p-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center group">
-                <MessageSquare className="h-8 w-8 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Francis</h1>
-                <p className="text-xs text-[#c5a572] font-medium">Votre copilote</p>
-              </div>
+          <div className="flex items-center gap-3">
+            {/* Logo Francis Pro harmonisé (identique aux autres pages) */}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c5a572] to-[#d4b875] flex items-center justify-center">
+              <span className="text-[#162238] font-bold text-lg">F</span>
             </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">Francis</h1>
+              <p className="text-sm text-[#c5a572] font-medium">Pro</p>
+            </div>
+            {selectedClientProfile && (
+              <div className="ml-4 px-3 py-1 bg-[#c5a572]/10 rounded-full border border-[#c5a572]/30">
+                <span className="text-sm text-[#c5a572]">
+                  {selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-3">
@@ -415,352 +420,73 @@ export function ProChatPage() {
         </div>
       </div>
 
-      {/* Layout principal avec sidebar et chat */}
+      {/* Layout principal simplifié */}
       <div className="flex-1 flex">
-        {/* Sidebar professionnelle avec templates */}
-        <div className={`${isCompactMode ? 'w-16' : 'w-80'} bg-[#1a2332]/60 backdrop-blur-sm border-r border-[#c5a572]/20 flex flex-col transition-all duration-300`}>
-          {/* Actions professionnelles */}
-          {!isCompactMode && (
-            <div className="p-4 border-b border-[#c5a572]/10">
-              <div className="flex space-x-2 mb-4">
-                <button 
-                  onClick={startNewConversation}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all text-sm font-medium flex-1 justify-center"
-                >
-                  <Zap className="w-4 h-4" />
-                  <span>Nouveau</span>
-                </button>
-                <button 
-                  onClick={exportConversation}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-[#0E2444]/50 hover:bg-[#c5a572]/10 transition-colors text-sm text-gray-300 hover:text-[#c5a572]"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-              </div>
-              
-              {/* Sélection client */}
-              {clients.length > 0 && (
-                <div className="bg-[#162238]/50 rounded-xl p-3 border border-[#c5a572]/20 mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <Users className="w-4 h-4 text-[#c5a572]" />
-                      Client
-                    </h3>
-                  </div>
-                  <select 
-                    value={selectedClientId || ''}
-                    onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
-                    disabled={isLoadingClients || isLoading}
-                    className="w-full px-3 py-2 bg-[#0E2444] border border-[#c5a572]/30 rounded-lg text-gray-200 text-sm focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                  >
-                    <option value="">Général</option>
-                    {clients.map(client => (
-                      <option key={client.id} value={client.id}>
-                        {client.prenom_client} {client.nom_client}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Templates professionnels */}
-          {showTemplates && !isCompactMode && (
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <div className="p-4 border-b border-[#c5a572]/10">
-                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-[#c5a572]" />
-                  Templates CGP
+        {/* Sidebar ultra-simplifiée */}
+        <div className="w-80 bg-[#1a2332]/60 backdrop-blur-sm border-r border-[#c5a572]/20 flex flex-col">
+          {/* Sidebar simple avec client */}
+          <div className="p-6">
+            {/* Sélection client simplifiée */}
+            {clients.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#c5a572]" />
+                  Client
                 </h3>
-                
-                {/* Recherche et filtres */}
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input
-                      type="text"
-                      placeholder="Rechercher..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-[#0E2444] border border-[#c5a572]/30 rounded-lg text-gray-200 text-sm focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
-                    />
-                  </div>
-                  
-                  {/* Catégories */}
-                  <div className="flex flex-wrap gap-1">
-                    {categories.map(category => (
-                      <button
-                        key={category}
-                        onClick={() => setActiveCategory(category)}
-                        className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                          activeCategory === category
-                            ? 'bg-[#c5a572] text-[#162238]'
-                            : 'bg-[#0E2444] text-gray-300 hover:bg-[#c5a572]/20'
-                        }`}
-                      >
-                        {category === 'all' ? 'Tous' : category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <select 
+                  value={selectedClientId || ''}
+                  onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
+                  disabled={isLoadingClients || isLoading}
+                  className="w-full px-3 py-2 bg-[#0E2444] border border-[#c5a572]/30 rounded-lg text-gray-200 text-sm focus:outline-none focus:border-[#c5a572] focus:ring-1 focus:ring-[#c5a572]"
+                >
+                  <option value="">Général</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.prenom_client} {client.nom_client}
+                    </option>
+                  ))}
+                </select>
               </div>
-              
-              {/* Liste des templates */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                {filteredTemplates.map(template => {
-                  const IconComponent = template.icon;
-                  return (
-                    <button
-                      key={template.id}
-                      onClick={() => handleTemplateSelect(template)}
-                      className="w-full text-left p-3 rounded-lg bg-[#162238]/50 border border-[#c5a572]/10 hover:border-[#c5a572]/30 hover:bg-[#162238]/80 transition-all group"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#c5a572]/20 flex items-center justify-center group-hover:bg-[#c5a572]/30 transition-colors">
-                          {React.createElement(IconComponent as any, { className: "w-4 h-4 text-[#c5a572]" })}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-white mb-1 group-hover:text-[#c5a572] transition-colors">
-                            {template.title}
-                          </h4>
-                          <p className="text-xs text-gray-400 line-clamp-2 group-hover:text-gray-300 transition-colors">
-                            {template.description}
-                          </p>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {template.tags.slice(0, 2).map(tag => (
-                              <span
-                                key={tag}
-                                className="px-1.5 py-0.5 bg-[#c5a572]/10 text-[#c5a572] text-xs rounded border border-[#c5a572]/20"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Profil client compact */}
-          {selectedClientId && selectedClientProfile && !isCompactMode && (
-            <div className="p-4 border-t border-[#c5a572]/10">
-              <div className="bg-[#162238]/50 rounded-xl p-3 border border-[#c5a572]/20">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full"></div>
-                    Profil Client
-                  </h3>
-                  <button
-                    onClick={() => setSelectedClientId(null)}
-                    className="text-xs text-gray-400 hover:text-red-400 transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="space-y-1.5 text-xs text-gray-300">
-                  <p className="font-medium text-white truncate">
-                    {selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}
-                  </p>
-                  {selectedClientProfile.revenu_net_annuel_client1 && (
-                    <p className="font-medium text-[#c5a572] flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" />
-                      {Number(selectedClientProfile.revenu_net_annuel_client1).toLocaleString('fr-FR')} €
-                    </p>
-                  )}
-                  {selectedClientProfile.tranche_marginale_imposition_estimee && (
-                    <p className="text-[#c5a572] font-medium flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      TMI: {selectedClientProfile.tranche_marginale_imposition_estimee}%
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Mode compact - boutons seulement */}
-          {isCompactMode && (
-            <div className="flex-1 flex flex-col items-center py-4 space-y-3">
+            )}
+            
+            {/* Actions simples */}
+            <div className="space-y-3">
               <button 
                 onClick={startNewConversation}
-                className="p-3 rounded-lg bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all"
-                title="Nouvelle conversation"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all font-medium"
               >
-                <Zap className="w-5 h-5" />
+                <Zap className="w-4 h-4" />
+                Nouvelle conversation
               </button>
-              <button 
-                onClick={() => setShowTemplates(!showTemplates)}
-                className="p-3 rounded-lg bg-[#0E2444]/50 hover:bg-[#c5a572]/10 transition-colors text-gray-300 hover:text-[#c5a572]"
-                title="Templates"
-              >
-                <BookOpen className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={exportConversation}
-                className="p-3 rounded-lg bg-[#0E2444]/50 hover:bg-[#c5a572]/10 transition-colors text-gray-300 hover:text-[#c5a572]"
-                title="Exporter"
-              >
-                <Download className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Zone de chat professionnelle */}
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447]">
-          {/* Barre d'outils professionnelle */}
-          <div className="bg-[#162238]/95 backdrop-blur-sm border-b border-[#c5a572]/20 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-[#c5a572]" />
-                  Francis Pro
-                  {selectedClientProfile && (
-                    <span className="text-sm font-normal text-gray-400">
-                      • {selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}
-                    </span>
-                  )}
-                </h2>
-                {selectedTemplate && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-[#c5a572]/10 border border-[#c5a572]/30 rounded-full">
-                    {React.createElement(selectedTemplate.icon as any, { className: "w-4 h-4 text-[#c5a572]" })}
-                    <span className="text-sm text-[#c5a572] font-medium">{selectedTemplate.title}</span>
-                    <button
-                      onClick={() => setSelectedTemplate(null)}
-                      className="text-[#c5a572] hover:text-white transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowQuickActions(!showQuickActions)}
-                  className="p-2 rounded-lg bg-[#0E2444]/50 hover:bg-[#c5a572]/10 transition-colors text-gray-300 hover:text-[#c5a572]"
-                  title="Actions rapides"
-                >
-                  <Zap className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setIsCompactMode(!isCompactMode)}
-                  className="p-2 rounded-lg bg-[#0E2444]/50 hover:bg-[#c5a572]/10 transition-colors text-gray-300 hover:text-[#c5a572]"
-                  title="Mode compact"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                </button>
-              </div>
             </div>
           </div>
 
-          {/* Messages avec interface professionnelle */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        </div>
+
+        {/* Zone de chat ultra-simplifiée */}
+        <div className="flex-1 flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447]">
+          {/* Barre de chat simple */}
+          <div className="bg-[#162238]/95 backdrop-blur-sm border-b border-[#c5a572]/20 p-4">
+            <h2 className="text-lg font-semibold text-white">
+              Francis Pro
+            </h2>
+          </div>
+
+          {/* Messages ultra-simplifiés */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {messages.map((message, index) => (
-              <div 
-                key={index} 
-                className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {/* Avatar assistant */}
-                {message.role === 'assistant' && (
-                  <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
-                    <div className="h-10 w-10 bg-[#c5a572] rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-300">
-                      <MessageSquare className="h-6 w-6 text-[#162238]" />
-                    </div>
-                    <div className="h-6 w-6 bg-[#162238] rounded-full flex items-center justify-center absolute -bottom-1 -right-1 shadow-md transition-transform group-hover:scale-110 duration-300">
-                      <Euro className="h-4 w-4 text-[#c5a572]" />
-                    </div>
-                  </div>
-                )}
-                
-                <div className={`max-w-[75%] ${
-                  message.role === 'user' ? 'order-first' : ''
+              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] p-4 rounded-lg ${
+                  message.role === 'user'
+                    ? 'bg-[#c5a572] text-[#162238]'
+                    : 'bg-[#162238] text-white border border-[#c5a572]/20'
                 }`}>
-                  {/* En-tête du message */}
-                  <div className="flex items-center gap-2 mb-2">
-                    {message.role === 'assistant' && (
-                      <span className="text-sm font-medium text-[#c5a572]">Francis</span>
-                    )}
-                    {message.role === 'user' && (
-                      <span className="text-sm font-medium text-gray-300">Vous</span>
-                    )}
-                    <span className="text-xs text-gray-400">
-                      {message.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                    {message.category && message.category !== 'general' && (
-                      <span className="px-2 py-0.5 bg-[#c5a572]/10 text-[#c5a572] text-xs rounded border border-[#c5a572]/20">
-                        {message.category}
-                      </span>
-                    )}
-                    
-                    {/* Actions message */}
-                    <div className="flex items-center gap-1 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => toggleBookmark(index)}
-                        className={`p-1 rounded transition-colors ${
-                          bookmarkedMessages.has(index)
-                            ? 'text-[#c5a572]'
-                            : 'text-gray-400 hover:text-[#c5a572]'
-                        }`}
-                        title="Marquer"
-                      >
-                        <Star className={`w-4 h-4 ${bookmarkedMessages.has(index) ? 'fill-current' : ''}`} />
-                      </button>
-                      <button
-                        onClick={() => copyMessageContent(message.content)}
-                        className="p-1 rounded text-gray-400 hover:text-[#c5a572] transition-colors"
-                        title="Copier"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
-                    </div>
+                  <div className="text-sm mb-1 opacity-70">
+                    {message.role === 'user' ? 'Vous' : 'Francis'}
                   </div>
-                  
-                  {/* Contenu du message */}
-                  <div className={`p-4 rounded-2xl shadow-lg group ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] rounded-br-none'
-                      : message.error 
-                        ? 'bg-red-700/70 text-white rounded-bl-none border border-red-600/30' 
-                        : 'bg-[#162238] text-gray-100 border border-[#c5a572]/20 rounded-bl-none'
-                  }`}>
-                    <div className="prose prose-invert max-w-none">
-                      <div className="whitespace-pre-wrap leading-relaxed">
-                        {message.content}
-                      </div>
-                    </div>
-                    
-                    {/* Sources */}
-                    {message.role === 'assistant' && message.sources && message.sources.length > 0 && (
-                      <div className="mt-4 p-3 bg-[#1a2332]/50 rounded-lg border border-[#c5a572]/10">
-                        <div className="flex items-center gap-2 mb-2">
-                          <FileText className="w-4 h-4 text-[#c5a572]" />
-                          <span className="text-sm font-medium text-[#c5a572]">Sources</span>
-                        </div>
-                        <ul className="space-y-1">
-                          {message.sources.map((source, idx) => (
-                            <li key={idx} className="text-sm text-gray-400 flex items-start gap-2">
-                              <div className="w-1.5 h-1.5 bg-[#c5a572] rounded-full mt-2 flex-shrink-0"></div>
-                              <span>{source}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    {message.content}
                   </div>
                 </div>
-                
-                {/* Avatar utilisateur */}
-                {message.role === 'user' && (
-                  <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#c5a572]/20 border-2 border-[#c5a572]/30 flex items-center justify-center">
-                    <UserIcon className="w-6 h-6 text-[#c5a572]" />
-                  </div>
-                )}
               </div>
             ))}
             
@@ -792,146 +518,48 @@ export function ProChatPage() {
               </div>
             )}
             
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Zone de saisie professionnelle révolutionnaire */}
-          <div className="border-t border-[#c5a572]/20 bg-[#162238]/95 backdrop-blur-sm">
-            {/* Suggestions rapides si template sélectionné */}
-            {selectedTemplate && showQuickActions && (
-              <div className="p-4 border-b border-[#c5a572]/10">
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-sm text-gray-400">Suggestions:</span>
-                  {selectedTemplate.tags.map(tag => (
-                    <button
-                      key={tag}
-                      onClick={() => setInput(`${input} ${tag}`)}
-                      className="px-2 py-1 bg-[#c5a572]/10 text-[#c5a572] text-xs rounded border border-[#c5a572]/20 hover:bg-[#c5a572]/20 transition-colors"
-                    >
-                      {tag}
-                    </button>
-                  ))}
+            {/* Indicateur de chargement simple */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-[#162238] text-white p-4 rounded-lg border border-[#c5a572]/20">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                    <span className="text-sm text-gray-400 ml-2">Francis réfléchit...</span>
+                  </div>
                 </div>
               </div>
             )}
             
-            <div className="p-4">
-              <form onSubmit={handleSend} className="max-w-5xl mx-auto">
-                <div className="flex gap-4">
-                  <div className="relative flex-1">
-                    {/* Zone de saisie avancée */}
-                    <div className="relative">
-                      <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder={selectedTemplate ? 
-                          `Template: ${selectedTemplate.title} - Personnalisez votre question...` : 
-                          "Posez votre question à Francis Pro..."
-                        }
-                        className="w-full p-4 pr-20 bg-[#0E2444] border border-[#c5a572]/30 rounded-xl text-gray-200 focus:outline-none focus:border-[#c5a572] focus:ring-2 focus:ring-[#c5a572]/20 transition-all resize-none shadow-lg"
-                        rows={input.length > 100 ? 4 : 2}
-                        disabled={isLoading}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend(e as any);
-                          }
-                        }}
-                      />
-                      
-                      {/* Raccourcis dans la zone de saisie */}
-                      <div className="absolute bottom-2 right-2 flex items-center gap-1">
-                        {input.trim() && (
-                          <button
-                            type="button"
-                            onClick={() => setInput('')}
-                            className="p-1 text-gray-400 hover:text-red-400 transition-colors"
-                            title="Effacer"
-                          >
-                            ✕
-                          </button>
-                        )}
-                        <span className="text-xs text-gray-500">
-                          {input.length}/1000
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Info contextuelle */}
-                    <div className="flex items-center justify-between mt-2 text-xs text-gray-400">
-                      <div className="flex items-center gap-4">
-                        {selectedClientProfile && (
-                          <span className="flex items-center gap-1">
-                            <div className="w-2 h-2 bg-[#c5a572] rounded-full"></div>
-                            Client: {selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}
-                          </span>
-                        )}
-                        <span>Juridiction: {jurisdiction === 'FR' ? '🇫🇷 France' : jurisdiction === 'CH' ? '🇨🇭 Suisse' : jurisdiction === 'AD' ? '🇦🇩 Andorre' : jurisdiction === 'LU' ? '🇱🇺 Luxembourg' : jurisdiction}</span>
-                      </div>
-                      <span>⌘ + Entrée pour envoyer</span>
-                    </div>
-                  </div>
-                  
-                  {/* Boutons d'action */}
-                  <div className="flex flex-col gap-2">
-                    <button
-                      type="submit"
-                      disabled={!input.trim() || isLoading}
-                      className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] p-3 rounded-xl hover:shadow-lg hover:shadow-[#c5a572]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 w-12 group"
-                      title="Envoyer (⌘ + Entrée)"
-                    >
-                      {isLoading ? (
-                        <div className="w-5 h-5 border-2 border-[#162238] border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <Send className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                      )}
-                    </button>
-                    
-                    {selectedTemplate && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedTemplate(null)}
-                        className="p-3 rounded-xl bg-[#0E2444]/50 hover:bg-red-500/20 border border-[#c5a572]/20 hover:border-red-500/30 transition-all text-gray-300 hover:text-red-400 h-12 w-12"
-                        title="Supprimer template"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Actions rapides en bas */}
-                {showQuickActions && !selectedTemplate && (
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#c5a572]/10">
-                    <span className="text-xs text-gray-400">Actions rapides:</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowTemplates(!showTemplates)}
-                      className="px-3 py-1 bg-[#c5a572]/10 text-[#c5a572] text-xs rounded border border-[#c5a572]/20 hover:bg-[#c5a572]/20 transition-colors flex items-center gap-1"
-                    >
-                      <BookOpen className="w-3 h-3" />
-                      Templates
-                    </button>
-                    <button
-                      type="button"
-                      onClick={exportConversation}
-                      className="px-3 py-1 bg-[#0E2444]/50 text-gray-300 text-xs rounded border border-[#c5a572]/20 hover:bg-[#c5a572]/10 hover:text-[#c5a572] transition-colors flex items-center gap-1"
-                    >
-                      <Download className="w-3 h-3" />
-                      Exporter
-                    </button>
-                    <button
-                      type="button"
-                      onClick={startNewConversation}
-                      className="px-3 py-1 bg-[#0E2444]/50 text-gray-300 text-xs rounded border border-[#c5a572]/20 hover:bg-[#c5a572]/10 hover:text-[#c5a572] transition-colors flex items-center gap-1"
-                    >
-                      <Zap className="w-3 h-3" />
-                      Nouveau
-                    </button>
-                  </div>
-                )}
-              </form>
-            </div>
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Zone de saisie ultra-simple */}
+          <div className="border-t border-[#c5a572]/20 bg-[#162238]/95 p-4">
+            <form onSubmit={handleSend} className="flex gap-3">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Posez votre question à Francis Pro..."
+                className="flex-1 p-3 bg-[#0E2444] border border-[#c5a572]/30 rounded-lg text-gray-200 focus:outline-none focus:border-[#c5a572] resize-none"
+                rows={2}
+                disabled={isLoading}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend(e as any);
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className="bg-[#c5a572] text-[#162238] px-6 py-3 rounded-lg hover:bg-[#d4b875] transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {isLoading ? '...' : 'Envoyer'}
+              </button>
+            </form>
           </div>
         </div>
       </div>
