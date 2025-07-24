@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "Francis - Assistant CGP",
+  "version": "1.0.0",
+  "description": "Extension Chrome révolutionnaire qui intègre Francis (IA fiscale) directement dans vos formulaires web pour un remplissage automatique intelligent.",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  
+  "host_permissions": [
+    "https://fiscal-ia-v2-production.up.railway.app/*",
+    "https://*.fiscal-ia.net/*",
+    "https://*.linxea.com/*",
+    "https://*.boursorama.com/*",
+    "https://*.credit-agricole.fr/*",
+    "https://*.bnpparibas.net/*",
+    "https://*.societegenerale.fr/*",
+    "https://*.lcl.fr/*",
+    "https://*.fortuneo.fr/*",
+    "https://*.ing.fr/*",
+    "https://*.axa.fr/*",
+    "https://*.generali.fr/*",
+    "https://*.allianz.fr/*"
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Francis - Assistant CGP",
+    "default_icon": {
+      "16": "icons/francis-16.png",
+      "32": "icons/francis-32.png",
+      "48": "icons/francis-48.png",
+      "128": "icons/francis-128.png"
+    }
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.linxea.com/*",
+        "https://*.boursorama.com/*",
+        "https://*.credit-agricole.fr/*",
+        "https://*.bnpparibas.net/*",
+        "https://*.societegenerale.fr/*",
+        "https://*.lcl.fr/*",
+        "https://*.fortuneo.fr/*",
+        "https://*.ing.fr/*",
+        "https://*.axa.fr/*",
+        "https://*.generali.fr/*",
+        "https://*.allianz.fr/*"
+      ],
+      "js": ["content-script.js"],
+      "css": ["francis-overlay.css"]
+    }
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "icons": {
+    "16": "icons/francis-16.png",
+    "32": "icons/francis-32.png",
+    "48": "icons/francis-48.png",
+    "128": "icons/francis-128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["francis-widget.html", "francis-overlay.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -1,4 +1,53 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  PlusCircle, 
+  Search, 
+  Eye, 
+  Edit3, 
+  Trash2, 
+  MessageSquare as MessageSquareIcon, 
+  Euro, 
+  Users, 
+  Mic, 
+  MicOff, 
+  Settings, 
+  TrendingUp, 
+  Shield, 
+  Globe2, 
+  Download, 
+  FileText, 
+  FileSpreadsheet, 
+  X, 
+  Send, 
+  Bot, 
+  Zap,
+  Calendar,
+  Target,
+  Activity,
+  Star,
+  Filter,
+  MoreVertical,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Sparkles,
+  Crown,
+  BarChart3,
+  ArrowUpRight,
+  Maximize2,
+  Minimize2,
+  Bell
+} from 'lucide-react';
+
+import apiClient from '../services/apiClient';
+import { ClientProfile } from '../types/clientProfile';
+import { useAuth } from '../contexts/AuthContext';
+import { useCountry } from '../contexts/CountryContext';
+import { Logo } from '../components/ui/Logo';
 
 // Déclaration des types pour l'API de reconnaissance vocale
 declare global {
@@ -23,17 +72,25 @@ interface SpeechRecognitionErrorEvent extends Event {
   error: string;
   message: string;
 }
-import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Search, Eye, Edit3, Trash2, MessageSquare as MessageSquareIcon, Euro, Users, Mic, MicOff, Brain, Settings, Edit2, TrendingUp, Shield, Globe2, Download, FileText, FileSpreadsheet, X, Send, Bot, Zap } from 'lucide-react';
 
-import apiClient from '../services/apiClient';
-import { ClientProfile } from '../types/clientProfile';
-import { useAuth } from '../contexts/AuthContext';
-import { useCountry } from '../contexts/CountryContext';
-import { Logo } from '../components/ui/Logo';
+interface DashboardStats {
+  totalClients: number;
+  newThisMonth: number;
+  analysisCompleted: number;
+  revenueGenerated: number;
+}
 
+interface QuickAction {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  gradient: string;
+  badge?: string;
+}
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 12;
 
 export function ProDashboardPage() {
   const navigate = useNavigate();
@@ -45,14 +102,65 @@ export function ProDashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
-  // Ouvrir le chat Francis par défaut
-  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoadingMessage, setIsLoadingMessage] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'pending'>('all');
+  const [showQuickActions, setShowQuickActions] = useState(true);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Statistiques du dashboard
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    totalClients: 0,
+    newThisMonth: 0,
+    analysisCompleted: 0,
+    revenueGenerated: 0
+  });
+
+  // Capacités du copilote Francis
+  const francisCapabilities: QuickAction[] = [
+    {
+      id: 'ai-analysis',
+      title: 'Analyse Intelligente',
+      description: 'Francis analyse vos données automatiquement',
+      icon: <Sparkles className="w-6 h-6" />,
+      onClick: () => setIsChatOpen(true),
+      gradient: 'from-purple-500 to-pink-600',
+      badge: 'IA'
+    },
+    {
+      id: 'smart-recommendations',
+      title: 'Recommandations',
+      description: 'Conseils personnalisés en temps réel',
+      icon: <div className="flex items-center gap-1"><MessageSquareIcon className="w-5 h-5" /><Euro className="w-3 h-3" /></div>,
+      onClick: () => setIsChatOpen(true),
+      gradient: 'from-[#c5a572] to-[#e8cfa0]',
+      badge: 'Pro'
+    },
+    {
+      id: 'auto-insights',
+      title: 'Insights Automatiques',
+      description: 'Francis détecte les opportunités',
+      icon: <BarChart3 className="w-6 h-6" />,
+      onClick: () => setIsChatOpen(true),
+      gradient: 'from-blue-500 to-cyan-600',
+      badge: 'Auto'
+    },
+    {
+      id: 'copilot-assist',
+      title: 'Assistance Continue',
+      description: 'Votre copilote toujours disponible',
+      icon: <PlusCircle className="w-6 h-6" />,
+      onClick: () => setIsChatOpen(true),
+      gradient: 'from-green-500 to-emerald-600',
+      badge: '24/7'
+    }
+  ];
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -62,6 +170,28 @@ export function ProDashboardPage() {
         try {
           const response = await apiClient<ClientProfile[]>('/api/pro/clients/');
           setClients(response || []);
+          
+          // Calcul des statistiques du dashboard
+          if (response && response.length > 0) {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            const newThisMonth = response.filter(client => {
+              if (!client.created_at) return false;
+              const clientDate = new Date(client.created_at);
+              return clientDate.getMonth() === currentMonth && clientDate.getFullYear() === currentYear;
+            }).length;
+            
+            const analysisCompleted = response.filter(client => client.email_client && client.nom_client && client.prenom_client).length;
+            
+            setDashboardStats({
+              totalClients: response.length,
+              newThisMonth,
+              analysisCompleted,
+              revenueGenerated: response.length * 150 // Estimation revenue moyenne par client
+            });
+          }
         } catch (err: any) {
           console.error("Erreur lors du chargement des clients:", err);
           setError(err.data?.detail || err.message || 'Erreur lors du chargement des clients.');
@@ -401,6 +531,42 @@ export function ProDashboardPage() {
         <div className="max-w-7xl mx-auto space-y-8">
           
 
+
+          {/* Interface simple Francis - Copilote pour CGP */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <div className="relative inline-flex items-center justify-center">
+                  <MessageSquareIcon className="h-6 w-6 text-[#c5a572]" />
+                  <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1" />
+                </div>
+                Capacités de Francis
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {francisCapabilities.map((capability) => (
+                <button
+                  key={capability.id}
+                  onClick={capability.onClick}
+                  className={`bg-gradient-to-r ${capability.gradient} p-6 rounded-xl text-white text-left hover:scale-105 transition-all duration-300 group relative overflow-hidden`}
+                >
+                  <div className="absolute top-2 right-2">
+                    <span className="text-xs font-bold px-2 py-1 bg-white/20 rounded-full">
+                      {capability.badge}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 mb-3">
+                    {capability.icon}
+                    <div>
+                      <h3 className="font-semibold text-lg">{capability.title}</h3>
+                      <p className="text-sm opacity-90">{capability.description}</p>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 right-0 w-16 h-16 bg-white/10 rounded-full transform translate-x-8 translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Section Clients existante */}
           <div className="bg-[#1a2332]/60 backdrop-blur-sm border border-[#c5a572]/20 rounded-xl p-6">

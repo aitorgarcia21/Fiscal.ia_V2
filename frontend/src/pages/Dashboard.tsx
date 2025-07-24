@@ -1,92 +1,55 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Send, 
-  Bot, 
-  User as UserIcon, 
-  Menu, 
-  X, 
-  LogOut, 
-  Settings, 
-  FileText, 
-  Calculator, 
-  TrendingUp, 
   MessageSquare,
   Euro,
-  Search,
-  Home,
-  ChevronRight,
-  Paperclip,
-  Upload,
-  CreditCard,
-  Users,
+  Calculator,
+  TrendingUp,
   PieChart,
-  BarChart3,
-  Target,
-  Wallet,
-  Building2,
-  Shield,
+  Users,
   Bell,
-  Star,
-  Sparkles,
+  Settings,
+  LogOut,
+  Menu,
+  X,
   ArrowRight,
-  Plus,
   Activity,
   DollarSign,
   Calendar,
-  Clock,
   CheckCircle,
-  AlertCircle,
-  Info,
   Zap,
-  Eye,
-  Lightbulb,
-  AlertTriangle,
-  BookOpen,
-  TrendingDown,
-  PiggyBank,
-  Scale,
-  Lock,
-  Unlock,
-  Brain,
-  Rocket,
+  Target,
+  Wallet,
+  Shield,
   Crown,
-  Heart,
-  Frown,
-  Smile,
-  Baby,
-  User,
-  UserCheck,
+  Rocket,
+  Send,
+  Sparkles,
+  BarChart3,
+  Lightbulb,
   Mic,
-  MicOff,
-  Volume2
+  Bot
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { InitialProfileQuestions } from '../components/InitialProfileQuestions';
 import apiClient from '../services/apiClient';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  attachments?: File[];
 }
 
-interface UserProfile {
-  auth_user_id: string;
-  tmi?: number;
-  situation_familiale?: string;
-  nombre_enfants?: number;
-  residence_principale?: boolean;
-  residence_secondaire?: boolean;
-  revenus_annuels?: number;
-  charges_deductibles?: number;
-  activite_principale?: string;
-  revenus_complementaires?: string[];
-  statuts_juridiques?: string[];
-  residence_fiscale?: string;
-  patrimoine_situation?: string;
-  has_completed_onboarding?: boolean;
+interface DashboardCard {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  value?: string | number;
+  change?: string;
+  action: string;
+  onClick: () => void;
+  gradient: string;
+  priority: 'high' | 'medium' | 'low';
 }
 
 export function Dashboard() {
@@ -95,43 +58,8 @@ export function Dashboard() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'profile'>('chat');
-  const [showDiscoveryExtraction, setShowDiscoveryExtraction] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
-  const [showTmiModal, setShowTmiModal] = useState(false);
-  const [showOptimizationModal, setShowOptimizationModal] = useState(false);
-  const [showConsciousnessModal, setShowConsciousnessModal] = useState(false);
-  const [showAlertsModal, setShowAlertsModal] = useState(false);
-  const [isLoadingTool, setIsLoadingTool] = useState(false);
-  const [tmiResult, setTmiResult] = useState<any>(null);
-  const [optimizationResult, setOptimizationResult] = useState<any>(null);
-  const [alertsResult, setAlertsResult] = useState<any>(null);
-  const [testQuestions, setTestQuestions] = useState<any>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [testReponses, setTestReponses] = useState<Record<string, string>>({});
-  const [isTestComplete, setIsTestComplete] = useState(false);
-  const [testResult, setTestResult] = useState<any>(null);
-  const [showTestResults, setShowTestResults] = useState(false);
-  const [discoveryStep, setDiscoveryStep] = useState(0);
-  const [discoveryData, setDiscoveryData] = useState<any>({});
-  const [questionsQuota, setQuestionsQuota] = useState<{
-    questions_used: number;
-    questions_remaining: number;
-    quota_limit: number;
-    unlimited?: boolean;
-  } | null>(null);
-  const [voiceMode, setVoiceMode] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [isFrancisSpeaking, setIsFrancisSpeaking] = useState(false);
-  const [discoveryProgress, setDiscoveryProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
   // États pour les formulaires
   const [tmiForm, setTmiForm] = useState({
