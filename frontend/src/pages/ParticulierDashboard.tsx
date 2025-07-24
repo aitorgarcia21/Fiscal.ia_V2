@@ -23,6 +23,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Info,
+  User,
   ExternalLink,
   Download,
   Upload,
@@ -409,7 +410,7 @@ export function ParticulierDashboard() {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/simulation')}
+                  onClick={() => navigate('/simulateur')}
                   className="w-full flex items-center gap-3 p-3 text-left hover:bg-[#0A192F]/30 rounded-lg"
                 >
                   <Calculator className="w-5 h-5 text-[#c5a572]" />
@@ -417,11 +418,19 @@ export function ParticulierDashboard() {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/documents')}
+                  onClick={() => navigate('/documents-fiscaux')}
                   className="w-full flex items-center gap-3 p-3 text-left hover:bg-[#0A192F]/30 rounded-lg"
                 >
                   <FileText className="w-5 h-5 text-[#c5a572]" />
                   <span className="text-white">Mes documents fiscaux</span>
+                </button>
+                
+                <button
+                  onClick={() => navigate('/mon-profil')}
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-[#0A192F]/30 rounded-lg"
+                >
+                  <User className="w-5 h-5 text-[#c5a572]" />
+                  <span className="text-white">Mon Profil</span>
                 </button>
               </div>
             </div>

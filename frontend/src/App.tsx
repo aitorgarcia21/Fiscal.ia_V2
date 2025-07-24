@@ -53,6 +53,8 @@ import APIDashboard from './components/api/APIDashboard';
 import SecurityDashboard from './components/security/SecurityDashboard';
 import { ParticulierDashboard } from './pages/ParticulierDashboard';
 import { GoCardlessCallback } from './pages/GoCardlessCallback';
+import { MonProfilPage } from './pages/MonProfilPage';
+import { DocumentsFiscauxPage } from './pages/DocumentsFiscauxPage';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -100,6 +102,8 @@ function App() {
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profil" element={<ProfilePage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/mon-profil" element={<MonProfilPage />} />
+            <Route path="/documents-fiscaux" element={<DocumentsFiscauxPage />} />
             <Route path="/change-password" element={<ChangePasswordPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/discover" element={<DiscoverPage />} />
