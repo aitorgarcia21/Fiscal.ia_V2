@@ -93,7 +93,7 @@ function App() {
           
           {/* Routes particuliers réactivées */}
           <Route element={<ParticulierProtectedRoute />} >
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<ParticulierDashboard />} />
             <Route path="/dashboard/particulier" element={<ParticulierDashboard />} />
             <Route path="/dashboard/particulier/callback" element={<GoCardlessCallback />} />
             <Route path="/portal" element={<ClientPortal />} />
