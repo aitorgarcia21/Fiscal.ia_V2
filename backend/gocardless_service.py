@@ -154,6 +154,7 @@ class GoCardlessService:
             token = await self.get_access_token()
             
             if token == "DEMO_TOKEN":
+                logger.info(f"📋 Récupération des institutions pour {country}")
                 # Retourner des institutions simulées pour la démo
                 return self._get_demo_institutions()
             
@@ -166,31 +167,49 @@ class GoCardlessService:
                 params={"country": country}
             )
             
-            response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP
+            response.raise_for_status()
+            logger.info(f"✅ Réponse API institutions: status={response.status_code}")
+            logger.info(f"🔍 DEBUG: Raw response type: {type(response)}")
+            logger.info(f"🔍 DEBUG: Raw response headers: {response.headers}")
+            logger.info(f"🔍 DEBUG: Raw response content (first 500 chars): {response.text[:500]}")
             
-            # Parsing JSON robuste
+            # Parse JSON response with EXTREME error handling
             try:
-                institutions_data = response.json()
-            except ValueError as e:
-                logger.error(f"❌ Erreur parsing JSON institutions: {e}")
-                logger.error(f"❌ Response text: {response.text[:500]}")
+                data = response.json()
+                logger.info(f"📋 Type de réponse JSON: {type(data)}")
+                logger.info(f"📋 Contenu JSON: {str(data)[:200]}...")
+            except ValueError as json_error:
+                logger.error(f"❌ ERREUR PARSING JSON institutions: {json_error}")
+                logger.error(f"❌ Contenu brut réponse complète: {response.text}")
+                logger.error(f"❌ Headers de réponse: {dict(response.headers)}")
                 return self._get_demo_institutions()
             
-            logger.info(f"🔍 DEBUG institutions_data type: {type(institutions_data)}")
+            # DEBUG: Log exact type and content before any operations
+            logger.info(f"🔍 DEBUG AVANT OPÉRATIONS: data type = {type(data)}, repr = {repr(data)[:200]}")
             
-            # Selon le guide GoCardless, la réponse devrait être une liste directement
-            if not isinstance(institutions_data, list):
-                logger.error(f"❌ Format de réponse inattendu: {type(institutions_data)}")
-                return self._get_demo_institutions()
-                
-            institutions = []
-            
-            for inst_data in institutions_data:
-                if not isinstance(inst_data, dict):
-                    logger.warning(f"⚠️ Données institution invalides: {inst_data}")
-                    continue
-                    
+            # Ensure data is a list
+            if isinstance(data, str):
+                logger.error(f"❌ PROBLÈME CRITIQUE DÉTECTÉ: Réponse est string au lieu de list/dict")
+                logger.error(f"❌ String content: {repr(data)}")
                 try:
+                    data = json.loads(data)
+                    logger.info(f"✅ String convertie en: {type(data)}")
+                except json.JSONDecodeError as e:
+                    logger.error(f"❌ ÉCHEC conversion string JSON: {e}")
+                    return self._get_demo_institutions()
+            
+            if not isinstance(data, list):
+                logger.error(f"❌ Format de données inattendu: {type(data)}, contenu: {repr(data)[:200]}")
+                return self._get_demo_institutions()
+            
+            institutions = []
+            for i, inst_data in enumerate(data):
+                logger.info(f"🔍 DEBUG Institution {i}: type={type(inst_data)}, content={repr(inst_data)[:100]}")
+                try:
+                    if not isinstance(inst_data, dict):
+                        logger.error(f"❌ Institution {i} n'est pas un dict: {type(inst_data)}")
+                        continue
+                        
                     institution = Institution(
                         id=inst_data["id"],
                         name=inst_data["name"],
@@ -200,7 +219,10 @@ class GoCardlessService:
                     )
                     institutions.append(institution)
                 except KeyError as e:
-                    logger.warning(f"⚠️ Champ manquant dans institution: {e}")
+                    logger.warning(f"⚠️ Champ manquant dans institution {i}: {e}")
+                    continue
+                except Exception as e:
+                    logger.error(f"❌ Erreur inattendue institution {i}: {e}")
                     continue
             
             return institutions
