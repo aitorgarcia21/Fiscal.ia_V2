@@ -145,7 +145,7 @@ export function DocumentsFiscauxPage() {
     setShowUploadModal(true);
   };
 
-  const years = [...new Set(documents.map(doc => doc.year))].sort((a, b) => b - a);
+  const years = Array.from(new Set(documents.map(doc => doc.year))).sort((a, b) => b - a);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#1a2332] to-[#2d3748]">

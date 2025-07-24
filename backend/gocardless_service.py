@@ -166,18 +166,31 @@ class GoCardlessService:
                 params={"country": country}
             )
             
-            if response.status_code == 200:
+            response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP
+            
+            # Parsing JSON robuste
+            try:
                 institutions_data = response.json()
-                logger.info(f"🔍 DEBUG institutions_data type: {type(institutions_data)}")
-                logger.info(f"🔍 DEBUG institutions_data content: {institutions_data}")
+            except ValueError as e:
+                logger.error(f"❌ Erreur parsing JSON institutions: {e}")
+                logger.error(f"❌ Response text: {response.text[:500]}")
+                return self._get_demo_institutions()
+            
+            logger.info(f"🔍 DEBUG institutions_data type: {type(institutions_data)}")
+            
+            # Selon le guide GoCardless, la réponse devrait être une liste directement
+            if not isinstance(institutions_data, list):
+                logger.error(f"❌ Format de réponse inattendu: {type(institutions_data)}")
+                return self._get_demo_institutions()
                 
-                # S'assurer que c'est une liste et non une string
-                if isinstance(institutions_data, str):
-                    institutions_data = json.loads(institutions_data)
+            institutions = []
+            
+            for inst_data in institutions_data:
+                if not isinstance(inst_data, dict):
+                    logger.warning(f"⚠️ Données institution invalides: {inst_data}")
+                    continue
                     
-                institutions = []
-                
-                for inst_data in institutions_data:
+                try:
                     institution = Institution(
                         id=inst_data["id"],
                         name=inst_data["name"],
@@ -186,11 +199,11 @@ class GoCardlessService:
                         logo=inst_data.get("logo", "")
                     )
                     institutions.append(institution)
-                
-                return institutions
-            else:
-                logger.error(f"❌ Erreur récupération institutions: {response.status_code}")
-                return self._get_demo_institutions()
+                except KeyError as e:
+                    logger.warning(f"⚠️ Champ manquant dans institution: {e}")
+                    continue
+            
+            return institutions
                 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la récupération des institutions: {str(e)}")
@@ -251,39 +264,49 @@ class GoCardlessService:
                     status="CREATED"
                 )
             
+            # Payload selon le guide officiel GoCardless
+            payload = {
+                "institution_id": institution_id,
+                "max_historical_days": str(max_historical_days),  # String selon la doc
+                "access_valid_for_days": "90",  # String selon la doc
+                "access_scope": ["balances", "details", "transactions"]
+            }
+            
+            logger.info(f"📝 Création agreement avec payload: {payload}")
+            
             response = requests.post(
                 f"{self.base_url}/agreements/enduser/",
                 headers={
                     "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "accept": "application/json"
                 },
-                json={
-                    "institution_id": institution_id,
-                    "max_historical_days": max_historical_days,
-                    "access_valid_for_days": 90,
-                    "access_scope": ["balances", "details", "transactions"]
-                }
+                json=payload
             )
             
-            if response.status_code == 201:
-                data = response.json()
-                logger.info(f"🔍 DEBUG agreement data type: {type(data)}")
-                logger.info(f"🔍 DEBUG agreement data content: {data}")
-                
-                # S'assurer que c'est un dict et non une string
-                if isinstance(data, str):
-                    data = json.loads(data)
+            logger.info(f"🔍 Response status: {response.status_code}")
+            logger.info(f"🔍 Response text: {response.text[:500]}")
+            
+            # Gestion robuste des réponses
+            if response.status_code in [200, 201]:
+                try:
+                    data = response.json()
+                    logger.info(f"✅ Agreement créé avec succès: {data.get('id')}")
                     
-                return Agreement(
-                    id=data["id"],
-                    institution_id=data["institution_id"],
-                    max_historical_days=data["max_historical_days"],
-                    access_valid_for_days=data["access_valid_for_days"],
-                    status=data.get("status", "CREATED")
-                )
+                    return Agreement(
+                        id=data["id"],
+                        institution_id=data["institution_id"],
+                        max_historical_days=int(data["max_historical_days"]),
+                        access_valid_for_days=int(data["access_valid_for_days"]),
+                        status="CREATED"
+                    )
+                except (ValueError, KeyError) as e:
+                    logger.error(f"❌ Erreur parsing réponse agreement: {e}")
+                    raise Exception(f"Réponse API invalide: {e}")
             else:
                 logger.error(f"❌ Erreur création agreement: {response.status_code}")
-                raise Exception(f"Erreur création agreement: {response.status_code}")
+                logger.error(f"❌ Response body: {response.text}")
+                raise Exception(f"Erreur création agreement: {response.status_code} - {response.text}")
                 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la création de l'agreement: {str(e)}")
@@ -306,35 +329,52 @@ class GoCardlessService:
                     accounts=[]
                 )
             
+            # Payload selon le guide officiel GoCardless
+            payload = {
+                "redirect": redirect_uri,
+                "institution_id": institution_id,
+                "agreement": agreement_id,
+                "reference": f"user_{user_id}",
+                "user_language": "FR"
+            }
+            
+            logger.info(f"📝 Création requisition avec payload: {payload}")
+            
             response = requests.post(
                 f"{self.base_url}/requisitions/",
                 headers={
                     "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "accept": "application/json"
                 },
-                json={
-                    "redirect": redirect_uri,
-                    "institution_id": institution_id,
-                    "agreement": agreement_id,
-                    "reference": f"user_{user_id}",
-                    "user_language": "FR"
-                }
+                json=payload
             )
             
-            if response.status_code == 201:
-                data = response.json()
-                return Requisition(
-                    id=data["id"],
-                    institution_id=data["institution_id"],
-                    redirect=data["redirect"],
-                    status=data["status"],
-                    agreement=data["agreement"],
-                    link=data["link"],
-                    accounts=data.get("accounts", [])
-                )
+            logger.info(f"🔍 Response status: {response.status_code}")
+            logger.info(f"🔍 Response text: {response.text[:500]}")
+            
+            # Gestion robuste des réponses
+            if response.status_code in [200, 201]:
+                try:
+                    data = response.json()
+                    logger.info(f"✅ Requisition créée avec succès: {data.get('id')}")
+                    
+                    return Requisition(
+                        id=data["id"],
+                        institution_id=data.get("institution_id", institution_id),
+                        redirect=data["redirect"],
+                        status=data["status"],
+                        agreement=data["agreement"],
+                        link=data["link"],
+                        accounts=data.get("accounts", [])
+                    )
+                except (ValueError, KeyError) as e:
+                    logger.error(f"❌ Erreur parsing réponse requisition: {e}")
+                    raise Exception(f"Réponse API invalide: {e}")
             else:
                 logger.error(f"❌ Erreur création requisition: {response.status_code}")
-                raise Exception(f"Erreur création requisition: {response.status_code}")
+                logger.error(f"❌ Response body: {response.text}")
+                raise Exception(f"Erreur création requisition: {response.status_code} - {response.text}")
                 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la création de la requisition: {str(e)}")
@@ -372,7 +412,7 @@ class GoCardlessService:
             return {"status": "ERROR"}
     
     async def get_account_details(self, account_id: str) -> Optional[BankAccount]:
-        """Récupère les détails d'un compte bancaire"""
+        """Récupère les détails d'un compte bancaire selon l'API GoCardless officielle"""
         try:
             token = await self.get_access_token()
             
@@ -380,84 +420,77 @@ class GoCardlessService:
                 # Simuler des détails de compte pour la démo
                 return BankAccount(
                     id=account_id,
-                    iban=f"FR76 3000 3000 0000 0000 0000 {account_id[-3:]}",
+                    iban=f"FR76 3000 3000 0000 0000 000{account_id[-1]}",
                     name="Compte Courant",
                     currency="EUR",
-                    status="READY",
-                    balance=5420.50
+                    status="READY"
                 )
+            
+            logger.info(f"📋 Récupération détails compte: {account_id}")
             
             response = requests.get(
                 f"{self.base_url}/accounts/{account_id}/details/",
                 headers={
                     "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "accept": "application/json"
                 }
             )
             
-            if response.status_code == 200:
+            logger.info(f"🔍 Response status: {response.status_code}")
+            logger.info(f"🔍 Response text: {response.text[:500]}")
+            
+            response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP
+            
+            # Parsing JSON robuste
+            try:
                 data = response.json()
-                logger.info(f"🔍 DEBUG account_details data type: {type(data)}")
-                
-                # S'assurer que c'est un dict et non une string
-                if isinstance(data, str):
-                    data = json.loads(data)
-                    
-                account_data = data.get("account", {})
-                
-                return BankAccount(
-                    id=account_id,
-                    iban=account_data.get("iban"),
-                    name=account_data.get("name"),
-                    currency=account_data.get("currency", "EUR"),
-                    status="READY"
-                )
-            else:
-                logger.error(f"❌ Erreur récupération détails compte: {response.status_code}")
+            except ValueError as e:
+                logger.error(f"❌ Erreur parsing JSON account details: {e}")
+                logger.error(f"❌ Response text: {response.text[:500]}")
                 return None
-                
-        except Exception as e:
-            logger.error(f"❌ Erreur lors de la récupération des détails du compte: {str(e)}")
-            return None
-    
-    async def get_account_balances(self, account_id: str) -> Optional[float]:
-        """Récupère le solde d'un compte bancaire"""
-        try:
-            token = await self.get_access_token()
             
-            if token == "DEMO_TOKEN":
-                # Simuler un solde pour la démo
-                import random
-                return round(random.uniform(1000, 10000), 2)
+            # Selon GoCardless, la réponse contient directement les détails du compte
+            if not isinstance(data, dict):
+                logger.error(f"❌ Format de réponse inattendu: {type(data)}")
+                return None
             
-            response = requests.get(
-                f"{self.base_url}/accounts/{account_id}/balances/",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
-                }
+            # Extraire les données selon le format GoCardless officiel
+            account_data = data.get("account", data)  # Parfois la réponse est directe
+            
+            return BankAccount(
+                id=account_id,
+                iban=account_data.get("iban"),
+                name=account_data.get("name") or account_data.get("product"),
+                currency=account_data.get("currency", "EUR"),
+                status="READY"
             )
+                
+            balances = data.get("balances", [])
             
-            if response.status_code == 200:
-                data = response.json()
-                logger.info(f"🔍 DEBUG balances data type: {type(data)}")
-                
-                # S'assurer que c'est un dict et non une string
-                if isinstance(data, str):
-                    data = json.loads(data)
-                    
-                balances = data.get("balances", [])
-                
-                if balances:
-                    # Prendre le premier solde disponible
-                    balance_data = balances[0]
-                    amount = balance_data.get("balanceAmount", {}).get("amount", "0")
-                    return float(amount)
-                
-                return 0.0
-            else:
-                logger.error(f"❌ Erreur récupération soldes: {response.status_code}")
+            if not isinstance(balances, list):
+                logger.error(f"❌ Format balances inattendu: {type(balances)}")
                 return None
+            
+            # Chercher le solde current ou available selon le format GoCardless officiel
+            for balance in balances:
+                if not isinstance(balance, dict):
+                    continue
+                    
+                balance_type = balance.get("balanceType")
+                if balance_type in ["closingBooked", "expected", "interimAvailable"]:
+                    balance_amount = balance.get("balanceAmount", {})
+                    if isinstance(balance_amount, dict):
+                        amount = balance_amount.get("amount")
+                        if amount is not None:
+                            try:
+                                return float(amount)
+                            except (ValueError, TypeError):
+                                logger.warning(f"⚠️ Impossible de convertir le montant: {amount}")
+                                continue
+            
+            logger.warning(f"⚠️ Aucun solde valide trouvé pour le compte {account_id}")
+            return 0.0
                 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la récupération des soldes: {str(e)}")
@@ -478,31 +511,71 @@ class GoCardlessService:
             if date_to:
                 params["date_to"] = date_to
             
+            logger.info(f"💳 Récupération transactions compte: {account_id}")
+            
             response = requests.get(
                 f"{self.base_url}/accounts/{account_id}/transactions/",
                 headers={
                     "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "accept": "application/json"
                 },
                 params=params
             )
             
-            if response.status_code == 200:
+            logger.info(f"🔍 Response status: {response.status_code}")
+            logger.info(f"🔍 Response text: {response.text[:500]}")
+            
+            response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP
+            
+            # Parsing JSON robuste
+            try:
                 data = response.json()
-                logger.info(f"🔍 DEBUG transactions data type: {type(data)}")
+            except ValueError as e:
+                logger.error(f"❌ Erreur parsing JSON transactions: {e}")
+                logger.error(f"❌ Response text: {response.text[:500]}")
+                return self._get_demo_transactions(account_id)
+            
+            # Selon GoCardless, la réponse contient un objet "transactions" avec "booked" et "pending"
+            if not isinstance(data, dict):
+                logger.error(f"❌ Format de réponse inattendu: {type(data)}")
+                return self._get_demo_transactions(account_id)
+            
+            transactions_obj = data.get("transactions", {})
+            if not isinstance(transactions_obj, dict):
+                logger.error(f"❌ Format transactions inattendu: {type(transactions_obj)}")
+                return self._get_demo_transactions(account_id)
                 
-                # S'assurer que c'est un dict et non une string
-                if isinstance(data, str):
-                    data = json.loads(data)
+            transactions_data = transactions_obj.get("booked", [])
+            if not isinstance(transactions_data, list):
+                logger.error(f"❌ Format booked transactions inattendu: {type(transactions_data)}")
+                return self._get_demo_transactions(account_id)
+            
+            transactions = []
+            for trans_data in transactions_data:
+                if not isinstance(trans_data, dict):
+                    logger.warning(f"⚠️ Transaction data invalide: {trans_data}")
+                    continue
                     
-                transactions_data = data.get("transactions", {}).get("booked", [])
-                
-                transactions = []
-                for trans_data in transactions_data:
+                try:
+                    # Extraire le montant selon le format GoCardless officiel
+                    transaction_amount = trans_data.get("transactionAmount", {})
+                    amount = 0.0
+                    currency = "EUR"
+                    
+                    if isinstance(transaction_amount, dict):
+                        amount_str = transaction_amount.get("amount", "0")
+                        currency = transaction_amount.get("currency", "EUR")
+                        try:
+                            amount = float(amount_str)
+                        except (ValueError, TypeError):
+                            logger.warning(f"⚠️ Impossible de convertir le montant: {amount_str}")
+                            amount = 0.0
+                    
                     transaction = Transaction(
                         transaction_id=trans_data.get("transactionId", ""),
-                        amount=float(trans_data.get("transactionAmount", {}).get("amount", 0)),
-                        currency=trans_data.get("transactionAmount", {}).get("currency", "EUR"),
+                        amount=amount,
+                        currency=currency,
                         booking_date=trans_data.get("bookingDate", ""),
                         value_date=trans_data.get("valueDate", ""),
                         debtor_name=trans_data.get("debtorName"),
@@ -510,11 +583,13 @@ class GoCardlessService:
                         remittance_info=trans_data.get("remittanceInformationUnstructured")
                     )
                     transactions.append(transaction)
-                
-                return transactions
-            else:
-                logger.error(f"❌ Erreur récupération transactions: {response.status_code}")
-                return self._get_demo_transactions(account_id)
+                    
+                except Exception as trans_error:
+                    logger.warning(f"⚠️ Erreur parsing transaction: {trans_error}")
+                    continue
+            
+            logger.info(f"✅ {len(transactions)} transactions récupérées")
+            return transactions
                 
         except Exception as e:
             logger.error(f"❌ Erreur lors de la récupération des transactions: {str(e)}")
