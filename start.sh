@@ -85,7 +85,6 @@ done
 
 # Configurer nginx
 echo "=== Configuration de Nginx ==="
-cd /app
 
 # Vérifier la configuration nginx
 nginx -t
