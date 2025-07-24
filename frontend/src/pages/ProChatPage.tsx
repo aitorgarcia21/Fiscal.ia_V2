@@ -145,7 +145,7 @@ export function ProChatPage() {
   const { country: jurisdiction, setCountry: setJurisdiction } = useCountry();
 
   // Catégories de templates
-  const categories = ['all', ...new Set(PROFESSIONAL_TEMPLATES.map(t => t.category))];
+  const categories = ['all', ...Array.from(new Set(PROFESSIONAL_TEMPLATES.map(t => t.category)))];
   
   // Templates filtrés
   const filteredTemplates = PROFESSIONAL_TEMPLATES.filter(template => {
@@ -324,13 +324,13 @@ export function ProChatPage() {
       
       if (selectedClientId && selectedClientProfile) {
         clientContext = {
-          tmi: selectedClientProfile.tmi,
-          situation_familiale: selectedClientProfile.situation_familiale,
-          nombre_enfants: selectedClientProfile.nombre_enfants,
-          residence_principale: selectedClientProfile.residence_principale,
-          residence_secondaire: selectedClientProfile.residence_secondaire,
-          revenus_annuels: selectedClientProfile.revenus_annuels,
-          charges_deductibles: selectedClientProfile.charges_deductibles
+          tmi: selectedClientProfile.tranche_marginale_imposition_estimee,
+          situation_familiale: selectedClientProfile.situation_maritale_client,
+          nombre_enfants: selectedClientProfile.nombre_enfants_a_charge_client,
+          residence_principale: selectedClientProfile.residence_principale_details ? true : false,
+          residence_secondaire: selectedClientProfile.residences_secondaires_details ? true : false,
+          revenus_annuels: selectedClientProfile.revenu_net_annuel_client1,
+          charges_deductibles: selectedClientProfile.charges_foncieres_deductibles_foyer
         };
       }
 
@@ -518,7 +518,7 @@ export function ProChatPage() {
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#c5a572]/20 flex items-center justify-center group-hover:bg-[#c5a572]/30 transition-colors">
-                          {React.createElement(IconComponent, { className: "w-4 h-4 text-[#c5a572]" })}
+                          <IconComponent className="w-4 h-4 text-[#c5a572]" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium text-white mb-1 group-hover:text-[#c5a572] transition-colors">
@@ -628,7 +628,7 @@ export function ProChatPage() {
                 </h2>
                 {selectedTemplate && (
                   <div className="flex items-center gap-2 px-3 py-1 bg-[#c5a572]/10 border border-[#c5a572]/30 rounded-full">
-                    {React.createElement(selectedTemplate.icon, { className: "w-4 h-4 text-[#c5a572]" })}
+                    <selectedTemplate.icon className="w-4 h-4 text-[#c5a572]" />
                     <span className="text-sm text-[#c5a572] font-medium">{selectedTemplate.title}</span>
                     <button
                       onClick={() => setSelectedTemplate(null)}
@@ -866,7 +866,7 @@ export function ProChatPage() {
                             Client: {selectedClientProfile.prenom_client} {selectedClientProfile.nom_client}
                           </span>
                         )}
-                        <span>Juridiction: {jurisdiction === 'france' ? '🇫🇷 France' : jurisdiction}</span>
+                        <span>Juridiction: {jurisdiction === 'FR' ? '🇫🇷 France' : jurisdiction === 'CH' ? '🇨🇭 Suisse' : jurisdiction === 'AD' ? '🇦🇩 Andorre' : jurisdiction === 'LU' ? '🇱🇺 Luxembourg' : jurisdiction}</span>
                       </div>
                       <span>⌘ + Entrée pour envoyer</span>
                     </div>
