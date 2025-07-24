@@ -324,13 +324,13 @@ export function ProChatPage() {
       
       if (selectedClientId && selectedClientProfile) {
         clientContext = {
-          tmi: selectedClientProfile.tranche_marginale_imposition_estimee,
+          tmi: typeof selectedClientProfile.tranche_marginale_imposition_estimee === 'number' ? selectedClientProfile.tranche_marginale_imposition_estimee : Number(selectedClientProfile.tranche_marginale_imposition_estimee) || 0,
           situation_familiale: selectedClientProfile.situation_maritale_client,
-          nombre_enfants: selectedClientProfile.nombre_enfants_a_charge_client,
+          nombre_enfants: selectedClientProfile.nombre_enfants_a_charge_client || 0,
           residence_principale: selectedClientProfile.residence_principale_details ? true : false,
           residence_secondaire: selectedClientProfile.residences_secondaires_details ? true : false,
-          revenus_annuels: selectedClientProfile.revenu_net_annuel_client1,
-          charges_deductibles: selectedClientProfile.charges_foncieres_deductibles_foyer
+          revenus_annuels: typeof selectedClientProfile.revenu_net_annuel_client1 === 'number' ? selectedClientProfile.revenu_net_annuel_client1 : Number(selectedClientProfile.revenu_net_annuel_client1) || 0,
+          charges_deductibles: typeof selectedClientProfile.charges_foncieres_deductibles_foyer === 'number' ? selectedClientProfile.charges_foncieres_deductibles_foyer : Number(selectedClientProfile.charges_foncieres_deductibles_foyer) || 0
         };
       }
 
@@ -518,7 +518,7 @@ export function ProChatPage() {
                     >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#c5a572]/20 flex items-center justify-center group-hover:bg-[#c5a572]/30 transition-colors">
-                          <IconComponent className="w-4 h-4 text-[#c5a572]" />
+                          {React.createElement(IconComponent as any, { className: "w-4 h-4 text-[#c5a572]" })}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium text-white mb-1 group-hover:text-[#c5a572] transition-colors">
@@ -628,7 +628,7 @@ export function ProChatPage() {
                 </h2>
                 {selectedTemplate && (
                   <div className="flex items-center gap-2 px-3 py-1 bg-[#c5a572]/10 border border-[#c5a572]/30 rounded-full">
-                    <selectedTemplate.icon className="w-4 h-4 text-[#c5a572]" />
+                    {React.createElement(selectedTemplate.icon as any, { className: "w-4 h-4 text-[#c5a572]" })}
                     <span className="text-sm text-[#c5a572] font-medium">{selectedTemplate.title}</span>
                     <button
                       onClick={() => setSelectedTemplate(null)}
