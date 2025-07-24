@@ -59,6 +59,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  attachments?: File[];
 }
 
 interface UserProfile {
@@ -164,6 +165,11 @@ export function Dashboard() {
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [alertsResult, setAlertsResult] = useState<any>(null);
   const [discoveryData, setDiscoveryData] = useState<any>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [tmiResult, setTmiResult] = useState<any>(null);
+  const [showOptimizationModal, setShowOptimizationModal] = useState(false);
+  const [discoveryProgress, setDiscoveryProgress] = useState(0);
+  const [speechSynthesis, setSpeechSynthesis] = useState<any>(null);
 
   // Charger le profil utilisateur au montage
   useEffect(() => {
