@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Fonction pour gérer l'arrêt propre
 cleanup() {
@@ -9,7 +9,7 @@ cleanup() {
 }
 
 # Configurer le gestionnaire de signal
-trap cleanup SIGTERM SIGINT
+trap cleanup TERM INT
 
 # Configurer le port pour Railway
 export PORT=${PORT:-8080}
@@ -20,8 +20,7 @@ echo "PORT: $PORT"
 # Mettre à jour la configuration nginx avec le bon port
 sed -i "s/listen 8080;/listen $PORT;/g" /etc/nginx/nginx.conf
 
-# Aller dans le répertoire de l'application
-cd /app
+# Le WORKDIR est déjà /app dans le Dockerfile, pas besoin de cd
 
 # Vérifier que les fichiers existent
 if [ ! -f "backend/main.py" ]; then
