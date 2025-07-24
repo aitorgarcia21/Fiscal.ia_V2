@@ -168,6 +168,13 @@ class GoCardlessService:
             
             if response.status_code == 200:
                 institutions_data = response.json()
+                logger.info(f"🔍 DEBUG institutions_data type: {type(institutions_data)}")
+                logger.info(f"🔍 DEBUG institutions_data content: {institutions_data}")
+                
+                # S'assurer que c'est une liste et non une string
+                if isinstance(institutions_data, str):
+                    institutions_data = json.loads(institutions_data)
+                    
                 institutions = []
                 
                 for inst_data in institutions_data:
@@ -260,6 +267,13 @@ class GoCardlessService:
             
             if response.status_code == 201:
                 data = response.json()
+                logger.info(f"🔍 DEBUG agreement data type: {type(data)}")
+                logger.info(f"🔍 DEBUG agreement data content: {data}")
+                
+                # S'assurer que c'est un dict et non une string
+                if isinstance(data, str):
+                    data = json.loads(data)
+                    
                 return Agreement(
                     id=data["id"],
                     institution_id=data["institution_id"],
@@ -383,6 +397,12 @@ class GoCardlessService:
             
             if response.status_code == 200:
                 data = response.json()
+                logger.info(f"🔍 DEBUG account_details data type: {type(data)}")
+                
+                # S'assurer que c'est un dict et non une string
+                if isinstance(data, str):
+                    data = json.loads(data)
+                    
                 account_data = data.get("account", {})
                 
                 return BankAccount(
@@ -420,6 +440,12 @@ class GoCardlessService:
             
             if response.status_code == 200:
                 data = response.json()
+                logger.info(f"🔍 DEBUG balances data type: {type(data)}")
+                
+                # S'assurer que c'est un dict et non une string
+                if isinstance(data, str):
+                    data = json.loads(data)
+                    
                 balances = data.get("balances", [])
                 
                 if balances:
@@ -463,6 +489,12 @@ class GoCardlessService:
             
             if response.status_code == 200:
                 data = response.json()
+                logger.info(f"🔍 DEBUG transactions data type: {type(data)}")
+                
+                # S'assurer que c'est un dict et non une string
+                if isinstance(data, str):
+                    data = json.loads(data)
+                    
                 transactions_data = data.get("transactions", {}).get("booked", [])
                 
                 transactions = []
