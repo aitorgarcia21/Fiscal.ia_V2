@@ -1002,9 +1002,9 @@ export function ProCreateClientPage() {
             </button>
             <div className="h-6 w-px bg-[#2A3F6C]"></div>
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center">
-                <MessageSquare className="h-8 w-8 text-[#c5a572]" />
-                <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
+              <div className="relative inline-flex items-center justify-center group">
+                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
               </div>
               <span className="text-lg font-bold text-white">Francis</span>
             </div>

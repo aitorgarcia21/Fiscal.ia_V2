@@ -381,8 +381,8 @@ export function ProChatPage() {
                   <div className="flex items-start space-x-3">
                       {message.role === 'assistant' && (
                       <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
-                        <MessageSquare className="h-6 w-6 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                        <Euro className="h-4 w-4 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                        <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                        <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
 </div>
                       )}
                     <div className="flex-1">
@@ -412,8 +412,8 @@ export function ProChatPage() {
                 <div className="flex justify-start p-3">
                     <div className="flex items-center space-x-2">
                   <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
-                    <MessageSquare className="h-7 w-7 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                    <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                    <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                    <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
 </div>
                         <div className="flex items-center space-x-1.5 bg-[#162238] border border-[#c5a572]/20 p-3 rounded-lg rounded-bl-none shadow-md">
                             <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

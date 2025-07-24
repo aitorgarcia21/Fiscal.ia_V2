@@ -34,8 +34,8 @@ const ProLoginPage: React.FC = () => {
         <div className="text-center mb-8">
             <Link to="/pro-landing" className="inline-block">
                 <div className="relative inline-flex items-center justify-center group mb-4">
-                    <MessageSquare className="h-14 w-14 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                    <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#1E3253] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+                    <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                    <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                 </div>
             </Link>
           <h1 className="text-3xl font-bold text-white">Espace Professionnel</h1>

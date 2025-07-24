@@ -633,9 +633,9 @@ export function ProClientDetailPage() {
                   >
                     <div className="flex items-start space-x-2">
                       {message.role === 'assistant' && (
-                        <div className="flex-shrink-0 w-7 h-7 bg-[#c5a572] rounded-full flex items-center justify-center relative border-2 border-[#0A192F]">
-                          <MessageSquare className="w-4 h-4 text-[#1a2942]" />
-                          <Euro className="w-2.5 h-2.5 text-[#1a2942] absolute -bottom-0.5 -right-0.5 bg-[#c5a572] rounded-full p-0.5" />
+                        <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
+                          <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+                          <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
                         </div>
                       )}
                       <div className="flex-grow">
