@@ -94,6 +94,7 @@ except ImportError:
         from backend.routers import whisper_fix as whisper_router
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
+        from backend.routes_gocardless import router as gocardless_router
     except ImportError:
         # Fallback : imports directs depuis le répertoire courant
         import sys
@@ -109,6 +110,7 @@ except ImportError:
         from routers import whisper_fix as whisper_router
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
+        from routes_gocardless import router as gocardless_router
 # --- Fin des imports relatifs corrigés ---
 
 # Configuration
@@ -2663,6 +2665,7 @@ app.include_router(api_router)
 app.include_router(api_router, prefix="/api")  # alias pour compatibilité frontend
 app.include_router(whisper_router.router, prefix="/api")  # 🎯 WHISPER LOCAL FONCTIONNEL
 # app.include_router(eleven_router)  # DÉSACTIVÉ temporairement - eleven_router indisponible
+app.include_router(gocardless_router)  # 🏦 GOCARDLESS BANK INTEGRATION
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
 

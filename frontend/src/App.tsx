@@ -51,6 +51,8 @@ import ReportsManager from './components/reports/ReportsManager';
 import ClientPortal from './components/portal/ClientPortal';
 import APIDashboard from './components/api/APIDashboard';
 import SecurityDashboard from './components/security/SecurityDashboard';
+import { ParticulierDashboard } from './pages/ParticulierDashboard';
+import { GoCardlessCallback } from './pages/GoCardlessCallback';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -92,6 +94,8 @@ function App() {
           {/* Routes particuliers réactivées */}
           <Route element={<ParticulierProtectedRoute />} >
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/particulier" element={<ParticulierDashboard />} />
+            <Route path="/dashboard/particulier/callback" element={<GoCardlessCallback />} />
             <Route path="/portal" element={<ClientPortal />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profil" element={<ProfilePage />} />

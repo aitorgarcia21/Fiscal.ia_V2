@@ -15,7 +15,9 @@ import {
   DollarSign,
   Clock,
   Activity,
-  Settings
+  Settings,
+  MessageSquare,
+  Euro
 } from 'lucide-react';
 
 // Import des utilitaires
@@ -225,9 +227,15 @@ const CGPDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard CGP</h1>
-          <p className="text-gray-600 mt-1">Vue d'ensemble de votre activité conseil</p>
+        <div className="flex items-center gap-4">
+          <div className="relative inline-flex items-center justify-center">
+            <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
+            <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Francis</h1>
+            <p className="text-gray-600 mt-1">Dashboard CGP - Vue d'ensemble de votre activité conseil</p>
+          </div>
         </div>
         
         <div className="flex items-center space-x-4">

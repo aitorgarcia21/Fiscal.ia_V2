@@ -13,6 +13,17 @@ except ImportError:
     CGI_EMBEDDINGS_AVAILABLE = False
     BOFIP_EMBEDDINGS_AVAILABLE = False
 
+# 📚 SYSTÈME MULTI-PROFILS VECTORISÉ
+try:
+    from multi_profile_search import multi_profile_search
+    from profile_detector import profile_detector
+    from knowledge_base_multi_profiles import ProfileType, RegimeFiscal, ThemeFiscal
+    MULTI_PROFILE_AVAILABLE = True
+    print("✅ Système multi-profils chargé avec succès")
+except ImportError as e:
+    MULTI_PROFILE_AVAILABLE = False
+    print(f"⚠️ Système multi-profils non disponible : {e}")
+
 # Import des embeddings andorrans
 try:
     from backend.mistral_andorra_embeddings import (
@@ -325,20 +336,68 @@ La TVA est collectée par les entreprises et reversée à la Confédération."""
             official_sources.append(base['source'])
 
     else:
-        # France (FR) - logique existante
+        # France (FR) - logique enrichie avec système multi-profils
         context_from_sources = ""
         official_sources = []
+        
+        # 🎯 DÉTECTION DE PROFIL UTILISATEUR
+        profile_context = ""
+        if MULTI_PROFILE_AVAILABLE:
+            try:
+                print(f"🔍 Détection de profil pour: {query[:100]}...")
+                profile_matches = profile_detector.detect_profile(query)
+                
+                if profile_matches:
+                    best_match = profile_matches[0]
+                    profile_type = best_match['profile']
+                    confidence = best_match['confidence']
+                    detected_keywords = best_match['detected_keywords']
+                    
+                    print(f"👤 Profil détecté: {profile_type.value} (confiance: {confidence:.2f})")
+                    print(f"📝 Mots-clés: {detected_keywords}")
+                    
+                    # Recherche dans la base multi-profils
+                    profile_results = multi_profile_search.search_knowledge(
+                        query=query,
+                        detected_profiles=profile_matches[:3],  # Top 3 profils
+                        max_results=5
+                    )
+                    
+                    if profile_results:
+                        context_from_sources += "=== EXPERTISE FRANCIS - CONNAISSANCES SPÉCIALISÉES ===\n\n"
+                        for result in profile_results:
+                            chunk = result['chunk']
+                            score = result['weighted_score']
+                            context_from_sources += f"📋 {chunk.profile.value} - {chunk.theme.value} (Score: {score:.3f})\n"
+                            context_from_sources += f"{chunk.content}\n"
+                            if chunk.examples:
+                                context_from_sources += f"💡 Exemple: {chunk.examples[0]}\n"
+                            context_from_sources += f"🔖 Tags: {', '.join(chunk.tags)}\n\n"
+                            
+                        official_sources.append("Expertise Francis - Base de connaissances multi-profils")
+                        context_from_sources += "\n" + "="*60 + "\n\n"
+                        
+                        # Contexte pour le prompt
+                        profile_context = f"\n\n=== CONTEXTE PROFIL UTILISATEUR ===\nProfil principal: {profile_type.value}\nConfiance: {confidence:.2f}\nMots-clés détectés: {', '.join(detected_keywords)}\n"
+                    else:
+                        print("⚠️ Aucun résultat multi-profils trouvé")
+                else:
+                    print("⚠️ Aucun profil détecté")
+                    
+            except Exception as e:
+                print(f"❌ Erreur système multi-profils: {e}")
 
+        # 📚 RECHERCHE CGI (sources officielles)
         try:
             if CGI_EMBEDDINGS_AVAILABLE:
                 print(f"🔍 Recherche CGI pour: {query[:100]}...")
-                cgi_chunks = search_cgi_embeddings(query, max_results=3)
+                cgi_chunks = search_cgi_embeddings(query, max_results=5)  # Augmenté à 5
                 print(f"📄 Chunks CGI trouvés: {len(cgi_chunks)}")
 
                 if cgi_chunks:
                     context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
                     for chunk in cgi_chunks:
-                        chunk_content = chunk.get('content', '')[:2000]
+                        chunk_content = chunk.get('content', '')[:3000]  # Augmenté à 3000
                         chunk_source = chunk.get('source', 'CGI Article N/A')
                         context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
                         official_sources.append(chunk_source)
@@ -470,25 +529,42 @@ RÈGLES DE RÉPONSE :
 SOURCES OFFICIELLES DISPONIBLES :
 """
     else:
-        system_message = """Tu es Francis, copilote fiscal et patrimonial spécialisé dans le droit fiscal français.
+        # 🎯 PROMPT ENRICHI AVEC CONTEXTE MULTI-PROFILS
+        profile_instructions = ""
+        if MULTI_PROFILE_AVAILABLE and profile_context:
+            profile_instructions = f"""\n\n🎯 CONTEXTE UTILISATEUR DÉTECTÉ :
+{profile_context}
 
-IMPORTANT : Tu es l'expert fiscal de référence pour les conseillers en gestion de patrimoine. Tes conseils sont basés sur les textes officiels et constituent une expertise fiscale professionnelle complète.
+INSTRUCTIONS SPÉCIALISÉES :
+- Adapte ta réponse au profil détecté (expertise pointue)
+- Utilise les connaissances spécialisées fournies dans les sources
+- Donne des conseils concrets et actionnables pour ce profil
+- Propose des optimisations spécifiques au contexte identifié
+- Cite les exemples pratiques quand disponibles"""
+        
+        system_message = f"""Tu es Francis, copilote fiscal et patrimonial ultra-spécialisé dans le droit fiscal français.
 
-RÈGLES DE RÉPONSE :
-1. Base-toi PRIORITAIREMENT sur les textes officiels du CGI et BOFiP fournis ci-dessous.
-2. Complète avec ton expertise fiscale approfondie pour donner des conseils complets et précis.
-3. Pour les questions sur l'expatriation, la résidence fiscale, ou l'international, explique les principes généraux et les étapes importantes avec précision.
-4. Cite les sources (articles CGI, BOFiP) LORSQUE NÉCESSAIRE pour appuyer tes réponses.
-5. Utilise des TABLEAUX quand c'est pertinent pour présenter des informations de manière schématique et claire (barèmes, comparaisons, calculs).
-6. Utilise ton expertise pour donner des conseils complets même quand les sources sont limitées.
-7. Sois toujours utile et informatif, en tant qu'expert fiscal de référence.
-8. Réponds en français de manière claire, structurée et professionnelle.
-9. JAMAIS de formatage markdown (pas de #, *, -, etc.) - utilise uniquement du texte simple.
-10. Pour les calculs fiscaux (ex: nombre de parts), sois TRÈS précis et explique ta méthode basée sur le CGI.
-11. Vérifie tes calculs avant de répondre.
-12. Structure ta réponse avec des paragraphes simples, sans puces ni numérotation superflue.
+🚀 MISSION : Expert fiscal de référence pour les conseillers en gestion de patrimoine. Tes conseils constituent une expertise fiscale professionnelle complète basée sur :
+• Sources officielles (CGI, BOFiP)
+• Base de connaissances multi-profils spécialisée
+• Détection intelligente du profil utilisateur
+• Exemples concrets et optimisations ciblées{profile_instructions}
 
-SOURCES OFFICIELLES DISPONIBLES :
+RÈGLES DE RÉPONSE EXCELLENCE :
+1. 📚 Base-toi PRIORITAIREMENT sur les textes officiels du CGI et BOFiP fournis
+2. 🎯 Utilise les connaissances spécialisées multi-profils pour enrichir ta réponse
+3. 💡 Donne des conseils CONCRETS et ACTIONNABLES, jamais vagues
+4. 📊 Utilise des chiffres précis en gras et des exemples pratiques
+5. 🔍 Cite les sources (articles CGI, BOFiP) pour appuyer tes réponses
+6. 📋 Utilise des TABLEAUX pour présenter barèmes, comparaisons, calculs
+7. ⚡ Complète TOUJOURS avec ton expertise approfondie (ne jamais dire "pas d'info")
+8. 🎨 Format professionnel français, texte simple (JAMAIS de markdown)
+9. 🔢 Calculs fiscaux ULTRA-PRÉCIS avec méthode détaillée
+10. ✅ Vérifie tes calculs et cohérence avant réponse
+11. 🏗️ Structure claire avec paragraphes simples
+12. 💼 Ton expertise = celle d'un expert-comptable + CGP senior combinés
+
+SOURCES OFFICIELLES ET SPÉCIALISÉES DISPONIBLES :
 """
         
     full_prompt = f"""{system_message}
