@@ -40,11 +40,20 @@ async def download_francis_desktop_macos():
             if result.returncode != 0:
                 raise HTTPException(status_code=500, detail="Failed to create DMG file")
         
-        # Retourner le fichier DMG directement
+        # Vérifier la taille du fichier DMG
+        file_size = dmg_path.stat().st_size
+        
+        # Retourner le fichier DMG avec les bons headers pour éviter la corruption
         return FileResponse(
             path=str(dmg_path),
             media_type="application/x-apple-diskimage",
-            filename="Francis-Desktop-macOS.dmg"
+            filename="Francis-Desktop-macOS.dmg",
+            headers={
+                "Content-Length": str(file_size),
+                "Accept-Ranges": "bytes",
+                "Cache-Control": "no-cache",
+                "Content-Disposition": "attachment; filename=Francis-Desktop-macOS.dmg"
+            }
         )
         
     except Exception as e:
