@@ -4,13 +4,24 @@ import { getDownloadLink } from '../utils/osDetector';
 
 const FrancisDownloadPage: React.FC = () => {
   const handleDownload = (os: string) => {
-    // Afficher un message d'information au lieu d'ouvrir une page bleue
+    // Téléchargement automatique direct du fichier
     if (os === 'macos') {
-      alert('Francis Desktop pour macOS est disponible !\n\nPour installer :\n1. Le fichier Francis.app a été généré dans desktop-app/dist/mac/\n2. Copiez-le dans votre dossier Applications\n3. Lancez Francis.app\n\nL\'overlay apparaîtra dans le coin supérieur droit de votre écran.');
+      // Créer un lien de téléchargement direct
+      const link = document.createElement('a');
+      link.href = '/downloads/Francis-Desktop-macOS.zip';
+      link.download = 'Francis-Desktop-macOS.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Message informatif après téléchargement
+      setTimeout(() => {
+        alert('✅ Téléchargement lancé !\n\n📦 Fichier: Francis-Desktop-macOS.zip\n\n📋 Installation:\n1. Décompressez le fichier zip\n2. Glissez Francis.app dans Applications\n3. Lancez Francis.app\n\n🎯 L\'overlay apparaîtra en haut à droite !');
+      }, 500);
     } else if (os === 'windows') {
-      alert('Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
+      alert('🚧 Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
     } else if (os === 'linux') {
-      alert('Francis Desktop pour Linux sera bientôt disponible !\n\nEn cours de développement...');
+      alert('🚧 Francis Desktop pour Linux sera bientôt disponible !\n\nEn cours de développement...');
     }
   };
   return (

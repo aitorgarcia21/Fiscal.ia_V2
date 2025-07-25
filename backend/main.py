@@ -194,6 +194,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files for downloads
+app.mount("/downloads", StaticFiles(directory="public/downloads"), name="downloads")
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
