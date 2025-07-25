@@ -14,11 +14,11 @@ async def download_francis_desktop_macos():
     Utilise le zip pré-créé pour garantir la compatibilité
     """
     try:
-        # Utiliser le DMG qui s'ouvre automatiquement avec l'interface de glisser-déposer
-        dmg_path = Path("/Users/aitorgarcia/Fiscal.ia_V2/desktop-app/dist/mac/Francis-Desktop-macOS.dmg")
+        # Utiliser le ZIP qui fonctionne de façon fiable
+        zip_path = Path("/Users/aitorgarcia/Fiscal.ia_V2/desktop-app/dist/mac/Francis-Desktop-macOS.zip")
         
-        if not dmg_path.exists():
-            # Créer le DMG s'il n'existe pas
+        if not zip_path.exists():
+            # Créer le ZIP s'il n'existe pas
             francis_app_path = Path("/Users/aitorgarcia/Fiscal.ia_V2/desktop-app/dist/mac/Francis.app")
             
             if not francis_app_path.exists():
@@ -27,32 +27,30 @@ async def download_francis_desktop_macos():
                     detail="Francis Desktop not available. Please contact support."
                 )
             
-            # Créer le DMG avec l'interface de glisser-déposer
+            # Créer le ZIP avec compression standard
             import subprocess
             result = subprocess.run([
-                "hdiutil", "create", 
-                "-volname", "Francis Desktop",
-                "-srcfolder", str(francis_app_path),
-                "-ov", "-format", "UDZO",
-                str(dmg_path)
+                "zip", "-r", 
+                str(zip_path),
+                "Francis.app"
             ], cwd=francis_app_path.parent, capture_output=True)
             
             if result.returncode != 0:
-                raise HTTPException(status_code=500, detail="Failed to create DMG file")
+                raise HTTPException(status_code=500, detail="Failed to create ZIP file")
         
-        # Vérifier la taille du fichier DMG
-        file_size = dmg_path.stat().st_size
+        # Vérifier la taille du fichier ZIP
+        file_size = zip_path.stat().st_size
         
-        # Retourner le fichier DMG avec les bons headers pour éviter la corruption
+        # Retourner le fichier ZIP avec les bons headers
         return FileResponse(
-            path=str(dmg_path),
-            media_type="application/x-apple-diskimage",
-            filename="Francis-Desktop-macOS.dmg",
+            path=str(zip_path),
+            media_type="application/zip",
+            filename="Francis-Desktop-macOS.zip",
             headers={
                 "Content-Length": str(file_size),
                 "Accept-Ranges": "bytes",
                 "Cache-Control": "no-cache",
-                "Content-Disposition": "attachment; filename=Francis-Desktop-macOS.dmg"
+                "Content-Disposition": "attachment; filename=Francis-Desktop-macOS.zip"
             }
         )
         
