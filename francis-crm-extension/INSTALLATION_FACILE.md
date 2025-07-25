@@ -1,4 +1,4 @@
-# 🚀 FRANCIS CRM EXTENSION - INSTALLATION ULTRA FACILE
+# 🌐 FRANCIS - AGENT FISCAL GLOBAL OMNIPRESENT
 
 ## ⚡ 3 CLICS SEULEMENT :
 
@@ -18,20 +18,32 @@ francis-crm-extension/
 
 L'extension Francis apparaît dans Chrome avec le logo officiel ! 🎯
 
-## 🎤 UTILISATION :
+## 🎤 UTILISATION GLOBALE :
 
-1. **Va sur ton CRM** (Salesforce, HubSpot, etc.)
+1. **Va sur N'IMPORTE QUELLE PAGE WEB** 🌐
 2. **Clique sur l'icône Francis** dans Chrome  
 3. **Parle** dans le micro 🎤
-4. **Francis injecte** la réponse dans le CRM ! 💼
+4. **Francis injecte** ses réponses dans TOUS les formulaires ! 💼
 
-## 🌐 COMPATIBLE :
-- Salesforce, HubSpot, Pipedrive, Zoho
-- Monday.com, Airtable, Notion, ClickUp
-- Web, Mac, Windows, Apps
+## 🔥 AGENT OMNIPRESENT :
+- ✅ **Toutes les pages web** : Google, Facebook, LinkedIn, Gmail, etc.
+- ✅ **Tous les CRM** : Salesforce, HubSpot, Pipedrive, Zoho
+- ✅ **Tous les outils** : Monday, Airtable, Notion, ClickUp
+- ✅ **Détection automatique** des champs de saisie sur n'importe quel site
+
+## 🌐 COMPATIBLE PARTOUT :
+- 🔥 **TOUTES LES PAGES WEB** du monde entier
+- 💼 **Tous les CRM** : Salesforce, HubSpot, Pipedrive, Zoho
+- 📊 **Tous les outils** : Monday, Airtable, Notion, ClickUp
+- 📧 **Webmails** : Gmail, Outlook, Yahoo
+- 🌍 **Réseaux sociaux** : LinkedIn, Facebook, Twitter
+- 📝 **Formulaires** : Google Forms, Typeform, etc.
+- 💻 **Systèmes** : Web, Mac, Windows
 
 ## 🎨 LOGO OFFICIEL FRANCIS :
 Logo bulle + euro du header ProDashboardPage
 
 ---
-**🚀 INSTALLATION = 30 SECONDES MAX !**
+**🌐 FRANCIS PARTOUT = RÉVOLUTION TOTALE !**
+
+*L'agent fiscal le plus puissant au monde, maintenant présent sur chaque page web que vous visitez !*

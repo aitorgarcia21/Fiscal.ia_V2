@@ -1,36 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Francis CRM Assistant",
+  "name": "Francis - Agent Fiscal Global",
   "version": "1.0.0",
-  "description": "Extension Francis avec reconnaissance vocale pour l'injection automatique de réponses fiscales dans vos CRM",
+  "description": "Francis - Agent fiscal global omnipresent sur toutes les pages web avec reconnaissance vocale et IA",
   "permissions": [
     "activeTab",
     "storage",
     "scripting"
   ],
   "host_permissions": [
-    "https://*.salesforce.com/*",
-    "https://*.hubspot.com/*", 
-    "https://*.pipedrive.com/*",
-    "https://*.zoho.com/*",
-    "https://*.monday.com/*",
-    "https://*.airtable.com/*",
-    "https://*.notion.so/*",
-    "https://*.clickup.com/*",
-    "https://*.fiscal.ia/*",
-    "http://localhost:*/*"
+    "https://*/*",
+    "http://*/*",
+    "<all_urls>"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://*.salesforce.com/*",
-        "https://*.hubspot.com/*",
-        "https://*.pipedrive.com/*",
-        "https://*.zoho.com/*",
-        "https://*.monday.com/*",
-        "https://*.airtable.com/*",
-        "https://*.notion.so/*",
-        "https://*.clickup.com/*"
+        "https://*/*",
+        "http://*/*"
       ],
       "js": ["content.js"],
       "css": ["styles.css"],
