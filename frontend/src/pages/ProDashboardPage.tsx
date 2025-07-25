@@ -562,7 +562,7 @@ export function ProDashboardPage() {
           </div>
 
           {/* Actions rapides */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <button
               onClick={() => navigate('/pro/chat')}
               className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group"
@@ -576,6 +576,27 @@ export function ProDashboardPage() {
                     Chat Francis
                   </h3>
                   <p className="text-sm text-gray-400">Posez vos questions</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/telecharger')}
+              className="bg-[#1a2332] border border-[#c5a572]/20 rounded-xl p-6 hover:border-[#c5a572]/40 transition-all text-left group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c5a572]/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
+              <div className="flex items-center gap-4 relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] rounded-xl flex items-center justify-center">
+                  <Download className="w-6 h-6 text-[#162238]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white group-hover:text-[#c5a572] transition-colors flex items-center gap-2">
+                    Francis Desktop
+                    <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                      NEW
+                    </span>
+                  </h3>
+                  <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">Application native</p>
                 </div>
               </div>
             </button>
