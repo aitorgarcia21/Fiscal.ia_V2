@@ -1,4 +1,6 @@
 import React from 'react';
+import { FrancisProvider } from './contexts/FrancisContext';
+import FrancisFloatingButton from './components/francis/FrancisFloatingButton';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
@@ -60,6 +62,7 @@ import FrancisDownloadPage from './pages/FrancisDownloadPage';
 // Commentaire pour forcer un nouveau build - v2
 function App() {
   return (
+      <FrancisProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Navigate to="/pro-landing" replace />} />
@@ -137,6 +140,8 @@ function App() {
           <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>
       </Router>
+      <FrancisFloatingButton />
+      </FrancisProvider>
   );
 }
 

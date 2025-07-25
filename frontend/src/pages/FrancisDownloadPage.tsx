@@ -1,7 +1,12 @@
 import React from 'react';
 import { Download, Monitor, Smartphone, Globe, Shield, Zap, Users, Star } from 'lucide-react';
+import { getDownloadLink } from '../utils/osDetector';
 
 const FrancisDownloadPage: React.FC = () => {
+  const handleDownload = (os: string) => {
+    const downloadUrl = getDownloadLink(os);
+    window.open(downloadUrl, '_blank');
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#0A192F]">
       {/* Header avec logo Francis */}
@@ -31,7 +36,10 @@ const FrancisDownloadPage: React.FC = () => {
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">Windows</h3>
               <p className="text-gray-300 mb-6">Compatible Windows 10/11</p>
-              <button className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center">
+              <button 
+                onClick={() => handleDownload('windows')}
+                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+              >
                 <Download className="h-5 w-5 mr-2" />
                 Télécharger .exe
               </button>
@@ -47,7 +55,10 @@ const FrancisDownloadPage: React.FC = () => {
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">macOS</h3>
               <p className="text-gray-300 mb-6">Compatible macOS 10.15+</p>
-              <button className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center">
+              <button 
+                onClick={() => handleDownload('macos')}
+                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+              >
                 <Download className="h-5 w-5 mr-2" />
                 Télécharger .dmg
               </button>
@@ -63,7 +74,10 @@ const FrancisDownloadPage: React.FC = () => {
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">Linux</h3>
               <p className="text-gray-300 mb-6">Compatible Ubuntu/Debian</p>
-              <button className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center">
+              <button 
+                onClick={() => handleDownload('linux')}
+                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+              >
                 <Download className="h-5 w-5 mr-2" />
                 Télécharger .AppImage
               </button>
@@ -198,7 +212,16 @@ const FrancisDownloadPage: React.FC = () => {
             Rejoignez des milliers de professionnels qui font confiance à Francis !
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-8 rounded-xl transition-colors flex items-center justify-center">
+            <button 
+              onClick={() => {
+                const userAgent = navigator.userAgent.toLowerCase();
+                let os = 'windows'; // défaut
+                if (userAgent.includes('mac')) os = 'macos';
+                else if (userAgent.includes('linux')) os = 'linux';
+                handleDownload(os);
+              }}
+              className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-8 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+            >
               <Download className="h-5 w-5 mr-2" />
               Télécharger Maintenant
             </button>
