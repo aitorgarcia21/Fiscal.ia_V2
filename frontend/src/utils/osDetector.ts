@@ -16,15 +16,17 @@ export const detectOS = (): string => {
 };
 
 export const getDownloadLink = (os: string): string => {
-  const baseUrl = 'https://fiscal-ia-v2-production.up.railway.app/downloads';
+  // Liens temporaires vers les fichiers locaux (à remplacer par un serveur de fichiers)
+  const localPath = '/Users/aitorgarcia/Fiscal.ia_V2/desktop-app/dist/mac';
   
   switch (os.toLowerCase()) {
     case 'macos':
-      return `${baseUrl}/Francis-1.0.0.dmg`;
+      // Pour l'instant, rediriger vers la page de téléchargement avec instructions
+      return '/telecharger?os=macos&info=local';
     case 'windows':
-      return `${baseUrl}/Francis-Setup-1.0.0.exe`;
+      return '/telecharger?os=windows&info=build-needed';
     case 'linux':
-      return `${baseUrl}/Francis-1.0.0.AppImage`;
+      return '/telecharger?os=linux&info=build-needed';
     default:
       return '/telecharger';
   }

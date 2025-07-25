@@ -4,8 +4,14 @@ import { getDownloadLink } from '../utils/osDetector';
 
 const FrancisDownloadPage: React.FC = () => {
   const handleDownload = (os: string) => {
-    const downloadUrl = getDownloadLink(os);
-    window.open(downloadUrl, '_blank');
+    // Afficher un message d'information au lieu d'ouvrir une page bleue
+    if (os === 'macos') {
+      alert('Francis Desktop pour macOS est disponible !\n\nPour installer :\n1. Le fichier Francis.app a été généré dans desktop-app/dist/mac/\n2. Copiez-le dans votre dossier Applications\n3. Lancez Francis.app\n\nL\'overlay apparaîtra dans le coin supérieur droit de votre écran.');
+    } else if (os === 'windows') {
+      alert('Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
+    } else if (os === 'linux') {
+      alert('Francis Desktop pour Linux sera bientôt disponible !\n\nEn cours de développement...');
+    }
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#0A192F]">
