@@ -11,37 +11,40 @@ router = APIRouter()
 async def download_francis_desktop_macos():
     """
     Téléchargement direct de Francis Desktop pour macOS
-    Génère le zip à la volée pour éviter de stocker le gros fichier
+    Utilise le zip pré-créé pour garantir la compatibilité
     """
     try:
-        # Chemin vers Francis.app (si disponible localement)
-        francis_app_path = Path("../desktop-app/dist/mac/Francis.app")
+        # Utiliser le DMG qui s'ouvre automatiquement avec l'interface de glisser-déposer
+        dmg_path = Path("/Users/aitorgarcia/Fiscal.ia_V2/desktop-app/dist/mac/Francis-Desktop-macOS.dmg")
         
-        if not francis_app_path.exists():
-            # Si pas disponible localement, redirection vers GitHub Release
-            raise HTTPException(
-                status_code=404, 
-                detail="Francis Desktop not available for direct download. Please visit GitHub Releases."
-            )
+        if not dmg_path.exists():
+            # Créer le DMG s'il n'existe pas
+            francis_app_path = Path("/Users/aitorgarcia/Fiscal.ia_V2/desktop-app/dist/mac/Francis.app")
+            
+            if not francis_app_path.exists():
+                raise HTTPException(
+                    status_code=404, 
+                    detail="Francis Desktop not available. Please contact support."
+                )
+            
+            # Créer le DMG avec l'interface de glisser-déposer
+            import subprocess
+            result = subprocess.run([
+                "hdiutil", "create", 
+                "-volname", "Francis Desktop",
+                "-srcfolder", str(francis_app_path),
+                "-ov", "-format", "UDZO",
+                str(dmg_path)
+            ], cwd=francis_app_path.parent, capture_output=True)
+            
+            if result.returncode != 0:
+                raise HTTPException(status_code=500, detail="Failed to create DMG file")
         
-        # Créer un zip en mémoire
-        zip_buffer = io.BytesIO()
-        
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-            # Ajouter Francis.app au zip
-            for root, dirs, files in os.walk(francis_app_path):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    arc_name = os.path.relpath(file_path, francis_app_path.parent)
-                    zip_file.write(file_path, arc_name)
-        
-        zip_buffer.seek(0)
-        
-        # Retourner le zip en streaming
-        return StreamingResponse(
-            io.BytesIO(zip_buffer.read()),
-            media_type="application/zip",
-            headers={"Content-Disposition": "attachment; filename=Francis-Desktop-macOS.zip"}
+        # Retourner le fichier DMG directement
+        return FileResponse(
+            path=str(dmg_path),
+            media_type="application/x-apple-diskimage",
+            filename="Francis-Desktop-macOS.dmg"
         )
         
     except Exception as e:

@@ -9,14 +9,14 @@ const FrancisDownloadPage: React.FC = () => {
       // Créer un lien de téléchargement direct vers l'endpoint backend
       const link = document.createElement('a');
       link.href = '/downloads/francis-desktop-macos';
-      link.download = 'Francis-Desktop-macOS.zip';
+      link.download = 'Francis-Desktop-macOS.dmg';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
       // Message informatif après téléchargement
       setTimeout(() => {
-        alert('✅ Téléchargement lancé !\n\n📦 Fichier: Francis-Desktop-macOS.zip\n\n📋 Installation:\n1. Décompressez le fichier zip\n2. Glissez Francis.app dans Applications\n3. Lancez Francis.app\n\n🎯 L\'overlay apparaîtra en haut à droite !\n\n🚀 Téléchargement direct depuis notre serveur !');
+        alert('✅ Téléchargement lancé !\n\n💿 Fichier: Francis-Desktop-macOS.dmg\n\n🎯 Installation automatique:\n1. Le DMG va s\'ouvrir automatiquement\n2. Glissez Francis.app dans le dossier Applications\n3. Lancez Francis.app depuis Applications\n\n🚀 L\'overlay apparaîtra en haut à droite !\n\n💡 Interface de glisser-déposer comme les vraies apps Mac !');
       }, 500);
     } else if (os === 'windows') {
       alert('🚧 Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
