@@ -194,8 +194,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files for downloads
-app.mount("/downloads", StaticFiles(directory="public/downloads"), name="downloads")
+# TODO: Mount static files for downloads (temporarily disabled - large files crash Railway)
+# app.mount("/downloads", StaticFiles(directory="public/downloads"), name="downloads")
 
 @app.get("/health")
 async def health():
