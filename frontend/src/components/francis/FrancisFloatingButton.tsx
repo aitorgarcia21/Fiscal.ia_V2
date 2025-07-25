@@ -4,7 +4,17 @@ import { detectOS, getDownloadLink } from '../../utils/osDetector';
 import { useFrancis } from '../../contexts/FrancisContext';
 
 const FrancisFloatingButton: React.FC = () => {
-  const { isFrancisVisible, showFrancis, hideFrancis } = useFrancis();
+  // Vérification de sécurité pour éviter le crash
+  let francisContext;
+  try {
+    francisContext = useFrancis();
+  } catch (error) {
+    // Si FrancisProvider n'est pas disponible, ne pas rendre le composant
+    console.warn('FrancisFloatingButton: FrancisProvider not available, skipping render');
+    return null;
+  }
+  
+  const { isFrancisVisible, showFrancis, hideFrancis } = francisContext;
   const [isOpen, setIsOpen] = useState(false);
   const [os, setOs] = useState<string | null>(null);
 
