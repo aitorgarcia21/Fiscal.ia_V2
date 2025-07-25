@@ -1,18 +1,23 @@
-const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain, Tray, nativeImage } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 
 const store = new Store();
 
 let mainWindow;
+let tray = null;
 
 function createWindow() {
-  // Créer la fenêtre du navigateur
+  // Créer la fenêtre overlay
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 1200,
-    minHeight: 800,
+    width: 400,
+    height: 600,
+    minWidth: 300,
+    minHeight: 500,
+    frame: false, // Supprimer la barre de titre
+    transparent: true, // Fond transparent
+    alwaysOnTop: true, // Toujours au premier plan
+    resizable: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -20,29 +25,35 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'assets/icon.png'),
-    titleBarStyle: 'default',
-    show: false,
-    backgroundColor: '#162238'
+    show: true,
+    backgroundColor: '#00000000', // Fond transparent
+    skipTaskbar: true, // Ne pas afficher dans la barre des tâches
+    movable: true,
+    fullscreenable: false,
+    titleBarStyle: 'custom',
+    titleBarOverlay: {
+      color: '#162238',
+      symbolColor: '#c5a572',
+      height: 40
+    }
   });
 
-  // Charger l'URL de l'application
-  // Toujours utiliser l'URL de production pour éviter ERR_CONNECTION_REFUSED
-  const baseUrl = 'https://fiscal-ia-v2-production.up.railway.app';
-  
-  // Vérifier si l'utilisateur est connecté
-  const isAuthenticated = store.get('isAuthenticated', false);
-  const userType = store.get('userType', 'particulier');
-  
-  let targetUrl;
-  if (isAuthenticated && userType === 'professionnel') {
-    targetUrl = `${baseUrl}/pro/dashboard`;
-  } else if (isAuthenticated) {
-    targetUrl = `${baseUrl}/dashboard`;
-  } else {
-    targetUrl = `${baseUrl}/login`;
-  }
+  // Positionner dans le coin supérieur droit
+  const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  mainWindow.setPosition(width - 450, 50);
 
-  mainWindow.loadURL(targetUrl);
+  // Charger l'application React locale en développement ou la version construite en production
+  if (process.env.NODE_ENV === 'development') {
+    // En développement, charger depuis le serveur webpack-dev-server
+    mainWindow.loadURL('http://localhost:3001');
+    // Ouvrir les outils de développement
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  } else {
+    // En production, charger le fichier local
+    mainWindow.loadFile(path.join(__dirname, 'renderer/index.html'));
+  }
 
   // Afficher la fenêtre quand elle est prête
   mainWindow.once('ready-to-show', () => {
@@ -62,6 +73,47 @@ function createWindow() {
 
   // Créer le menu de l'application
   createMenu();
+  
+  // Créer l'icône dans la barre de menu (Mac) ou la zone de notification (Windows/Linux)
+  createTray();
+}
+
+function createTray() {
+  const iconPath = path.join(__dirname, 'assets/icon.png');
+  const trayIcon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  
+  tray = new Tray(trayIcon);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Afficher Francis',
+      click: () => {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    },
+    {
+      label: 'Quitter',
+      click: () => {
+        app.quit();
+      }
+    }
+  ]);
+  
+  tray.setToolTip('Francis - Assistant Fiscal');
+  tray.setContextMenu(contextMenu);
+  
+  // Clic sur l'icône pour afficher/masquer la fenêtre
+  tray.on('click', () => {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide();
+    } else {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+  
+  // Afficher l'overlay dès le démarrage
+  mainWindow.show();
 }
 
 function createMenu() {
@@ -135,9 +187,58 @@ function createMenu() {
 // Gestion des événements de l'application
 app.whenReady().then(createWindow);
 
-app.on('window-all-closed', () => {
+// Gestion des événements de l'overlay
+ipcMain.on('overlay:close', () => {
+  if (mainWindow) {
+    mainWindow.hide();
+  }
+});
+
+ipcMain.on('overlay:minimize', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.on('overlay:maximize', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.handle('overlay:is-maximized', () => {
+  return mainWindow ? mainWindow.isMaximized() : false;
+});
+
+ipcMain.on('overlay:drag-start', () => {
+  if (mainWindow) {
+    mainWindow.webContents.send('window-state-changed', { isMaximized: mainWindow.isMaximized() });
+  }
+});
+
+ipcMain.on('overlay:drag-move', (event, { x, y }) => {
+  if (mainWindow) {
+    mainWindow.setPosition(x, y);
+  }
+});
+
+ipcMain.on('open-external', (event, url) => {
+  shell.openExternal(url);
+});
+
+// Gestion de la fermeture de l'application
+app.on('window-all-closed', (event) => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    if (tray) {
+      event.preventDefault();
+      mainWindow.hide();
+    } else {
+      app.quit();
+    }
   }
 });
 
