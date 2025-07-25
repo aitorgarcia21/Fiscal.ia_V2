@@ -26,8 +26,8 @@ function createWindow() {
   });
 
   // Charger l'URL de l'application
-  const isDev = process.argv.includes('--dev');
-  const baseUrl = isDev ? 'http://localhost:3000' : 'https://fiscal-ia-v2-production.up.railway.app';
+  // Toujours utiliser l'URL de production pour éviter ERR_CONNECTION_REFUSED
+  const baseUrl = 'https://fiscal-ia-v2-production.up.railway.app';
   
   // Vérifier si l'utilisateur est connecté
   const isAuthenticated = store.get('isAuthenticated', false);
