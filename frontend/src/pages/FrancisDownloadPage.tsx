@@ -4,15 +4,20 @@ import { getDownloadLink } from '../utils/osDetector';
 
 const FrancisDownloadPage: React.FC = () => {
   const handleDownload = (os: string) => {
-    // Téléchargement via GitHub (temporaire - évite de faire planter le serveur avec le gros fichier)
+    // Téléchargement direct via endpoint backend
     if (os === 'macos') {
-      // Ouvrir GitHub Releases dans un nouvel onglet
-      window.open('https://github.com/aitorgarcia21/Fiscal.ia_V2/releases', '_blank');
+      // Créer un lien de téléchargement direct vers l'endpoint backend
+      const link = document.createElement('a');
+      link.href = '/downloads/francis-desktop-macos';
+      link.download = 'Francis-Desktop-macOS.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
-      // Message informatif
+      // Message informatif après téléchargement
       setTimeout(() => {
-        alert('🚀 Redirection vers GitHub !\n\n📦 Téléchargez: Francis-Desktop-macOS.zip\n\n📋 Installation:\n1. Décompressez le fichier zip\n2. Glissez Francis.app dans Applications\n3. Lancez Francis.app\n\n🎯 L\'overlay apparaîtra en haut à droite !\n\n💡 Bientôt disponible en téléchargement direct.');
-      }, 1000);
+        alert('✅ Téléchargement lancé !\n\n📦 Fichier: Francis-Desktop-macOS.zip\n\n📋 Installation:\n1. Décompressez le fichier zip\n2. Glissez Francis.app dans Applications\n3. Lancez Francis.app\n\n🎯 L\'overlay apparaîtra en haut à droite !\n\n🚀 Téléchargement direct depuis notre serveur !');
+      }, 500);
     } else if (os === 'windows') {
       alert('🚧 Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
     } else if (os === 'linux') {

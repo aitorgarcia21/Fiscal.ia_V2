@@ -92,6 +92,7 @@ except ImportError:
         from backend.routers import pro_clients as pro_clients_router
         from backend.routers import teams_assistant as teams_assistant_router
         from backend.routers import whisper_fix as whisper_router
+        from backend.routers import downloads
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
         from backend.routes_gocardless import router as gocardless_router
@@ -108,6 +109,7 @@ except ImportError:
         from routers import pro_clients as pro_clients_router
         from routers import teams_assistant as teams_assistant_router
         from routers import whisper_fix as whisper_router
+        from routers import downloads
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
         from routes_gocardless import router as gocardless_router
@@ -2666,12 +2668,12 @@ initialize_embeddings()
 
 app.include_router(api_router)
 app.include_router(api_router, prefix="/api")  # alias pour compatibilité frontend
-app.include_router(whisper_router.router, prefix="/api")  # 🎯 WHISPER LOCAL FONCTIONNEL
+app.include_router(whisper_router.router, prefix="/api")  # WHISPER LOCAL FONCTIONNEL
 # app.include_router(eleven_router)  # DÉSACTIVÉ temporairement - eleven_router indisponible
-app.include_router(gocardless_router)  # 🏦 GOCARDLESS BANK INTEGRATION
+app.include_router(gocardless_router)  # GOCARDLESS BANK INTEGRATION
+app.include_router(downloads.router, prefix="/downloads")  # FRANCIS DESKTOP DOWNLOADS
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
-
 
 @api_router.get("/questions/quota")
 async def get_questions_quota(user_id: str = Depends(verify_token)):
