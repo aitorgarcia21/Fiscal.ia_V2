@@ -2,7 +2,9 @@
   "manifest_version": 3,
   "name": "Francis - Agent Fiscal Global",
   "version": "1.0.0",
-  "description": "Francis - Agent fiscal global omnipresent sur toutes les pages web avec reconnaissance vocale et IA",
+  "author": "Fiscal.ia - Solution IA pour Conseillers en Gestion de Patrimoine",
+  "homepage_url": "https://fiscal-ia-v2-production.up.railway.app",
+  "description": "Francis - Assistant IA fiscal pour Conseillers en Gestion de Patrimoine. Reconnaissance vocale, injection automatique de réponses fiscales expertes sur toutes vos plateformes.",
   "permissions": [
     "activeTab",
     "storage",
