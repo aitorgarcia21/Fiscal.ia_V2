@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // FrancisProvider et FrancisFloatingButton temporairement désactivés pour restaurer le site
 // import { FrancisProvider } from './contexts/FrancisContext';
 // import FrancisFloatingButton from './components/francis/FrancisFloatingButton';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { setupGlobalErrorHandler } from './utils/errorHandler';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { TrueLayerCallback } from './pages/TrueLayerCallback';
@@ -63,6 +64,11 @@ import FrancisInstallerPage from './pages/FrancisInstallerPage';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
+  // Configuration du gestionnaire d'erreur global
+  useEffect(() => {
+    setupGlobalErrorHandler();
+  }, []);
+
   return (
       <Router>
         <Routes>

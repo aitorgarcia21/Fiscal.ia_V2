@@ -46,9 +46,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(userData);
       setIsAuthenticated(true);
       setIsProfessional(userData.taper === 'professionnel');
-    } catch (error) {
-      console.error("Erreur checkAuthStatus: ", error);
-      localStorage.removeItem('authToken'); // Token invalide ou expiré
+    } catch (error: any) {
+      // Gestion silencieuse des erreurs d'authentification
+      if (error?.status === 401 || error?.message?.includes('Token invalide')) {
+        // Token expiré ou invalide - nettoyage silencieux
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+      } else {
+        // Autres erreurs réseau ou serveur - log uniquement en dev
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Erreur auth non-critique:', error);
+        }
+      }
       setUser(null);
       setIsAuthenticated(false);
       setIsProfessional(false);

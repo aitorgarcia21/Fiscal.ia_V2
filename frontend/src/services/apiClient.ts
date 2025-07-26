@@ -46,39 +46,62 @@ async function apiClient<T = any>(endpoint: string, { data, headers: customHeade
     config.body = JSON.stringify(data);
   }
 
-  const response = await fetch(buildUrl(endpoint), config);
+  try {
+    const response = await fetch(buildUrl(endpoint), config);
 
-  if (!response.ok) {
-    // Essayer de parser le JSON de la réponse d'erreur, avec fallback en cas d'échec
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch (e) {
-      // Si la réponse n'est pas du JSON valide, utiliser le statusText comme fallback
-      errorData = { detail: response.statusText };
+    if (!response.ok) {
+      // Essayer de parser le JSON de la réponse d'erreur, avec fallback en cas d'échec
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        // Si la réponse n'est pas du JSON valide, utiliser le statusText comme fallback
+        errorData = { detail: response.statusText };
+      }
+      
+      // Créer un message d'erreur plus descriptif selon le code de statut
+      let errorMessage = errorData.detail || 'Une erreur API est survenue';
+      if (response.status === 422) {
+        errorMessage = 'Erreur de validation des données. Vérifiez les informations saisies.';
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Erreur 422 détaillée:', errorData);
+        }
+      }
+      
+      // Lève une erreur structurée que nous pouvons attraper dans les composants
+      const error = new Error(errorMessage) as any;
+      error.response = response;
+      error.data = errorData;
+      error.status = response.status;
+      throw error;
+    }
+
+    // Si la réponse est 204 No Content (ex: pour DELETE), retourner null ou un objet vide
+    if (response.status === 204) {
+      return Promise.resolve(null as unknown as T); 
+    }
+
+    return response.json() as Promise<T>;
+  } catch (error: any) {
+    // Gestion des erreurs réseau et autres erreurs non HTTP
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      const networkError = new Error('Erreur de connexion réseau') as any;
+      networkError.name = 'NetworkError';
+      networkError.status = 0;
+      throw networkError;
     }
     
-    // Créer un message d'erreur plus descriptif selon le code de statut
-    let errorMessage = errorData.detail || 'Une erreur API est survenue';
-    if (response.status === 422) {
-      errorMessage = 'Erreur de validation des données. Vérifiez les informations saisies.';
-      console.error('Erreur 422 détaillée:', errorData);
+    // Si l'erreur a déjà été formatée, on la relance
+    if (error.status) {
+      throw error;
     }
     
-    // Lève une erreur structurée que nous pouvons attraper dans les composants
-    const error = new Error(errorMessage) as any;
-    error.response = response;
-    error.data = errorData;
-    error.status = response.status;
-    throw error;
+    // Erreur générique pour les autres cas
+    const genericError = new Error('Une erreur inattendue s\'est produite') as any;
+    genericError.name = 'UnknownError';
+    genericError.status = 500;
+    throw genericError;
   }
-
-  // Si la réponse est 204 No Content (ex: pour DELETE), retourner null ou un objet vide
-  if (response.status === 204) {
-    return Promise.resolve(null as unknown as T); 
-  }
-
-  return response.json() as Promise<T>;
 }
 
 // Exemples d'utilisation (peuvent être exportés directement ou via des fonctions spécifiques)

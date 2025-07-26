@@ -8,7 +8,15 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-75EWW0GCZX');
+      // Gestion d'erreur pour Google Analytics
+      try {
+        gtag('config', 'G-75EWW0GCZX');
+      } catch (error) {
+        // Erreur GA silencieuse (adblock, connexion, etc.)
+        if (window.console && window.console.warn) {
+          console.warn('Google Analytics non disponible');
+        }
+      }
     </script>
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.svg" />
