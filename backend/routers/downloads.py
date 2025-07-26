@@ -76,3 +76,37 @@ async def download_francis_desktop_linux():
         status_code=404, 
         detail="Francis Desktop for Linux coming soon!"
     )
+
+@router.get("/francis-chrome-extension")
+async def download_francis_chrome_extension():
+    """
+    Téléchargement de l'extension Chrome Francis
+    """
+    try:
+        # Chemin vers l'extension Chrome
+        extension_path = Path("/Users/aitorgarcia/Fiscal.ia_V2/backend/public/downloads/francis-chrome-extension-v1.1.0.zip")
+        
+        if not extension_path.exists():
+            raise HTTPException(
+                status_code=404, 
+                detail="Francis Chrome Extension not available. Please contact support."
+            )
+        
+        # Vérifier la taille du fichier
+        file_size = extension_path.stat().st_size
+        
+        # Retourner le fichier ZIP de l'extension
+        return FileResponse(
+            path=str(extension_path),
+            media_type="application/zip",
+            filename="francis-chrome-extension-v1.1.0.zip",
+            headers={
+                "Content-Length": str(file_size),
+                "Accept-Ranges": "bytes",
+                "Cache-Control": "no-cache",
+                "Content-Disposition": "attachment; filename=francis-chrome-extension-v1.1.0.zip"
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Download error: {str(e)}")

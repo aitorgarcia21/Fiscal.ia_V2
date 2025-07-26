@@ -23,6 +23,19 @@ const FrancisDownloadPage: React.FC = () => {
       alert('🚧 Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
     } else if (os === 'linux') {
       alert('🚧 Francis Desktop pour Linux sera bientôt disponible !\n\nEn cours de développement...');
+    } else if (os === 'chrome') {
+      // Téléchargement extension Chrome
+      const link = document.createElement('a');
+      link.href = '/downloads/francis-chrome-extension';
+      link.download = 'francis-chrome-extension-v1.1.0.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Message informatif
+      setTimeout(() => {
+        alert('✅ Extension Chrome téléchargée !\n\n🌐 Fichier: francis-chrome-extension-v1.1.0.zip\n\n📋 Installation:\n1. Ouvrez Chrome et allez dans Extensions (chrome://extensions/)\n2. Activez le "Mode développeur" en haut à droite\n3. Cliquez "Charger l\'extension non empaquetée"\n4. Sélectionnez le dossier décompressé\n\n🎯 Francis apparaîtra sur toutes vos pages web !\n\n✨ Assistant CGP universel pour tous vos CRM !');
+      }, 500);
     }
   };
   return (
@@ -45,7 +58,7 @@ const FrancisDownloadPage: React.FC = () => {
         </div>
 
         {/* Cards de téléchargement */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {/* Windows */}
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all">
             <div className="text-center">
@@ -100,6 +113,25 @@ const FrancisDownloadPage: React.FC = () => {
                 Télécharger .AppImage
               </button>
               <p className="text-sm text-gray-400 mt-2">Version 1.0.0 - 88 MB</p>
+            </div>
+          </div>
+
+          {/* Extension Chrome */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all">
+            <div className="text-center">
+              <div className="bg-[#c5a572]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="h-10 w-10 text-[#c5a572]" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Chrome</h3>
+              <p className="text-gray-300 mb-6">Extension universelle</p>
+              <button 
+                onClick={() => handleDownload('chrome')}
+                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                Télécharger .zip
+              </button>
+              <p className="text-sm text-gray-400 mt-2">Version 1.1.0 - 15 KB</p>
             </div>
           </div>
         </div>
