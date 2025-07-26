@@ -34,7 +34,7 @@ const FrancisDownloadPage: React.FC = () => {
       
       // Message informatif
       setTimeout(() => {
-        alert('✅ Extension Chrome téléchargée !\n\n🌐 Fichier: francis-chrome-extension-v1.1.0.zip\n\n📋 Installation:\n1. Ouvrez Chrome et allez dans Extensions (chrome://extensions/)\n2. Activez le "Mode développeur" en haut à droite\n3. Cliquez "Charger l\'extension non empaquetée"\n4. Sélectionnez le dossier décompressé\n\n🎯 Francis apparaîtra sur toutes vos pages web !\n\n✨ Assistant CGP universel pour tous vos CRM !');
+        alert('✅ Extension Chrome téléchargée !\n\n🌐 Fichier: francis-chrome-extension-v1.1.0.zip\n\n🔧 Installation automatique :\nUtilisez FrancisSetup.exe pour une installation en 1 clic !\n\n📋 Alternative manuelle (temporaire) :\n1. Décompressez le fichier ZIP\n2. Installez via FrancisSetup.exe (recommandé)\n\n🎯 Francis apparaîtra automatiquement sur toutes vos pages web !\n\n✨ Assistant CGP universel - Zéro configuration !');
       }, 500);
     }
   };
@@ -48,12 +48,12 @@ const FrancisDownloadPage: React.FC = () => {
               <Monitor className="h-12 w-12 text-[#162238]" />
             </div>
             <h1 className="text-5xl font-bold text-white">
-              Télécharger <span className="text-[#c5a572]">Francis Desktop</span>
+              Télécharger <span className="text-[#c5a572]">Francis</span>
             </h1>
           </div>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto">
             L'assistant IA fiscal le plus puissant au monde, maintenant disponible 
-            comme application native sur votre ordinateur !
+            comme extension universelle pour tous vos navigateurs !
           </p>
         </div>
 
