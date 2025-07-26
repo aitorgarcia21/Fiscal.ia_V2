@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { ArrowLeft, User, Home, Users as UsersIcon, Briefcase, BarChart3, Info, Edit3, Zap, RotateCw, FileText as FileTextLtr, CheckCircle, MessageSquare, Send as SendIcon, Bot as BotIcon, TrendingUp as TrendingUpIcon, Euro, Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { ErrorHandler } from '../utils/errorHandler';
 
 // TODO: Déplacer vers un fichier de types partagés si utilisé ailleurs
 interface AnalysisResult {
@@ -74,7 +75,7 @@ export function ProClientDetailPage() {
         const response = await apiClient<ClientProfile>(`/api/pro/clients/${clientId}`, { method: 'GET' });
         setClient(response);
       } catch (err: any) {
-        console.error("Erreur lors de la récupération des détails du client:", err);
+        ErrorHandler.handle(err, { logInDev: true, silent: false });
         setError(err.data?.detail || err.message || 'Erreur de chargement des détails du client.');
       }
       setIsLoading(false);
@@ -114,7 +115,7 @@ export function ProClientDetailPage() {
       const result = await apiClient<AnalysisResult>(`/api/pro/clients/${clientId}/analyze`, { method: 'POST' });
       setAnalysisResult(result);
     } catch (err: any) {
-      console.error("Erreur lors du lancement de l'analyse générale:", err);
+      ErrorHandler.handle(err, { logInDev: true, silent: false });
       setError(err.data?.detail || err.message || 'Une erreur est survenue lors de l\'analyse générale.');
       setAnalysisResult(null);
     } finally {
@@ -134,7 +135,7 @@ export function ProClientDetailPage() {
       const result = await apiClient<IRPPAnalysisClientResponse>(`/api/pro/clients/${clientId}/analyze_irpp_2025`, { method: 'POST' });
       setIrppAnalysisResult(result);
     } catch (err: any) {
-      console.error("Erreur lors du lancement de l'analyse IRPP 2025:", err);
+      ErrorHandler.handle(err, { logInDev: true, silent: false });
       const errorMessage = err.data?.detail || err.message || 'Une erreur est survenue lors de l\'analyse IRPP 2025.';
       setIrppAnalysisError(errorMessage);
       setIrppAnalysisResult(null);
@@ -175,7 +176,7 @@ export function ProClientDetailPage() {
       setFrancisConversation(prev => [...prev, assistantMessage]);
 
     } catch (err: any) {
-      console.error("Erreur lors de la communication avec Francis:", err);
+      ErrorHandler.handle(err, { logInDev: true, silent: false });
       const errorMessage = err.data?.detail || err.message || "Désolé, une erreur s'est produite avec Francis.";
       setFrancisChatError(errorMessage);
       setFrancisConversation(prev => [...prev, { 
@@ -212,7 +213,7 @@ export function ProClientDetailPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Erreur export PDF:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError('Erreur lors de l\'export PDF');
     } finally {
       setIsExporting(false);
@@ -242,7 +243,7 @@ export function ProClientDetailPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Erreur export Excel:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError('Erreur lors de l\'export Excel');
     } finally {
       setIsExporting(false);

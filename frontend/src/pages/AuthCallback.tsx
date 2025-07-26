@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { ErrorHandler } from '../utils/errorHandler';
 
 export function AuthCallback() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export function AuthCallback() {
           });
 
           if (error) {
-            console.error('Erreur lors de la configuration de la session:', error);
+            ErrorHandler.handle(error, { logInDev: true, silent: false });
             setError('Erreur lors de l\'activation du compte');
             return;
           }
@@ -56,7 +57,7 @@ export function AuthCallback() {
                 navigate('/dashboard', { replace: true });
               }
             } catch (profileError) {
-              console.error('Erreur lors de la récupération du profil:', profileError);
+              ErrorHandler.handle(profileError, { logInDev: true, silent: false });
               // Redirection par défaut vers le dashboard particulier
               navigate('/dashboard', { replace: true });
             }
@@ -71,7 +72,7 @@ export function AuthCallback() {
           }, 3000);
         }
       } catch (err) {
-        console.error('Erreur lors du traitement du callback:', err);
+        ErrorHandler.handle(err, { logInDev: true, silent: false });
         setError('Une erreur est survenue lors de l\'activation');
         setTimeout(() => {
           navigate('/login', { replace: true });

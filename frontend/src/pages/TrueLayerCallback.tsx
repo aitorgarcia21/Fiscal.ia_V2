@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { ErrorHandler } from '../utils/errorHandler';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -63,7 +64,11 @@ export function TrueLayerCallback() {
           setMessage(errorData.detail || 'Erreur lors de la connexion bancaire');
         }
       } catch (error) {
-        console.error('Erreur TrueLayer callback:', error);
+        ErrorHandler.handle(error, { 
+          logInDev: true, 
+          showToUser: true,
+          silent: false 
+        });
         setStatus('error');
         setMessage('Erreur de connexion au serveur');
       }

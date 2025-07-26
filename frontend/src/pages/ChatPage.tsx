@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui/Logo';
 import apiClient from '../services/apiClient';
+import { ErrorHandler } from '../utils/errorHandler';
 
 import { useCountry, Country } from '../contexts/CountryContext';
 
@@ -96,7 +97,11 @@ export function ChatPage() {
         };
         setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      ErrorHandler.handle(error, { 
+        logInDev: true, 
+        showToUser: false,
+        silent: false 
+      });
       const errorMessage: Message = {
         role: 'assistant', 
         content: "Désolé, je rencontre un petit problème technique. Pouvez-vous reformuler votre question ? Je suis là pour vous aider !"
