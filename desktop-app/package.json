@@ -68,7 +68,11 @@
     "mac": {
       "category": "public.app-category.business",
       "icon": "assets/icon.icns",
-      "identity": null,
+      "identity": "Developer ID Application: À REMPLACER PAR TON NOM (TEAMID)",
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "gatekeeperAssess": false,
       "target": [
         {
           "target": "dir",
