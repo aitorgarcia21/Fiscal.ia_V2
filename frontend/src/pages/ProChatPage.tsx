@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useCountry, Country } from '../contexts/CountryContext';
-
+import { ErrorHandler } from '../utils/errorHandler';
 
 interface ProMessage {
   role: 'user' | 'assistant';
@@ -212,7 +212,7 @@ export function ProChatPage() {
           
           setClients(clientsData);
         } catch (err) {
-          console.error("Erreur chargement des clients pour le chat pro:", err);
+          ErrorHandler.handle(err, { logInDev: true, silent: false });
           setClients([]);
         }
         setIsLoadingClients(false);
@@ -250,7 +250,7 @@ export function ProChatPage() {
           
           setSelectedClientProfile(response);
         } catch (err) {
-          console.error(`Erreur chargement profil client ${selectedClientId}:`, err);
+          ErrorHandler.handle(err, { logInDev: true, silent: false });
           setSelectedClientProfile(null);
         }
         setIsLoadingClientProfile(false);
@@ -382,7 +382,7 @@ export function ProChatPage() {
 
       setMessages([...newMessages, assistantMessage]);
     } catch (error) {
-      console.error('Erreur lors de l\'envoi:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       const errorMessage: ProMessage = {
         role: 'assistant',
         content: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',

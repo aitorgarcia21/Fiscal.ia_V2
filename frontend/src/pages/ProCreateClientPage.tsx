@@ -8,6 +8,7 @@ import { UltraSimpleLiveRecorder } from '../components/UltraSimpleLiveRecorder';
 import { useVoiceFiller } from '../hooks/useVoiceFiller';
 import { ProfileStatusPanel } from '../components/ProfileStatusPanel';
 import { clientDataEncryption } from '../utils/ClientDataEncryption';
+import { ErrorHandler } from '../utils/errorHandler';
 
 import { ParticulierForm } from '../components/profile-forms/ParticulierForm';
 
@@ -234,7 +235,7 @@ export function ProCreateClientPage() {
   }, [handleTranscript]);
 
   const handleVoiceError = useCallback((error: string) => {
-    console.error('Erreur transcription Francis:', error);
+    ErrorHandler.handle(error, { logInDev: true, silent: false });
     setError(`Erreur transcription: ${error}`);
   }, []);
 
@@ -413,7 +414,7 @@ export function ProCreateClientPage() {
         navigate('/pro/dashboard');
       }
     } catch (error: any) {
-      console.error('❌ Erreur lors de la création du client:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError(error.data?.detail || error.message || 'Erreur lors de la création du client');
     } finally {
       setIsLoading(false);

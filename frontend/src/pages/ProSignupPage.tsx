@@ -5,6 +5,7 @@ import { useStripe } from '../hooks/useStripe';
 import { PRICING, PricingPlan } from '../config/pricing';
 import { StripeError } from '../components/stripe/StripeError';
 import { useAuth } from '../contexts/AuthContext';
+import { ErrorHandler } from '../utils/errorHandler';
 
 export function ProSignupPage() {
   const [step, setStep] = useState(1);
@@ -34,7 +35,7 @@ export function ProSignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      console.error("Les mots de passe ne correspondent pas.");
+      ErrorHandler.handle(new Error("Les mots de passe ne correspondent pas."), { logInDev: true, silent: false });
       return;
     }
 
@@ -56,7 +57,7 @@ export function ProSignupPage() {
           userEmail: formData.email
         });
       } catch (err) {
-        console.error('Erreur lors de l\'inscription ou du paiement:', err);
+        ErrorHandler.handle(err, { logInDev: true, silent: false });
       }
     }
   };

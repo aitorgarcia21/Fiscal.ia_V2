@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ErrorHandler } from '../utils/errorHandler';
 import {
   MessageSquare,
   Euro,
@@ -63,7 +64,7 @@ export function ParticulierDashboard() {
         loadFinancialSummary()
       ]);
     } catch (err) {
-      console.error('Erreur chargement données utilisateur:', err);
+      ErrorHandler.handle(err, { logInDev: true, silent: false });
       setError('Erreur lors du chargement des données');
     }
   };
@@ -77,7 +78,7 @@ export function ParticulierDashboard() {
       // Charger les transactions pour tous les comptes
       await loadTransactions();
     } catch (error) {
-      console.error('Erreur chargement comptes:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       // En cas d'erreur, utiliser des données de démonstration
       setBankAccounts([]);
     } finally {
@@ -98,7 +99,7 @@ export function ParticulierDashboard() {
       
       setTransactions(allTransactions);
     } catch (error) {
-      console.error('Erreur chargement transactions:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setTransactions([]);
     }
   };
@@ -108,7 +109,7 @@ export function ParticulierDashboard() {
       const summary = await gocardlessService.getFinancialSummary();
       setFinancialSummary(summary);
     } catch (error) {
-      console.error('Erreur chargement résumé financier:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setFinancialSummary(null);
     }
   };
@@ -118,7 +119,7 @@ export function ParticulierDashboard() {
       const institutions = await gocardlessService.getInstitutions('FR');
       setAvailableInstitutions(institutions);
     } catch (error) {
-      console.error('Erreur chargement institutions:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       // Fallback vers des institutions de démonstration
       setAvailableInstitutions([
         { id: 'BNP_PARIBAS', name: 'BNP Paribas', bic: 'BNPAFRPP', countries: ['FR'], logo: '🏦' },
@@ -141,7 +142,7 @@ export function ParticulierDashboard() {
       // Rediriger l'utilisateur vers la banque
       window.location.href = redirectUrl;
     } catch (error) {
-      console.error('Erreur connexion bancaire:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError('Impossible de se connecter à cette banque. Veuillez réessayer.');
       setIsConnecting(false);
     }

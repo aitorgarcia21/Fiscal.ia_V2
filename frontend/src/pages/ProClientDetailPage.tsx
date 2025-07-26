@@ -273,7 +273,7 @@ export function ProClientDetailPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Erreur export CSV:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError('Erreur lors de l\'export CSV');
     } finally {
       setIsExporting(false);
@@ -304,7 +304,7 @@ export function ProClientDetailPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Erreur export analyse PDF:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError('Erreur lors de l\'export de l\'analyse PDF');
     } finally {
       setIsExporting(false);
@@ -334,7 +334,7 @@ export function ProClientDetailPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Erreur export IRPP PDF:', error);
+      ErrorHandler.handle(error, { logInDev: true, silent: false });
       setError('Erreur lors de l\'export IRPP PDF');
     } finally {
       setIsExporting(false);

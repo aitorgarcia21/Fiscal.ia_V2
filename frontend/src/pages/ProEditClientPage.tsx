@@ -7,6 +7,7 @@ import {
 import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { StepperVertical } from '../components/ui/StepperVertical'; 
+import { ErrorHandler } from '../utils/errorHandler';
 
 // Utiliser la même interface que ProCreateClientPage pour la cohérence du formulaire
 // Mais tous les champs sont techniquement optionnels pour une mise à jour partielle,
@@ -201,7 +202,7 @@ export function ProEditClientPage() {
           notes_internes_pro: clientData.notes_internes_pro || '',
         });
       } catch (err: any) {
-        console.error("Erreur chargement données client pour édition:", err);
+        ErrorHandler.handle(err, { logInDev: true, silent: false });
         setError(err.data?.detail || err.message || "Erreur lors du chargement des données du client.");
       } finally {
         setInitialLoading(false);
@@ -296,7 +297,7 @@ export function ProEditClientPage() {
       alert('Client mis à jour avec succès !'); 
       navigate(`/pro/clients/${clientId}`);
     } catch (err: any) {
-      console.error("Erreur détaillée MàJ client:", err.response?.data || err.message || err);
+      ErrorHandler.handle(err, { logInDev: true, silent: false });
       setError(err.data?.detail || err.message || 'Une erreur est survenue lors de la mise à jour.');
     } finally {
       setIsSaving(false);
