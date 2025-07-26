@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST FRANCIS BOOKMARKLET - Validation Complète</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #c5a572;
+        }
+        .bookmarklet-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .test-form {
+            background: #e6fffa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .status {
+            background: #c5a572;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn {
+            background: #c5a572;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #b8956a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 TEST FRANCIS BOOKMARKLET - Validation Complète</h1>
+        
+        <div class="status">
+            ✅ PAGE DE TEST PRÊTE - Testez Francis ici directement !
+        </div>
+
+        <div class="test-section">
+            <h2>📋 ÉTAPES DU TEST :</h2>
+            <ol>
+                <li><strong>Copiez le bookmarklet</strong> ci-dessous</li>
+                <li><strong>Créez un favori</strong> dans votre navigateur</li>
+                <li><strong>Collez le code</strong> dans l'URL du favori</li>
+                <li><strong>Cliquez le favori</strong> sur cette page</li>
+                <li><strong>Francis doit apparaître</strong> en haut à droite !</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 FRANCIS BOOKMARKLET - CODE COMPLET</h2>
+            <p><strong>Copiez TOUT le code ci-dessous :</strong></p>
+            <div class="bookmarklet-code" id="bookmarklet-code">
+javascript:(function(){if(window.francisLoaded)return;window.francisLoaded=true;const s=`#francis-overlay{position:fixed;top:20px;right:20px;z-index:999999;background:linear-gradient(135deg,#162238,#0A192F);border:2px solid #c5a572;border-radius:12px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);width:320px;font-family:system-ui,-apple-system,sans-serif;color:white}#francis-toggle{background:linear-gradient(135deg,#c5a572,#e8cfa0);color:#162238;border:none;padding:12px 20px;border-radius:8px;font-weight:bold;cursor:pointer;width:100%;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}#francis-status{font-size:14px;color:#c5a572;text-align:center}#francis-transcript{background:rgba(255,255,255,0.1);border-radius:8px;padding:12px;margin:12px 0;min-height:60px;font-size:14px;line-height:1.4}`;const e=document.createElement('style');e.textContent=s;document.head.appendChild(e);const t=`<div id="francis-overlay"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><div style="background:#c5a572;padding:4px;border-radius:6px;">💬</div><div style="background:#c5a572;padding:4px;border-radius:6px;">€</div><strong>Francis Assistant</strong></div><button id="francis-toggle">🎤 Activer l'écoute Francis</button><div id="francis-status">Prêt à analyser vos entretiens</div><div id="francis-transcript" style="display:none;"><strong>Transcription en cours...</strong><div id="transcript-content"></div></div></div>`;document.body.insertAdjacentHTML('beforeend',t);let o=false,n=null;if('webkitSpeechRecognition'in window||'SpeechRecognition'in window){const a=window.SpeechRecognition||window.webkitSpeechRecognition;n=new a();n.continuous=true;n.interimResults=true;n.lang='fr-FR';n.onresult=function(i){let r='';for(let c=i.resultIndex;c<i.results.length;c++){r+=i.results[c][0].transcript}document.getElementById('transcript-content').textContent=r;if(r.length>50){l(r)}};n.onerror=function(i){document.getElementById('francis-status').textContent='Erreur: '+i.error}}function l(i){const r={nom:u(i),revenus:d(i),age:f(i),situation:p(i)};g(r)}function u(i){const r=[/je m'appelle ([A-ZÀ-Ÿ][a-zà-ÿ]+ [A-ZÀ-Ÿ][a-zà-ÿ]+)/i,/nom.*?([A-ZÀ-Ÿ][a-zà-ÿ]+ [A-ZÀ-Ÿ][a-zà-ÿ]+)/i,/monsieur ([A-ZÀ-Ÿ][a-zà-ÿ]+)/i];for(const c of r){const m=i.match(c);if(m)return m[1]}return null}function d(i){const r=[/(\\d+)\\s*k€?/i,/(\\d+)\\s*000\\s*euros?/i,/revenus?.*?(\\d+)/i];for(const c of r){const m=i.match(c);if(m){let h=parseInt(m[1]);if(i.includes('k'))h*=1000;return h}}return null}function f(i){const r=i.match(/(\\d+)\\s*ans?/i);return r?parseInt(r[1]):null}function p(i){if(/marié/i.test(i))return'Marié(e)';if(/célibataire/i.test(i))return'Célibataire';if(/divorcé/i.test(i))return'Divorcé(e)';return null}function g(i){const r={nom:['name','nom','lastname','nom_client'],prenom:['firstname','prenom','prénom'],age:['age','âge'],revenus:['revenue','revenus','income','revenu'],situation:['situation','status','marital']};Object.entries(i).forEach(([c,m])=>{if(m&&r[c]){r[c].forEach(h=>{const b=document.querySelector(`input[name*="${h}"],select[name*="${h}"],textarea[name*="${h}"]`);if(b){b.value=m;b.dispatchEvent(new Event('change',{bubbles:true}))}})}})}document.getElementById('francis-toggle').onclick=function(){if(!o){if(n){n.start();o=true;this.textContent='🔴 Arrêter l\\'écoute';document.getElementById('francis-status').textContent='Francis écoute en temps réel...';document.getElementById('francis-transcript').style.display='block'}else{alert('Reconnaissance vocale non supportée par votre navigateur')}}else{if(n){n.stop();o=false;this.textContent='🎤 Activer l\\'écoute Francis';document.getElementById('francis-status').textContent='Écoute arrêtée'}}};console.log('🎉 Francis Bookmarklet chargé avec succès !')})();
+            </div>
+            <button class="btn" onclick="copyBookmarklet()">📋 COPIER LE BOOKMARKLET</button>
+            <button class="btn" onclick="testBookmarklet()">🚀 TESTER DIRECTEMENT</button>
+        </div>
+
+        <div class="test-form">
+            <h2>📝 FORMULAIRE DE TEST - Francis va remplir ça automatiquement</h2>
+            <p><strong>Instructions :</strong> Activez Francis puis dites par exemple : 
+            "Je m'appelle Jean Dupont, j'ai 45 ans, je suis marié, mes revenus sont de 80000 euros par an"</p>
+            
+            <div class="form-group">
+                <label for="nom_client">Nom du client :</label>
+                <input type="text" id="nom_client" name="nom_client" placeholder="Sera rempli automatiquement par Francis">
+            </div>
+            
+            <div class="form-group">
+                <label for="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" placeholder="Sera rempli automatiquement par Francis">
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Âge :</label>
+                <input type="number" id="age" name="age" placeholder="Sera rempli automatiquement par Francis">
+            </div>
+            
+            <div class="form-group">
+                <label for="revenus">Revenus annuels :</label>
+                <input type="number" id="revenus" name="revenus" placeholder="Sera rempli automatiquement par Francis">
+            </div>
+            
+            <div class="form-group">
+                <label for="situation">Situation familiale :</label>
+                <select id="situation" name="situation">
+                    <option value="">-- Sera rempli par Francis --</option>
+                    <option value="Célibataire">Célibataire</option>
+                    <option value="Marié(e)">Marié(e)</option>
+                    <option value="Divorcé(e)">Divorcé(e)</option>
+                    <option value="Veuf/Veuve">Veuf/Veuve</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes :</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="Les informations détectées par Francis apparaîtront ici..."></textarea>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>✅ RÉSULTATS ATTENDUS :</h2>
+            <ul>
+                <li>🎤 Francis apparaît en haut à droite de la page</li>
+                <li>🔴 Bouton d'activation fonctionne</li>
+                <li>👂 Reconnaissance vocale démarre</li>
+                <li>✍️ Champs du formulaire se remplissent automatiquement</li>
+                <li>🎯 Extraction parfaite des informations client</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function copyBookmarklet() {
+            try {
+                console.log('🔄 Copie du bookmarklet...');
+                const code = document.getElementById('bookmarklet-code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('✅ Bookmarklet Francis copié !\n\nMaintenant :\n1. Créez un nouveau favori\n2. Collez ce code dans l\'URL\n3. Cliquez le favori sur cette page !');
+                    console.log('✅ Bookmarklet copié avec succès');
+                }).catch(err => {
+                    console.error('❌ Erreur copie:', err);
+                    alert('❌ Erreur de copie. Sélectionnez et copiez manuellement le code.');
+                });
+            } catch(err) {
+                console.error('❌ Erreur fonction copie:', err);
+                alert('❌ Erreur lors de la copie');
+            }
+        }
+
+        function testBookmarklet() {
+            try {
+                console.log('🚀 Test direct du bookmarklet Francis...');
+                
+                // Vérifier si Francis est déjà chargé
+                if (window.francisLoaded) {
+                    console.log('⚠️ Francis déjà chargé, rechargement...');
+                    const existing = document.getElementById('francis-overlay');
+                    if (existing) existing.remove();
+                    window.francisLoaded = false;
+                }
+                
+                // Récupérer et exécuter le code bookmarklet
+                const code = document.getElementById('bookmarklet-code').textContent;
+                const cleanCode = code.replace('javascript:', '');
+                
+                console.log('📝 Code bookmarklet récupéré, longueur:', cleanCode.length);
+                
+                // Exécuter le bookmarklet
+                eval(cleanCode);
+                
+                // Vérifier si Francis a été chargé
+                setTimeout(() => {
+                    const francisOverlay = document.getElementById('francis-overlay');
+                    if (francisOverlay) {
+                        console.log('✅ Francis chargé avec succès!');
+                        alert('🎉 SUCCÈS ! Francis est maintenant actif en haut à droite !\n\nCliquez sur "🎤 Activer l\'écoute Francis" pour tester la reconnaissance vocale.');
+                    } else {
+                        console.error('❌ Francis n\'a pas été chargé');
+                        alert('❌ Erreur: Francis n\'a pas pu se charger');
+                    }
+                }, 500);
+                
+            } catch(err) {
+                console.error('❌ Erreur test bookmarklet:', err);
+                alert('❌ Erreur lors du test: ' + err.message);
+            }
+        }
+
+        // Test automatique au chargement
+        window.addEventListener('load', function() {
+            console.log('🎯 Page de test Francis Bookmarklet chargée !');
+            console.log('📋 Instructions: Copiez le bookmarklet puis testez-le !');
+            
+            // Ajouter des listeners pour debug
+            document.querySelector('button[onclick="copyBookmarklet()"]').addEventListener('click', function() {
+                console.log('🖱️ Clic sur COPIER détecté');
+            });
+            
+            document.querySelector('button[onclick="testBookmarklet()"]').addEventListener('click', function() {
+                console.log('🖱️ Clic sur TESTER détecté');
+            });
+            
+            console.log('✅ Event listeners ajoutés avec succès');
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Globe, Shield, Zap, MessageSquare, Euro, Users, Star, Download, Monitor } from 'lucide-react';
 import FrancisBookmarklet from '../components/FrancisBookmarklet';
+import FrancisAutoInstaller from '../components/FrancisAutoInstaller';
 
 const FrancisDownloadPage: React.FC = () => {
   return (
@@ -32,6 +33,9 @@ const FrancisDownloadPage: React.FC = () => {
                 </div>
                 <h3 className="text-4xl font-bold text-white mb-6">Installation Universelle</h3>
                 <p className="text-xl text-gray-300 mb-8">Compatible Windows • Mac • Linux • Tous navigateurs</p>
+                <div className="mb-6">
+                  <FrancisAutoInstaller />
+                </div>
                 <FrancisBookmarklet />
                 <p className="text-lg text-gray-400 mt-4">Version 1.0.0 - Installation automatique - Zéro configuration</p>
                 <p className="text-sm text-gray-500 mt-2">✅ Aucun mode développeur • ✅ Aucune configuration • ✅ Fonctionne immédiatement</p>

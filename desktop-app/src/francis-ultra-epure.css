@@ -1,0 +1,219 @@
+/* FRANCIS ULTRA ÉPURÉ UI - GLASSMORPHISM, CENTRAGE, MODERN, USER FRIENDLY */
+
+.glass-container.ultra-epure {
+  background: rgba(22,34,56,0.85);
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+  border-radius: 32px;
+  padding: 48px 36px 32px 36px;
+  max-width: 420px;
+  margin: 48px auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  border: 1.5px solid rgba(197,165,114,0.11);
+  backdrop-filter: blur(18px) saturate(160%);
+}
+
+.francis-header.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.francis-logo-large {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 2px 8px #0003);
+}
+
+.francis-title-epure {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.francis-subtitle-epure {
+  color: #c5a572;
+  font-size: 1.08rem;
+  font-weight: 400;
+  margin-top: 2px;
+  margin-bottom: 0;
+  letter-spacing: 0.02em;
+}
+
+.francis-listening-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  font-size: 1.08rem;
+  padding: 8px 20px;
+  background: rgba(197,165,114,0.13);
+  border-radius: 18px;
+  color: #c5a572;
+  margin-bottom: 0;
+  font-weight: 600;
+  box-shadow: 0 2px 12px 0 rgba(31,38,135,0.06);
+}
+
+.pulse-dot-epure {
+  width: 12px;
+  height: 12px;
+  background: #c5a572;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 #c5a57244;
+  animation: pulseDot 1.5s infinite cubic-bezier(0.66,0,0,1);
+}
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 #c5a57244; }
+  70% { box-shadow: 0 0 0 10px #c5a57211; }
+  100% { box-shadow: 0 0 0 0 #c5a57244; }
+}
+.badge-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.transcription-epure {
+  background: rgba(255,255,255,0.07);
+  border-radius: 18px;
+  min-height: 64px;
+  width: 100%;
+  text-align: center;
+  padding: 18px 14px 14px 14px;
+  margin-bottom: 0;
+  color: #fff;
+  font-size: 1.12rem;
+  position: relative;
+  box-shadow: 0 2px 8px 0 rgba(31,38,135,0.05);
+}
+.final-transcript-epure {
+  font-weight: 500;
+  color: #fff;
+  font-size: 1.13rem;
+  letter-spacing: 0.01em;
+}
+.interim-transcript-epure {
+  font-weight: 400;
+  color: #c5a572;
+  font-size: 1.13rem;
+  opacity: 0.9;
+  letter-spacing: 0.01em;
+}
+.cursor-blink-epure {
+  display: inline-block;
+  width: 1ch;
+  animation: blink 1s steps(1) infinite;
+  color: #c5a572;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.transcript-placeholder-epure {
+  color: #c5a572;
+  opacity: 0.7;
+  font-size: 1.06rem;
+  font-style: italic;
+}
+
+.extraction-epure {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 0 auto;
+}
+.data-badge {
+  background: rgba(197,165,114,0.13);
+  color: #c5a572;
+  border-radius: 14px;
+  padding: 8px 16px;
+  font-size: 1.04rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 1px 4px 0 rgba(31,38,135,0.03);
+}
+
+.crm-actions-epure {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto 0 auto;
+}
+.crm-fill-btn-epure {
+  background: linear-gradient(90deg, #c5a572 0%, #e9d7b8 100%);
+  color: #162238;
+  font-weight: 700;
+  font-size: 1.13rem;
+  border: none;
+  border-radius: 22px;
+  padding: 14px 38px;
+  margin-top: 0;
+  margin-bottom: 0;
+  box-shadow: 0 4px 18px 0 rgba(197,165,114,0.13);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.22s, box-shadow 0.22s, opacity 0.2s;
+  opacity: 1;
+}
+.crm-fill-btn-epure.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.crm-fill-btn-epure .btn-icon {
+  font-size: 1.3em;
+}
+
+.francis-controls-epure {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: -18px;
+  margin-bottom: 0;
+}
+.clear-btn-epure {
+  background: none;
+  border: none;
+  color: #c5a572;
+  font-size: 1.5rem;
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 0 8px;
+  transition: opacity 0.18s;
+  border-radius: 6px;
+}
+.clear-btn-epure:hover {
+  opacity: 1;
+  background: rgba(197,165,114,0.07);
+}
+
+.help-epure {
+  width: 100%;
+  text-align: right;
+  color: #c5a572;
+  opacity: 0.33;
+  font-size: 0.98rem;
+  font-style: italic;
+  margin-top: 36px;
+  margin-bottom: -18px;
+  user-select: none;
+}
+
+kbd {
+  background: #c5a57222;
+  color: #c5a572;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.98em;
+  font-family: inherit;
+  margin-right: 3px;
+}

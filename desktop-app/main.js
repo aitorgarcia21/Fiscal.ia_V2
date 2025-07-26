@@ -1,11 +1,33 @@
-const { app, BrowserWindow, Menu, shell, ipcMain, Tray, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, globalShortcut, Menu, Tray, shell, nativeImage } = require('electron');
 const path = require('path');
+const { execSync } = require('child_process');
 const Store = require('electron-store');
+const fs = require('fs');
+const axios = require('axios');
+const FormData = require('form-data');
+
+// === CONSTANTES FRANCIS ===
+const FRANCIS_API_BASE = 'https://fiscal-ia-v2.railway.app';
 
 const store = new Store();
+const francisStore = new Store({ name: 'francis-settings' });
+
+// Configuration Francis
+const FRANCIS_CONFIG = {
+  apiUrl: FRANCIS_API_BASE,
+  recordingsPath: path.join(app.getPath('userData'), 'recordings'),
+  sessionFile: path.join(app.getPath('userData'), 'francis-session.json')
+};
+
+// Créer le dossier d'enregistrements
+if (!fs.existsSync(FRANCIS_CONFIG.recordingsPath)) {
+  fs.mkdirSync(FRANCIS_CONFIG.recordingsPath, { recursive: true });
+}
 
 let mainWindow;
 let tray = null;
+let currentContext = { app: null, windowTitle: null, forms: [] };
+let isListening = false;
 
 function createWindow() {
   // Créer la fenêtre overlay
@@ -185,7 +207,11 @@ function createMenu() {
 }
 
 // Gestion des événements de l'application
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  registerFrancisGlobalHotkeys();
+  startContextDetection();
+});
 
 // Gestion des événements de l'overlay
 ipcMain.on('overlay:close', () => {
@@ -248,6 +274,12 @@ app.on('activate', () => {
   }
 });
 
+app.on('will-quit', () => {
+  // Nettoyer les hotkeys globaux
+  globalShortcut.unregisterAll();
+  francisLog('info', 'Application Francis fermée, hotkeys nettoyés');
+});
+
 // Gestion des messages IPC
 ipcMain.handle('get-auth-status', () => {
   return {
@@ -267,6 +299,291 @@ ipcMain.handle('clear-auth', () => {
   store.delete('userType');
   return true;
 });
+
+// === FRANCIS SPECIFIC IPC HANDLERS ===
+
+// IPC: Obtenir la liste des fenêtres ouvertes
+ipcMain.handle('francis:get-open-windows', async () => {
+  try {
+    const windows = await getOpenWindows();
+    francisLog('info', `${windows.length} fenêtres trouvées`);
+    return { success: true, windows };
+  } catch (error) {
+    francisLog('error', 'Erreur récupération fenêtres', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// IPC: Injection de données dans une fenêtre spécifique
+ipcMain.handle('francis:inject-to-window', async (event, windowInfo, data) => {
+  francisLog('info', 'Injection ciblée', { window: windowInfo, data });
+  const result = await injectDataToWindow(windowInfo, data);
+  return result;
+});
+
+// IPC: Injection de données de formulaire (rétrocompatibilité)
+ipcMain.handle('francis:inject-form-data', async (event, data) => {
+  francisLog('info', 'Demande injection données', data);
+  injectDataToActiveApp(data);
+  return { success: true };
+});
+
+// === IPC HANDLERS ENREGISTREMENT AUDIO ===
+
+// IPC: Démarrer l'enregistrement audio
+ipcMain.handle('francis:start-recording', async () => {
+  try {
+    const result = startAudioRecording();
+    francisLog('info', 'Démarrage enregistrement demandé');
+    return result;
+  } catch (error) {
+    francisLog('error', 'Erreur démarrage enregistrement', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// IPC: Arrêter l'enregistrement audio
+ipcMain.handle('francis:stop-recording', async () => {
+  try {
+    const result = stopAudioRecording();
+    francisLog('info', 'Arrêt enregistrement demandé');
+    return result;
+  } catch (error) {
+    francisLog('error', 'Erreur arrêt enregistrement', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// IPC: Obtenir l'historique des enregistrements
+ipcMain.handle('francis:get-recordings', async () => {
+  try {
+    const recordings = francisStore.get('recordings', []);
+    return { success: true, recordings };
+  } catch (error) {
+    francisLog('error', 'Erreur récupération enregistrements', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+
+// IPC: Obtenir la session Francis
+ipcMain.handle('francis:get-session', async () => {
+  try {
+    // Récupération session Francis depuis le site (optionnel)
+    try {
+      const response = await axios.get(`${FRANCIS_API_BASE}/api/user/session`, {
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'Francis-Desktop/1.0.0'
+        }
+      });
+      
+      const session = response.data;
+      console.log('[FRANCIS SESSION]', session);
+      return session;
+    } catch (apiError) {
+      // Mode hors ligne - Francis fonctionne quand même
+      console.log('[FRANCIS OFFLINE]', 'Session locale activée');
+      return {
+        success: true,
+        offline: true,
+        user: { name: 'Francis User' },
+        message: 'Francis prêt en mode hors ligne'
+      };
+    }
+  } catch (error) {
+    console.error('[FRANCIS ERROR]', new Date().toISOString(), '- Erreur récupération session', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// IPC: Synchroniser vers le site Francis
+ipcMain.handle('francis:sync-website', async (event, data) => {
+  try {
+    const result = await syncToFrancisWebsite(data);
+    francisLog('info', 'Synchronisation website demandée');
+    return result;
+  } catch (error) {
+    francisLog('error', 'Erreur synchronisation website', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// IPC: Upload audio vers Francis
+ipcMain.handle('francis:upload-audio', async (event, recordingPath) => {
+  try {
+    const result = await uploadAudioToFrancis(recordingPath);
+    francisLog('info', 'Upload audio demandé');
+    return result;
+  } catch (error) {
+    francisLog('error', 'Erreur upload audio', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// Détection de l'application active
+ipcMain.handle('francis:get-active-app', async () => {
+  try {
+    if (process.platform === 'darwin') {
+      const result = execSync(`osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true'`, { encoding: 'utf8' });
+      return result.trim();
+    } else if (process.platform === 'win32') {
+      // Windows implementation
+      return 'Unknown';
+    }
+  } catch (error) {
+    francisLog('debug', 'Erreur détection app active', error.message);
+    return null;
+  }
+});
+
+// Scan des formulaires (simulation)
+ipcMain.handle('francis:scan-forms', async () => {
+  // Cette fonctionnalité nécessiterait une intégration plus poussée
+  // Pour l'instant, on retourne des champs génériques
+  return [
+    { id: 'nom', name: 'nom', type: 'text', placeholder: 'Nom' },
+    { id: 'prenom', name: 'prenom', type: 'text', placeholder: 'Prénom' },
+    { id: 'age', name: 'age', type: 'number', placeholder: 'Âge' },
+    { id: 'revenus', name: 'revenus', type: 'number', placeholder: 'Revenus' },
+    { id: 'situation', name: 'situation', type: 'select', placeholder: 'Situation' }
+  ];
+});
+
+// Gestion des hotkeys globaux
+ipcMain.on('francis:register-hotkey', (event, shortcut) => {
+  francisLog('info', `Enregistrement hotkey: ${shortcut}`);
+});
+
+// Détection du contexte
+ipcMain.handle('francis:detect-context', async () => {
+  return currentContext;
+});
+
+// Paramètres Francis
+ipcMain.handle('francis:get-settings', () => {
+  return {
+    voiceLanguage: francisStore.get('voiceLanguage', 'fr-FR'),
+    autoStart: francisStore.get('autoStart', true),
+    hotkeys: francisStore.get('hotkeys', {
+      toggle: 'F8',
+      minimize: 'CommandOrControl+Shift+F'
+    }),
+    theme: francisStore.get('theme', 'dark'),
+    opacity: francisStore.get('opacity', 0.95)
+  };
+});
+
+ipcMain.handle('francis:set-settings', (event, settings) => {
+  Object.keys(settings).forEach(key => {
+    francisStore.set(key, settings[key]);
+  });
+  francisLog('info', 'Paramètres Francis mis à jour', settings);
+  return true;
+});
+
+// Système de logs
+ipcMain.on('francis:log', (event, { level, message, data }) => {
+  francisLog(level, message, data);
+});
+
+// === FONCTIONS FRANCIS ===
+
+function registerFrancisGlobalHotkeys() {
+  // Hotkey principal : F8 pour activer/désactiver Francis
+  globalShortcut.register('F8', () => {
+    francisLog('info', 'Hotkey F8 activé');
+    if (mainWindow) {
+      mainWindow.webContents.send('francis:global-hotkey', 'toggle-francis');
+      
+      if (mainWindow.isVisible()) {
+        mainWindow.focus();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    }
+  });
+  
+  // Hotkey secondaire : Cmd+Shift+F pour minimiser/restaurer
+  globalShortcut.register('CommandOrControl+Shift+F', () => {
+    francisLog('info', 'Hotkey Cmd+Shift+F activé');
+    if (mainWindow) {
+      mainWindow.webContents.send('francis:global-hotkey', 'minimize-francis');
+    }
+  });
+  
+  francisLog('info', 'Hotkeys globaux Francis enregistrés');
+}
+
+function startContextDetection() {
+  // Détecter le contexte toutes les 2 secondes
+  setInterval(async () => {
+    try {
+      const activeApp = await getActiveApplication();
+      if (activeApp && activeApp !== currentContext.app) {
+        currentContext.app = activeApp;
+        currentContext.windowTitle = await getActiveWindowTitle();
+        
+        if (mainWindow) {
+          mainWindow.webContents.send('francis:context-changed', currentContext);
+        }
+        
+        francisLog('debug', 'Contexte changé', currentContext);
+      }
+    } catch (error) {
+      francisLog('error', 'Erreur détection contexte', error.message);
+    }
+  }, 2000);
+}
+
+async function getActiveApplication() {
+  try {
+    if (process.platform === 'darwin') {
+      const result = execSync(`osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true'`, { encoding: 'utf8' });
+      return result.trim();
+    }
+  } catch (error) {
+    francisLog('debug', 'Erreur détection app active', error.message);
+    return null;
+  }
+}
+
+async function getActiveWindowTitle() {
+  try {
+    if (process.platform === 'darwin') {
+      const result = execSync(`osascript -e 'tell application "System Events" to get title of front window of first application process whose frontmost is true'`, { encoding: 'utf8' });
+      return result.trim();
+    }
+    return null;
+  } catch (error) {
+    francisLog('debug', 'Erreur détection titre fenêtre', error.message);
+    return null;
+  }
+}
+
+function francisLog(level, message, data = null) {
+  const timestamp = new Date().toISOString();
+  const logEntry = {
+    timestamp,
+    level: level.toUpperCase(),
+    message,
+    data
+  };
+  
+  console.log(`[FRANCIS ${level.toUpperCase()}] ${timestamp} - ${message}`, data || '');
+  
+  // Sauvegarder les logs dans le store si nécessaire
+  if (['error', 'warn'].includes(level)) {
+    const logs = francisStore.get('logs', []);
+    logs.push(logEntry);
+    // Garder seulement les 100 derniers logs
+    if (logs.length > 100) {
+      logs.splice(0, logs.length - 100);
+    }
+    francisStore.set('logs', logs);
+  }
+}
 
 // Empêcher la navigation vers les pages de landing
 app.on('web-contents-created', (event, contents) => {
