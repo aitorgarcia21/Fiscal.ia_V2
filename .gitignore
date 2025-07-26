@@ -140,3 +140,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 francis-installer/FrancisSetup-Mac
+
+# Large files to ignore
+backend/public/downloads/
+*.dmg
+*.exe
+*.zip
+*.7z
+desktop-app/dist/
+francis-installer/FrancisSetup*
