@@ -22,8 +22,18 @@ const FrancisInstallerPage: React.FC = () => {
     try {
       // Télécharger l'extension
       const link = document.createElement('a');
-      link.href = '/downloads/francis-chrome-extension';
-      link.download = 'francis-chrome-extension-v1.1.0.zip';
+      let downloadUrl = '';
+      if (userOS === 'Windows') {
+        downloadUrl = '/downloads/FrancisSetup.exe';
+        link.download = 'FrancisSetup.exe';
+      } else if (userOS === 'macOS') {
+        downloadUrl = '/downloads/FrancisSetup.dmg';
+        link.download = 'FrancisSetup.dmg';
+      } else {
+        downloadUrl = '/downloads/francis-desktop.tar.gz';
+        link.download = 'francis-desktop.tar.gz';
+      }
+      link.href = downloadUrl;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -92,14 +102,14 @@ const FrancisInstallerPage: React.FC = () => {
             
             {step === 1 && (
               <div className="ml-12">
-                <p className="text-gray-300 mb-6">Cliquez pour télécharger et démarrer l'installation automatique</p>
+                <p className="text-gray-300 mb-6">Cliquez pour télécharger et installer Francis Desktop automatiquement sur votre ordinateur (Windows ou Mac).</p>
                 <button
                   onClick={handleDownloadAndInstall}
                   disabled={isDownloading}
                   className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-8 rounded-xl transition-colors flex items-center text-xl"
                 >
                   <Download className="h-6 w-6 mr-3" />
-                  {isDownloading ? 'Téléchargement...' : '🔽 Installer Francis (1 clic)'}
+                  {isDownloading ? 'Téléchargement...' : '🔽 Installer Francis Desktop (1 clic)'}
                 </button>
               </div>
             )}
@@ -111,62 +121,34 @@ const FrancisInstallerPage: React.FC = () => {
             )}
           </div>
 
-          {/* Étape 2: Ouvrir Chrome Extensions */}
-          {step >= 3 && (
-            <div className={`bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border transition-all ${
-              step >= 4 ? 'border-[#c5a572]/40' : 'border-gray-500/20'
-            }`}>
-              <div className="flex items-center mb-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${
-                  step >= 4 ? 'bg-green-500' : 'bg-[#c5a572]'
-                }`}>
-                  {step >= 4 ? <CheckCircle className="h-5 w-5 text-white" /> : <span className="text-white font-bold">2</span>}
-                </div>
-                <h3 className="text-2xl font-bold text-white">Ouvrir les Extensions Chrome</h3>
+          {/* Étape 2 : Confirmation installation */}
+          {step >= 3 && step < 5 && (
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border border-[#c5a572]/40 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <CheckCircle className="h-8 w-8 text-green-400" />
               </div>
-              
-              <div className="ml-12">
-                <p className="text-gray-300 mb-6">Ouvrez la page des extensions Chrome pour continuer</p>
-                <button
-                  onClick={openChromeExtensions}
-                  className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-3 px-6 rounded-xl transition-colors flex items-center"
-                >
-                  <Chrome className="h-5 w-5 mr-2" />
-                  Ouvrir chrome://extensions/
-                </button>
-              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Francis Desktop est en cours d'installation...</h3>
+              <p className="text-gray-300">L'installateur Francis Desktop est en train de s'installer automatiquement sur votre ordinateur.<br/>Vous pouvez suivre la progression dans votre dossier Téléchargements ou dans la barre d'installation système.</p>
             </div>
           )}
 
-          {/* Étape 3: Installation finale */}
-          {step >= 4 && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border border-[#c5a572]/40">
-              <div className="flex items-center mb-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${
-                  step >= 5 ? 'bg-green-500' : 'bg-[#c5a572]'
-                }`}>
-                  {step >= 5 ? <CheckCircle className="h-5 w-5 text-white" /> : <span className="text-white font-bold">3</span>}
-                </div>
-                <h3 className="text-2xl font-bold text-white">Installer l'Extension</h3>
+          {/* Étape 3 : Installation terminée */}
+          {step >= 5 && (
+            <div className="bg-green-600/20 backdrop-blur-sm rounded-2xl p-8 border border-green-500/40 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <CheckCircle className="h-16 w-16 text-green-400" />
               </div>
-              
-              <div className="ml-12">
-                <div className="bg-gray-800 p-4 rounded-lg mb-6">
-                  <p className="text-yellow-400 font-bold mb-2">📋 Instructions rapides :</p>
-                  <ol className="text-gray-300 space-y-1">
-                    <li>1. Activez le "Mode développeur" (en haut à droite)</li>
-                    <li>2. Cliquez "Charger l'extension non empaquetée"</li>
-                    <li>3. Sélectionnez le dossier décompressé "francis-extension"</li>
-                    <li>4. Francis apparaît immédiatement !</li>
-                  </ol>
-                </div>
-                
-                <button
-                  onClick={completeInstallation}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center"
+              <h2 className="text-3xl font-bold text-white mb-4">🎉 Francis Desktop est installé !</h2>
+              <p className="text-gray-300 mb-6">
+                Francis Desktop est maintenant prêt à l'emploi sur votre ordinateur.<br/>
+                Retrouvez-le dans vos applications ou via le raccourci bureau.
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button 
+                  onClick={() => window.open('https://fiscal-ia-v2-production.up.railway.app', '_blank')}
+                  className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-2 px-4 rounded-lg"
                 >
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  Installation terminée !
+                  Retour au site
                 </button>
               </div>
             </div>
