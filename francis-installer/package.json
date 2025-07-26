@@ -10,13 +10,20 @@
     "build-linux": "pkg install.js --target node18-linux-x64 --output FrancisSetup-Linux"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0",
+    "adm-zip": "^0.5.16",
     "fs-extra": "^11.0.0",
+    "os": "^0.1.2",
     "path": "^0.12.7",
-    "os": "^0.1.2"
+    "puppeteer": "^21.0.0"
   },
   "devDependencies": {
     "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [
+      "francis-extension/**/*"
+    ],
+    "outputPath": "./"
   },
   "author": "Fiscal.ia",
   "license": "MIT"

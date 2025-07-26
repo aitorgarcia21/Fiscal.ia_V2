@@ -59,6 +59,7 @@ import { GoCardlessCallback } from './pages/GoCardlessCallback';
 import { MonProfilPage } from './pages/MonProfilPage';
 import { DocumentsFiscauxPage } from './pages/DocumentsFiscauxPage';
 import FrancisDownloadPage from './pages/FrancisDownloadPage';
+import FrancisInstallerPage from './pages/FrancisInstallerPage';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -89,7 +90,8 @@ function App() {
           <Route path="/simulateur-tmi" element={<SimulateurTmi />} />
           <Route path="/simulateur-optimisation" element={<SimulateurOptimisation />} />
           <Route path="/blog" element={<BlogPage />} />
-          <Route path="/telecharger" element={<FrancisDownloadPage />} />
+          <Route path="/telecharger" element={<FrancisInstallerPage />} />
+          <Route path="/installer" element={<FrancisInstallerPage />} />
           <Route path="/download" element={<FrancisDownloadPage />} />
           <Route path="/francis-desktop" element={<FrancisDownloadPage />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />

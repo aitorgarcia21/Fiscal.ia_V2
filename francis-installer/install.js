@@ -53,7 +53,7 @@ class FrancisInstaller {
     throw new Error('Chrome not found. Please install Google Chrome first.');
   }
 
-  async copyExtension() {
+  async prepareExtension() {
     console.log('📦 Preparing Francis extension...');
     
     // Créer le dossier d'installation
@@ -62,11 +62,41 @@ class FrancisInstaller {
     
     const targetPath = path.join(installDir, 'francis-extension');
     
-    // Copier l'extension
-    await fs.copy(this.extensionPath, targetPath);
-    console.log('✅ Extension copied to:', targetPath);
-    
-    return targetPath;
+    try {
+      // Utiliser l'extension locale
+      const localExtensionPath = path.join(__dirname, 'francis-extension');
+      
+      console.log('📋 Using local extension from:', localExtensionPath);
+      
+      // Copier l'extension locale vers le dossier d'installation
+      await fs.copy(localExtensionPath, targetPath);
+      
+      console.log('✅ Extension prepared at:', targetPath);
+      return targetPath;
+      
+    } catch (error) {
+      console.error('❌ Preparation failed:', error.message);
+      throw new Error('Failed to prepare Francis extension. Installation files may be corrupted.');
+    }
+  }
+  
+  downloadFile(url, filePath) {
+    return new Promise((resolve, reject) => {
+      const https = require('https');
+      const file = fs.createWriteStream(filePath);
+      
+      https.get(url, (response) => {
+        if (response.statusCode === 200) {
+          response.pipe(file);
+          file.on('finish', () => {
+            file.close();
+            resolve();
+          });
+        } else {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+        }
+      }).on('error', reject);
+    });
   }
 
   async installExtension() {
@@ -77,8 +107,8 @@ class FrancisInstaller {
       const chromePath = await this.detectChrome();
       console.log('✅ Chrome found at:', chromePath);
       
-      // Copier l'extension
-      const extensionPath = await this.copyExtension();
+      // Préparer l'extension
+      const extensionPath = await this.prepareExtension();
       
       // Lancer Chrome avec l'extension
       console.log('🌐 Launching Chrome with Francis extension...');
