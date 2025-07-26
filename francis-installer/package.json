@@ -1,0 +1,23 @@
+{
+  "name": "francis-setup",
+  "version": "1.0.0",
+  "description": "Francis Extension Auto-Installer - 1-click installation for Chrome",
+  "main": "install.js",
+  "scripts": {
+    "start": "node install.js",
+    "build": "pkg install.js --target node18-win-x64 --output FrancisSetup.exe",
+    "build-mac": "pkg install.js --target node18-macos-x64 --output FrancisSetup-Mac",
+    "build-linux": "pkg install.js --target node18-linux-x64 --output FrancisSetup-Linux"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "fs-extra": "^11.0.0",
+    "path": "^0.12.7",
+    "os": "^0.1.2"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "author": "Fiscal.ia",
+  "license": "MIT"
+}

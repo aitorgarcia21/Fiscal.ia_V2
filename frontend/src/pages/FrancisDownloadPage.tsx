@@ -4,37 +4,18 @@ import { getDownloadLink } from '../utils/osDetector';
 
 const FrancisDownloadPage: React.FC = () => {
   const handleDownload = (os: string) => {
-    // Téléchargement direct depuis GitHub Releases (CDN fiable)
-    if (os === 'macos') {
-      // Créer un lien de téléchargement direct vers GitHub Releases
+    if (os === 'francis-setup') {
+      // Téléchargement FrancisSetup.exe - Installation universelle en 1 clic
       const link = document.createElement('a');
-      link.href = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-Desktop-macOS.zip';
-      link.download = 'Francis-Desktop-macOS.zip';
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Message informatif après téléchargement
-      setTimeout(() => {
-        alert('✅ Téléchargement lancé !\n\n📦 Fichier: Francis-Desktop-macOS.zip\n\n📋 Installation simple:\n1. Double-cliquez sur le fichier ZIP pour le décompresser\n2. Glissez Francis.app dans votre dossier Applications\n3. Lancez Francis.app depuis Applications\n4. Autorisez l\'app si macOS le demande (Sécurité et confidentialité)\n\n🎯 L\'overlay Francis apparaîtra en haut à droite !\n\n🚀 Téléchargement direct depuis GitHub (CDN fiable) !');
-      }, 500);
-    } else if (os === 'windows') {
-      alert('🚧 Francis Desktop pour Windows sera bientôt disponible !\n\nEn cours de développement...');
-    } else if (os === 'linux') {
-      alert('🚧 Francis Desktop pour Linux sera bientôt disponible !\n\nEn cours de développement...');
-    } else if (os === 'chrome') {
-      // Téléchargement extension Chrome
-      const link = document.createElement('a');
-      link.href = '/downloads/francis-chrome-extension';
-      link.download = 'francis-chrome-extension-v1.1.0.zip';
+      link.href = '/downloads/francis-setup';
+      link.download = 'FrancisSetup.exe';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
       // Message informatif
       setTimeout(() => {
-        alert('✅ Extension Chrome téléchargée !\n\n🌐 Fichier: francis-chrome-extension-v1.1.0.zip\n\n🔧 Installation automatique :\nUtilisez FrancisSetup.exe pour une installation en 1 clic !\n\n📋 Alternative manuelle (temporaire) :\n1. Décompressez le fichier ZIP\n2. Installez via FrancisSetup.exe (recommandé)\n\n🎯 Francis apparaîtra automatiquement sur toutes vos pages web !\n\n✨ Assistant CGP universel - Zéro configuration !');
+        alert('🚀 FrancisSetup.exe téléchargé !\n\n⚡ Installation en 1 clic :\n1. Lancez FrancisSetup.exe\n2. Suivez les instructions (automatique)\n3. Francis s\'installera dans votre navigateur\n\n🎯 Francis apparaîtra sur TOUTES vos pages web !\n\n✅ Zéro mode développeur\n✅ Zéro configuration\n✅ Compatible Windows, Mac, Linux\n\n🎉 Assistant CGP universel prêt à l\'emploi !');
       }, 500);
     }
   };
@@ -57,81 +38,24 @@ const FrancisDownloadPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Cards de téléchargement */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {/* Windows */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all">
+        {/* Installation Francis - Un seul bouton universel */}
+        <div className="flex justify-center mb-16">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-12 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all max-w-2xl">
             <div className="text-center">
-              <div className="bg-[#c5a572]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Monitor className="h-10 w-10 text-[#c5a572]" />
+              <div className="bg-[#c5a572]/20 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Download className="h-16 w-16 text-[#c5a572]" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Windows</h3>
-              <p className="text-gray-300 mb-6">Compatible Windows 10/11</p>
+              <h3 className="text-4xl font-bold text-white mb-6">Installation Universelle</h3>
+              <p className="text-xl text-gray-300 mb-8">Compatible Windows • Mac • Linux • Tous navigateurs</p>
               <button 
-                onClick={() => handleDownload('windows')}
-                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+                onClick={() => handleDownload('francis-setup')}
+                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-6 px-12 rounded-xl transition-colors flex items-center justify-center cursor-pointer text-2xl"
               >
-                <Download className="h-5 w-5 mr-2" />
-                Télécharger .exe
+                <Download className="h-8 w-8 mr-4" />
+                🔽 Installer Francis (1 clic)
               </button>
-              <p className="text-sm text-gray-400 mt-2">Version 1.0.0 - 85 MB</p>
-            </div>
-          </div>
-
-          {/* macOS */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all">
-            <div className="text-center">
-              <div className="bg-[#c5a572]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Monitor className="h-10 w-10 text-[#c5a572]" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">macOS</h3>
-              <p className="text-gray-300 mb-6">Compatible macOS 10.15+</p>
-              <button 
-                onClick={() => handleDownload('macos')}
-                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
-              >
-                <Download className="h-5 w-5 mr-2" />
-                Télécharger .dmg
-              </button>
-              <p className="text-sm text-gray-400 mt-2">Version 1.0.0 - 92 MB</p>
-            </div>
-          </div>
-
-          {/* Linux */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all">
-            <div className="text-center">
-              <div className="bg-[#c5a572]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Monitor className="h-10 w-10 text-[#c5a572]" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Linux</h3>
-              <p className="text-gray-300 mb-6">Compatible Ubuntu/Debian</p>
-              <button 
-                onClick={() => handleDownload('linux')}
-                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
-              >
-                <Download className="h-5 w-5 mr-2" />
-                Télécharger .AppImage
-              </button>
-              <p className="text-sm text-gray-400 mt-2">Version 1.0.0 - 88 MB</p>
-            </div>
-          </div>
-
-          {/* Extension Chrome */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/20 hover:border-[#c5a572]/40 transition-all">
-            <div className="text-center">
-              <div className="bg-[#c5a572]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Globe className="h-10 w-10 text-[#c5a572]" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Chrome</h3>
-              <p className="text-gray-300 mb-6">Extension universelle</p>
-              <button 
-                onClick={() => handleDownload('chrome')}
-                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
-              >
-                <Download className="h-5 w-5 mr-2" />
-                Télécharger .zip
-              </button>
-              <p className="text-sm text-gray-400 mt-2">Version 1.1.0 - 15 KB</p>
+              <p className="text-lg text-gray-400 mt-4">Version 1.0.0 - Installation automatique - Zéro configuration</p>
+              <p className="text-sm text-gray-500 mt-2">✅ Aucun mode développeur • ✅ Aucune configuration • ✅ Fonctionne immédiatement</p>
             </div>
           </div>
         </div>
