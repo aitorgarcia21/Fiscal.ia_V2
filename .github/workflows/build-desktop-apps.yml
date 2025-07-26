@@ -1,0 +1,228 @@
+name: Build Francis Desktop Apps (Windows, macOS, Linux)
+
+on:
+  push:
+    branches: [main]
+    paths: ['desktop-app/**']
+  pull_request:
+    branches: [main]
+    paths: ['desktop-app/**']
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: desktop-app/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: desktop-app
+        run: npm ci
+      
+      - name: Build Windows app
+        working-directory: desktop-app
+        run: npm run build:win
+      
+      - name: Sign Windows executable (if cert available)
+        working-directory: desktop-app
+        if: ${{ secrets.WIN_CSC_LINK }}
+        env:
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: npm run build:win
+      
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: francis-desktop-windows
+          path: desktop-app/dist/*.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: desktop-app/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: desktop-app
+        run: npm ci
+      
+      - name: Import Code-Signing Certificates
+        if: ${{ secrets.MAC_CSC_LINK }}
+        uses: Apple-Actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.MAC_CSC_LINK }}
+          p12-password: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+      
+      - name: Build macOS app
+        working-directory: desktop-app
+        run: npm run build:mac
+        env:
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+      
+      - name: Notarize macOS app
+        if: ${{ secrets.APPLE_ID && secrets.APPLE_ID_PASS }}
+        working-directory: desktop-app
+        run: |
+          DMG_PATH=$(find dist -name '*.dmg' | head -n 1)
+          UUID=$(xcrun altool --notarize-app --primary-bundle-id "com.francis.desktop" --username "${{ secrets.APPLE_ID }}" --password "${{ secrets.APPLE_ID_PASS }}" --file "$DMG_PATH" | grep RequestUUID | awk '{print $3}')
+          
+          # Wait for notarization
+          while true; do
+            STATUS=$(xcrun altool --notarization-info "$UUID" --username "${{ secrets.APPLE_ID }}" --password "${{ secrets.APPLE_ID_PASS }}" | grep Status | awk '{print $2}')
+            echo "Notarization status: $STATUS"
+            if [[ "$STATUS" == "success" ]]; then
+              break
+            elif [[ "$STATUS" == "in"* ]]; then
+              sleep 60
+            else
+              echo "Notarization failed"
+              exit 1
+            fi
+          done
+          
+          # Staple the ticket
+          xcrun stapler staple "$DMG_PATH"
+          echo "✅ macOS app notarized and stapled"
+      
+      - name: Build additional macOS formats (.pkg, .zip)
+        working-directory: desktop-app
+        run: |
+          npx electron-builder --mac pkg
+          npx electron-builder --mac zip
+      
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: francis-desktop-macos
+          path: |
+            desktop-app/dist/*.dmg
+            desktop-app/dist/*.pkg
+            desktop-app/dist/*.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: desktop-app/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: desktop-app
+        run: npm ci
+      
+      - name: Build Linux app
+        working-directory: desktop-app
+        run: npm run build:linux
+      
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: francis-desktop-linux
+          path: desktop-app/dist/*.AppImage
+
+  upload-to-server:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      - name: Prepare uploads
+        run: |
+          mkdir -p uploads
+          cp artifacts/francis-desktop-windows/*.exe uploads/FrancisSetup.exe
+          cp artifacts/francis-desktop-macos/*.dmg uploads/FrancisSetup.dmg
+          cp artifacts/francis-desktop-macos/*.pkg uploads/FrancisSetup.pkg
+          cp artifacts/francis-desktop-macos/*.zip uploads/FrancisSetup-Mac.zip
+          cp artifacts/francis-desktop-linux/*.AppImage uploads/FrancisSetup.AppImage
+          
+          # Rename Linux to .tar.gz for consistency with frontend
+          mv uploads/FrancisSetup.AppImage uploads/francis-desktop.tar.gz
+      
+      - name: Upload to server via SSH
+        if: ${{ secrets.SERVER_SSH_KEY }}
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "uploads/*"
+          target: "/var/www/html/downloads/"
+          strip_components: 1
+      
+      - name: Upload to server via FTP (alternative)
+        if: ${{ secrets.FTP_SERVER && !secrets.SERVER_SSH_KEY }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: uploads/
+          server-dir: /downloads/
+
+  create-release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      - name: Get version from package.json
+        id: version
+        working-directory: desktop-app
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Francis Desktop v${{ steps.version.outputs.version }}
+          body: |
+            ## Francis Desktop v${{ steps.version.outputs.version }}
+            
+            ### Installation
+            - **Windows**: Téléchargez `FrancisSetup.exe` et lancez-le
+            - **macOS**: Téléchargez `FrancisSetup.dmg` et glissez l'app dans Applications
+            - **Linux**: Téléchargez `FrancisSetup.AppImage` et rendez-le exécutable
+            
+            ### Nouveautés
+            - Interface ultra-épurée et moderne
+            - Écoute vocale permanente
+            - Synchronisation avec Francis.ia
+            - Injection CRM automatique
+          files: |
+            artifacts/francis-desktop-windows/*.exe
+            artifacts/francis-desktop-macos/*.dmg
+            artifacts/francis-desktop-macos/*.pkg
+            artifacts/francis-desktop-macos/*.zip
+            artifacts/francis-desktop-linux/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
