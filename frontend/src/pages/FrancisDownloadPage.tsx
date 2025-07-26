@@ -1,24 +1,8 @@
 import React from 'react';
-import { Download, Monitor, Smartphone, Globe, Shield, Zap, Users, Star } from 'lucide-react';
-import { getDownloadLink } from '../utils/osDetector';
+import { Globe, Shield, Zap, MessageSquare, Euro, Users, Star, Download, Monitor } from 'lucide-react';
+import FrancisAutoInstaller from '../components/FrancisAutoInstaller';
 
 const FrancisDownloadPage: React.FC = () => {
-  const handleDownload = (os: string) => {
-    if (os === 'francis-setup') {
-      // Téléchargement FrancisSetup.exe - Installation universelle en 1 clic
-      const link = document.createElement('a');
-      link.href = '/downloads/francis-setup';
-      link.download = 'FrancisSetup.exe';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Message informatif
-      setTimeout(() => {
-        alert('🚀 FrancisSetup.exe téléchargé !\n\n⚡ Installation en 1 clic :\n1. Lancez FrancisSetup.exe\n2. Suivez les instructions (automatique)\n3. Francis s\'installera dans votre navigateur\n\n🎯 Francis apparaîtra sur TOUTES vos pages web !\n\n✅ Zéro mode développeur\n✅ Zéro configuration\n✅ Compatible Windows, Mac, Linux\n\n🎉 Assistant CGP universel prêt à l\'emploi !');
-      }, 500);
-    }
-  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#0A192F]">
       {/* Header avec logo Francis */}
@@ -47,13 +31,7 @@ const FrancisDownloadPage: React.FC = () => {
               </div>
               <h3 className="text-4xl font-bold text-white mb-6">Installation Universelle</h3>
               <p className="text-xl text-gray-300 mb-8">Compatible Windows • Mac • Linux • Tous navigateurs</p>
-              <button 
-                onClick={() => handleDownload('francis-setup')}
-                className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-6 px-12 rounded-xl transition-colors flex items-center justify-center cursor-pointer text-2xl"
-              >
-                <Download className="h-8 w-8 mr-4" />
-                🔽 Installer Francis (1 clic)
-              </button>
+              <FrancisAutoInstaller />
               <p className="text-lg text-gray-400 mt-4">Version 1.0.0 - Installation automatique - Zéro configuration</p>
               <p className="text-sm text-gray-500 mt-2">✅ Aucun mode développeur • ✅ Aucune configuration • ✅ Fonctionne immédiatement</p>
             </div>
@@ -185,23 +163,8 @@ const FrancisDownloadPage: React.FC = () => {
           <p className="text-xl text-gray-300 mb-8">
             Rejoignez des milliers de professionnels qui font confiance à Francis !
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => {
-                const userAgent = navigator.userAgent.toLowerCase();
-                let os = 'windows'; // défaut
-                if (userAgent.includes('mac')) os = 'macos';
-                else if (userAgent.includes('linux')) os = 'linux';
-                handleDownload(os);
-              }}
-              className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-8 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
-            >
-              <Download className="h-5 w-5 mr-2" />
-              Télécharger Maintenant
-            </button>
-            <button className="bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-8 rounded-xl transition-colors border border-[#c5a572]/30">
-              Voir la Démo
-            </button>
+          <div className="max-w-2xl mx-auto">
+            <FrancisAutoInstaller />
           </div>
         </div>
       </div>
