@@ -12,59 +12,119 @@ const App = () => {
 
   // Initialisation reconnaissance vocale permanente
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'fr-FR';
+    const initSpeechRecognition = async () => {
+      // Demander permission microphone
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('✅ Permission microphone accordée');
+      } catch (error) {
+        console.error('❌ Permission microphone refusée:', error);
+        return;
+      }
 
-      recognitionRef.current.onresult = (event) => {
-        let finalTranscript = '';
-        let interimText = '';
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognitionRef.current = new SpeechRecognition();
         
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimText += transcript;
+        // Configuration optimisée
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'fr-FR';
+        recognitionRef.current.maxAlternatives = 1;
+
+        recognitionRef.current.onresult = (event) => {
+          let finalTranscript = '';
+          let interimText = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcriptText = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcriptText;
+            } else {
+              interimText += transcriptText;
+            }
           }
-        }
-        
-        if (finalTranscript) {
-          setTranscript(prev => prev + finalTranscript + ' ');
-          analyzeAndExtract(transcript + finalTranscript);
-        }
-        setInterimTranscript(interimText);
-      };
+          
+          if (finalTranscript.trim()) {
+            setTranscript(prev => prev + finalTranscript + ' ');
+            analyzeAndExtract(finalTranscript);
+            console.log('🎤 Transcript:', finalTranscript);
+          }
+          setInterimTranscript(interimText);
+        };
 
-      recognitionRef.current.onstart = () => setIsListening(true);
-      
-      recognitionRef.current.onend = () => {
-        // Redémarrage automatique pour écoute permanente
-        setTimeout(() => {
+        recognitionRef.current.onstart = () => {
+          setIsListening(true);
+          console.log('🎤 Reconnaissance vocale démarrée');
+        };
+        
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+          console.log('⏹️ Reconnaissance vocale arrêtée - redémarrage...');
+          
+          // Redémarrage automatique robuste
+          setTimeout(() => {
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (error) {
+                console.log('🔄 Tentative redémarrage...', error.message);
+                // Retry après 2 secondes si erreur
+                setTimeout(() => {
+                  try {
+                    recognitionRef.current && recognitionRef.current.start();
+                  } catch (e) {
+                    console.error('❌ Échec redémarrage définitif:', e);
+                  }
+                }, 2000);
+              }
+            }
+          }, 500);
+        };
+
+        recognitionRef.current.onerror = (event) => {
+          console.error('❌ Erreur reconnaissance vocale:', event.error);
+          setIsListening(false);
+          
+          // Gestion spécifique des erreurs
+          if (event.error === 'not-allowed') {
+            console.error('❌ Permission microphone refusée');
+            return;
+          }
+          
+          if (event.error === 'no-speech') {
+            console.log('🔇 Pas de parole détectée - continue...');
+            return; // Normal, continue
+          }
+          
+          // Redémarrage après erreur
+          setTimeout(() => {
+            try {
+              recognitionRef.current && recognitionRef.current.start();
+            } catch (e) {
+              console.log('🔄 Redémarrage après erreur...');
+            }
+          }, 1000);
+        };
+
+        // Démarrage initial avec retry
+        const startRecognition = () => {
           try {
             recognitionRef.current.start();
+            console.log('🚀 Démarrage reconnaissance vocale...');
           } catch (error) {
-            console.log('Redémarrage reconnaissance vocale');
+            console.log('⏳ Attente avant démarrage...', error.message);
+            setTimeout(startRecognition, 2000);
           }
-        }, 100);
-      };
-
-      recognitionRef.current.onerror = (event) => {
-        console.error('Erreur reconnaissance vocale:', event.error);
-      };
-
-      // Démarrage automatique
-      setTimeout(() => {
-        try {
-          recognitionRef.current.start();
-        } catch (error) {
-          console.log('Démarrage automatique reconnaissance:', error);
-        }
-      }, 1000);
-    }
+        };
+        
+        setTimeout(startRecognition, 1000);
+      } else {
+        console.error('❌ Reconnaissance vocale non supportée');
+      }
+    };
+    
+    initSpeechRecognition();
 
     // Hotkeys
     if (window.electronAPI) {

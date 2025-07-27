@@ -593,19 +593,7 @@ export function ProChatPage() {
               </div>
             )}
             
-            {/* Indicateur de chargement simple */}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-[#162238] text-white p-4 rounded-lg border border-[#c5a572]/20">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                    <div className="w-2 h-2 bg-[#c5a572] rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
-                    <span className="text-sm text-gray-400 ml-2">Francis réfléchit...</span>
-                  </div>
-                </div>
-              </div>
-            )}
+
             
             <div ref={messagesEndRef} />
           </div>

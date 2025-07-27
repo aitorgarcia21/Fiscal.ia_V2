@@ -487,6 +487,38 @@ ipcMain.on('francis:log', (event, { level, message, data }) => {
   francisLog(level, message, data);
 });
 
+// === RECONNAISSANCE VOCALE ET MICROPHONE ===
+
+// Handler pour demander permission microphone
+ipcMain.handle('francis:request-microphone', async () => {
+  try {
+    francisLog('info', 'Demande permission microphone');
+    // Dans Electron, les permissions sont gérées par le renderer
+    // On retourne success pour permettre la demande côté renderer
+    return { success: true, message: 'Permission microphone disponible' };
+  } catch (error) {
+    francisLog('error', 'Erreur permission microphone', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// Handler pour événements speech
+ipcMain.handle('francis:speech-event', (event, data) => {
+  francisLog('debug', 'Événement speech reçu', data);
+  // Relayer l'événement à tous les renderers si nécessaire
+  if (mainWindow) {
+    mainWindow.webContents.send('francis:speech-event', data);
+  }
+  return { success: true };
+});
+
+// Handler pour vérifier le support speech
+ipcMain.handle('francis:check-speech-support', () => {
+  // Le support est vérifié côté renderer, on confirme juste
+  francisLog('info', 'Vérification support reconnaissance vocale');
+  return { supported: true, platform: process.platform };
+});
+
 // === FONCTIONS FRANCIS ===
 
 function registerFrancisGlobalHotkeys() {

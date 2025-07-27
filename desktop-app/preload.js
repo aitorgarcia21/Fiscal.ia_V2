@@ -114,6 +114,56 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke('francis:log', level, message, data);
   },
   
+  // === RECONNAISSANCE VOCALE (WEB SPEECH API) ===
+  
+  // Vérifier support Speech Recognition
+  isSpeechRecognitionSupported: () => {
+    return ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+  },
+  
+  // Demander permission microphone
+  requestMicrophonePermission: () => {
+    return ipcRenderer.invoke('francis:request-microphone');
+  },
+  
+  // Créer instance Speech Recognition
+  createSpeechRecognition: () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      return new SpeechRecognition();
+    }
+    return null;
+  },
+  
+  // Bridge pour Speech Synthesis
+  createSpeechSynthesis: () => {
+    return window.speechSynthesis || null;
+  },
+  
+  // Gestion des événements speech
+  onSpeechEvent: (callback) => {
+    ipcRenderer.on('francis:speech-event', (event, data) => {
+      callback(data);
+    });
+  },
+
+  // === PERMISSIONS ET MEDIA ===
+  
+  // Accès direct au navigator.mediaDevices
+  getMediaDevices: () => {
+    return navigator.mediaDevices;
+  },
+  
+  // Test permission microphone
+  checkMicrophonePermission: async () => {
+    try {
+      const permissions = await navigator.permissions.query({ name: 'microphone' });
+      return permissions.state;
+    } catch (error) {
+      return 'prompt';
+    }
+  },
+
   // Événements de l'overlay
   onWindowState: (callback) => ipcRenderer.on('window-state-changed', (_, state) => callback(state))
 });
