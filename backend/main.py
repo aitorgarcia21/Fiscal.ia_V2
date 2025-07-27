@@ -219,15 +219,71 @@ async def run_with_timeout(func, *args, timeout: int = 10):
     with concurrent.futures.ThreadPoolExecutor() as pool:
         return await asyncio.wait_for(loop.run_in_executor(pool, func, *args), timeout)
 
-def clean_markdown_formatting(text: str) -> str:
-    text = text.replace('*', '') if text else text
+def format_francis_response(text: str) -> str:
+    """Améliore le formatage des réponses Francis pour une meilleure UX web"""
     if not text:
         return text
-    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
-    text = text.replace('**', '').replace('*', '')
-    text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
-    text = re.sub(r'^\s*\d+\.\s*', '', text, flags=re.MULTILINE)
-    text = re.sub(r'\s+', ' ', text)
+    
+    # Convertir les tableaux ASCII en format Markdown propre
+    text = convert_ascii_tables_to_markdown(text)
+    
+    # Améliorer la structure des réponses
+    text = improve_response_structure(text)
+    
+    return text
+
+def convert_ascii_tables_to_markdown(text: str) -> str:
+    """Convertit les tableaux ASCII en tableaux Markdown pour une meilleure lisibilité"""
+    # Détecter et remplacer les tableaux ASCII par des tableaux Markdown
+    lines = text.split('\n')
+    result_lines = []
+    in_table = False
+    
+    for line in lines:
+        # Détecter le début d'un tableau ASCII
+        if '┌' in line or '│' in line or '├' in line:
+            if not in_table and '┌' in line:
+                # Début de tableau - ignorer la ligne de bordure supérieure
+                in_table = True
+                continue
+            elif '│' in line and not ('┌' in line or '├' in line or '└' in line):
+                # Ligne de données - extraire le contenu
+                cells = [cell.strip() for cell in line.split('│') if cell.strip()]
+                if len(cells) >= 2:
+                    if 'Tranche de revenu' in line or 'TMI' in line:
+                        # Ligne d'en-tête
+                        result_lines.append('| ' + ' | '.join(cells) + ' |')
+                        result_lines.append('|' + '|'.join([' --- ' for _ in cells]) + '|')
+                    else:
+                        # Ligne de données
+                        result_lines.append('| ' + ' | '.join(cells) + ' |')
+                continue
+            elif '├' in line or '└' in line:
+                # Ligne de séparation ou fin de tableau - ignorer
+                if '└' in line:
+                    in_table = False
+                continue
+        else:
+            in_table = False
+            result_lines.append(line)
+    
+    return '\n'.join(result_lines)
+
+def improve_response_structure(text: str) -> str:
+    """Améliore la structure générale des réponses Francis"""
+    # Ajouter des espaces autour des titres
+    text = re.sub(r'(\n|^)(#{1,6}\s+[^\n]+)', r'\1\n\2\n', text)
+    
+    # Améliorer l'espacement des listes
+    text = re.sub(r'(\n|^)([-*+]\s+[^\n]+)', r'\1\2', text)
+    
+    # Ajouter des espaces autour des exemples
+    text = re.sub(r'(Pour illustrer|Par exemple|Voici)', r'\n\1', text)
+    
+    # Nettoyer les espaces multiples tout en préservant la structure
+    text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)
+    text = re.sub(r'^\s+|\s+$', '', text)
+    
     return text
 
 @api_router.post("/test-francis")
@@ -249,7 +305,7 @@ async def test_francis(request: dict):
             # Groq ne parvient pas à extraire les champs malgré tous les prompts testés
             from assistant_fiscal import get_fiscal_response
             answer, sources, confidence = await run_with_timeout(get_fiscal_response, question, conversation_history, timeout=30)
-            answer = clean_markdown_formatting(answer)
+            answer = format_francis_response(answer)
             return {
                 "answer": answer,
                 "sources": sources,
@@ -262,7 +318,7 @@ async def test_francis(request: dict):
             fallback_answer = f"Je vais analyser votre question sur '{question}'. Pour un conseil fiscal précis, pouvez-vous me préciser votre situation (salarié, entrepreneur, investisseur) et votre objectif ? Je pourrai alors vous donner une réponse personnalisée et détaillée."
             if conversation_history and len(conversation_history) > 1:
                 fallback_answer += " Je prends en compte notre échange précédent pour mieux vous accompagner."
-            fallback_answer = clean_markdown_formatting(fallback_answer)
+            fallback_answer = format_francis_response(fallback_answer)
             return {
                 "answer": fallback_answer,
                 "sources": ["Expert Francis"],
@@ -1001,7 +1057,7 @@ async def ask_question(
             request.user_profile_context,
             request.jurisdiction
         )
-        answer = clean_markdown_formatting(answer)
+        answer = format_francis_response(answer)
 
         if supabase:
             try:
