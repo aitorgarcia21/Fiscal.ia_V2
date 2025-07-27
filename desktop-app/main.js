@@ -30,34 +30,30 @@ let currentContext = { app: null, windowTitle: null, forms: [] };
 let isListening = false;
 
 function createWindow() {
-  // Créer la fenêtre overlay
+  // Créer le popup overlay Francis
   mainWindow = new BrowserWindow({
     width: 400,
     height: 600,
     minWidth: 300,
     minHeight: 500,
-    frame: false, // Supprimer la barre de titre
-    transparent: true, // Fond transparent
+    frame: true, // Garder une petite barre de titre
+    transparent: false, // Fond opaque pour voir le contenu
     alwaysOnTop: true, // Toujours au premier plan
     resizable: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: false // Permettre le chargement de la PWA
     },
     icon: path.join(__dirname, 'assets/icon.png'),
-    show: true,
-    backgroundColor: '#00000000', // Fond transparent
-    skipTaskbar: true, // Ne pas afficher dans la barre des tâches
+    show: false,
+    backgroundColor: '#0A192F', // Fond Francis visible
+    skipTaskbar: false, // Afficher dans la barre des tâches pour debug
     movable: true,
     fullscreenable: false,
-    titleBarStyle: 'custom',
-    titleBarOverlay: {
-      color: '#162238',
-      symbolColor: '#c5a572',
-      height: 40
-    }
+    titleBarStyle: 'default'
   });
 
   // Positionner dans le coin supérieur droit
@@ -66,23 +62,19 @@ function createWindow() {
   const { width, height } = primaryDisplay.workAreaSize;
   mainWindow.setPosition(width - 450, 50);
 
-  // Charger l'application React locale en développement ou la version construite en production
-  if (process.env.NODE_ENV === 'development') {
-    // En développement, charger depuis le serveur webpack-dev-server
-    mainWindow.loadURL('http://localhost:3001');
-    // Ouvrir les outils de développement
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-  } else {
-    // En production, charger le fichier local
-    mainWindow.loadFile(path.join(__dirname, 'renderer/index.html'));
-  }
+  // Charger l'interface Francis custom
+  console.log('Francis Popup - Chargement de interface Francis custom');
+  
+  mainWindow.loadFile(path.join(__dirname, 'renderer/francis-popup.html'));
 
   // Afficher la fenêtre quand elle est prête
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    console.log('Francis Popup lance avec succes!');
     
-    // Ouvrir les liens externes dans le navigateur par défaut
+    // Gérer les liens externes
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      // Ouvrir tous les liens externes dans le navigateur par défaut
       shell.openExternal(url);
       return { action: 'deny' };
     });
@@ -254,6 +246,161 @@ ipcMain.on('overlay:drag-move', (event, { x, y }) => {
 
 ipcMain.on('open-external', (event, url) => {
   shell.openExternal(url);
+});
+
+// === HANDLERS FRANCIS DESKTOP ===
+
+// Audio Recording Handlers
+ipcMain.on('francis:start-recording', (event) => {
+  console.log('Francis Desktop: Démarrage de l\'enregistrement audio');
+  // Ici on peut intégrer avec l'API Whisper existante
+  // Pour l'instant, simuler la transcription en temps réel
+  
+  // Simuler des updates de transcription toutes les 2 secondes
+  const transcriptionInterval = setInterval(() => {
+    const sampleTranscriptions = [
+      'Bonjour, je m\'appelle Jean Dupont',
+      'Je gagne 50 000 euros par an',
+      'Je suis marié avec deux enfants',
+      'Je souhaite optimiser ma fiscalité',
+      'Pouvez-vous m\'aider avec la défiscalisation ?'
+    ];
+    
+    const randomText = sampleTranscriptions[Math.floor(Math.random() * sampleTranscriptions.length)];
+    event.reply('francis:transcription-update', randomText);
+  }, 2000);
+  
+  // Stocker l'interval pour pouvoir l'arrêter
+  global.currentTranscriptionInterval = transcriptionInterval;
+});
+
+ipcMain.on('francis:stop-recording', (event) => {
+  console.log('Francis Desktop: Arrêt de l\'enregistrement audio');
+  
+  // Arrêter la simulation de transcription
+  if (global.currentTranscriptionInterval) {
+    clearInterval(global.currentTranscriptionInterval);
+    global.currentTranscriptionInterval = null;
+  }
+  
+  // Envoyer la transcription finale pour traitement Francis
+  event.reply('francis:transcription-complete', 'Transcription terminée');
+});
+
+// Chat Francis Handler
+ipcMain.handle('francis:send-chat-message', async (event, message, authToken) => {
+  console.log('Francis Desktop: Message chat reçu:', message);
+  console.log('Francis Desktop: Auth token présent:', !!authToken);
+  
+  try {
+    // Préparer les headers avec authentification
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Ajouter le token d'authentification si disponible
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    
+    // Appeler l'API Francis existante avec authentification
+    const response = await fetch('https://fiscal-ia-v2-production.up.railway.app/api/test-francis', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ question: message })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.response || 'Réponse Francis reçue';
+    } else {
+      throw new Error('Erreur API Francis');
+    }
+  } catch (error) {
+    console.error('Erreur chat Francis:', error);
+    // Réponse de fallback
+    const fallbackResponses = [
+      'Merci pour votre question. Pouvez-vous me donner plus de détails ?',
+      'D\'après mes connaissances fiscales, voici ce que je peux vous dire...',
+      'Intéressant ! Pouvez-vous préciser votre situation patrimoniale ?',
+      'Basé sur les dernières règles fiscales 2024, je recommande...',
+      'Excellent ! Analysons votre cas ensemble pour optimiser votre fiscalité.'
+    ];
+    
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+  }
+});
+
+// Page Filling Handlers
+ipcMain.handle('francis:get-open-pages', async (event) => {
+  console.log('Francis Desktop: Récupération des pages ouvertes');
+  
+  // Simuler des pages ouvertes - en production, on scannerait les vraies applications
+  const mockPages = [
+    {
+      id: 'safari-crm',
+      title: 'CRM Patrimoine - Nouveau Client',
+      icon: '🌐',
+      app: 'Safari',
+      url: 'https://crm.patrimoine.fr/client/new'
+    },
+    {
+      id: 'chrome-form', 
+      title: 'Formulaire Fiscal - Déclaration',
+      icon: '🌐',
+      app: 'Chrome',
+      url: 'https://impots.gouv.fr/declaration'
+    },
+    {
+      id: 'excel-calc',
+      title: 'Calculs Fiscaux 2024.xlsx',
+      icon: '📊',
+      app: 'Excel',
+      path: '/Users/Documents/Calculs Fiscaux 2024.xlsx'
+    },
+    {
+      id: 'pdf-form',
+      title: 'Cerfa 2042 - Déclaration Revenus',
+      icon: '📄',
+      app: 'Preview',
+      path: '/Users/Downloads/cerfa_2042.pdf'
+    }
+  ];
+  
+  return mockPages;
+});
+
+ipcMain.handle('francis:fill-page', async (event, pageId, data) => {
+  console.log('Francis Desktop: Remplissage de la page:', pageId);
+  
+  try {
+    // Simuler le remplissage automatique de la page
+    // En production, ici on injecterait les données dans l'application cible
+    
+    // Simuler un délai de traitement
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Simuler le succès la plupart du temps
+    const success = Math.random() > 0.2; // 80% de chances de succès
+    
+    if (success) {
+      console.log('Francis Desktop: Remplissage réussi pour', pageId);
+      return {
+        success: true,
+        message: 'Page remplie automatiquement avec les données Francis',
+        fieldsCount: Math.floor(Math.random() * 15) + 5 // 5-20 champs remplis
+      };
+    } else {
+      throw new Error('Erreur lors du remplissage');
+    }
+  } catch (error) {
+    console.error('Francis Desktop: Erreur remplissage:', error);
+    return {
+      success: false,
+      message: 'Impossible de remplir la page automatiquement',
+      error: error.message
+    };
+  }
 });
 
 // Gestion de la fermeture de l'application

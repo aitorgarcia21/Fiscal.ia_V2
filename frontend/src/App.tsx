@@ -48,6 +48,7 @@ import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AccountPage } from './pages/AccountPage';
 import { DiscoverPage } from './pages/DiscoverPage';
+import { FrancisDesktopPage } from './pages/FrancisDesktopPage';
 import { ParticulierProtectedRoute } from './components/auth/ParticulierProtectedRoute';
 import { CompleteSignupPage } from './pages/CompleteSignupPage';
 import CGPWorkspace from './pages/CGPWorkspace';
@@ -99,7 +100,7 @@ function App() {
           <Route path="/telecharger" element={<FrancisInstallerPage />} />
           <Route path="/installer" element={<FrancisInstallerPage />} />
           <Route path="/download" element={<FrancisDownloadPage />} />
-          <Route path="/francis-desktop" element={<FrancisDownloadPage />} />
+          <Route path="/francis-desktop" element={<FrancisDesktopPage />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/mes-donnees" element={<DataPrivacyPage />} />

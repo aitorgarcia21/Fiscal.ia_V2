@@ -30,6 +30,34 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getActiveApplication: () => ipcRenderer.invoke('francis:get-active-app'),
   scanForForms: () => ipcRenderer.invoke('francis:scan-forms'),
   
+  // === NOUVELLES APIs FRANCIS DESKTOP ===
+  
+  // Audio Recording
+  startRecording: () => ipcRenderer.send('francis:start-recording'),
+  stopRecording: () => ipcRenderer.send('francis:stop-recording'),
+  onTranscriptionUpdate: (callback) => {
+    ipcRenderer.on('francis:transcription-update', (event, text) => {
+      callback(text);
+    });
+  },
+  
+  // Chat Francis
+  sendChatMessage: (message) => ipcRenderer.invoke('francis:send-chat-message', message),
+  onChatResponse: (callback) => {
+    ipcRenderer.on('francis:chat-response', (event, response) => {
+      callback(response);
+    });
+  },
+  
+  // Page Filling
+  getOpenPages: () => ipcRenderer.invoke('francis:get-open-pages'),
+  fillPage: (pageId, data) => ipcRenderer.invoke('francis:fill-page', pageId, data),
+  onPageFillComplete: (callback) => {
+    ipcRenderer.on('francis:page-fill-complete', (event, result) => {
+      callback(result);
+    });
+  },
+  
   // Gestion des hotkeys globaux
   registerGlobalHotkey: (shortcut, callback) => {
     ipcRenderer.send('francis:register-hotkey', shortcut);
