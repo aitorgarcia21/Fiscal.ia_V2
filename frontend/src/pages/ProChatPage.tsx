@@ -346,6 +346,8 @@ export function ProChatPage() {
     setIsLoading(true);
 
     try {
+      console.log('🔍 CHAT PRO - Démarrage appel Francis:', { question: input, jurisdiction });
+      
       let clientContext: ClientContextForFrancis | null = null;
       
       if (selectedClientId && selectedClientProfile) {
@@ -358,8 +360,10 @@ export function ProChatPage() {
           revenus_annuels: typeof selectedClientProfile.revenu_net_annuel_client1 === 'number' ? selectedClientProfile.revenu_net_annuel_client1 : Number(selectedClientProfile.revenu_net_annuel_client1) || 0,
           charges_deductibles: typeof selectedClientProfile.charges_foncieres_deductibles_foyer === 'number' ? selectedClientProfile.charges_foncieres_deductibles_foyer : Number(selectedClientProfile.charges_foncieres_deductibles_foyer) || 0
         };
+        console.log('👤 CHAT PRO - Contexte client:', clientContext);
       }
 
+      console.log('🚀 CHAT PRO - Appel API /api/ask...');
       const response = await apiClient<{
         response: string;
         sources?: string[];
@@ -372,6 +376,18 @@ export function ProChatPage() {
         }
       });
 
+      console.log('✅ CHAT PRO - Réponse API reçue:', { 
+        responseLength: response?.response?.length || 0,
+        hasResponse: !!response?.response,
+        response: response?.response?.substring(0, 100) + '...',
+        sources: response?.sources?.length || 0
+      });
+
+      if (!response || !response.response) {
+        console.error('❌ CHAT PRO - Réponse API vide ou invalide:', response);
+        throw new Error('Réponse API vide');
+      }
+
       const assistantMessage: ProMessage = {
         role: 'assistant',
         content: response.response,
@@ -381,17 +397,44 @@ export function ProChatPage() {
         category: selectedTemplate?.category || 'general'
       };
 
+      console.log('💬 CHAT PRO - Message assistant créé:', {
+        contentLength: assistantMessage.content.length,
+        preview: assistantMessage.content.substring(0, 50) + '...',
+        sources: assistantMessage.sources?.length || 0
+      });
+
       setMessages([...newMessages, assistantMessage]);
+      console.log('✅ CHAT PRO - Messages mis à jour avec succès');
     } catch (error) {
+      console.error('❌ CHAT PRO - Erreur lors de l\'appel Francis:', error);
+      console.error('🔍 CHAT PRO - Détails erreur:', {
+        message: error?.message,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        data: error?.response?.data
+      });
+      
       ErrorHandler.handle(error, { logInDev: true, silent: false });
+      
+      // Message d'erreur plus détaillé selon le type d'erreur
+      let errorContent = 'Désolé, une erreur s\'est produite. Veuillez réessayer.';
+      if (error?.response?.status === 401) {
+        errorContent = 'Erreur d\'authentification. Veuillez vous reconnecter.';
+      } else if (error?.response?.status === 500) {
+        errorContent = 'Erreur serveur. Nos équipes sont notifiées.';
+      } else if (error?.message?.includes('timeout')) {
+        errorContent = 'Délai d\'attente dépassé. Veuillez réessayer.';
+      }
+      
       const errorMessage: ProMessage = {
         role: 'assistant',
-        content: 'Désolé, une erreur s\'est produite. Veuillez réessayer.',
+        content: errorContent,
         error: true,
         timestamp: new Date(),
         category: 'error'
       };
       setMessages([...newMessages, errorMessage]);
+      console.log('💬 CHAT PRO - Message d\'erreur ajouté:', errorContent);
     }
 
     setIsLoading(false);
