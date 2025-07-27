@@ -349,7 +349,7 @@ class QuestionRequest(BaseModel):
     jurisdiction: Literal["FR", "AD", "CH", "LU"] = "FR"
 
 class QuestionResponse(BaseModel):
-    answer: str
+    response: str  # Changé de 'answer' à 'response' pour correspondre au frontend
     sources: List[str]
     confidence: float
 
@@ -1016,7 +1016,7 @@ async def ask_question(
                 print(f"[Erreur Enregistrement Question] {e}")
 
         return QuestionResponse(
-            answer=answer,
+            response=answer,  # Changé de 'answer=' à 'response=' pour correspondre au frontend
             sources=sources,
             confidence=confidence
         )
@@ -2670,8 +2670,8 @@ app.include_router(api_router)
 app.include_router(api_router, prefix="/api")  # alias pour compatibilité frontend
 app.include_router(whisper_router.router, prefix="/api")  # WHISPER LOCAL FONCTIONNEL
 # app.include_router(eleven_router)  # DÉSACTIVÉ temporairement - eleven_router indisponible
-app.include_router(gocardless_router)  # GOCARDLESS BANK INTEGRATION
-app.include_router(downloads.router, prefix="/downloads")  # FRANCIS DESKTOP DOWNLOADS
+# app.include_router(gocardless_router)  # GOCARDLESS BANK INTEGRATION - TEMPORAIREMENT DÉSACTIVÉ POUR TEST FRANCIS
+# app.include_router(downloads.router, prefix="/downloads")  # FRANCIS DESKTOP DOWNLOADS - TEMPORAIREMENT DÉSACTIVÉ POUR TEST FRANCIS
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
 
