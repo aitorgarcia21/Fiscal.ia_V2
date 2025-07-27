@@ -538,11 +538,14 @@ export function ProChatPage() {
 
         {/* Zone de chat ultra-simplifiée */}
         <div className="flex-1 flex flex-col bg-gradient-to-br from-[#0f1419] via-[#1a2332] to-[#243447]">
-          {/* Barre de chat simple */}
+          {/* Barre de chat avec logo Francis officiel */}
           <div className="bg-[#162238]/95 backdrop-blur-sm border-b border-[#c5a572]/20 p-4">
-            <h2 className="text-lg font-semibold text-white">
-              Francis Pro
-            </h2>
+            <div className="flex items-center gap-3">
+              <Logo size="sm" />
+              <h2 className="text-lg font-semibold text-white">
+                Francis Pro
+              </h2>
+            </div>
           </div>
 
           {/* Messages ultra-simplifiés */}
