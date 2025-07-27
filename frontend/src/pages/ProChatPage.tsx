@@ -11,6 +11,7 @@ import apiClient from '../services/apiClient';
 import { ClientProfile } from '../types/clientProfile';
 import { useCountry, Country } from '../contexts/CountryContext';
 import { ErrorHandler } from '../utils/errorHandler';
+import { Logo } from '../components/ui/Logo';
 
 interface ProMessage {
   role: 'user' | 'assistant';
@@ -416,10 +417,8 @@ export function ProChatPage() {
       <div className="bg-[#162238]/95 backdrop-blur-sm border-b border-[#c5a572]/20 p-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo Francis Pro harmonisé (identique aux autres pages) */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c5a572] to-[#d4b875] flex items-center justify-center">
-              <span className="text-[#162238] font-bold text-lg">F</span>
-            </div>
+            {/* Logo Francis Pro officiel (identique aux headers du site) */}
+            <Logo size="md" />
             <div>
               <h1 className="text-xl font-bold text-white">Francis</h1>
               <p className="text-sm text-[#c5a572] font-medium">Pro</p>
@@ -550,6 +549,11 @@ export function ProChatPage() {
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {messages.map((message, index) => (
               <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {message.role === 'assistant' && (
+                  <div className="flex-shrink-0 mr-3 mt-1">
+                    <Logo size="sm" />
+                  </div>
+                )}
                 <div className={`max-w-[80%] p-4 rounded-lg ${
                   message.role === 'user'
                     ? 'bg-[#c5a572] text-[#162238]'
@@ -565,16 +569,11 @@ export function ProChatPage() {
               </div>
             ))}
             
-            {/* Indicateur de chargement professionnel */}
+            {/* Indicateur de chargement avec logo officiel Francis */}
             {isLoading && (
               <div className="flex gap-4 justify-start">
-                <div className="flex-shrink-0 relative inline-flex items-center justify-center group">
-                  <div className="h-10 w-10 bg-[#c5a572] rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-300">
-                    <MessageSquare className="h-6 w-6 text-[#162238]" />
-                  </div>
-                  <div className="h-6 w-6 bg-[#162238] rounded-full flex items-center justify-center absolute -bottom-1 -right-1 shadow-md transition-transform group-hover:scale-110 duration-300">
-                    <Euro className="h-4 w-4 text-[#c5a572]" />
-                  </div>
+                <div className="flex-shrink-0 mt-1">
+                  <Logo size="sm" />
                 </div>
                 <div className="max-w-[75%]">
                   <div className="flex items-center gap-2 mb-2">
