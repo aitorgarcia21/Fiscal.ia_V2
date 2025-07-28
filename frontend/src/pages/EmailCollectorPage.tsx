@@ -1,45 +1,13 @@
 import React, { useState } from 'react';
-import { Mail, Send, Check, AlertCircle, MessageSquare, Euro } from 'lucide-react';
-// Temporairement désactivé pour debug
-// import { Logo } from '../components/ui/Logo';
-// import { addEmailSubscriber } from '../lib/supabase';
 
 export default function EmailCollectorPage() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes('@')) return;
-
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Récupérer les paramètres UTM de l'URL si présents
-      const urlParams = new URLSearchParams(window.location.search);
-      const utmSource = urlParams.get('utm_source');
-      const utmMedium = urlParams.get('utm_medium');
-      const utmCampaign = urlParams.get('utm_campaign');
-      
-      // Version debug simplifiée - simulation temporaire
-      console.log('Debug: Email saisi:', email);
-      
-      // Simuler un succès pour tester l'interface
-      setIsSubmitted(true);
-      setSuccessMessage('Email enregistré (mode debug)');
-      setEmail('');
-      
-      // TODO: Réactiver Supabase une fois le problème de rendu résolu
-    } catch (err) {
-      console.error('Erreur lors de l\'envoi:', err);
-      setError('Une erreur est survenue. Veuillez réessayer.');
-    } finally {
-      setIsLoading(false);
-    }
+    console.log('Email:', email);
+    setIsSubmitted(true);
   };
 
   const handleReset = () => {
@@ -48,104 +16,84 @@ export default function EmailCollectorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#1E3A8A] flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
-          {/* Logo Francis */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              {/* Logo Francis temporaire pour debug */}
-              <div className="relative inline-flex items-center justify-center">
-                <MessageSquare className="h-12 w-12 text-[#c5a572]" />
-                <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-1" />
-              </div>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #0A192F 0%, #162238 50%, #1E3A8A 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div style={{
+        maxWidth: '400px',
+        width: '100%',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '32px',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>
+            Francis
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px' }}>
+            Votre copilote fiscal intelligent
+          </p>
+        </div>
+
+        {!isSubmitted ? (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', marginBottom: '8px', display: 'block' }}>
+                Adresse email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="votre@email.com"
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '8px',
+                  color: 'white',
+                  fontSize: '16px'
+                }}
+              />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Francis</h1>
-            <p className="text-white/80 text-sm">Votre copilote fiscal intelligent</p>
-          </div>
-
-          {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
-                  Adresse email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-5 w-5" />
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setError(null); // Réinitialiser l'erreur quand l'utilisateur tape
-                    }}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#c5a572] focus:border-transparent transition-all duration-200"
-                    placeholder="votre@email.com"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Affichage des erreurs */}
-              {error && (
-                <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading || !email}
-                className="w-full bg-gradient-to-r from-[#c5a572] to-[#d4b982] text-[#0A192F] font-semibold py-3 px-6 rounded-lg hover:from-[#d4b982] hover:to-[#c5a572] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#0A192F]"></div>
-                    Envoi en cours...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-5 w-5" />
-                    Rejoindre la liste
-                  </>
-                )}
-              </button>
-            </form>
-          ) : (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <div className="bg-green-500 rounded-full p-3">
-                  <Check className="h-6 w-6 text-white" />
-                </div>
-              </div>
-              <h2 className="text-xl font-semibold text-white">Merci !</h2>
-              <p className="text-white/80">
-                {successMessage || 'Votre email a été enregistré avec succès. Vous serez parmi les premiers à découvrir Francis.'}
-              </p>
-              <button
-                onClick={handleReset}
-                className="text-[#c5a572] hover:text-[#d4b982] transition-colors duration-200 underline"
-              >
-                Ajouter un autre email
-              </button>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-white/10">
-            <p className="text-center text-xs text-white/60">
-              En vous inscrivant, vous acceptez de recevoir des informations sur Francis.
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'linear-gradient(135deg, #c5a572, #d4b982)',
+                color: '#0A192F',
+                fontWeight: 'bold',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              Rejoindre la liste
+            </button>
+          </form>
+        ) : (
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+              Merci !
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '16px' }}>
+              Email enregistré avec succès !
             </p>
+            <button onClick={handleReset} style={{ color: '#c5a572', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}>
+              Ajouter un autre email
+            </button>
           </div>
-        </div>
-
-        {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#c5a572]/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#c5a572]/10 rounded-full blur-3xl"></div>
-        </div>
+        )}
       </div>
     </div>
   );
