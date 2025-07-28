@@ -3,10 +3,12 @@
 Test des prix corrigés (49€ exactement)
 """
 
+import json
+import os
 import requests
 
 # Clé Stripe
-STRIPE_SECRET_KEY = "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"
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_YOUR_TEST_KEY_HERE')  # NEVER expose live keys!
 
 # Prix corrigés
 CORRECTED_PRICES = {
