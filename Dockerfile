@@ -33,7 +33,7 @@ WORKDIR /app
 COPY desktop-app ./desktop-app
 WORKDIR /app/desktop-app
 RUN npm ci --legacy-peer-deps
-RUN npm run build
+RUN npm run build:mac
 # Build professional drag-and-drop DMG
 RUN npm install -g create-dmg
 WORKDIR /app
