@@ -62,6 +62,7 @@ import { MonProfilPage } from './pages/MonProfilPage';
 import { DocumentsFiscauxPage } from './pages/DocumentsFiscauxPage';
 import FrancisDownloadPage from './pages/FrancisDownloadPage';
 import FrancisInstallerPage from './pages/FrancisInstallerPage';
+import EmailCollectorPage from './pages/EmailCollectorPage';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -101,6 +102,7 @@ function App() {
           <Route path="/installer" element={<FrancisInstallerPage />} />
           <Route path="/download" element={<FrancisDownloadPage />} />
           <Route path="/francis-desktop" element={<FrancisDesktopPage />} />
+          <Route path="/email-collector" element={<EmailCollectorPage />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/mes-donnees" element={<DataPrivacyPage />} />
