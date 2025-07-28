@@ -101,15 +101,8 @@ const ProLandingPage = () => {
               <span className="text-xl font-bold text-white">Francis</span>
             </div>
 
-            {/* Navigation + Auth Buttons */}
+            {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
-              <a
-                href="/francis-desktop"
-                className="flex items-center gap-2 px-4 py-2 bg-[#c5a572]/10 text-[#c5a572] rounded-lg hover:bg-[#c5a572]/20 transition-colors font-medium border border-[#c5a572]/30"
-              >
-                <Monitor className="h-4 w-4" />
-                Francis Desktop
-              </a>
               <button
                 onClick={() => handleAuth('login')}
                 className="text-gray-300 hover:text-[#c5a572] transition-colors font-medium"

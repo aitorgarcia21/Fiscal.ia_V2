@@ -3,25 +3,25 @@ import { Monitor, Download, Check, Users, Shield, Zap } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 
 export function FrancisDesktopPage() {
-  const downloadFiles = [
+  const downloadOptions = [
     {
-      name: 'Mac Apple Silicon (M1/M2/M3)',
-      file: 'Francis-1.0.0-arm64.dmg',
-      size: '117 MB',
-      icon: '🍎',
+      name: 'Développement Local',
+      description: 'Cloner le dépôt et lancer Francis Desktop localement',
+      icon: '🛠️',
+      action: 'local',
       recommended: true
     },
     {
-      name: 'Mac Intel',
-      file: 'Francis-1.0.0.dmg', 
-      size: '122 MB',
-      icon: '🍎'
+      name: 'Téléchargement Direct', 
+      description: 'Contactez votre administrateur pour obtenir le fichier .dmg',
+      icon: '📧',
+      action: 'contact'
     },
     {
-      name: 'Installateur Mac (.pkg)',
-      file: 'Francis-1.0.0.pkg',
-      size: '117 MB', 
-      icon: '📦'
+      name: 'Extension Chrome',
+      description: 'Alternative web qui fonctionne dans votre navigateur',
+      icon: '🌐', 
+      action: 'extension'
     }
   ];
 
@@ -109,41 +109,57 @@ export function FrancisDesktopPage() {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-6">
-            {downloadFiles.map((file, index) => (
-              <div
-                key={index}
-                className={`relative bg-[#0A192F] rounded-xl p-6 border-2 transition-all hover:scale-105 ${
-                  file.recommended 
-                    ? 'border-[#c5a572] ring-2 ring-[#c5a572]/20' 
-                    : 'border-gray-700 hover:border-[#c5a572]/50'
-                }`}
-              >
-                {file.recommended && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-[#c5a572] text-[#0A192F] px-3 py-1 rounded-full text-sm font-semibold">
-                      Recommandé
-                    </span>
-                  </div>
-                )}
-                
-                <div className="text-center">
-                  <div className="text-4xl mb-4">{file.icon}</div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
-                    {file.name}
-                  </h3>
-                  <p className="text-gray-400 mb-4">{file.size}</p>
+            {downloadOptions.map((option, index) => {
+              const handleAction = () => {
+                switch (option.action) {
+                  case 'local':
+                    window.open('https://github.com/aitorgarcia21/Fiscal.ia_V2/tree/main/desktop-app', '_blank');
+                    break;
+                  case 'contact':
+                    window.location.href = 'mailto:contact@fiscal-ia.net?subject=Francis Desktop - Demande de téléchargement';
+                    break;
+                  case 'extension':
+                    // Rediriger vers la page d'extension Chrome
+                    window.location.href = '/download';
+                    break;
+                }
+              };
+              
+              return (
+                <div
+                  key={index}
+                  className={`relative bg-[#0A192F] rounded-xl p-6 border-2 transition-all hover:scale-105 ${
+                    option.recommended 
+                      ? 'border-[#c5a572] ring-2 ring-[#c5a572]/20' 
+                      : 'border-gray-700 hover:border-[#c5a572]/50'
+                  }`}
+                >
+                  {option.recommended && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-[#c5a572] text-[#0A192F] px-3 py-1 rounded-full text-sm font-semibold">
+                        Recommandé
+                      </span>
+                    </div>
+                  )}
                   
-                  <a
-                    href={`/downloads/francis-desktop/${file.file}`}
-                    download
-                    className="inline-flex items-center gap-2 bg-[#c5a572] text-[#0A192F] px-6 py-3 rounded-lg font-semibold hover:bg-[#d4b584] transition-colors w-full justify-center"
-                  >
-                    <Download className="h-5 w-5" />
-                    Télécharger
-                  </a>
+                  <div className="text-center">
+                    <div className="text-4xl mb-4">{option.icon}</div>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      {option.name}
+                    </h3>
+                    <p className="text-gray-400 mb-6 text-sm">{option.description}</p>
+                    
+                    <button
+                      onClick={handleAction}
+                      className="inline-flex items-center gap-2 bg-[#c5a572] text-[#0A192F] px-6 py-3 rounded-lg font-semibold hover:bg-[#d4b584] transition-colors w-full justify-center"
+                    >
+                      <Download className="h-5 w-5" />
+                      {option.action === 'local' ? 'Ouvrir GitHub' : option.action === 'contact' ? 'Contacter' : 'Accéder'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           
           <div className="mt-8 text-center">
