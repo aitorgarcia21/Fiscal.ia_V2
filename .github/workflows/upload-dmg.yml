@@ -27,24 +27,21 @@ jobs:
         run: |
           cd desktop-app
           npm ci --legacy-peer-deps
-          npm run build # Assumes this produces dist/Francis-*.dmg
+          npm run build # builds Electron app
+          # Build professional drag-and-drop DMG
+          npm install -g create-dmg
+          cd ../../
+          ./desktop-app/build-dmg.sh 1.0.0
+          cd desktop-app
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Upload DMG to GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          tag_name: v1.0.0
+          files: |
+            desktop-app/dist/Francis-1.0.0.dmg
+            desktop-app/dist/Francis-1.0.0-arm64.dmg
 
-      - name: Upload DMG files to S3
-        run: |
-          aws s3 cp desktop-app/dist/Francis-1.0.0.dmg s3://${{ secrets.S3_BUCKET }}/Francis-1.0.0.dmg --acl public-read
-          aws s3 cp desktop-app/dist/Francis-1.0.0-arm64.dmg s3://${{ secrets.S3_BUCKET }}/Francis-1.0.0-arm64.dmg --acl public-read
-
-      - name: Invalidate CloudFront cache (optional)
-        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/Francis-1.0.0*.dmg"
 
       - name: Success message
-        run: echo "DMG uploaded to S3 and available via https://${{ secrets.DOMAIN }}/downloads/Francis-1.0.0.dmg"
+        run: echo "DMG uploaded to GitHub Release. Users can download via your site. https://${{ secrets.DOMAIN }}/downloads/Francis-1.0.0.dmg"
