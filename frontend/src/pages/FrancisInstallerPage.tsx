@@ -20,19 +20,30 @@ const FrancisInstallerPage: React.FC = () => {
     setStep(2);
 
     try {
-      // Télécharger l'extension
+      // Télécharger Francis Desktop - vrais fichiers
       const link = document.createElement('a');
       let downloadUrl = '';
+      
       if (userOS === 'Windows') {
-        downloadUrl = '/downloads/FrancisSetup.exe';
-        link.download = 'FrancisSetup.exe';
+        // Pour Windows - utiliser le .dmg en attendant la version Windows
+        downloadUrl = '/downloads/Francis-1.0.0.dmg';
+        link.download = 'Francis-1.0.0.dmg';
       } else if (userOS === 'macOS') {
-        downloadUrl = '/downloads/FrancisSetup.dmg';
-        link.download = 'FrancisSetup.dmg';
+        // Détecter si c'est Apple Silicon ou Intel
+        const isAppleSilicon = navigator.userAgent.includes('Intel') ? false : true;
+        if (isAppleSilicon) {
+          downloadUrl = '/downloads/Francis-1.0.0-arm64.dmg';
+          link.download = 'Francis-1.0.0-arm64.dmg';
+        } else {
+          downloadUrl = '/downloads/Francis-1.0.0.dmg';
+          link.download = 'Francis-1.0.0.dmg';
+        }
       } else {
-        downloadUrl = '/downloads/francis-desktop.tar.gz';
-        link.download = 'francis-desktop.tar.gz';
+        // Pour Linux - utiliser le .dmg en attendant
+        downloadUrl = '/downloads/Francis-1.0.0.dmg';
+        link.download = 'Francis-1.0.0.dmg';
       }
+      
       link.href = downloadUrl;
       document.body.appendChild(link);
       link.click();
