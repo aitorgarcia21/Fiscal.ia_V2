@@ -9,7 +9,7 @@
     "build": "webpack --mode production && electron-builder",
     "build:renderer": "webpack --mode production",
     "build:app": "electron-builder",
-    "build:mac": "npm run build:renderer && electron-builder --mac",
+    "build:mac": "npm run build:renderer && electron-builder --mac --dir",
     "build:win": "npm run build:renderer && electron-builder --win",
     "build:linux": "npm run build:renderer && electron-builder --linux",
     "watch": "webpack --watch --mode development",
