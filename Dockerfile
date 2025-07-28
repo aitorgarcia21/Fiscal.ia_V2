@@ -27,18 +27,6 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV NODE_ENV=production
 RUN npm run build
 
-# Stage: Build Francis Desktop app and DMG
-FROM electronuserland/builder:latest AS desktop-builder
-WORKDIR /app
-COPY desktop-app ./desktop-app
-WORKDIR /app/desktop-app
-RUN npm ci --legacy-peer-deps
-RUN npm run build:mac
-# Build professional drag-and-drop DMG
-RUN npm install -g create-dmg
-WORKDIR /app
-RUN ./desktop-app/build-dmg.sh 1.0.0
-
 # Stage 2: Production
 FROM python:3.11-slim
 WORKDIR /app
@@ -49,9 +37,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
-# Copy generated DMG files into public downloads folder
+# Create downloads folder for manual DMG upload
 RUN mkdir -p /var/www/html/downloads
-COPY --from=desktop-builder /app/desktop-app/dist/*.dmg /var/www/html/downloads/
 COPY backend/ ./backend
 
 ENV PIP_NO_CACHE_DIR=1
