@@ -1,0 +1,50 @@
+name: Upload Francis DMG to S3
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g. v1.0.0)"
+        required: true
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*.*.*-rc*"
+
+jobs:
+  build_and_upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies and build desktop app
+        run: |
+          cd desktop-app
+          npm ci --legacy-peer-deps
+          npm run build # Assumes this produces dist/Francis-*.dmg
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload DMG files to S3
+        run: |
+          aws s3 cp desktop-app/dist/Francis-1.0.0.dmg s3://${{ secrets.S3_BUCKET }}/Francis-1.0.0.dmg --acl public-read
+          aws s3 cp desktop-app/dist/Francis-1.0.0-arm64.dmg s3://${{ secrets.S3_BUCKET }}/Francis-1.0.0-arm64.dmg --acl public-read
+
+      - name: Invalidate CloudFront cache (optional)
+        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/Francis-1.0.0*.dmg"
+
+      - name: Success message
+        run: echo "DMG uploaded to S3 and available via https://${{ secrets.DOMAIN }}/downloads/Francis-1.0.0.dmg"
