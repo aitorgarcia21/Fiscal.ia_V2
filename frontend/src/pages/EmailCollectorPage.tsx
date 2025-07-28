@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Logo } from '../components/ui/Logo';
-import { Mail, Send, Check, AlertCircle } from 'lucide-react';
-import { addEmailSubscriber } from '../lib/supabase';
+import { Mail, Send, Check, AlertCircle, MessageSquare, Euro } from 'lucide-react';
+// Temporairement désactivé pour debug
+// import { Logo } from '../components/ui/Logo';
+// import { addEmailSubscriber } from '../lib/supabase';
 
 export default function EmailCollectorPage() {
   const [email, setEmail] = useState('');
@@ -24,36 +25,15 @@ export default function EmailCollectorPage() {
       const utmMedium = urlParams.get('utm_medium');
       const utmCampaign = urlParams.get('utm_campaign');
       
-      // Envoyer l'email vers Supabase
-      const result = await addEmailSubscriber({
-        email: email,
-        source: 'email-collector',
-        utm_source: utmSource || undefined,
-        utm_medium: utmMedium || undefined,
-        utm_campaign: utmCampaign || undefined,
-        metadata: {
-          page_url: window.location.href,
-          referrer: document.referrer || null,
-          timestamp: new Date().toISOString()
-        }
-      });
+      // Version debug simplifiée - simulation temporaire
+      console.log('Debug: Email saisi:', email);
       
-      if (result.success) {
-        setIsSubmitted(true);
-        setSuccessMessage(result.message);
-        setEmail('');
-        
-        // Envoyer un événement à Google Analytics si disponible
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'email_signup', {
-            event_category: 'engagement',
-            event_label: 'email_collector',
-            value: 1
-          });
-        }
-      } else {
-        setError(result.message);
-      }
+      // Simuler un succès pour tester l'interface
+      setIsSubmitted(true);
+      setSuccessMessage('Email enregistré (mode debug)');
+      setEmail('');
+      
+      // TODO: Réactiver Supabase une fois le problème de rendu résolu
     } catch (err) {
       console.error('Erreur lors de l\'envoi:', err);
       setError('Une erreur est survenue. Veuillez réessayer.');
@@ -74,7 +54,11 @@ export default function EmailCollectorPage() {
           {/* Logo Francis */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <Logo size="xl" />
+              {/* Logo Francis temporaire pour debug */}
+              <div className="relative inline-flex items-center justify-center">
+                <MessageSquare className="h-12 w-12 text-[#c5a572]" />
+                <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-1" />
+              </div>
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Francis</h1>
             <p className="text-white/80 text-sm">Votre copilote fiscal intelligent</p>
