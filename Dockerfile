@@ -38,7 +38,7 @@ RUN apt-get update && \
 
 COPY --from=frontend-builder /app/frontend/dist /var/www/html
 # Create downloads folder for manual DMG upload
-RUN mkdir -p /var/www/html/downloads
+RUN mkdir -p /app/downloads
 COPY backend/ ./backend
 
 ENV PIP_NO_CACHE_DIR=1
