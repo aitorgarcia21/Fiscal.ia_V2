@@ -26,22 +26,24 @@ const FrancisInstallerPage: React.FC = () => {
       
       if (userOS === 'Windows') {
         // Pour Windows - utiliser le .dmg en attendant la version Windows
-        downloadUrl = '/downloads/Francis-1.0.0.dmg';
-        link.download = 'Francis-1.0.0.dmg';
+        downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0.exe';
+        link.download = 'Francis-1.0.0.exe';
       } else if (userOS === 'macOS') {
         // Détecter si c'est Apple Silicon ou Intel
-        const isAppleSilicon = navigator.userAgent.includes('Intel') ? false : true;
+        const isAppleSilicon = navigator.userAgent.includes('Apple Silicon') || 
+            (!navigator.userAgent.includes('Intel') && navigator.platform.includes('arm'));
+        
         if (isAppleSilicon) {
-          downloadUrl = '/downloads/Francis-1.0.0-arm64.dmg';
+          downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0-arm64.dmg';
           link.download = 'Francis-1.0.0-arm64.dmg';
         } else {
-          downloadUrl = '/downloads/Francis-1.0.0.dmg';
+          downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0.dmg';
           link.download = 'Francis-1.0.0.dmg';
         }
       } else {
         // Pour Linux - utiliser le .dmg en attendant
-        downloadUrl = '/downloads/Francis-1.0.0.dmg';
-        link.download = 'Francis-1.0.0.dmg';
+        downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0.AppImage';
+        link.download = 'Francis-1.0.0.AppImage';
       }
       
       link.href = downloadUrl;
