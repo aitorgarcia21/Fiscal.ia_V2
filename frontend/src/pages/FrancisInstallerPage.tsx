@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Chrome, CheckCircle, Play, Monitor } from 'lucide-react';
+import { Download, Chrome, CheckCircle, Play, Monitor, Smartphone } from 'lucide-react';
 
 const FrancisInstallerPage: React.FC = () => {
   const [step, setStep] = useState(1);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadComplete, setDownloadComplete] = useState(false);
   const [userOS, setUserOS] = useState('');
+  const [installationType, setInstallationType] = useState<'desktop' | 'pwa' | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
     // Détecter l'OS
@@ -13,37 +15,79 @@ const FrancisInstallerPage: React.FC = () => {
     if (platform.includes('win')) setUserOS('Windows');
     else if (platform.includes('mac')) setUserOS('macOS');
     else setUserOS('Linux');
+    
+    // Écouter l'événement PWA install prompt
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
+  const handlePWAInstall = async () => {
+    setInstallationType('pwa');
+    setIsDownloading(true);
+    setStep(2);
+    
+    try {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setDownloadComplete(true);
+          setStep(3);
+        }
+        setDeferredPrompt(null);
+      } else {
+        // Fallback: ouvrir la PWA dans un nouvel onglet
+        window.open(window.location.origin, '_blank');
+        setTimeout(() => {
+          setDownloadComplete(true);
+          setStep(3);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('PWA install failed:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const handleDownloadAndInstall = async () => {
+    setInstallationType('desktop');
     setIsDownloading(true);
     setStep(2);
 
     try {
-      // Télécharger Francis Desktop - vrais fichiers
+      // Télécharger Francis Desktop - vrais fichiers depuis /public/downloads/
       const link = document.createElement('a');
       let downloadUrl = '';
       
       if (userOS === 'Windows') {
-        // Pour Windows - utiliser le .dmg en attendant la version Windows
-        downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0.exe';
-        link.download = 'Francis-1.0.0.exe';
+        // Pour Windows - utiliser le Mac en attendant la version Windows
+        downloadUrl = '/downloads/Francis-1.0.0-mac.zip';
+        link.download = 'Francis-1.0.0-mac.zip';
       } else if (userOS === 'macOS') {
         // Détecter si c'est Apple Silicon ou Intel
         const isAppleSilicon = navigator.userAgent.includes('Apple Silicon') || 
             (!navigator.userAgent.includes('Intel') && navigator.platform.includes('arm'));
         
         if (isAppleSilicon) {
-          downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0-arm64.dmg';
-          link.download = 'Francis-1.0.0-arm64.dmg';
+          downloadUrl = '/downloads/Francis-1.0.0-arm64-mac.zip';
+          link.download = 'Francis-1.0.0-arm64-mac.zip';
         } else {
-          downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0.dmg';
-          link.download = 'Francis-1.0.0.dmg';
+          downloadUrl = '/downloads/Francis-1.0.0-mac.zip';
+          link.download = 'Francis-1.0.0-mac.zip';
         }
       } else {
-        // Pour Linux - utiliser le .dmg en attendant
-        downloadUrl = 'https://github.com/aitorgarcia21/Fiscal.ia_V2/releases/download/v1.0.0/Francis-1.0.0.AppImage';
-        link.download = 'Francis-1.0.0.AppImage';
+        // Pour Linux - utiliser le Mac en attendant
+        downloadUrl = '/downloads/Francis-1.0.0-mac.zip';
+        link.download = 'Francis-1.0.0-mac.zip';
       }
       
       link.href = downloadUrl;
@@ -93,55 +137,142 @@ const FrancisInstallerPage: React.FC = () => {
             </h1>
           </div>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto">
-            Installation guidée en 3 étapes - Compatible {userOS}
+            Choisissez votre mode d'installation - Compatible {userOS}
           </p>
         </div>
+
+        {/* Choix du type d'installation */}
+        {step === 1 && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <h2 className="text-2xl font-bold text-white text-center mb-8">
+              Choisissez votre version de Francis
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              
+              {/* PWA Option */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-[#c5a572]/40 hover:bg-white/15 transition-all">
+                <div className="text-center mb-6">
+                  <div className="bg-[#c5a572] p-4 rounded-xl inline-block mb-4">
+                    <Smartphone className="h-12 w-12 text-[#162238]" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Francis PWA</h3>
+                  <p className="text-gray-300 mb-4">
+                    Application web progressive - Installation instantanée depuis votre navigateur
+                  </p>
+                </div>
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Installation instantanée</span>
+                  </div>
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Fonctionne hors ligne</span>
+                  </div>
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Mises à jour automatiques</span>
+                  </div>
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Compatible tous navigateurs</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={handlePWAInstall}
+                  className="w-full bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center text-lg"
+                >
+                  <Smartphone className="h-6 w-6 mr-3" />
+                  📱 Installer Francis PWA
+                </button>
+              </div>
+
+              {/* Desktop Option */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-gray-500/20 hover:bg-white/15 transition-all">
+                <div className="text-center mb-6">
+                  <div className="bg-gray-600 p-4 rounded-xl inline-block mb-4">
+                    <Monitor className="h-12 w-12 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Francis Desktop</h3>
+                  <p className="text-gray-300 mb-4">
+                    Application desktop native - Performance maximale et intégration système
+                  </p>
+                </div>
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Performance optimale</span>
+                  </div>
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Intégration système</span>
+                  </div>
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Accès fichiers local</span>
+                  </div>
+                  <div className="flex items-center text-green-400">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span>Raccourcis clavier</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleDownloadAndInstall}
+                  className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center text-lg"
+                >
+                  <Download className="h-6 w-6 mr-3" />
+                  💻 Télécharger Desktop
+                </button>
+              </div>
+              
+            </div>
+          </div>
+        )}
 
         {/* Installation Steps */}
         <div className="max-w-4xl mx-auto">
           
-          {/* Étape 1: Téléchargement */}
-          <div className={`bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border transition-all ${
-            step >= 1 ? 'border-[#c5a572]/40' : 'border-gray-500/20'
-          }`}>
-            <div className="flex items-center mb-4">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${
-                step >= 2 ? 'bg-green-500' : step === 1 ? 'bg-[#c5a572]' : 'bg-gray-500'
-              }`}>
-                {step >= 2 ? <CheckCircle className="h-5 w-5 text-white" /> : <span className="text-white font-bold">1</span>}
+          {/* Étape de progression */}
+          {step >= 2 && (
+            <div className={`bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border transition-all border-[#c5a572]/40`}>
+              <div className="flex items-center mb-4">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-4 bg-[#c5a572] text-[#162238]">
+                  {installationType === 'pwa' ? '📱' : '💻'}
+                </div>
+                <h3 className="text-2xl font-bold text-white">
+                  {installationType === 'pwa' ? 'Installation PWA' : 'Téléchargement Desktop'}
+                </h3>
               </div>
-              <h3 className="text-2xl font-bold text-white">Télécharger Francis</h3>
+              
+              <div className="ml-12">
+                <p className="text-green-400">✅ {installationType === 'pwa' ? 'PWA installée' : 'Extension téléchargée'} avec succès !</p>
+              </div>
             </div>
-            
-            {step === 1 && (
-              <div className="ml-12">
-                <p className="text-gray-300 mb-6">Cliquez pour télécharger et installer Francis Desktop automatiquement sur votre ordinateur (Windows ou Mac).</p>
-                <button
-                  onClick={handleDownloadAndInstall}
-                  disabled={isDownloading}
-                  className="bg-[#c5a572] hover:bg-[#d4b584] text-[#162238] font-bold py-4 px-8 rounded-xl transition-colors flex items-center text-xl"
-                >
-                  <Download className="h-6 w-6 mr-3" />
-                  {isDownloading ? 'Téléchargement...' : '🔽 Installer Francis Desktop (1 clic)'}
-                </button>
-              </div>
-            )}
-            
-            {step >= 2 && (
-              <div className="ml-12">
-                <p className="text-green-400">✅ Extension téléchargée avec succès !</p>
-              </div>
-            )}
-          </div>
+          )}
 
-          {/* Étape 2 : Confirmation installation */}
+          {/* Étape 2 : Confirmation installation */}
           {step >= 3 && step < 5 && (
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-6 border border-[#c5a572]/40 text-center">
               <div className="flex items-center justify-center mb-4">
                 <CheckCircle className="h-8 w-8 text-green-400" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">Francis Desktop est en cours d'installation...</h3>
-              <p className="text-gray-300">L'installateur Francis Desktop est en train de s'installer automatiquement sur votre ordinateur.<br/>Vous pouvez suivre la progression dans votre dossier Téléchargements ou dans la barre d'installation système.</p>
+              {installationType === 'pwa' ? (
+                <>
+                  <h3 className="text-2xl font-bold text-white mb-2">Francis PWA est installée ! 📱</h3>
+                  <p className="text-gray-300">
+                    Francis PWA est maintenant disponible sur votre appareil.<br/>
+                    Vous pouvez la retrouver dans vos applications ou l'ajouter à votre écran d'accueil.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-bold text-white mb-2">Francis Desktop est en cours d'installation... 💻</h3>
+                  <p className="text-gray-300">
+                    L'installateur Francis Desktop est en train de s'installer automatiquement sur votre ordinateur.<br/>
+                    Vous pouvez suivre la progression dans votre dossier Téléchargements ou dans la barre d'installation système.
+                  </p>
+                </>
+              )}
             </div>
           )}
 
