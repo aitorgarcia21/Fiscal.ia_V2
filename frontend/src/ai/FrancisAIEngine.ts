@@ -89,20 +89,213 @@ export class FrancisAIEngine {
   // 🔧 INITIALIZATION METHODS
   private initializeKnowledgeBase() {
     this.knowledgeBase = {
+      // 📚 LOIS FISCALES ANDORRANES EXHAUSTIVES
       fiscalLaws: {
         irpf: {
+          name: 'Llei 95/2010 - Impôt sur le Revenu des Personnes Physiques',
           rates: [0, 5, 10],
           thresholds: [0, 24000, 40000],
-          deductions: { personal: 3000, family: 1000, mortgage: 0.15, pension: 0.30 }
+          deductions: { 
+            personal: 3000, 
+            family: 1000, 
+            mortgage: 0.15, 
+            pension: 0.30,
+            disability: 3000,
+            dependents: 2000,
+            education: 0.80
+          },
+          specialCases: {
+            nonResidents: { rate: 0.10, threshold: 0 },
+            sportsmen: { rate: 0.10, exemption: 300000 },
+            artists: { rate: 0.075, conditions: 'revenus<100k' }
+          }
         },
         corporateTax: {
+          name: 'Llei 96/2010 - Impôt sur les Sociétés',
           standardRate: 0.10,
-          specialRegimes: { holding: 0.02, international: 0.05 }
+          specialRegimes: { 
+            holding: 0.02, 
+            international: 0.05,
+            newCompanies: { rate: 0.02, duration: 3, conditions: 'création après 2012' },
+            intellectual: { rate: 0.02, type: 'propriété intellectuelle' },
+            shipping: { rate: 0.02, conditions: 'transport maritime' }
+          },
+          deductions: {
+            reinvestment: 0.40,
+            rd: 0.50,
+            training: 0.50,
+            environment: 0.30
+          }
         },
         igi: {
+          name: 'Llei 11/2012 - Impôt Général Indirect',
           standardRate: 0.045,
+          reducedRate: 0.01,
           services: 0.095,
-          exemptions: ['financial', 'insurance', 'medical']
+          exemptions: ['financial', 'insurance', 'medical', 'education', 'culture'],
+          specialCases: {
+            energy: 0.01,
+            food: 0.01,
+            books: 0.01,
+            medicines: 0.00
+          }
+        },
+        irnr: {
+          name: 'Impôt sur le Revenu des Non-Résidents',
+          standardRate: 0.10,
+          exemptions: ['dividendes UE', 'intérêts obligations'],
+          conventions: ['France', 'Espagne', 'Portugal', 'Luxembourg']
+        },
+        successions: {
+          name: 'Llei 94/2010 - Impôt sur les Successions',
+          rates: [0, 0.05, 0.10],
+          thresholds: [3000, 50000, 200000],
+          familyExemptions: {
+            spouse: 50000,
+            children: 47000,
+            parents: 10000,
+            siblings: 1000
+          }
+        }
+      },
+      
+      // 🌍 CONVENTIONS FISCALES INTERNATIONALES
+      conventions: {
+        france: {
+          name: 'Convention France-Andorre 2013',
+          avoidanceDoubleImposition: true,
+          exchangeInformation: true,
+          residencyRules: 'test 183 jours',
+          businessProfits: 'établissement permanent'
+        },
+        spain: {
+          name: 'Convention Espagne-Andorre 2015',
+          avoidanceDoubleImposition: true,
+          exchangeInformation: true,
+          specialProvisions: 'travailleurs frontaliers'
+        },
+        portugal: {
+          name: 'Convention Portugal-Andorre 2015',
+          avoidanceDoubleImposition: true,
+          dividends: { rate: 0.05, conditions: 'participation>25%' }
+        }
+      },
+      
+      // 📖 CAS PRATIQUES FRÉQUENTS
+      practicalCases: {
+        expatFrench: {
+          scenario: 'Français s\'installant en Andorre',
+          fiscalSteps: [
+            'Résidence fiscale andorrane (>90j/an)',
+            'Exit tax français si applicable',
+            'Déclaration IRPF andorrane',
+            'Convention France-Andorre applicable'
+          ],
+          savings: 'Économie 30-50% vs France',
+          conditions: 'Investissement 400k€ minimum'
+        },
+        holdingStructure: {
+          scenario: 'Structure holding pour patrimoine',
+          advantages: [
+            'IS holding 2%',
+            'Dividendes reçus exonérés',
+            'Plus-values participations exonérées',
+            'Transmission facilitée'
+          ],
+          requirements: 'Capital minimum 3000€',
+          setup: 'Notaire + autorisation AFA'
+        },
+        cryptoTrading: {
+          scenario: 'Trading de cryptomonnaies',
+          taxation: {
+            particulier: 'Plus-values IRPF si >3200€/an',
+            professionnel: 'Bénéfices IS 10%',
+            holding: 'Exonération si >1an détention'
+          },
+          declaration: 'Formulaire spécifique crypto'
+        }
+      },
+      
+      // ❓ FAQ EXPERT
+      faq: {
+        residency: {
+          q: 'Comment obtenir la résidence fiscale andorrane ?',
+          a: 'Présence physique >90j/an + résidence principale + investissement 400k€ immobilier OU 50k€ AFA + création entreprise'
+        },
+        business: {
+          q: 'Quel régime pour mon activité ?',
+          a: 'Activité libérale: IRPF. Société: IS 10%. Holding: IS 2%. International: négociable selon activité'
+        },
+        inheritance: {
+          q: 'Comment optimiser la transmission ?',
+          a: 'Holding familiale + donations progressives + assurance-vie andorrane + testament andorran'
+        },
+        social: {
+          q: 'Charges sociales en Andorre ?',
+          a: 'CASS: 22% (employeur 15.5% + salarié 6.5%). Indépendant: 22% plafonné. Très avantageux vs France/Espagne'
+        }
+      },
+      
+      // 🎯 STRATÉGIES D'OPTIMISATION AVANCÉES
+      optimizationStrategies: {
+        pensionOptimization: {
+          name: 'Optimisation retraite',
+          techniques: [
+            'Cotisations volontaires CASS (déduction 30%)',
+            'Assurance-vie luxembourgeoise',
+            'PERP français maintenu si applicable',
+            'Rente viagère différée'
+          ],
+          maxDeduction: 'Min(30% revenus, 50000€)'
+        },
+        familyOptimization: {
+          name: 'Optimisation familiale',
+          techniques: [
+            'Déductions enfants à charge (1000€/enfant)',
+            'Frais de garde déductibles (80%)',
+            'Donation-partage anticipée',
+            'Usufruit/nue-propriété'
+          ]
+        },
+        businessOptimization: {
+          name: 'Optimisation professionnelle',
+          techniques: [
+            'Véhicule professionnel (100% déductible)',
+            'Formation continue (déductible)',
+            'Frais de représentation (plafonnés)',
+            'Amortissements accélérés matériel'
+          ]
+        }
+      },
+      
+      // ⚖️ JURISPRUDENCE RÉCENTE
+      jurisprudence: {
+        cryptoRuling2023: {
+          decision: 'Tribunal Batlle 2023-045',
+          subject: 'Qualification professionnelle crypto-trading',
+          conclusion: 'Activité occasionnelle si <10 tx/mois',
+          impact: 'Taxation IRPF vs IS selon fréquence'
+        },
+        residencyRuling2024: {
+          decision: 'Tribunal Batlle 2024-012',
+          subject: 'Résidence fiscale télétravail',
+          conclusion: 'Jours télétravail comptent si bureau andorran',
+          impact: 'Assouplissement test 90 jours'
+        }
+      },
+      
+      // 📊 SIMULATEURS INTÉGRÉS
+      simulators: {
+        compareCountries: {
+          andorra: { irpf: 'Calculé', is: 0.10, social: 0.22, wealth: 0 },
+          france: { irpf: 0.45, is: 0.25, social: 0.45, wealth: 0.15 },
+          spain: { irpf: 0.47, is: 0.25, social: 0.37, wealth: 0.20 },
+          monaco: { irpf: 0, is: 0.33, social: 0.40, wealth: 0 }
+        },
+        investmentThresholds: {
+          passive: 400000, // Investissement immobilier
+          active: 50000,   // AFA + entreprise
+          minimum: 15000   // Dépôt AFA seul
         }
       }
     };
