@@ -102,14 +102,9 @@ const [userType, setUserType] = useState<'particulier' | 'professionnel'>(initia
             <button 
               type="submit" 
               disabled={isLoading} 
-              className={`w-full font-semibold py-3 rounded-xl shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-                userType === 'andorre' 
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl'
-                  : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:from-[#e8cfa0] hover:to-[#c5a572] hover:shadow-xl'
-              }`}
+              className="w-full font-semibold py-3 rounded-xl shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:from-[#e8cfa0] hover:to-[#c5a572] hover:shadow-xl"
             >
               {isLoading ? 'Connexion...' : 
-                userType === 'andorre' ? '🚀 Accéder à Francis Andorre' :
                 userType === 'professionnel' ? 'Se connecter (Pro)' : 'Se connecter'
               }
             </button>
@@ -119,16 +114,12 @@ const [userType, setUserType] = useState<'particulier' | 'professionnel'>(initia
           
           <p className="text-center text-sm text-gray-400 mt-8">
             Pas encore de compte ?{' '}
-            {userType === 'andorre' ? (
-              <span className="font-semibold text-blue-400">Accès direct sans inscription requis</span>
-            ) : (
-              <Link 
+            <Link 
                 to={userType === 'professionnel' ? '/pro-signup' : '/signup'} 
                 className="font-semibold text-[#c5a572] hover:underline transition-colors"
               >
                 Inscrivez-vous{userType === 'professionnel' ? ' (Pro)' : ''}
               </Link>
-            )}
           </p>
         </div>
       </div>
