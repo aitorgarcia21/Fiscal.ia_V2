@@ -24,24 +24,83 @@ export const AndorreLandingPage: React.FC = () => {
       </header>
 
       {/* Hero */}
-      <main className="flex-1 flex items-center justify-center px-4">
-        <div className="text-center max-w-2xl">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-            Toute la fiscalité andorrane<br className="hidden md:block" /> expliquée par <span className="text-[#c5a572]">Francis</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-300 mb-4">
-            Optimisez impôts, dividendes, immobilier et plus encore grâce à notre IA experte du droit fiscal andorran.</p>
-          <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500 text-blue-200 px-4 py-2 rounded-lg mb-8 font-semibold">
-            49 € / mois / utilisateur • Questions illimitées
+      <main className="flex-1 px-4 py-12">
+        <div className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+              L'IA qui révolutionne<br className="hidden md:block" /> la <span className="text-[#c5a572]">fiscalité andorrane</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
+              Francis transforme les conseillers en patrimoine et gestionnaires en experts de référence grâce à l'intelligence artificielle appliquée au droit fiscal andorran.
+            </p>
+            <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500 text-blue-200 px-6 py-3 rounded-lg mb-8 font-semibold text-lg">
+              49 € / mois / utilisateur • Questions illimitées
+            </div>
           </div>
-          <p className="text-lg md:text-xl text-gray-300 mb-4">
-          </p>
-          <button
-            onClick={() => navigate('/andorre/login')}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg transition-transform transform hover:-translate-y-0.5"
-          >
-            Accéder à Francis Andorre <ArrowRight className="w-5 h-5" />
-          </button>
+
+          {/* Mission Section */}
+          <div className="grid md:grid-cols-2 gap-12 mb-16">
+            <div className="bg-[#1A2B42]/50 backdrop-blur-sm border border-[#2A3F6C]/30 rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                <MessageSquare className="h-8 w-8 text-[#c5a572]" />
+                Notre Mission
+              </h2>
+              <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                Préserver et faire évoluer le métier de conseil en patrimoine en intégrant l'IA comme un partenaire stratégique.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="h-5 w-5 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                  <span><strong>Expertise renforcée</strong> : Maîtrisez instantanément tous les aspects de la fiscalité andorrane</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="h-5 w-5 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                  <span><strong>Relation client optimisée</strong> : Répondez avec précision à toutes les questions complexes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="h-5 w-5 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                  <span><strong>Différenciation concurrentielle</strong> : Proposez un service d'exception à vos clients</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-[#1A2B42]/50 backdrop-blur-sm border border-[#2A3F6C]/30 rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                <Euro className="h-8 w-8 text-[#c5a572]" />
+                Pourquoi Francis Andorre ?
+              </h2>
+              <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                L'IA n'est pas là pour remplacer votre expertise, mais pour la démultiplier et vous permettre de vous concentrer sur ce qui compte vraiment : la relation client.
+              </p>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="h-5 w-5 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                  <span><strong>Calculs instantanés</strong> : IRPF, IS, IGI, optimisations fiscales</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="h-5 w-5 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                  <span><strong>Jurisprudence à jour</strong> : Accès aux dernières évolutions légales</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ArrowRight className="h-5 w-5 text-[#c5a572] mt-0.5 flex-shrink-0" />
+                  <span><strong>Stratégies personnalisées</strong> : Conseils adaptés à chaque profil client</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-white mb-4">Prêt à transformer votre pratique ?</h3>
+            <p className="text-gray-300 mb-8 text-lg">Rejoignez les conseillers qui font déjà confiance à Francis pour exceller dans leur métier.</p>
+            <button
+              onClick={() => navigate('/andorre/login')}
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-5 rounded-xl font-semibold shadow-lg transition-all transform hover:-translate-y-1 hover:shadow-xl text-lg"
+            >
+              Commencer avec Francis Andorre <ArrowRight className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </main>
 
