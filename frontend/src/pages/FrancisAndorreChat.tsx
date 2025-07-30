@@ -92,7 +92,7 @@ export function FrancisAndorreChat() {
     
     try {
       // Use Francis AI Engine
-      const aiResponse = await aiEngine.processQuery(userMessage, conversationContext);
+      const aiResponse = await aiEngine.processMessage(userMessage, conversationContext);
       
       // Update conversation context
       setConversationContext(prevContext => ({
