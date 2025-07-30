@@ -189,7 +189,7 @@ export function FrancisAndorreChat() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <Bot className="h-8 w-8 text-[#c5a572]" />
+              <Logo size="lg" />
               <span className="text-xl font-bold text-white">Francis</span>
               <span className="text-[#c5a572] text-lg">•</span>
               <span className="text-lg text-gray-300">Andorre</span>
