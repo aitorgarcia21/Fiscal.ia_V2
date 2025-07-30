@@ -7,6 +7,12 @@ interface AIResponse {
   lawReferences: string[];
   followUpQuestions?: string[];
   entities: Record<string, any>;
+  suggestions?: string[];
+  calculations?: {
+    type: string;
+    results: Record<string, number>;
+    breakdown: string[];
+  };
 }
 
 interface ConversationContext {
@@ -14,25 +20,42 @@ interface ConversationContext {
     query: string;
     response: string;
     timestamp: Date;
+    satisfaction?: number; // User feedback 1-5
+    topics?: string[];
   }>;
   userProfile?: {
     nationality?: string;
     residencyStatus?: string;
     businessType?: string;
     interests: string[];
+    profileType?: 'particulier' | 'professionnel' | 'entrepreneur' | 'crypto_trader' | 'family_office';
+    previousCalculations?: string[];
+    preferredLanguage?: 'fr' | 'es';
   };
   sessionState: Record<string, any>;
+  learningData?: {
+    successfulResponses: number;
+    totalInteractions: number;
+    commonQuestions: Record<string, number>;
+    improvementAreas: string[];
+  };
 }
 
 export class FrancisAIEngine {
   private knowledgeBase: any;
   private templates: any;
   private nlpProcessor: any;
+  private calculators: any;
+  private learningEngine: any;
+  private suggestionEngine: any;
 
   constructor() {
     this.initializeKnowledgeBase();
     this.initializeTemplates();
     this.initializeNLP();
+    this.initializeCalculators();
+    this.initializeLearningEngine();
+    this.initializeSuggestionEngine();
   }
 
   // 🎯 Main AI Processing Pipeline
@@ -1170,6 +1193,158 @@ export class FrancisAIEngine {
     }
     
     return context;
+  }
+
+  // 🧮 Initialize Advanced Calculators
+  private initializeCalculators() {
+    this.calculators = {
+      irpf: {
+        brackets: [
+          { min: 0, max: 24000, rate: 0 },
+          { min: 24001, max: 40000, rate: 5 },
+          { min: 40001, max: 999999, rate: 10 }
+        ],
+        calculate: (income: number) => {
+          let tax = 0;
+          for (const bracket of this.calculators.irpf.brackets) {
+            if (income > bracket.min) {
+              const taxableInBracket = Math.min(income, bracket.max) - bracket.min;
+              tax += taxableInBracket * (bracket.rate / 100);
+            }
+          }
+          return tax;
+        }
+      },
+      igi: {
+        rate: 4.5,
+        thresholds: {
+          monthly: 3600000,
+          quarterly: 250000,
+          biannual: 0
+        },
+        calculatePeriodicity: (revenue: number) => {
+          if (revenue > this.calculators.igi.thresholds.monthly) return 'monthly';
+          if (revenue > this.calculators.igi.thresholds.quarterly) return 'quarterly';
+          return 'biannual';
+        }
+      },
+      crypto: {
+        threshold: 600,
+        rates: {
+          individual: 10,
+          professional: 4.5
+        },
+        calculate: (gains: number, type: 'individual' | 'professional') => {
+          if (gains < this.calculators.crypto.threshold) return 0;
+          return gains * (this.calculators.crypto.rates[type] / 100);
+        }
+      }
+    };
+  }
+
+  // 🧠 Initialize Learning Engine
+  private initializeLearningEngine() {
+    this.learningEngine = {
+      successPatterns: new Map(),
+      improvementAreas: [],
+      
+      recordSuccess: (query: string, response: string, satisfaction: number) => {
+        if (satisfaction >= 4) {
+          const pattern = this.extractPatterns(query);
+          this.learningEngine.successPatterns.set(pattern, response);
+        }
+      },
+      
+      getImprovedResponse: (query: string) => {
+        const pattern = this.extractPatterns(query);
+        return this.learningEngine.successPatterns.get(pattern);
+      },
+      
+      updateKnowledge: (feedback: any) => {
+        // Learn from user feedback and improve responses
+        if (feedback.type === 'correction') {
+          this.learningEngine.improvementAreas.push(feedback.area);
+        }
+      }
+    };
+  }
+
+  // 💡 Initialize Intelligent Suggestions
+  private initializeSuggestionEngine() {
+    this.suggestionEngine = {
+      profileBasedSuggestions: {
+        particulier: [
+          "Quelle est la procédure pour obtenir la résidence fiscale ?",
+          "Comment calculer mes économies d'impôts en Andorre ?",
+          "Quels sont les critères de substance économique ?"
+        ],
+        professionnel: [
+          "Comment optimiser ma déclaration IGI ?",
+          "Quelle périodicité choisir pour mon CA ?",
+          "Comment structurer mon activité en Andorre ?"
+        ],
+        entrepreneur: [
+          "Comment créer une holding en Andorre ?",
+          "Quelles sont les obligations de substance économique ?",
+          "Comment optimiser la fiscalité de mes dividendes ?"
+        ],
+        crypto_trader: [
+          "Comment déclarer mes gains en cryptomonnaies ?",
+          "Quelle fiscalité pour le trading crypto ?",
+          "Comment structurer une activité crypto en Andorre ?"
+        ]
+      },
+      
+      contextBasedSuggestions: {
+        residence_fiscale: [
+          "Voulez-vous simuler vos économies d'impôts ?",
+          "Souhaitez-vous connaître les démarches pratiques ?",
+          "Avez-vous des questions sur la substance économique ?"
+        ],
+        igi_tva: [
+          "Voulez-vous calculer votre périodicité optimale ?",
+          "Souhaitez-vous des conseils d'optimisation ?",
+          "Avez-vous des questions sur les exemptions ?"
+        ],
+        crypto: [
+          "Possédez-vous déjà des cryptomonnaies à déclarer ?",
+          "Souhaitez-vous créer une structure crypto ?",
+          "Voulez-vous connaître les obligations de reporting ?"
+        ]
+      },
+      
+      generateSuggestions: (userProfile: any, currentIntent: string) => {
+        const suggestions: string[] = [];
+        
+        // Profile-based suggestions
+        if (userProfile?.profileType) {
+          const profileSuggestions = this.suggestionEngine.profileBasedSuggestions[userProfile.profileType];
+          if (profileSuggestions) {
+            suggestions.push(...profileSuggestions.slice(0, 2));
+          }
+        }
+        
+        // Context-based suggestions
+        if (currentIntent) {
+          const contextSuggestions = this.suggestionEngine.contextBasedSuggestions[currentIntent];
+          if (contextSuggestions) {
+            suggestions.push(...contextSuggestions.slice(0, 2));
+          }
+        }
+        
+        return Array.from(new Set(suggestions)).slice(0, 3); // Remove duplicates, max 3
+      }
+    };
+  }
+
+  // 🔍 Extract Patterns for Learning
+  private extractPatterns(query: string): string {
+    // Simple pattern extraction - can be enhanced
+    return query
+      .toLowerCase()
+      .replace(/\d+/g, 'NUM')
+      .replace(/[^a-z\s]/g, '')
+      .trim();
   }
 }
 
