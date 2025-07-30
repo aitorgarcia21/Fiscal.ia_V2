@@ -1,11 +1,21 @@
 #!/bin/bash
 set -e
 
-# Variables à personnaliser
+# Variables à personnaliser - OBLIGATOIRE DE REMPLIR !
 CERT_ID="Developer ID Application: À REMPLACER PAR TON NOM (TEAMID)"
 APPLE_ID="tonmail@icloud.com"
 APPLE_ID_PASS="motdepasse-app-specific"
 BUNDLE_ID="com.francis.desktop"
+
+# Vérification configuration
+if [[ "$CERT_ID" == *"À REMPLACER"* ]] || [[ "$APPLE_ID" == "tonmail@icloud.com" ]]; then
+  echo "❌ ERREUR: Vous devez configurer CERT_ID et APPLE_ID dans ce script !"
+  echo "1. Inscrivez-vous au Apple Developer Program (99€/an)"
+  echo "2. Remplacez CERT_ID par votre vraie identité Developer ID"
+  echo "3. Remplacez APPLE_ID par votre Apple ID"
+  echo "4. Générez un mot de passe spécifique app dans votre compte Apple"
+  exit 1
+fi
 
 # Nettoyage
 rm -rf dist/ out/ build/
