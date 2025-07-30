@@ -35,11 +35,11 @@ cp -R "$APP_PATH" "$TEMP_DMG_DIR/"
 echo "🔗 Création du lien Applications..."
 ln -sf "/Applications" "$TEMP_DMG_DIR/Applications"
 
-# Créer le DMG avec hdiutil
+# Créer le DMG avec hdiutil (format compatible universel)
 echo "📦 Création du DMG avec hdiutil..."
 hdiutil create -volname "Francis Desktop" \
     -srcfolder "$TEMP_DMG_DIR" \
-    -ov -format UDZO \
+    -ov -format UDBZ \
     "$DMG_OUT_DIR/$DMG_NAME"
 
 # Nettoyer
