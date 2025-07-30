@@ -31,21 +31,21 @@ export function FrancisAndorreChat() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   
-  // 🔒 Pro Access Only
+  // 🔒 Pro Access Only (TEMPORARILY DISABLED FOR TESTING)
   useEffect(() => {
     if (!user) {
       navigate('/login');
       return;
     }
-    // Check if user has pro subscription
-    const isPro = user?.user_metadata?.subscription === 'pro' || 
-                  user?.user_metadata?.plan === 'pro' ||
-                  window.location.pathname.includes('/pro/');
-    
-    if (!isPro) {
-      navigate('/upgrade');
-      return;
-    }
+    // TEMPORARILY DISABLED: Check if user has pro subscription
+    // const isPro = user?.user_metadata?.subscription === 'pro' || 
+    //               user?.user_metadata?.plan === 'pro' ||
+    //               window.location.pathname.includes('/pro/');
+    // 
+    // if (!isPro) {
+    //   navigate('/upgrade');
+    //   return;
+    // }
   }, [user, navigate]);
   
   // 🌍 Language Support
