@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, MessageSquare, Euro, User, Briefcase } from 'lucide-react';
+import { Mail, Lock, MessageSquare, Euro, User, Briefcase, Cpu } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState<'particulier' | 'professionnel'>('particulier');
+  const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'andorre'>('particulier');
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -21,6 +21,8 @@ const LoginPage: React.FC = () => {
       // Redirection selon le type d'utilisateur sélectionné
       if (userType === 'professionnel') {
         navigate('/pro/dashboard', { replace: true });
+      } else if (userType === 'andorre') {
+        navigate('/analyse-ia-fiscale-andorrane', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -44,9 +46,11 @@ const LoginPage: React.FC = () => {
             </div>
           </Link>
           <h1 className="text-3xl font-bold text-white">
-            {userType === 'professionnel' ? 'Espace Professionnel' : 'Espace Particulier'}
+            {userType === 'professionnel' ? 'Espace Professionnel' : userType === 'andorre' ? 'Francis Andorre' : 'Espace Particulier'}
           </h1>
-          <p className="text-gray-400 mt-2">Connectez-vous pour accéder à votre tableau de bord.</p>
+          <p className="text-gray-400 mt-2">
+            {userType === 'andorre' ? 'Accédez à l\'analyse IA fiscale andorrane.' : 'Connectez-vous pour accéder à votre tableau de bord.'}
+          </p>
         </div>
         <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(197,165,114,0.4)] transform hover:-translate-y-1 hover:scale-105">
           <form onSubmit={handleLogin} className="space-y-6">
@@ -55,7 +59,7 @@ const LoginPage: React.FC = () => {
             {/* Sélection du type d'utilisateur */}
             <div className="mb-6">
               <label className="block text-gray-300 text-sm mb-3">Type de compte :</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setUserType('particulier')}
@@ -65,8 +69,8 @@ const LoginPage: React.FC = () => {
                       : 'bg-[#162238]/50 border-[#2A3F6C] text-gray-400 hover:border-[#c5a572]/50 hover:text-gray-300'
                   }`}
                 >
-                  <User className="w-5 h-5 mr-2" />
-                  Particulier
+                  <User className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Particulier</span>
                 </button>
                 <button
                   type="button"
@@ -77,8 +81,20 @@ const LoginPage: React.FC = () => {
                       : 'bg-[#162238]/50 border-[#2A3F6C] text-gray-400 hover:border-[#c5a572]/50 hover:text-gray-300'
                   }`}
                 >
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  Professionnel
+                  <Briefcase className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Pro</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserType('andorre')}
+                  className={`flex items-center justify-center p-3 rounded-lg border transition-all duration-300 ${
+                    userType === 'andorre'
+                      ? 'bg-blue-600/20 border-blue-500 text-blue-400 shadow-lg transform scale-105'
+                      : 'bg-[#162238]/50 border-[#2A3F6C] text-gray-400 hover:border-blue-500/50 hover:text-gray-300'
+                  }`}
+                >
+                  <Cpu className="w-4 h-4 mr-1" />
+                  <span className="text-xs">🇦🇩 Andorre</span>
                 </button>
               </div>
             </div>
@@ -93,21 +109,33 @@ const LoginPage: React.FC = () => {
             <button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold py-3 rounded-xl shadow-lg hover:from-[#e8cfa0] hover:to-[#c5a572] hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full font-semibold py-3 rounded-xl shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                userType === 'andorre' 
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl'
+                  : 'bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] hover:from-[#e8cfa0] hover:to-[#c5a572] hover:shadow-xl'
+              }`}
             >
-              {isLoading ? 'Connexion...' : `Se connecter${userType === 'professionnel' ? ' (Pro)' : ''}`}
+              {isLoading ? 'Connexion...' : 
+                userType === 'andorre' ? '🚀 Accéder à Francis Andorre' :
+                userType === 'professionnel' ? 'Se connecter (Pro)' : 'Se connecter'
+              }
             </button>
           </form>
+
 
           
           <p className="text-center text-sm text-gray-400 mt-8">
             Pas encore de compte ?{' '}
-            <Link 
-              to={userType === 'professionnel' ? '/pro-signup' : '/signup'} 
-              className="font-semibold text-[#c5a572] hover:underline transition-colors"
-            >
-              Inscrivez-vous{userType === 'professionnel' ? ' (Pro)' : ''}
-            </Link>
+            {userType === 'andorre' ? (
+              <span className="font-semibold text-blue-400">Accès direct sans inscription requis</span>
+            ) : (
+              <Link 
+                to={userType === 'professionnel' ? '/pro-signup' : '/signup'} 
+                className="font-semibold text-[#c5a572] hover:underline transition-colors"
+              >
+                Inscrivez-vous{userType === 'professionnel' ? ' (Pro)' : ''}
+              </Link>
+            )}
           </p>
         </div>
       </div>

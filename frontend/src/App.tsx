@@ -63,6 +63,7 @@ import { DocumentsFiscauxPage } from './pages/DocumentsFiscauxPage';
 import FrancisDownloadPage from './pages/FrancisDownloadPage';
 import FrancisInstallerPage from './pages/FrancisInstallerPage';
 import EmailCollectorPage from './pages/EmailCollectorPage';
+import { AnalyseIAFiscaleAndorrane } from './pages/AnalyseIAFiscaleAndorrane';
 
 // Commentaire pour forcer un nouveau build - v2
 function App() {
@@ -97,6 +98,7 @@ function App() {
           <Route path="/simulateur-tva-luxembourg" element={<SimulateurTvaLuxembourg />} />
           <Route path="/simulateur-tmi" element={<SimulateurTmi />} />
           <Route path="/simulateur-optimisation" element={<SimulateurOptimisation />} />
+          <Route path="/analyse-ia-fiscale-andorrane" element={<AnalyseIAFiscaleAndorrane />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/telecharger" element={<FrancisInstallerPage />} />
           <Route path="/installer" element={<FrancisInstallerPage />} />
