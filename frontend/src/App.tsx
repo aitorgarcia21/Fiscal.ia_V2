@@ -43,6 +43,7 @@ import DataPrivacyPage from './pages/DataPrivacyPage';
 import ProLoginPage from './pages/ProLoginPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
+import AndorreLandingPage from './pages/AndorreLandingPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -81,6 +82,9 @@ function App() {
           <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
           {/* Page de connexion unifiée */}
           <Route path="/login" element={<LoginPage />} />
+          {/* Francis Andorre landing & login */}
+          <Route path="/andorre" element={<AndorreLandingPage />} />
+          <Route path="/andorre/login" element={<LoginPage />} />
           <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
           <Route path="/demo" element={<DemoPage />} />

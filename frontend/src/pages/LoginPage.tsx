@@ -8,7 +8,13 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'andorre'>('particulier');
+  // Déterminer le type d'utilisateur par défaut en fonction du chemin ou de la query string
+const location = useLocation();
+const searchParams = new URLSearchParams(location.search);
+const initialUserTypeParam = (searchParams.get('type') as 'particulier' | 'professionnel' | 'andorre' | null);
+const inferredFromPath: 'andorre' | null = location.pathname.startsWith('/andorre') ? 'andorre' : null;
+
+const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'andorre'>(initialUserTypeParam || inferredFromPath || 'particulier');
   const { login } = useAuth();
   const navigate = useNavigate();
 
