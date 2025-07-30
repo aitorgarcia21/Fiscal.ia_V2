@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, LogOut, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import FrancisAIEngine from '../ai/FrancisAIEngine';
+import { FrancisAIEngine } from '../ai/FrancisAIEngine';
 
 interface Message {
   id: string;
