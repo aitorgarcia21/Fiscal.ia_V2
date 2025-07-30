@@ -49,7 +49,210 @@ export function AnalyseIAFiscaleAndorrane() {
           </p>
         </div>
 
-        {/* Domaines Critiques */}
+        {/* Fonctionnalités Juridiques Ultra-Spécialisées */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            ⚖️ Fonctionnalités Juridiques Ultra-Spécialisées
+          </h2>
+          
+          {/* Calculateur de Résidence Fiscale */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Globe className="h-6 w-6 text-blue-600" />
+              🧭 Calculateur de Résidence Fiscale Intelligent
+            </h3>
+            <p className="text-gray-600 mb-4">
+              <strong>Architecture IA :</strong> Machine Learning + GPS Tracking + Analytics juridiques
+            </p>
+            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <h4 className="font-semibold text-gray-700 mb-2">Critères Physiques :</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• <strong>Seuil :</strong> 183 jours minimum/an</li>
+                <li>• <strong>Tracking GPS :</strong> Géolocalisation automatique</li>
+                <li>• <strong>Multi-juridiction :</strong> Compteur multi-pays</li>
+              </ul>
+            </div>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-700 mb-2">Optimisations Spécifiques :</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• <strong>France :</strong> Critères ≥ 183 jours OU centre économique</li>
+                <li>• <strong>Espagne :</strong> Gestion proximité géographique</li>
+                <li>• <strong>Alertes préventives :</strong> Risque requalification fiscale</li>
+                <li>• <strong>Validation temps réel :</strong> {'<'} 100ms par calcul</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Substance Économique */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Building className="h-6 w-6 text-green-600" />
+              🏢 Optimisateur de Substance Économique
+            </h3>
+            <p className="text-gray-600 mb-4">
+              <strong>Module IA :</strong> Scoring multi-critères avec alertes automatiques
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-gray-700 mb-2">Bureau Minimum :</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Surface : 20m² minimum</li>
+                  <li>• Coût : 400€+/mois</li>
+                  <li>• Adresse physique obligatoire</li>
+                </ul>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-gray-700 mb-2">Personnel Local :</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Salaire : 1.286€/mois minimum</li>
+                  <li>• Qualifications requises</li>
+                  <li>• Contrat local obligatoire</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* IGI Simulateur */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <FileText className="h-6 w-6 text-purple-600" />
+              📊 Simulateur IGI Périodicité Variable
+            </h3>
+            <p className="text-gray-600 mb-4">
+              <strong>Innovation Unique :</strong> Seul système gérant la complexité andorrane des déclarations IGI
+            </p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                <span className="font-medium text-gray-700">Mensuelle</span>
+                <span className="text-sm text-gray-600">CA {'>'}  3,6M€ → Déclaration J+20</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                <span className="font-medium text-gray-700">Trimestrielle</span>
+                <span className="text-sm text-gray-600">CA 250K - 3,6M€ → Optimisation trésorerie</span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                <span className="font-medium text-gray-700">Semestrielle</span>
+                <span className="text-sm text-gray-600">CA {'<'} 250K€ → Simplification admin</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Crypto Compliance */}
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Euro className="h-6 w-6 text-orange-600" />
+              ₿ IA Spécialisée Cryptomonnaies (Loi 24/2022)
+            </h3>
+            <p className="text-gray-600 mb-4">
+              <strong>Compliance :</strong> Module dédié au cadre réglementaire andorran crypto
+            </p>
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-700 mb-2">Fonctionnalités Avancées :</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• <strong>IRPF Crypto :</strong> Max 10% (vs 47% France)</li>
+                <li>• <strong>Holdings :</strong> Exemptions structures crypto spécifiques</li>
+                <li>• <strong>Reporting :</strong> Obligations AFA automatiques</li>
+                <li>• <strong>Blockchain :</strong> Smart contracts conformes Loi 24/2022</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Bases de Données Exclusives */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            🗄️ Bases de Données Exclusives Andorranes
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-2">📋 Registre des Entreprises</h4>
+                <p className="text-sm text-gray-600">
+                  Intégration API temps réel avec le Registre du Commerce andorran pour vérification 
+                  instantanée des statuts sociétaires et modifications statutaires.
+                </p>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-2">🏦 Ecosystem Bancaire</h4>
+                <p className="text-sm text-gray-600">
+                  APIs directes avec les 3 banques principales pour validation comptes, 
+                  mouvements, et conformité CRS/FATCA automatisée.
+                </p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-2">🏘️ Registre Cadastral</h4>
+                <p className="text-sm text-gray-600">
+                  Interface directe pour validation résidences, bureaux, 
+                  et critères de substance économique en temps réel.
+                </p>
+              </div>
+              <div className="p-4 bg-orange-50 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-2">👥 Réseau Professionnel</h4>
+                <p className="text-sm text-gray-600">
+                  Base des 50+ cabinets agréés avec spécialisations, 
+                  tarifications, et disponibilités pour matching automatique.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Technologies Révolutionnaires */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            🚀 Technologies Révolutionnaires
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <Shield className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800">⛓️ Blockchain Compliance</h3>
+              </div>
+              <ul className="text-sm text-gray-600 space-y-2">
+                <li>• Smart contracts obligations fiscales</li>
+                <li>• Paiements automatiques</li>
+                <li>• Registre distribué traçable</li>
+                <li>• Conformité Loi 24/2022</li>
+              </ul>
+            </div>
+            
+            <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <Cpu className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800">🔍 IA Explicable Auditable</h3>
+              </div>
+              <ul className="text-sm text-gray-600 space-y-2">
+                <li>• Transparence algorithmes AFA</li>
+                <li>• Reverse engineering décisions</li>
+                <li>• Audit trails complets</li>
+                <li>• Certification conformité</li>
+              </ul>
+            </div>
+            
+            <div className="p-6 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <Globe className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="font-semibold text-gray-800">🌐 Plateforme Écosystème</h3>
+              </div>
+              <ul className="text-sm text-gray-600 space-y-2">
+                <li>• Hub 500 HNWI résidents</li>
+                <li>• 50+ cabinets agréés</li>
+                <li>• 3 banques principales</li>
+                <li>• Administrations publiques</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Domaines Critiques d'Innovation */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {/* Résidence Fiscale */}
           <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow border border-gray-100">
@@ -59,10 +262,7 @@ export function AnalyseIAFiscaleAndorrane() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900">🧭 Résidence Fiscale IA</h3>
             </div>
-            <p className="text-gray-600 text-sm mb-3">
-              Calculateur intelligent intégrant critères physiques (183 jours/an) et économiques 
-              avec tracking GPS automatique.
-            </p>
+            <p className="text-gray-600">Hub central connectant 500 HNWI, 50+ cabinets, 3 banques.</p>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
@@ -291,7 +491,7 @@ export function AnalyseIAFiscaleAndorrane() {
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
                   <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-                  <span className="text-gray-700"><strong>Horitçó 23</strong> (12M€ budget innovation)</span>
+                  <span className="text-gray-700"><strong>Horitzó 23</strong> (12M€ budget innovation)</span>
                 </div>
               </div>
             </div>
