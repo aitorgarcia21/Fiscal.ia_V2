@@ -14,7 +14,7 @@ const searchParams = new URLSearchParams(location.search);
 const initialUserTypeParam = (searchParams.get('type') as 'particulier' | 'professionnel' | 'andorre' | null);
 const inferredFromPath: 'andorre' | null = location.pathname.startsWith('/andorre') ? 'andorre' : null;
 
-const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'andorre'>(initialUserTypeParam || inferredFromPath || 'particulier');
+const [userType, setUserType] = useState<'particulier' | 'professionnel'>(initialUserTypeParam as 'particulier' | 'professionnel' || 'particulier');
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -27,8 +27,6 @@ const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'ando
       // Redirection selon le type d'utilisateur sélectionné
       if (userType === 'professionnel') {
         navigate('/pro/dashboard', { replace: true });
-      } else if (userType === 'andorre') {
-        navigate('/analyse-ia-fiscale-andorrane', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -52,10 +50,10 @@ const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'ando
             </div>
           </Link>
           <h1 className="text-3xl font-bold text-white">
-            {userType === 'professionnel' ? 'Espace Professionnel' : userType === 'andorre' ? 'Francis Andorre' : 'Espace Particulier'}
+            {userType === 'professionnel' ? 'Espace Professionnel' : 'Espace Particulier'}
           </h1>
           <p className="text-gray-400 mt-2">
-            {userType === 'andorre' ? 'Accédez à l\'analyse IA fiscale andorrane.' : 'Connectez-vous pour accéder à votre tableau de bord.'}
+            Connectez-vous pour accéder à votre tableau de bord.
           </p>
         </div>
         <div className="bg-[#1E3253]/60 backdrop-blur-sm p-8 rounded-2xl border border-[#2A3F6C]/50 shadow-2xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(197,165,114,0.4)] transform hover:-translate-y-1 hover:scale-105">
@@ -65,7 +63,7 @@ const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'ando
             {/* Sélection du type d'utilisateur */}
             <div className="mb-6">
               <label className="block text-gray-300 text-sm mb-3">Type de compte :</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setUserType('particulier')}
@@ -90,18 +88,7 @@ const [userType, setUserType] = useState<'particulier' | 'professionnel' | 'ando
                   <Briefcase className="w-4 h-4 mr-1" />
                   <span className="text-xs">Pro</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setUserType('andorre')}
-                  className={`flex items-center justify-center p-3 rounded-lg border transition-all duration-300 ${
-                    userType === 'andorre'
-                      ? 'bg-blue-600/20 border-blue-500 text-blue-400 shadow-lg transform scale-105'
-                      : 'bg-[#162238]/50 border-[#2A3F6C] text-gray-400 hover:border-blue-500/50 hover:text-gray-300'
-                  }`}
-                >
-                  <Cpu className="w-4 h-4 mr-1" />
-                  <span className="text-xs">🇦🇩 Andorre</span>
-                </button>
+
               </div>
             </div>
             <div className="relative">

@@ -44,6 +44,7 @@ import ProLoginPage from './pages/ProLoginPage';
 import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
 import AndorreLandingPage from './pages/AndorreLandingPage';
+import AndorreLoginPage from './pages/AndorreLoginPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -84,7 +85,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           {/* Francis Andorre landing & login */}
           <Route path="/andorre" element={<AndorreLandingPage />} />
-          <Route path="/andorre/login" element={<LoginPage />} />
+          <Route path="/andorre/login" element={<AndorreLoginPage />} />
           <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
           <Route path="/demo" element={<DemoPage />} />
