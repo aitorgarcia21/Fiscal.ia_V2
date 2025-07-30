@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, LogOut, Globe } from 'lucide-react';
+import { Send, User, LogOut, Globe, BookOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FrancisAIEngine } from '../ai/FrancisAIEngine';
+import { Logo } from '../components/ui/Logo';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  lawReferences?: string[];
+  calculations?: any;
 }
 
 // 🌍 Translations
@@ -25,6 +28,24 @@ const translations = {
     welcome: "¡Hola! Soy Francis, su experto fiscal andorrano. ¿En qué puedo ayudarle?",
     logout: "Cerrar sesión"
   }
+};
+
+// 📝 Markdown formatter for Francis messages
+const formatMarkdown = (text: string): React.ReactNode => {
+  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|•)/g);
+  
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="text-[#c5a572]">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) {
+      return <em key={index} className="text-blue-200">{part.slice(1, -1)}</em>;
+    }
+    if (part === '•') {
+      return <span key={index} className="text-[#c5a572] font-bold">•</span>;
+    }
+    return <span key={index}>{part}</span>;
+  });
 };
 
 export function FrancisAndorreChat() {
@@ -115,6 +136,8 @@ export function FrancisAndorreChat() {
         text: aiResponse.text,
         sender: 'ai',
         timestamp: new Date(),
+        lawReferences: aiResponse.lawReferences,
+        calculations: aiResponse.calculations
       }]);
       
     } catch (error) {
@@ -215,7 +238,7 @@ export function FrancisAndorreChat() {
                   {message.sender === 'user' ? (
                     <User className="h-4 w-4 text-[#162238]" />
                   ) : (
-                    <Bot className="h-4 w-4 text-[#c5a572]" />
+                    <Logo size="sm" />
                   )}
                 </div>
                 <div className={`rounded-2xl px-4 py-3 ${
@@ -223,7 +246,29 @@ export function FrancisAndorreChat() {
                     ? 'bg-[#c5a572] text-[#162238]'
                     : 'bg-[#162238] text-gray-100 border border-[#c5a572]/20'
                 }`}>
-                  <div className="whitespace-pre-wrap">{message.text}</div>
+                  <div className="whitespace-pre-wrap leading-relaxed">
+                    {message.sender === 'ai' ? formatMarkdown(message.text) : message.text}
+                  </div>
+                  
+                  {/* Law References */}
+                  {message.sender === 'ai' && message.lawReferences && message.lawReferences.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-[#c5a572]/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <BookOpen className="h-4 w-4 text-[#c5a572]" />
+                        <span className="text-xs font-semibold text-[#c5a572] uppercase tracking-wide">
+                          {language === 'fr' ? 'Sources légales' : 'Fuentes legales'}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {message.lawReferences.map((ref, index) => (
+                          <div key={index} className="text-xs text-gray-300 bg-[#0F1419]/50 px-2 py-1 rounded">
+                            📖 {ref}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="text-xs opacity-70 mt-2">
                     {message.timestamp.toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'es-ES', { 
                       hour: '2-digit', 
@@ -240,7 +285,7 @@ export function FrancisAndorreChat() {
             <div className="flex justify-start">
               <div className="flex items-start space-x-2 max-w-2xl">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#162238] border border-[#c5a572]/30 flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-[#c5a572]" />
+                  <Logo size="sm" />
                 </div>
                 <div className="rounded-2xl px-4 py-3 bg-[#162238] text-gray-100 border border-[#c5a572]/20">
                   <div className="flex items-center space-x-2">
