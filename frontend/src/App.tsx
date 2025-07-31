@@ -45,6 +45,10 @@ import ActivateAccountPage from './pages/ActivateAccountPage';
 import LoginPage from './pages/LoginPage';
 import AndorreLandingPage from './pages/AndorreLandingPage';
 import AndorreLoginPage from './pages/AndorreLoginPage';
+import { FrancisAndorreChat } from './pages/FrancisAndorreChat';
+import FrancisAndorrePayment from './pages/FrancisAndorrePayment';
+import FrancisAndorreSuccess from './pages/FrancisAndorreSuccess';
+import FrancisAndorreTestPage from './pages/FrancisAndorreTestPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -84,8 +88,11 @@ function App() {
           {/* Page de connexion unifiée */}
           <Route path="/login" element={<LoginPage />} />
           {/* Francis Andorre landing & login */}
-          <Route path="/andorre" element={<AndorreLandingPage />} />
-          <Route path="/andorre/login" element={<AndorreLoginPage />} />
+            <Route path="/andorre" element={<AndorreLoginPage />} />
+            <Route path="/andorre/payment" element={<FrancisAndorrePayment />} />
+            <Route path="/andorre/success" element={<FrancisAndorreSuccess />} />
+            <Route path="/andorre/test" element={<FrancisAndorreTestPage />} />
+            <Route path="/analyse-ia-fiscale-andorrane" element={<FrancisAndorreChat />} />
           <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
           <Route path="/demo" element={<DemoPage />} />

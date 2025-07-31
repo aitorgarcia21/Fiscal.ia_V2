@@ -12,11 +12,11 @@ from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, W
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List, Dict, Any, Generator, Literal
+from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
+from datetime import datetime, timedelta, timezone
 import os
 import json
-from datetime import datetime, timedelta, timezone
 import uuid
 import asyncio
 import httpx
@@ -578,6 +578,11 @@ class CompleteSignupRequest(BaseModel):
     email: EmailStr
     password: str
     confirm_password: str
+
+class AndorreAccountCreate(BaseModel):
+    email: str
+    payment_intent: str
+    account_type: str
 
 # Utils
 def create_access_token(data: dict):
@@ -2766,6 +2771,89 @@ async def get_questions_quota(user_id: str = Depends(verify_token)):
     except Exception as e:
         print(f"[Erreur Quota] Impossible de récupérer le quota pour {user_id}: {e}")
         return {"questions_used": 0, "questions_remaining": 50, "quota_limit": 50}
+
+@api_router.post("/create-andorre-account")
+async def create_andorre_account(
+    account_data: AndorreAccountCreate,
+    user_id: str = Depends(verify_token)
+):
+    try:
+        if not supabase:
+            raise HTTPException(status_code=500, detail="Service de base de données indisponible")
+        
+        user_resp = supabase.auth.get_user(user_id)
+        if not user_resp.user:
+            raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+        
+        existing_profile = supabase.table("profils_pro").select("*").eq("user_id", user_id).execute()
+        
+        if existing_profile.data:
+            update_data = {
+                "metadata": {
+                    "francis_andorre": True,
+                    "jurisdiction": "AD",
+                    "payment_intent": account_data.payment_intent,
+                    "account_type": account_data.account_type,
+                    "activated_at": datetime.utcnow().isoformat()
+                },
+                "role_pro": "Conseiller Fiscal Andorre",
+                "pays": "Andorre",
+                "updated_at": datetime.utcnow().isoformat()
+            }
+            
+            result = supabase.table("profils_pro").update(update_data).eq("user_id", user_id).execute()
+        else:
+            profile_data = {
+                "user_id": user_id,
+                "email": account_data.email,
+                "role_pro": "Conseiller Fiscal Andorre",
+                "pays": "Andorre",
+                "metadata": {
+                    "francis_andorre": True,
+                    "jurisdiction": "AD",
+                    "payment_intent": account_data.payment_intent,
+                    "account_type": account_data.account_type,
+                    "activated_at": datetime.utcnow().isoformat()
+                },
+                "onboarding_step": "completed",
+                "is_active": True,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat()
+            }
+            
+            result = supabase.table("profils_pro").insert(profile_data).execute()
+        
+        user_profile_data = {
+            "user_id": user_id,
+            "taper": "professionnel",
+            "specialisation": "fiscalite_andorre",
+            "juridiction_principale": "AD",
+            "francis_andorre_active": True,
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        
+        existing_user_profile = supabase.table("profils_utilisateurs").select("*").eq("user_id", user_id).execute()
+        
+        if existing_user_profile.data:
+            supabase.table("profils_utilisateurs").update(user_profile_data).eq("user_id", user_id).execute()
+        else:
+            user_profile_data["created_at"] = datetime.utcnow().isoformat()
+            supabase.table("profils_utilisateurs").insert(user_profile_data).execute()
+        
+        print(f" Compte Francis Andorre créé pour {account_data.email} (user_id: {user_id})")
+        
+        return {
+            "success": True,
+            "message": "Compte Francis Andorre créé avec succès",
+            "account_type": account_data.account_type,
+            "jurisdiction": "AD",
+            "user_id": user_id,
+            "email": account_data.email
+        }
+        
+    except Exception as e:
+        print(f" Erreur création compte Andorre: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la création du compte: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

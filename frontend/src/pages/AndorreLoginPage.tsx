@@ -112,12 +112,29 @@ export const AndorreLoginPage: React.FC = () => {
             </form>
             
             <div className="mt-6 text-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-sm mb-4">
                 Pas encore de compte ?{' '}
                 <Link to="/pro/signup" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
                   Créer un compte professionnel
                 </Link>
               </p>
+              
+              {/* Lien vers l'abonnement Francis Andorre */}
+              <div className="pt-4 border-t border-gray-600/30">
+                <p className="text-gray-400 text-sm mb-3">
+                  Accès premium à Francis Andorre
+                </p>
+                <Link 
+                  to="/andorre/payment" 
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg text-sm"
+                >
+                  <span>S'abonner à Francis Andorre</span>
+                  <span className="text-blue-200">49€/mois</span>
+                </Link>
+                <p className="text-gray-500 text-xs mt-2">
+                  Expertise IA complète en fiscalité andorrane
+                </p>
+              </div>
             </div>
           </div>
 
