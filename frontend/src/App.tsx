@@ -49,6 +49,7 @@ import { FrancisAndorreChat } from './pages/FrancisAndorreChat';
 import FrancisAndorrePayment from './pages/FrancisAndorrePayment';
 import FrancisAndorreSuccess from './pages/FrancisAndorreSuccess';
 import FrancisAndorreTestPage from './pages/FrancisAndorreTestPage';
+import { AndorreSignupPage } from './pages/AndorreSignupPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -90,6 +91,7 @@ function App() {
           {/* Francis Andorre landing & login */}
           <Route path="/andorre" element={<AndorreLandingPage />} />
           <Route path="/andorre/login" element={<AndorreLoginPage />} />
+          <Route path="/andorre/signup" element={<AndorreSignupPage />} />
           <Route path="/andorre/payment" element={<FrancisAndorrePayment />} />
           <Route path="/andorre/success" element={<FrancisAndorreSuccess />} />
           <Route path="/andorre/test" element={<FrancisAndorreTestPage />} />

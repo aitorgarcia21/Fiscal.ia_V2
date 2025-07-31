@@ -157,7 +157,7 @@ export const AndorreLoginPage: React.FC = () => {
             <div className="mt-6 space-y-4">
               <div className="text-center">
                 <Link 
-                  to="/pro/signup" 
+                  to="/andorre/signup" 
                   className="text-[#c5a572] hover:text-[#e8cfa0] transition-colors font-medium touch-manipulation inline-block py-3"
                 >
                   Créer un nouveau compte
@@ -280,7 +280,7 @@ export const AndorreLoginPage: React.FC = () => {
             <div className="mt-6 space-y-4">
               <div className="text-center">
                 <Link 
-                  to="/pro/signup" 
+                  to="/andorre/signup" 
                   className="text-[#c5a572] hover:text-[#e8cfa0] transition-colors text-sm"
                 >
                   Créer un compte
