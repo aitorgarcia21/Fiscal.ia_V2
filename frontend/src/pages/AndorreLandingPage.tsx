@@ -206,10 +206,7 @@ export const AndorreLandingPage: React.FC = () => {
       <footer className="relative z-20 bg-[#0A0F1C]/90 backdrop-blur-xl border-t border-[#c5a572]/20 py-8">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="relative">
-              <MessageSquare className="h-8 w-8 text-[#c5a572]" />
-              <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#0A0F1C] rounded-full p-0.5" />
-            </div>
+            <Logo size="md" />
             <span className="text-xl font-bold text-white">Francis Andorre</span>
           </div>
           <p className="text-gray-400 text-sm">&copy; {new Date().getFullYear()} Francis. Excellence fiscale garantie.</p>
