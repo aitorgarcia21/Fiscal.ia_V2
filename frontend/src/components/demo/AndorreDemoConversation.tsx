@@ -59,24 +59,17 @@ const conversation = [
   },
   {
     author: 'marc',
-    content: <p className="text-white text-lg">Excellent. Quel calendrier recommandez-vous ?</p>
+    content: <p className="text-white text-lg">Parfait. Quelle est votre recommandation finale ?</p>
   },
   {
     author: 'francis',
     content: (
       <>
-        <p className="text-white text-lg mb-3">Roadmap d'optimisation fiscale :</p>
-        <div className="space-y-3">
-          <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-            <p className="text-[#c5a572] font-medium mb-2">📅 Phase 1 (Mois 1-2)</p>
-            <p className="text-gray-200">• Constitution holding andorrane</p>
-            <p className="text-gray-200">• Demande sursis exit tax (Art. 167 bis-0 A CGI)</p>
-          </div>
-          <div className="bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-lg p-4 border border-[#c5a572]/30">
-            <p className="text-[#c5a572] font-semibold mb-2">💰 Optimisation fiscale totale</p>
-            <p className="text-white text-xl font-bold">Économie : 525 000 € sur 5 ans</p>
-            <p className="text-gray-300 text-sm mt-1">vs. exit tax immédiate de 750 000 €</p>
-          </div>
+        <p className="text-white text-lg mb-3">Stratégie optimale : holding andorrane avec sursis de paiement.</p>
+        <div className="bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-lg p-4 border border-[#c5a572]/30">
+          <p className="text-[#c5a572] font-semibold mb-2">💰 Impact fiscal</p>
+          <p className="text-white text-xl font-bold">Économie potentielle : 525 000 €</p>
+          <p className="text-gray-300 text-sm mt-1">Base légale : Art. 167 bis CGI + Convention bilatérale</p>
         </div>
       </>
     )
