@@ -121,15 +121,7 @@ export const AndorreLoginPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="text-center space-y-2">
-            <p className="text-xs text-gray-500">
-              🔒 Connexion sécurisée • 🇦🇩 Spécialisé Andorre • 🤖 IA Expert
-            </p>
-            <p className="text-xs text-gray-500">
-              Francis Andorre - L'IA qui révolutionne la fiscalité andorrane
-            </p>
-          </div>
+
         </div>
       </div>
     </>
