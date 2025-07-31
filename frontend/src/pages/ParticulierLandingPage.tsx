@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Heart, Home, PiggyBank, Calculator, Shield, Users } from 'lucide-react';
+import { ArrowRight, Home, PiggyBank, Calculator, Shield, Users, MessageSquare, Euro } from 'lucide-react';
 import { CategorySwitcher } from '../components/ui/CategorySwitcher';
 
 export const ParticulierLandingPage: React.FC = () => {
@@ -40,13 +40,13 @@ export const ParticulierLandingPage: React.FC = () => {
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/particulier/login')}
               className="text-gray-300 hover:text-[#c5a572] transition-colors font-medium"
             >
               Connexion
             </button>
             <button
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate('/particulier/signup')}
               className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-semibold rounded-xl shadow-lg hover:shadow-[#c5a572]/30 hover:scale-105 transition-all duration-300"
             >
               Inscription
@@ -65,7 +65,10 @@ export const ParticulierLandingPage: React.FC = () => {
               transition={{ duration: 0.6 }}
             >
               <div className="flex justify-center items-center gap-3 mb-6">
-                <Heart className="w-12 h-12 text-[#c5a572]" />
+                <div className="relative inline-flex items-center justify-center">
+                  <MessageSquare className="h-12 w-12 text-[#c5a572] transition-transform duration-300" />
+                  <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform duration-300" />
+                </div>
                 <h1 className="text-4xl md:text-6xl font-bold text-white">
                   Francis
                   <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-transparent bg-clip-text ml-3">
@@ -80,7 +83,7 @@ export const ParticulierLandingPage: React.FC = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <button
-                  onClick={() => navigate('/signup')}
+                  onClick={() => navigate('/particulier/signup')}
                   className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold text-lg rounded-xl hover:shadow-2xl hover:shadow-[#c5a572]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2"
                 >
                   Commencer gratuitement
@@ -88,7 +91,7 @@ export const ParticulierLandingPage: React.FC = () => {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/particulier/login')}
                   className="px-8 py-4 border-2 border-[#c5a572] text-[#c5a572] font-bold text-lg rounded-xl hover:bg-[#c5a572] hover:text-[#162238] transition-all duration-300"
                 >
                   Se connecter
@@ -160,7 +163,7 @@ export const ParticulierLandingPage: React.FC = () => {
             </p>
             
             <button
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate('/particulier/signup')}
               className="px-10 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold text-xl rounded-xl hover:shadow-2xl hover:shadow-[#c5a572]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-3 mx-auto"
             >
               Créer mon compte gratuit

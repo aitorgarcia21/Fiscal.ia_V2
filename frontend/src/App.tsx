@@ -51,6 +51,8 @@ import FrancisAndorreSuccess from './pages/FrancisAndorreSuccess';
 import FrancisAndorreTestPage from './pages/FrancisAndorreTestPage';
 import { AndorreSignupPage } from './pages/AndorreSignupPage';
 import { ParticulierLandingPage } from './pages/ParticulierLandingPage';
+import { ParticulierLoginPage } from './pages/ParticulierLoginPage';
+import { ParticulierSignupPage } from './pages/ParticulierSignupPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -84,13 +86,74 @@ function App() {
   return (
       <Router>
         <Routes>
+          {/* Routes principales */}
           <Route path="/" element={<ParticulierLandingPage />} />
-          <Route path="/pro-landing" element={<ProLandingPage />} />
-          <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
-          {/* Page de connexion unifiée */}
-          <Route path="/login" element={<LoginPage />} />
-          {/* Francis Andorre landing & login */}
-          <Route path="/andorre" element={<AndorreLandingPage />} />
+        <Route path="/particulier/login" element={<ParticulierLoginPage />} />
+        <Route path="/particulier/signup" element={<ParticulierSignupPage />} />
+        <Route path="/pro-landing" element={<ProLandingPage />} />
+        <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
+        {/* Page de connexion unifiée */}
+        <Route path="/login" element={<LoginPage />} />
+        {/* Francis Andorre landing & login */}
+        <Route path="/andorre" element={<AndorreLandingPage />} />
+        <Route path="/andorre/login" element={<AndorreLoginPage />} />
+        <Route path="/andorre/signup" element={<AndorreSignupPage />} />
+        <Route path="/andorre/payment" element={<FrancisAndorrePayment />} />
+        <Route path="/andorre/success" element={<FrancisAndorreSuccess />} />
+        <Route path="/andorre/test" element={<FrancisAndorreTestPage />} />
+        <Route path="/analyse-ia-fiscale-andorrane" element={<FrancisAndorreChat />} />
+        <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
+        <Route path="/pro/signup" element={<ProSignupPage />} />
+        <Route path="/demo" element={<DemoPage />} />
+        <Route path="/contact-pro" element={<ContactProPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        
+        {/* Pages SEO + simulateur générique */}
+        <Route path="/optimisation-fiscale-ia" element={<OptimisationFiscaleIA />} />
+        <Route path="/simulateur" element={<Simulateur />} />
+        <Route path="/simulateur-impot" element={<SimulateurImpot />} />
+        <Route path="/simulateur-irpf" element={<SimulateurIRPF />} />
+        <Route path="/simulateur-impot-suisse" element={<SimulateurImpotSuisse />} />
+        <Route path="/simulateur-impot-luxembourg" element={<SimulateurImpotLuxembourg />} />
+        <Route path="/simulateur-tva-suisse" element={<SimulateurTvaSuisse />} />
+        <Route path="/simulateur-igi-andorre" element={<SimulateurIgiAndorre />} />
+        <Route path="/simulateur-tva-luxembourg" element={<SimulateurTvaLuxembourg />} />
+        <Route path="/simulateur-tmi" element={<SimulateurTmi />} />
+        <Route path="/simulateur-optimisation" element={<SimulateurOptimisation />} />
+        <Route path="/analyse-ia-fiscale-andorrane" element={<AnalyseIAFiscaleAndorrane />} />
+        <Route path="/francis-test" element={<FrancisTestPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/telecharger" element={<FrancisInstallerPage />} />
+        <Route path="/installer" element={<FrancisInstallerPage />} />
+        <Route path="/download" element={<FrancisDownloadPage />} />
+        <Route path="/francis-desktop" element={<FrancisDesktopPage />} />
+        <Route path="/email-collector" element={<EmailCollectorPage />} />
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+        <Route path="/mes-donnees" element={<DataPrivacyPage />} />
+        <Route path="/complete-signup" element={<CompleteSignupPage />} />
+        
+        <Route path="/truelayer-callback" element={<TrueLayerCallback />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        
+        {/* Routes particuliers réactivées */}
+        <Route element={<ParticulierProtectedRoute />} >
+          <Route path="/dashboard" element={<ParticulierDashboard />} />
+          <Route path="/dashboard/particulier" element={<ParticulierDashboard />} />
+          <Route path="/dashboard/particulier/callback" element={<GoCardlessCallback />} />
+          <Route path="/portal" element={<ClientPortal />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/profil" element={<ProfilePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/mon-profil" element={<MonProfilPage />} />
+          <Route path="/documents-fiscaux" element={<DocumentsFiscauxPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/discover" element={<DiscoverPage />} />
+        </Route>
+        
+        {/* Route de connexion Pro accessible sans authentification */}
+        <Route path="/pro/login" element={<ProLoginPage />} />
           <Route path="/andorre/login" element={<AndorreLoginPage />} />
           <Route path="/andorre/signup" element={<AndorreSignupPage />} />
           <Route path="/andorre/payment" element={<FrancisAndorrePayment />} />
