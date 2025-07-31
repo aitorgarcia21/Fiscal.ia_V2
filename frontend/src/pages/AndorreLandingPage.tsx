@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageSquare, Euro, ArrowRight, Sparkles, TrendingUp, Shield, Zap, Star } from 'lucide-react';
+import { ArrowRight, Sparkles, TrendingUp, Shield, Zap } from 'lucide-react';
+import { Logo } from '../components/ui/Logo';
 import { AndorreDemoConversation } from '../components/demo/AndorreDemoConversation';
 
 /**
@@ -30,19 +31,12 @@ export const AndorreLandingPage: React.FC = () => {
             className="flex items-center gap-4 cursor-pointer group" 
             onClick={() => navigate('/')}
           >          
-            <div className="relative p-2 bg-gradient-to-br from-[#c5a572]/20 to-transparent rounded-xl border border-[#c5a572]/30">
-              <MessageSquare className="h-10 w-10 text-[#c5a572] transition-all group-hover:scale-110 duration-500" />
-              <Euro className="h-6 w-6 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5 border border-[#c5a572]/30 transition-all group-hover:scale-110 duration-500" />
-            </div>
+            <Logo size="lg" className="group" />
             <div>
               <span className="text-2xl font-bold text-white tracking-tight">Francis</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-blue-100 px-3 py-1 rounded-full font-medium backdrop-blur-sm border border-blue-400/30">Andorre</span>
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 text-[#c5a572] fill-current" />
-                  ))}
-                </div>
+
               </div>
             </div>
           </motion.div>
@@ -68,11 +62,7 @@ export const AndorreLandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 backdrop-blur-sm border border-[#c5a572]/30 text-[#c5a572] px-6 py-3 rounded-full mb-8 font-semibold">
-                <Sparkles className="h-5 w-5" />
-                Intelligence Artificielle Fiscale Avancée
-                <Sparkles className="h-5 w-5" />
-              </div>
+
               
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tight leading-none">
                 L'Excellence
@@ -92,10 +82,7 @@ export const AndorreLandingPage: React.FC = () => {
                 <div className="bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10 backdrop-blur-sm border border-[#c5a572]/30 text-white px-8 py-4 rounded-2xl font-bold text-xl">
                   49€/mois • Questions illimitées
                 </div>
-                <div className="flex items-center gap-2 text-[#c5a572] font-semibold text-lg">
-                  <TrendingUp className="h-6 w-6" />
-                  +340% d'efficacité
-                </div>
+
               </div>
             </motion.div>
           </div>
