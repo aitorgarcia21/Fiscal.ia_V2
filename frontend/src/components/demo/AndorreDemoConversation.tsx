@@ -5,35 +5,29 @@ import { MessageSquare, Euro, Users } from 'lucide-react';
 
 const conversation = [
   {
-    author: 'francis',
+    author: 'marc',
     content: (
       <>
-        <p className="text-white text-lg mb-3">Bonsoir Marc. Analysons votre situation fiscale en Andorre.</p>
-        <div className="bg-white/10 rounded-lg p-4 space-y-2 border border-[#c5a572]/20">
-          <p className="text-[#c5a572] font-medium">• Résident andorran depuis 2019</p>
-          <p className="text-[#c5a572] font-medium">• Revenus professionnels : 240 000 €</p>
-          <p className="text-[#c5a572] font-medium">• Consultant en technologie</p>
-        </div>
+        <p className="text-white text-lg mb-3">Bonjour Francis. J'ai un client français qui souhaite transférer sa résidence fiscale en Andorre avec des plus-values latentes de 2,5 M€. Quelles sont les implications de l'exit tax et les optimisations possibles ?</p>
       </>
     )
   },
   {
-    author: 'marc',
-    content: <p className="text-white text-lg">Exactement. Je souhaite optimiser ma structure fiscale.</p>
-  },
-  {
     author: 'francis',
     content: (
       <>
-        <p className="text-white text-lg mb-3">Trois optimisations majeures s'offrent à vous :</p>
+        <p className="text-white text-lg mb-3">Excellente question. Analysons l'exit tax français et les stratégies d'optimisation :</p>
         <div className="space-y-3">
           <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-            <p className="text-[#c5a572] font-medium mb-2">Structure societale</p>
-            <p className="text-gray-200">Société andorrane • IS à 10% max • Économie : 28 000 €/an</p>
+            <p className="text-[#c5a572] font-medium mb-2">📋 Exit Tax - Art. 167 bis CGI</p>
+            <p className="text-gray-200">• Seuil : détention ≥ 1% ou valeur ≥ 1,3 M€</p>
+            <p className="text-gray-200">• Taux : 30% sur plus-values latentes</p>
+            <p className="text-gray-200">• Impact estimé : 750 000 € (2,5 M€ × 30%)</p>
           </div>
           <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-            <p className="text-[#c5a572] font-medium mb-2">Planification patrimoniale</p>
-            <p className="text-gray-200">SICAV + Investissements • Exonération plus-values • Économie : 15 000 €/an</p>
+            <p className="text-[#c5a572] font-medium mb-2">⚖️ Convention France-Andorre 2015</p>
+            <p className="text-gray-200">• Art. 13 : élimination double imposition</p>
+            <p className="text-gray-200">• Crédit d'impôt en Andorre possible</p>
           </div>
         </div>
       </>
@@ -41,32 +35,48 @@ const conversation = [
   },
   {
     author: 'marc',
-    content: <p className="text-white text-lg">Intéressant. Et concernant l'IGI ?</p>
+    content: <p className="text-white text-lg">Quelles stratégies recommandez-vous pour minimiser l'impact ?</p>
   },
   {
     author: 'francis',
     content: (
       <>
-        <p className="text-white text-lg mb-3">L'IGI offre des exonérations strategiques :</p>
-        <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
-          <p className="text-[#c5a572] font-medium mb-2">Première résidence</p>
-          <p className="text-gray-200">Exonération totale • Économie sur votre prochain achat : 12 000 €</p>
+        <p className="text-white text-lg mb-3">Trois stratégies d'optimisation basées sur la jurisprudence :</p>
+        <div className="space-y-3">
+          <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
+            <p className="text-[#c5a572] font-medium mb-2">🕐 Étalement du paiement - Art. 167 bis CGI</p>
+            <p className="text-gray-200">• Sursis de paiement sur 5 ans si engagement de conservation</p>
+            <p className="text-gray-200">• Économie de trésorerie : 750 000 € différés</p>
+          </div>
+          <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
+            <p className="text-[#c5a572] font-medium mb-2">🏛️ Holding andorrane - Llei 95/2010</p>
+            <p className="text-gray-200">• Participation exemption (Art. 4.g)</p>
+            <p className="text-gray-200">• IS réduit à 2% sur dividendes reçus</p>
+          </div>
         </div>
       </>
     )
   },
   {
     author: 'marc',
-    content: <p className="text-white text-lg">Parfait. Comment procédons-nous ?</p>
+    content: <p className="text-white text-lg">Excellent. Quel calendrier recommandez-vous ?</p>
   },
   {
     author: 'francis',
     content: (
       <>
-        <p className="text-white text-lg mb-3">Mise en place immédiate de votre stratégie optimisée.</p>
-        <div className="bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-lg p-4 border border-[#c5a572]/30">
-          <p className="text-[#c5a572] font-semibold mb-2">Économies totales estimées</p>
-          <p className="text-white text-xl font-bold">43 000 € par an</p>
+        <p className="text-white text-lg mb-3">Roadmap d'optimisation fiscale :</p>
+        <div className="space-y-3">
+          <div className="bg-white/10 rounded-lg p-4 border border-[#c5a572]/20">
+            <p className="text-[#c5a572] font-medium mb-2">📅 Phase 1 (Mois 1-2)</p>
+            <p className="text-gray-200">• Constitution holding andorrane</p>
+            <p className="text-gray-200">• Demande sursis exit tax (Art. 167 bis-0 A CGI)</p>
+          </div>
+          <div className="bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 rounded-lg p-4 border border-[#c5a572]/30">
+            <p className="text-[#c5a572] font-semibold mb-2">💰 Optimisation fiscale totale</p>
+            <p className="text-white text-xl font-bold">Économie : 525 000 € sur 5 ans</p>
+            <p className="text-gray-300 text-sm mt-1">vs. exit tax immédiate de 750 000 €</p>
+          </div>
         </div>
       </>
     )
