@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { MessageSquare, Euro, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
+import { Logo } from '../ui/Logo';
 
 const conversation = [
   {
@@ -106,10 +107,7 @@ export function AndorreDemoConversation() {
         <div className="bg-gradient-to-r from-[#162238]/90 to-[#1E3253]/90 px-8 py-6 border-b border-[#c5a572]/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative">
-                <MessageSquare className="h-8 w-8 text-[#c5a572]" />
-                <Euro className="h-5 w-5 text-[#c5a572] absolute -bottom-1 -right-1 bg-[#162238] rounded-full p-0.5" />
-              </div>
+              <Logo size="md" />
               <div>
                 <h4 className="text-white font-semibold text-lg">Francis</h4>
                 <p className="text-gray-400 text-sm">Expert fiscal Andorre</p>
@@ -134,9 +132,8 @@ export function AndorreDemoConversation() {
               className={`flex items-end ${msg.author === 'marc' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.author === 'francis' && (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center flex-shrink-0 mr-4 shadow-lg relative">
-                  <MessageSquare className="w-6 h-6 text-[#162238]" />
-                  <Euro className="w-4 h-4 text-[#162238] absolute -bottom-1 -right-1 bg-[#e8cfa0] rounded-full p-0.5" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#c5a572] to-[#e8cfa0] flex items-center justify-center flex-shrink-0 mr-4 shadow-lg">
+                  <Logo size="sm" className="scale-75" />
                 </div>
               )}
               <div
