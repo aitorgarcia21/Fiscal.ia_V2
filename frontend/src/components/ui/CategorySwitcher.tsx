@@ -72,6 +72,7 @@ export function CategorySwitcher() {
   }, []);
 
   const handleCategoryChange = (category: CategoryOption) => {
+    console.log('🎯 CategorySwitcher: Changing category to', category.label, 'path:', category.path);
     setCurrentCategory(category);
     setIsOpen(false);
     navigate(category.path);
@@ -80,12 +81,18 @@ export function CategorySwitcher() {
   if (!currentCategory) return null;
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-50" ref={dropdownRef}>
       {/* Logo cliquable avec indicateur dropdown */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all duration-300 group touch-manipulation"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🎯 CategorySwitcher: Toggle clicked, isOpen:', !isOpen);
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all duration-300 group touch-manipulation cursor-pointer"
         aria-label="Changer de catégorie"
+        type="button"
       >
         <Logo size="lg" className="transition-transform duration-300 group-hover:scale-105" />
         
@@ -111,13 +118,17 @@ export function CategorySwitcher() {
 
       {/* Menu déroulant */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-hidden">
           <div className="p-2">
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryChange(category)}
-                className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left touch-manipulation ${
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCategoryChange(category);
+                }}
+                className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left touch-manipulation cursor-pointer ${
                   currentCategory.id === category.id
                     ? 'bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30'
                     : 'hover:bg-white/5 hover:scale-[1.02]'
