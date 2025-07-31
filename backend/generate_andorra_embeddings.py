@@ -16,10 +16,10 @@ Les embeddings sont créés dans backend/data/andorra_embeddings/
 """
 
 # Choix dynamique du backend embeddings : Ollama (local) ou API Mistral
-USE_LOCAL = bool(os.getenv("LLM_ENDPOINT"))
+USE_LOCAL = bool(os.getenv("LLM_ENDPOINT", "").strip())
 
 if USE_LOCAL:
-    from backend.ollama_client import embed as embed_local
+    from ollama_client import embed as embed_local
 else:
     from mistralai.client import MistralClient
 
