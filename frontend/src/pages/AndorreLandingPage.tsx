@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, TrendingUp, Shield, Zap } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
 import { AndorreDemoConversation } from '../components/demo/AndorreDemoConversation';
+import { CategorySwitcher } from '../components/ui/CategorySwitcher';
 
 /**
  * Landing page révolutionnaire pour Francis Andorre - Design ultra-stylé avec démo interactive
@@ -28,17 +29,8 @@ export const AndorreLandingPage: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex items-center gap-4 cursor-pointer group" 
-            onClick={() => navigate('/')}
           >          
-            <Logo size="lg" className="group" />
-            <div>
-              <span className="text-2xl font-bold text-white tracking-tight">Francis</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-blue-100 px-3 py-1 rounded-full font-medium backdrop-blur-sm border border-blue-400/30">Andorre</span>
-
-              </div>
-            </div>
+            <CategorySwitcher />
           </motion.div>
           
           <motion.button

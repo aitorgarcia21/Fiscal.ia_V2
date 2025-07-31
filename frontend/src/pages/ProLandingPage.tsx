@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Sparkles, Play, Download, TrendingUp, Timer, Monitor } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { PWAInstallButton } from '../components/PWAInstallButton';
+import { CategorySwitcher } from '../components/ui/CategorySwitcher';
 
 
 const features = [
@@ -92,14 +93,8 @@ const ProLandingPage = () => {
         {/* Header simple */}
         <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
           <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-              <div className="relative inline-flex items-center justify-center">
-                <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110 duration-300" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform group-hover:scale-110 duration-300" />
-              </div>
-              <span className="text-xl font-bold text-white">Francis</span>
-            </div>
+            {/* Category Switcher */}
+            <CategorySwitcher />
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">

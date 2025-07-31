@@ -50,6 +50,7 @@ import FrancisAndorrePayment from './pages/FrancisAndorrePayment';
 import FrancisAndorreSuccess from './pages/FrancisAndorreSuccess';
 import FrancisAndorreTestPage from './pages/FrancisAndorreTestPage';
 import { AndorreSignupPage } from './pages/AndorreSignupPage';
+import { ParticulierLandingPage } from './pages/ParticulierLandingPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -83,7 +84,7 @@ function App() {
   return (
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/pro-landing" replace />} />
+          <Route path="/" element={<ParticulierLandingPage />} />
           <Route path="/pro-landing" element={<ProLandingPage />} />
           <Route path="/patrimonia" element={<Navigate to="/pro-landing" replace />} />
           {/* Page de connexion unifiée */}
