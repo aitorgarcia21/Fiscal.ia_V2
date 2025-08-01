@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Home, PiggyBank, Calculator, Shield, Users, MessageSquare, Euro } from 'lucide-react';
 // import { SimpleCategorySwitcher } from '../components/ui/SimpleCategorySwitcher';
-import { TestClickButton } from '../components/ui/TestClickButton';
+// import { TestClickButton } from '../components/ui/TestClickButton';
 
 export const ParticulierLandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export const ParticulierLandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] text-gray-100">
-      <TestClickButton />
+      {/* <TestClickButton /> */}
       {/* Header */}
       <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
