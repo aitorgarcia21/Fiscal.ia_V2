@@ -47,33 +47,43 @@ export const ParticulierLandingPage: React.FC = () => {
                 console.log('🎯 Toggle dropdown:', !isDropdownOpen);
                 setIsDropdownOpen(!isDropdownOpen);
               }}
-              className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all duration-300 group cursor-pointer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '8px',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
-              <Logo size="lg" className="transition-transform duration-300 group-hover:scale-105" />
+              <Logo size="lg" />
               
-              <div className="hidden sm:flex items-center gap-2">
-                <div className="flex items-center gap-2 text-white">
-                  <Users className="w-5 h-5" />
-                  <span className="font-semibold text-lg">Particulier</span>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Users style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontWeight: '600', fontSize: '18px' }}>Particulier</span>
                 <ChevronDown 
-                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
-                    isDropdownOpen ? 'rotate-180' : ''
-                  }`} 
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    color: '#9CA3AF',
+                    transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s'
+                  }}
                 />
               </div>
-              
-              {/* Version mobile - juste le chevron */}
-              <ChevronDown 
-                className={`w-4 h-4 text-gray-400 transition-transform duration-300 sm:hidden ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                }`} 
-              />
             </div>
 
             {/* Menu déroulant premium */}
             {isDropdownOpen && (
-              <>
+              <div>
                 {/* Backdrop */}
                 <div
                   onClick={() => setIsDropdownOpen(false)}
@@ -95,11 +105,16 @@ export const ParticulierLandingPage: React.FC = () => {
                     top: '80px',
                     left: '16px',
                     width: '320px',
-                    zIndex: 9999
+                    zIndex: 9999,
+                    background: 'linear-gradient(135deg, rgba(22, 34, 56, 0.95), rgba(30, 50, 83, 0.95))',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '16px',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    overflow: 'hidden'
                   }}
-                  className="bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
                 >
-                  <div className="p-2">
+                  <div style={{ padding: '8px' }}>
                     {/* Particulier */}
                     <div
                       onClick={() => {
@@ -107,16 +122,38 @@ export const ParticulierLandingPage: React.FC = () => {
                         setIsDropdownOpen(false);
                         window.location.href = '/';
                       }}
-                      className="w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left cursor-pointer bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        background: 'linear-gradient(90deg, rgba(197, 165, 114, 0.2), rgba(232, 207, 160, 0.2))',
+                        border: '1px solid rgba(197, 165, 114, 0.3)',
+                        transition: 'all 0.3s'
+                      }}
                     >
-                      <div className="p-2 rounded-lg bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238]">
-                        <Users className="w-5 h-5" />
+                      <div style={{
+                        padding: '8px',
+                        borderRadius: '8px',
+                        background: 'linear-gradient(90deg, #c5a572, #e8cfa0)',
+                        color: '#162238'
+                      }}>
+                        <Users style={{ width: '20px', height: '20px' }} />
                       </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-[#e8cfa0]">Particulier</div>
-                        <div className="text-sm text-gray-400">Solutions pour particuliers</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', color: '#e8cfa0' }}>Particulier</div>
+                        <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Solutions pour particuliers</div>
                       </div>
-                      <div className="w-2 h-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"></div>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        background: 'linear-gradient(90deg, #c5a572, #e8cfa0)',
+                        borderRadius: '50%'
+                      }}></div>
                     </div>
                     
                     {/* Pro */}
@@ -126,14 +163,37 @@ export const ParticulierLandingPage: React.FC = () => {
                         setIsDropdownOpen(false);
                         window.location.href = '/pro-landing';
                       }}
-                      className="w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left cursor-pointer hover:bg-white/5 hover:scale-[1.02]"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.3s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                        e.currentTarget.style.transform = 'scale(1.02)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
                     >
-                      <div className="p-2 rounded-lg bg-white/10 text-gray-300">
-                        <Building className="w-5 h-5" />
+                      <div style={{
+                        padding: '8px',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#D1D5DB'
+                      }}>
+                        <Building style={{ width: '20px', height: '20px' }} />
                       </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-white">Professionnel</div>
-                        <div className="text-sm text-gray-400">Outils pour professionnels</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', color: 'white' }}>Professionnel</div>
+                        <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Outils pour professionnels</div>
                       </div>
                     </div>
                     
@@ -144,26 +204,58 @@ export const ParticulierLandingPage: React.FC = () => {
                         setIsDropdownOpen(false);
                         window.location.href = '/andorre';
                       }}
-                      className="w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left cursor-pointer hover:bg-white/5 hover:scale-[1.02]"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.3s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                        e.currentTarget.style.transform = 'scale(1.02)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
                     >
-                      <div className="p-2 rounded-lg bg-white/10 text-gray-300">
-                        <Crown className="w-5 h-5" />
+                      <div style={{
+                        padding: '8px',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#D1D5DB'
+                      }}>
+                        <Crown style={{ width: '20px', height: '20px' }} />
                       </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-white">Francis Andorre</div>
-                        <div className="text-sm text-gray-400">Expertise fiscale andorrane</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', color: 'white' }}>Francis Andorre</div>
+                        <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Expertise fiscale andorrane</div>
                       </div>
                     </div>
                   </div>
                   
                   {/* Footer du dropdown */}
-                  <div className="px-4 py-3 bg-gradient-to-r from-[#0A0F1C]/50 to-[#162238]/50 border-t border-white/5">
-                    <p className="text-xs text-gray-400 text-center">
+                  <div style={{
+                    padding: '12px 16px',
+                    background: 'linear-gradient(90deg, rgba(10, 15, 28, 0.5), rgba(22, 34, 56, 0.5))',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}>
+                    <p style={{
+                      fontSize: '12px',
+                      color: '#9CA3AF',
+                      textAlign: 'center',
+                      margin: 0
+                    }}>
                       Cliquez pour changer de catégorie
                     </p>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
 
