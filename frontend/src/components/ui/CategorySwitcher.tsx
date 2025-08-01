@@ -119,13 +119,20 @@ export function CategorySwitcher() {
 
       {/* Menu déroulant */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-hidden pointer-events-auto">
           <div className="p-2">
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryChange(category)}
-                className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left touch-manipulation cursor-pointer ${
+                onClick={(e) => {
+                  console.log('🚨 BUTTON CLICKED!', category.label);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCategoryChange(category);
+                }}
+                onMouseDown={(e) => console.log('🖱️ MOUSE DOWN on', category.label)}
+                onMouseUp={(e) => console.log('🖱️ MOUSE UP on', category.label)}
+                className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left touch-manipulation cursor-pointer pointer-events-auto ${
                   currentCategory.id === category.id
                     ? 'bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30'
                     : 'hover:bg-white/5 hover:scale-[1.02]'
