@@ -72,26 +72,11 @@ export function CategorySwitcher() {
   }, []);
 
   const handleCategoryChange = (category: CategoryOption) => {
-    console.log('🎯 CategorySwitcher: Changing category to', category.label, 'path:', category.path);
-    setCurrentCategory(category);
+    console.log('🎯 CategorySwitcher: CLICKED on', category.label, 'navigating to:', category.path);
     setIsOpen(false);
     
-    // Force navigation avec window.location pour garantir le changement de page
-    try {
-      navigate(category.path);
-      console.log('✅ Navigate called successfully');
-    } catch (error) {
-      console.error('❌ Navigate failed, using window.location:', error);
-      window.location.href = category.path;
-    }
-    
-    // Fallback: forcer avec window.location après 100ms si navigate ne fonctionne pas
-    setTimeout(() => {
-      if (window.location.pathname !== category.path) {
-        console.log('🔄 Fallback: forcing navigation with window.location');
-        window.location.href = category.path;
-      }
-    }, 100);
+    // Navigation directe et immédiate
+    window.location.href = category.path;
   };
 
   if (!currentCategory) return null;
@@ -139,11 +124,7 @@ export function CategorySwitcher() {
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleCategoryChange(category);
-                }}
+                onClick={() => handleCategoryChange(category)}
                 className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left touch-manipulation cursor-pointer ${
                   currentCategory.id === category.id
                     ? 'bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30'
