@@ -2,172 +2,125 @@ import React, { useState } from 'react';
 import { ChevronDown, Users, Building, Crown } from 'lucide-react';
 import { Logo } from './Logo';
 
-interface CategoryOption {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  path: string;
-}
-
-const categories: CategoryOption[] = [
-  {
-    id: 'particulier',
-    label: 'Particulier',
-    icon: <Users className="w-5 h-5" />,
-    path: '/'
-  },
-  {
-    id: 'pro',
-    label: 'Professionnel',
-    icon: <Building className="w-5 h-5" />,
-    path: '/pro-landing'
-  },
-  {
-    id: 'andorre',
-    label: 'Francis Andorre',
-    icon: <Crown className="w-5 h-5" />,
-    path: '/andorre'
-  }
+const categories = [
+  { id: 'particulier', label: 'Particulier', path: '/' },
+  { id: 'pro', label: 'Professionnel', path: '/pro-landing' },
+  { id: 'andorre', label: 'Francis Andorre', path: '/andorre' }
 ];
 
 export function SimpleCategorySwitcher() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleCategoryClick = (path: string, label: string) => {
-    console.log('🚀 DIRECT NAVIGATION to', label, 'path:', path);
+  const handleClick = (path: string, label: string) => {
+    console.log('🚀 NAVIGATION:', label, '→', path);
+    alert(`Navigation vers: ${label}`);
     window.location.href = path;
   };
 
+  const toggleMenu = () => {
+    console.log('🎯 TOGGLE MENU:', !isOpen);
+    setIsOpen(!isOpen);
+  };
+
+  const closeMenu = () => {
+    console.log('❌ CLOSE MENU');
+    setIsOpen(false);
+  };
+
   return (
-    <div style={{ position: 'relative', zIndex: 9999 }}>
+    <>
       {/* Logo cliquable */}
-      <button
-        onClick={() => {
-          console.log('🎯 Toggle menu, isOpen will be:', !isOpen);
-          setIsOpen(!isOpen);
-        }}
+      <div
+        onClick={toggleMenu}
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
           padding: '8px',
-          borderRadius: '12px',
-          backgroundColor: 'transparent',
-          border: 'none',
           cursor: 'pointer',
-          color: 'white'
+          color: 'white',
+          zIndex: 999999,
+          position: 'relative'
         }}
       >
         <Logo size="lg" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontWeight: '600', fontSize: '18px' }}>Francis</span>
-          <ChevronDown 
-            style={{
-              width: '16px',
-              height: '16px',
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.3s'
-            }}
-          />
-        </div>
-      </button>
+        <span style={{ fontWeight: '600', fontSize: '18px' }}>Francis</span>
+        <ChevronDown style={{ width: '16px', height: '16px' }} />
+      </div>
 
-      {/* Menu déroulant SIMPLE */}
+      {/* Menu déroulant - MÊME STYLE QUE LE BOUTON DE TEST */}
       {isOpen && (
         <div
           style={{
             position: 'fixed',
-            top: '80px',
-            left: '16px',
-            width: '280px',
+            top: '100px',
+            left: '20px',
+            width: '300px',
             backgroundColor: 'rgba(22, 34, 56, 0.95)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '8px',
-            zIndex: 99999,
-            backdropFilter: 'blur(12px)'
+            border: '2px solid white',
+            borderRadius: '12px',
+            padding: '16px',
+            zIndex: 999999
           }}
         >
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryClick(category.path, category.label)}
-              onMouseDown={() => console.log('🖱️ MOUSE DOWN:', category.label)}
-              onMouseUp={() => console.log('🖱️ MOUSE UP:', category.label)}
+          <div style={{ marginBottom: '16px', color: 'white', fontWeight: 'bold' }}>
+            Choisir une catégorie:
+          </div>
+          
+          {categories.map((cat) => (
+            <div
+              key={cat.id}
+              onClick={() => handleClick(cat.path, cat.label)}
+              onMouseDown={() => console.log('🖱️ MOUSE DOWN:', cat.label)}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: 'pointer',
+                padding: '12px',
+                margin: '8px 0',
+                backgroundColor: 'red',
                 color: 'white',
-                textAlign: 'left',
-                transition: 'background-color 0.3s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                border: '2px solid white'
               }}
             >
-              <div
-                style={{
-                  padding: '8px',
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                {category.icon}
-              </div>
-              <div>
-                <div style={{ fontWeight: '600' }}>{category.label}</div>
-              </div>
-            </button>
+              {cat.label}
+            </div>
           ))}
           
-          {/* Bouton fermer */}
-          <div style={{ padding: '8px', textAlign: 'center' }}>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'rgba(197, 165, 114, 0.2)',
-                border: '1px solid rgba(197, 165, 114, 0.3)',
-                borderRadius: '8px',
-                color: '#e8cfa0',
-                cursor: 'pointer',
-                fontSize: '12px'
-              }}
-            >
-              Fermer
-            </button>
+          <div
+            onClick={closeMenu}
+            style={{
+              padding: '8px',
+              marginTop: '16px',
+              backgroundColor: 'green',
+              color: 'white',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              border: '2px solid white'
+            }}
+          >
+            FERMER
           </div>
         </div>
       )}
       
-      {/* Backdrop pour fermer */}
+      {/* Backdrop */}
       {isOpen && (
         <div
-          onClick={() => setIsOpen(false)}
+          onClick={closeMenu}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 9998,
-            backgroundColor: 'transparent'
+            zIndex: 999998,
+            backgroundColor: 'rgba(0,0,0,0.3)'
           }}
         />
       )}
-    </div>
+    </>
   );
 }
