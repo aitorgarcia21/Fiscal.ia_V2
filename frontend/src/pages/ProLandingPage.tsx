@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Euro, FileText, Users, Check, BrainCircuit, Clock, BarChart3, Shield, Mic, ChevronRight, Sparkles, Play, Download, TrendingUp, Timer, Monitor } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { PWAInstallButton } from '../components/PWAInstallButton';
-import { CategorySwitcher } from '../components/ui/CategorySwitcher';
+import { SimpleCategorySwitcher } from '../components/ui/SimpleCategorySwitcher';
 
 
 const features = [
@@ -94,7 +94,7 @@ const ProLandingPage = () => {
         <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
           <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             {/* Category Switcher */}
-            <CategorySwitcher />
+            <SimpleCategorySwitcher />
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Home, PiggyBank, Calculator, Shield, Users, MessageSquare, Euro } from 'lucide-react';
-import { CategorySwitcher } from '../components/ui/CategorySwitcher';
+import { SimpleCategorySwitcher } from '../components/ui/SimpleCategorySwitcher';
 
 export const ParticulierLandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export const ParticulierLandingPage: React.FC = () => {
       {/* Header */}
       <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <CategorySwitcher />
+          <SimpleCategorySwitcher />
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
