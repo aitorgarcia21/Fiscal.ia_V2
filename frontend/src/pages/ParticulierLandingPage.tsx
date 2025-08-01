@@ -1,12 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Home, PiggyBank, Calculator, Shield, Users, MessageSquare, Euro } from 'lucide-react';
+import { ArrowRight, Home, PiggyBank, Calculator, Shield, Users, MessageSquare, Euro, ChevronDown, Building, Crown } from 'lucide-react';
+import { Logo } from '../components/ui/Logo';
 // import { SimpleCategorySwitcher } from '../components/ui/SimpleCategorySwitcher';
 // import { TestClickButton } from '../components/ui/TestClickButton';
 
 export const ParticulierLandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const features = [
     {
@@ -37,62 +39,132 @@ export const ParticulierLandingPage: React.FC = () => {
       {/* Header */}
       <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* BOUTONS DIRECTS POUR NAVIGATION */}
-          <div style={{ display: 'flex', gap: '10px' }}>
+          {/* CATEGORY SWITCHER PREMIUM */}
+          <div className="relative">
+            {/* Logo cliquable avec dropdown */}
             <div
               onClick={() => {
-                console.log('🚀 DIRECT CLICK: Particulier');
-                alert('Navigation vers Particulier');
-                window.location.href = '/';
+                console.log('🎯 Toggle dropdown:', !isDropdownOpen);
+                setIsDropdownOpen(!isDropdownOpen);
               }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'red',
-                color: 'white',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                border: '2px solid white'
-              }}
+              className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-all duration-300 group cursor-pointer"
             >
-              Particulier
+              <Logo size="lg" className="transition-transform duration-300 group-hover:scale-105" />
+              
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-2 text-white">
+                  <Users className="w-5 h-5" />
+                  <span className="font-semibold text-lg">Particulier</span>
+                </div>
+                <ChevronDown 
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+                    isDropdownOpen ? 'rotate-180' : ''
+                  }`} 
+                />
+              </div>
+              
+              {/* Version mobile - juste le chevron */}
+              <ChevronDown 
+                className={`w-4 h-4 text-gray-400 transition-transform duration-300 sm:hidden ${
+                  isDropdownOpen ? 'rotate-180' : ''
+                }`} 
+              />
             </div>
-            <div
-              onClick={() => {
-                console.log('🚀 DIRECT CLICK: Pro');
-                alert('Navigation vers Pro');
-                window.location.href = '/pro-landing';
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'blue',
-                color: 'white',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                border: '2px solid white'
-              }}
-            >
-              Pro
-            </div>
-            <div
-              onClick={() => {
-                console.log('🚀 DIRECT CLICK: Andorre');
-                alert('Navigation vers Andorre');
-                window.location.href = '/andorre';
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'green',
-                color: 'white',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                border: '2px solid white'
-              }}
-            >
-              Andorre
-            </div>
+
+            {/* Menu déroulant premium */}
+            {isDropdownOpen && (
+              <>
+                {/* Backdrop */}
+                <div
+                  onClick={() => setIsDropdownOpen(false)}
+                  style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 9998,
+                    backgroundColor: 'transparent'
+                  }}
+                />
+                
+                {/* Menu */}
+                <div 
+                  style={{
+                    position: 'fixed',
+                    top: '80px',
+                    left: '16px',
+                    width: '320px',
+                    zIndex: 9999
+                  }}
+                  className="bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                >
+                  <div className="p-2">
+                    {/* Particulier */}
+                    <div
+                      onClick={() => {
+                        console.log('🚀 Navigation: Particulier');
+                        setIsDropdownOpen(false);
+                        window.location.href = '/';
+                      }}
+                      className="w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left cursor-pointer bg-gradient-to-r from-[#c5a572]/20 to-[#e8cfa0]/20 border border-[#c5a572]/30"
+                    >
+                      <div className="p-2 rounded-lg bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238]">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-[#e8cfa0]">Particulier</div>
+                        <div className="text-sm text-gray-400">Solutions pour particuliers</div>
+                      </div>
+                      <div className="w-2 h-2 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] rounded-full"></div>
+                    </div>
+                    
+                    {/* Pro */}
+                    <div
+                      onClick={() => {
+                        console.log('🚀 Navigation: Pro');
+                        setIsDropdownOpen(false);
+                        window.location.href = '/pro-landing';
+                      }}
+                      className="w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left cursor-pointer hover:bg-white/5 hover:scale-[1.02]"
+                    >
+                      <div className="p-2 rounded-lg bg-white/10 text-gray-300">
+                        <Building className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-white">Professionnel</div>
+                        <div className="text-sm text-gray-400">Outils pour professionnels</div>
+                      </div>
+                    </div>
+                    
+                    {/* Andorre */}
+                    <div
+                      onClick={() => {
+                        console.log('🚀 Navigation: Andorre');
+                        setIsDropdownOpen(false);
+                        window.location.href = '/andorre';
+                      }}
+                      className="w-full flex items-center gap-3 p-4 rounded-xl transition-all duration-300 text-left cursor-pointer hover:bg-white/5 hover:scale-[1.02]"
+                    >
+                      <div className="p-2 rounded-lg bg-white/10 text-gray-300">
+                        <Crown className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-white">Francis Andorre</div>
+                        <div className="text-sm text-gray-400">Expertise fiscale andorrane</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Footer du dropdown */}
+                  <div className="px-4 py-3 bg-gradient-to-r from-[#0A0F1C]/50 to-[#162238]/50 border-t border-white/5">
+                    <p className="text-xs text-gray-400 text-center">
+                      Cliquez pour changer de catégorie
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Auth Buttons */}
