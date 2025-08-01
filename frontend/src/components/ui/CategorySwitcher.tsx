@@ -75,7 +75,23 @@ export function CategorySwitcher() {
     console.log('🎯 CategorySwitcher: Changing category to', category.label, 'path:', category.path);
     setCurrentCategory(category);
     setIsOpen(false);
-    navigate(category.path);
+    
+    // Force navigation avec window.location pour garantir le changement de page
+    try {
+      navigate(category.path);
+      console.log('✅ Navigate called successfully');
+    } catch (error) {
+      console.error('❌ Navigate failed, using window.location:', error);
+      window.location.href = category.path;
+    }
+    
+    // Fallback: forcer avec window.location après 100ms si navigate ne fonctionne pas
+    setTimeout(() => {
+      if (window.location.pathname !== category.path) {
+        console.log('🔄 Fallback: forcing navigation with window.location');
+        window.location.href = category.path;
+      }
+    }, 100);
   };
 
   if (!currentCategory) return null;
