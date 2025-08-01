@@ -39,224 +39,69 @@ export const ParticulierLandingPage: React.FC = () => {
       {/* Header */}
       <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* CATEGORY SWITCHER PREMIUM */}
-          <div className="relative">
-            {/* Logo cliquable avec dropdown */}
-            <div
-              onClick={() => {
-                console.log('🎯 Toggle dropdown:', !isDropdownOpen);
-                setIsDropdownOpen(!isDropdownOpen);
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '8px',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                color: 'white'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <Logo size="lg" />
+          {/* NAVIGATION SIMPLE QUI MARCHE */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Logo size="lg" />
+            
+            {/* Boutons de navigation simples */}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={() => {
+                  console.log('🚀 NAVIGATION: Particulier');
+                  window.location.href = '/';
+                }}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#c5a572',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Particulier
+              </button>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Users style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontWeight: '600', fontSize: '18px' }}>Particulier</span>
-                <ChevronDown 
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    color: '#9CA3AF',
-                    transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.3s'
-                  }}
-                />
-              </div>
+              <button
+                onClick={() => {
+                  console.log('🚀 NAVIGATION: Pro');
+                  window.location.href = '/pro-landing';
+                }}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Pro
+              </button>
+              
+              <button
+                onClick={() => {
+                  console.log('🚀 NAVIGATION: Andorre');
+                  window.location.href = '/andorre';
+                }}
+                style={{
+                  padding: '6px 12px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Andorre
+              </button>
             </div>
-
-            {/* Menu déroulant premium */}
-            {isDropdownOpen && (
-              <div>
-                {/* Backdrop */}
-                <div
-                  onClick={() => setIsDropdownOpen(false)}
-                  style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    zIndex: 9998,
-                    backgroundColor: 'transparent'
-                  }}
-                />
-                
-                {/* Menu */}
-                <div 
-                  style={{
-                    position: 'fixed',
-                    top: '80px',
-                    left: '16px',
-                    width: '320px',
-                    zIndex: 9999,
-                    background: 'linear-gradient(135deg, rgba(22, 34, 56, 0.95), rgba(30, 50, 83, 0.95))',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '16px',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <div style={{ padding: '8px' }}>
-                    {/* Particulier */}
-                    <div
-                      onClick={() => {
-                        console.log('🚀 Navigation: Particulier');
-                        setIsDropdownOpen(false);
-                        window.location.href = '/';
-                      }}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        background: 'linear-gradient(90deg, rgba(197, 165, 114, 0.2), rgba(232, 207, 160, 0.2))',
-                        border: '1px solid rgba(197, 165, 114, 0.3)',
-                        transition: 'all 0.3s'
-                      }}
-                    >
-                      <div style={{
-                        padding: '8px',
-                        borderRadius: '8px',
-                        background: 'linear-gradient(90deg, #c5a572, #e8cfa0)',
-                        color: '#162238'
-                      }}>
-                        <Users style={{ width: '20px', height: '20px' }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', color: '#e8cfa0' }}>Particulier</div>
-                        <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Solutions pour particuliers</div>
-                      </div>
-                      <div style={{
-                        width: '8px',
-                        height: '8px',
-                        background: 'linear-gradient(90deg, #c5a572, #e8cfa0)',
-                        borderRadius: '50%'
-                      }}></div>
-                    </div>
-                    
-                    {/* Pro */}
-                    <div
-                      onClick={() => {
-                        console.log('🚀 Navigation: Pro');
-                        setIsDropdownOpen(false);
-                        window.location.href = '/pro-landing';
-                      }}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all 0.3s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.transform = 'scale(1.02)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
-                    >
-                      <div style={{
-                        padding: '8px',
-                        borderRadius: '8px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        color: '#D1D5DB'
-                      }}>
-                        <Building style={{ width: '20px', height: '20px' }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', color: 'white' }}>Professionnel</div>
-                        <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Outils pour professionnels</div>
-                      </div>
-                    </div>
-                    
-                    {/* Andorre */}
-                    <div
-                      onClick={() => {
-                        console.log('🚀 Navigation: Andorre');
-                        setIsDropdownOpen(false);
-                        window.location.href = '/andorre';
-                      }}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all 0.3s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.transform = 'scale(1.02)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
-                    >
-                      <div style={{
-                        padding: '8px',
-                        borderRadius: '8px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        color: '#D1D5DB'
-                      }}>
-                        <Crown style={{ width: '20px', height: '20px' }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', color: 'white' }}>Francis Andorre</div>
-                        <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Expertise fiscale andorrane</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Footer du dropdown */}
-                  <div style={{
-                    padding: '12px 16px',
-                    background: 'linear-gradient(90deg, rgba(10, 15, 28, 0.5), rgba(22, 34, 56, 0.5))',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.05)'
-                  }}>
-                    <p style={{
-                      fontSize: '12px',
-                      color: '#9CA3AF',
-                      textAlign: 'center',
-                      margin: 0
-                    }}>
-                      Cliquez pour changer de catégorie
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Auth Buttons */}
