@@ -82,7 +82,16 @@ export function CategorySwitcher() {
   if (!currentCategory) return null;
 
   return (
-    <div className="relative z-50" ref={dropdownRef}>
+    <>
+      {/* Backdrop pour fermer le menu */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-transparent" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      
+      <div className="relative z-50" ref={dropdownRef}>
       {/* Logo cliquable avec indicateur dropdown */}
       <button
         onClick={(e) => {
@@ -119,7 +128,7 @@ export function CategorySwitcher() {
 
       {/* Menu déroulant */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-hidden pointer-events-auto">
+        <div className="fixed top-20 left-4 w-72 sm:w-80 bg-gradient-to-br from-[#162238]/95 to-[#1E3253]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[9999] overflow-hidden pointer-events-auto">
           <div className="p-2">
             {categories.map((category) => (
               <button
@@ -172,6 +181,7 @@ export function CategorySwitcher() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
