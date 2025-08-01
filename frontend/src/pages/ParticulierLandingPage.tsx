@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Home, PiggyBank, Calculator, Shield, Users, MessageSquare, Euro } from 'lucide-react';
-import { SimpleCategorySwitcher } from '../components/ui/SimpleCategorySwitcher';
+// import { SimpleCategorySwitcher } from '../components/ui/SimpleCategorySwitcher';
 import { TestClickButton } from '../components/ui/TestClickButton';
 
 export const ParticulierLandingPage: React.FC = () => {
@@ -37,7 +37,63 @@ export const ParticulierLandingPage: React.FC = () => {
       {/* Header */}
       <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
         <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <SimpleCategorySwitcher />
+          {/* BOUTONS DIRECTS POUR NAVIGATION */}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div
+              onClick={() => {
+                console.log('🚀 DIRECT CLICK: Particulier');
+                alert('Navigation vers Particulier');
+                window.location.href = '/';
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'red',
+                color: 'white',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                border: '2px solid white'
+              }}
+            >
+              Particulier
+            </div>
+            <div
+              onClick={() => {
+                console.log('🚀 DIRECT CLICK: Pro');
+                alert('Navigation vers Pro');
+                window.location.href = '/pro-landing';
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'blue',
+                color: 'white',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                border: '2px solid white'
+              }}
+            >
+              Pro
+            </div>
+            <div
+              onClick={() => {
+                console.log('🚀 DIRECT CLICK: Andorre');
+                alert('Navigation vers Andorre');
+                window.location.href = '/andorre';
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'green',
+                color: 'white',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                border: '2px solid white'
+              }}
+            >
+              Andorre
+            </div>
+          </div>
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
