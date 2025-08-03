@@ -185,14 +185,19 @@ export function ParticulierDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center">
-                <MessageSquare className="h-10 w-10 text-[#c5a572]" />
-                <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Francis</h1>
-                <p className="text-sm text-gray-400">Dashboard Particulier</p>
-              </div>
+              <button 
+                onClick={() => navigate('/')}
+                className="flex items-center gap-3 hover:bg-[#1a2942]/50 rounded-lg p-1 transition-colors"
+              >
+                <div className="relative">
+                  <MessageSquare className="h-10 w-10 text-[#c5a572] transition-transform group-hover:scale-110" />
+                  <Euro className="h-7 w-7 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 border-2 border-[#162238] group-hover:scale-110 transition-transform" />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-2xl font-bold text-white">Francis</h1>
+                  <p className="text-sm text-gray-400">Dashboard Particulier</p>
+                </div>
+              </button>
             </div>
 
             <div className="flex items-center gap-4">
