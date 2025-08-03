@@ -122,9 +122,9 @@ export const AndorreLandingPage: React.FC = () => {
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 tracking-tight leading-none">
                 L'Excellence
                 <br />
-                <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">Fiscale Andorrane</span>
+                <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent">patrimoniale Andorrane</span>
                 <br />
-                <span className="text-4xl md:text-5xl lg:text-6xl text-gray-300">Réinventée</span>
+                <span className="text-4xl md:text-5xl lg:text-6xl text-gray-300">réinventée</span>
               </h1>
               
               <p className="text-xl md:text-2xl lg:text-3xl text-gray-300 mb-12 max-w-5xl mx-auto leading-relaxed font-light">
