@@ -16,11 +16,7 @@ export const ParticulierLandingPage: React.FC = () => {
       title: "Optimisation fiscale personnelle",
       description: "Réduisez vos impôts légalement avec nos conseils personnalisés"
     },
-    {
-      icon: Home,
-      title: "Investissement immobilier",
-      description: "Trouvez les meilleures stratégies d'investissement immobilier"
-    },
+
     {
       icon: PiggyBank,
       title: "Épargne et placements",
@@ -214,7 +210,7 @@ export const ParticulierLandingPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-[#c5a572]/10 to-[#e8cfa0]/10">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#1a2332]">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
