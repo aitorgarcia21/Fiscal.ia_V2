@@ -94,71 +94,7 @@ const ProLandingPage = () => {
         {/* Header simple */}
         <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
           <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            {/* Category Switcher */}
-            {/* NAVIGATION SIMPLE QUI MARCHE */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Logo size="lg" />
-              
-              {/* Boutons de navigation simples */}
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button
-                  onClick={() => {
-                    console.log('🚀 NAVIGATION: Particulier');
-                    window.location.href = '/';
-                  }}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600'
-                  }}
-                >
-                  Particulier
-                </button>
-                
-                <button
-                  onClick={() => {
-                    console.log('🚀 NAVIGATION: Pro');
-                    window.location.href = '/pro-landing';
-                  }}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#c5a572',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600'
-                  }}
-                >
-                  Pro
-                </button>
-                
-                <button
-                  onClick={() => {
-                    console.log('🚀 NAVIGATION: Andorre');
-                    window.location.href = '/andorre';
-                  }}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600'
-                  }}
-                >
-                  Andorre
-                </button>
-              </div>
-            </div>
+            <Logo size="lg" showText={true} showDropdown={true} currentCategory="pro" />
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
