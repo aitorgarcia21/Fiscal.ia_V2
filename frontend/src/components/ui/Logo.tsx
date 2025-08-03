@@ -64,19 +64,16 @@ export function Logo({
       }
     }
 
-    if (isDropdownOpen) {
-      // Ajouter un délai pour éviter la fermeture immédiate
-      setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-      }, 100);
-    }
-
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen]);
+  }, []);
 
-  const handleLogoClick = () => {
+  const handleLogoClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (showDropdown) {
       setIsDropdownOpen(!isDropdownOpen);
     } else {
@@ -84,21 +81,16 @@ export function Logo({
     }
   };
 
-  const handleCategorySelect = (event: React.MouseEvent, category: CategoryOption) => {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log(`🚀 NAVIGATION: ${category.label}`);
+  const handleCategorySelect = (categoryPath: string, categoryLabel: string) => {
+    console.log(`🚀 NAVIGATION: ${categoryLabel}`);
     setIsDropdownOpen(false);
-    
-    // Ajouter un petit délai pour permettre l'animation de fermeture
-    setTimeout(() => {
-      navigate(category.path);
-    }, 100);
+    window.location.href = categoryPath; // Utilisation de window.location pour éviter les problèmes de routing
   };
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
+        type="button"
         onClick={handleLogoClick}
         className={`flex items-center gap-3 group transition-all duration-300 ${
           showDropdown ? 'hover:bg-[#1a2942]/50 rounded-lg p-2' : ''
@@ -125,11 +117,10 @@ export function Logo({
       {showDropdown && isDropdownOpen && (
         <div className="absolute top-full left-0 mt-2 w-48 bg-[#162238] border border-[#c5a572]/20 rounded-lg shadow-xl z-50 overflow-hidden">
           {categories.map((category) => (
-            <button
+            <div
               key={category.key}
-              onClick={(e) => handleCategorySelect(e, category)}
-              onMouseDown={(e) => e.stopPropagation()}
-              className={`w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between cursor-pointer ${
+              onClick={() => handleCategorySelect(category.path, category.label)}
+              className={`w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between cursor-pointer select-none ${
                 category.active
                   ? 'bg-[#c5a572] text-[#162238] font-semibold'
                   : 'text-white hover:bg-[#1a2942] hover:text-[#c5a572]'
@@ -139,7 +130,7 @@ export function Logo({
               {category.active && (
                 <div className="w-2 h-2 bg-[#162238] rounded-full"></div>
               )}
-            </button>
+            </div>
           ))}
         </div>
       )}
