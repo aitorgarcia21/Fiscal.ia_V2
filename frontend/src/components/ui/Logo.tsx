@@ -116,22 +116,47 @@ export function Logo({
       {/* Menu déroulant */}
       {showDropdown && isDropdownOpen && (
         <div className="absolute top-full left-0 mt-2 w-48 bg-[#162238] border border-[#c5a572]/20 rounded-lg shadow-xl z-50 overflow-hidden">
-          {categories.map((category) => (
-            <div
-              key={category.key}
-              onClick={() => handleCategorySelect(category.path, category.label)}
-              className={`w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between cursor-pointer select-none ${
-                category.active
-                  ? 'bg-[#c5a572] text-[#162238] font-semibold'
-                  : 'text-white hover:bg-[#1a2942] hover:text-[#c5a572]'
-              }`}
-            >
-              <span>{category.label}</span>
-              {category.active && (
-                <div className="w-2 h-2 bg-[#162238] rounded-full"></div>
-              )}
-            </div>
-          ))}
+          <a
+            href="/"
+            className={`block w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between no-underline ${
+              currentCategory === 'particulier'
+                ? 'bg-[#c5a572] text-[#162238] font-semibold'
+                : 'text-white hover:bg-[#1a2942] hover:text-[#c5a572]'
+            }`}
+          >
+            <span>Particulier</span>
+            {currentCategory === 'particulier' && (
+              <div className="w-2 h-2 bg-[#162238] rounded-full"></div>
+            )}
+          </a>
+          
+          <a
+            href="/pro-landing"
+            className={`block w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between no-underline ${
+              currentCategory === 'pro'
+                ? 'bg-[#c5a572] text-[#162238] font-semibold'
+                : 'text-white hover:bg-[#1a2942] hover:text-[#c5a572]'
+            }`}
+          >
+            <span>Pro</span>
+            {currentCategory === 'pro' && (
+              <div className="w-2 h-2 bg-[#162238] rounded-full"></div>
+            )}
+          </a>
+          
+          <a
+            href="/andorre"
+            className={`block w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between no-underline ${
+              currentCategory === 'andorre'
+                ? 'bg-[#c5a572] text-[#162238] font-semibold'
+                : 'text-white hover:bg-[#1a2942] hover:text-[#c5a572]'
+            }`}
+          >
+            <span>Andorre</span>
+            {currentCategory === 'andorre' && (
+              <div className="w-2 h-2 bg-[#162238] rounded-full"></div>
+            )}
+          </a>
         </div>
       )}
     </div>
