@@ -64,11 +64,17 @@ export function Logo({
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isDropdownOpen) {
+      // Ajouter un délai pour éviter la fermeture immédiate
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 100);
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isDropdownOpen]);
 
   const handleLogoClick = () => {
     if (showDropdown) {
@@ -78,10 +84,16 @@ export function Logo({
     }
   };
 
-  const handleCategorySelect = (category: CategoryOption) => {
+  const handleCategorySelect = (event: React.MouseEvent, category: CategoryOption) => {
+    event.preventDefault();
+    event.stopPropagation();
     console.log(`🚀 NAVIGATION: ${category.label}`);
     setIsDropdownOpen(false);
-    navigate(category.path);
+    
+    // Ajouter un petit délai pour permettre l'animation de fermeture
+    setTimeout(() => {
+      navigate(category.path);
+    }, 100);
   };
 
   return (
@@ -115,8 +127,9 @@ export function Logo({
           {categories.map((category) => (
             <button
               key={category.key}
-              onClick={() => handleCategorySelect(category)}
-              className={`w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between ${
+              onClick={(e) => handleCategorySelect(e, category)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className={`w-full text-left px-4 py-3 transition-colors duration-200 flex items-center justify-between cursor-pointer ${
                 category.active
                   ? 'bg-[#c5a572] text-[#162238] font-semibold'
                   : 'text-white hover:bg-[#1a2942] hover:text-[#c5a572]'
