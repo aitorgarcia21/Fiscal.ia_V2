@@ -185,7 +185,7 @@ export const ParticulierLandingPage: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -237,7 +237,7 @@ export const ParticulierLandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-[#0A0F1C]/80 border-t border-[#2A3F6C]/50">
+      <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0A192F] via-[#162238] to-[#1a2332] border-t border-[#c5a572]/20">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-gray-400">
             © 2024 Francis Particulier. Votre assistant personnel en gestion de patrimoine.
