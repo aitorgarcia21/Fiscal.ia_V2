@@ -94,7 +94,7 @@ const ProLandingPage = () => {
         {/* Header simple */}
         <header className="bg-[#162238]/90 backdrop-blur-lg border-b border-[#2A3F6C]/50 shadow-lg">
           <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <Logo size="lg" showText={true} showDropdown={true} currentCategory="pro" />
+            <Logo size="lg" showText={true} />
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">

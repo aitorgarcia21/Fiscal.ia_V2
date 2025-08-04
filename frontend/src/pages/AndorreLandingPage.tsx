@@ -30,7 +30,7 @@ export const AndorreLandingPage: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >          
-            <Logo size="lg" showText={true} showDropdown={true} currentCategory="andorre" />
+            <Logo size="lg" showText={true} />
           </motion.div>
           
           <motion.button
