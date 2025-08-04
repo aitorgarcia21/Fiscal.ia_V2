@@ -56,7 +56,7 @@ export const ParticulierLandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <motion.div
@@ -64,18 +64,12 @@ export const ParticulierLandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="flex justify-center items-center gap-3 mb-6">
-                <div className="relative inline-flex items-center justify-center">
-                  <MessageSquare className="h-12 w-12 text-[#c5a572] transition-transform duration-300" />
-                  <Euro className="h-8 w-8 text-[#c5a572] absolute -bottom-2 -right-2 bg-[#162238] rounded-full p-0.5 transition-transform duration-300" />
-                </div>
-                <h1 className="text-4xl md:text-6xl font-bold text-white">
-                  Francis
-                  <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-transparent bg-clip-text ml-3">
-                    Particulier
-                  </span>
-                </h1>
-              </div>
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                Francis
+                <span className="bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-transparent bg-clip-text ml-3">
+                  Particulier
+                </span>
+              </h1>
               
               <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
                 Votre assistant personnel pour optimiser votre fiscalité et faire grandir votre patrimoine
