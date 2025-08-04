@@ -251,7 +251,7 @@ export function ParticulierSignupPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-2xl"
+          className="w-full max-w-md mx-auto"
         >
           {/* Header Desktop */}
           <div className="text-center mb-8">
