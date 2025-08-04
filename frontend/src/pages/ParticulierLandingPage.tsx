@@ -75,10 +75,10 @@ export const ParticulierLandingPage: React.FC = () => {
                 Votre assistant personnel pour optimiser votre fiscalité et faire grandir votre patrimoine
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
                 <button
                   onClick={() => navigate('/particulier/signup')}
-                  className="px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold text-lg rounded-xl hover:shadow-2xl hover:shadow-[#c5a572]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2"
+                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] text-[#162238] font-bold text-lg rounded-xl hover:shadow-2xl hover:shadow-[#c5a572]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2"
                 >
                   Commencer gratuitement
                   <ArrowRight className="w-5 h-5" />
@@ -86,7 +86,7 @@ export const ParticulierLandingPage: React.FC = () => {
                 
                 <button
                   onClick={() => navigate('/particulier/login')}
-                  className="px-8 py-4 border-2 border-[#c5a572] text-[#c5a572] font-bold text-lg rounded-xl hover:bg-[#c5a572] hover:text-[#162238] transition-all duration-300"
+                  className="w-full sm:w-auto px-8 py-4 border-2 border-[#c5a572] text-[#c5a572] font-bold text-lg rounded-xl hover:bg-[#c5a572] hover:text-[#162238] transition-all duration-300 text-center"
                 >
                   Se connecter
                 </button>
