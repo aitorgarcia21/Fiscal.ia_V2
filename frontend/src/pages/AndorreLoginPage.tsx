@@ -29,18 +29,29 @@ export const AndorreLoginPage: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    
+    console.log(' [AndorreLogin] Tentative de connexion:', {
+      email,
+      passwordLength: password.length,
+      timestamp: new Date().toISOString()
+    });
 
     try {
       const { success, error } = await login(email, password);
+      
+      console.log(' [AndorreLogin] Réponse login:', { success, error });
 
       if (!success || error) {
+        console.error(' [AndorreLogin] Échec connexion:', error);
         setError(error || 'Erreur de connexion');
         return;
       }
 
+      console.log(' [AndorreLogin] Connexion réussie, redirection...');
       // Redirection vers Francis Andorre après connexion réussie
       navigate('/analyse-ia-fiscale-andorrane');
     } catch (error: any) {
+      console.error(' [AndorreLogin] Exception:', error);
       setError('Erreur de connexion. Veuillez réessayer.');
     } finally {
       setIsLoading(false);

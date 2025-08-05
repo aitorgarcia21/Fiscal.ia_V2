@@ -81,6 +81,8 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
   const login = async (email: string, password: string) => {
+    console.log('🔐 Tentative de connexion Supabase:', { email, passwordLength: password.length });
+    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -88,11 +90,24 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       });
 
       if (error) {
+        console.error('❌ Erreur Supabase Auth:', {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+          details: error
+        });
         return { success: false, error: error.message };
       }
 
+      console.log('✅ Connexion réussie:', {
+        userId: data.user?.id,
+        email: data.user?.email,
+        hasSession: !!data.session
+      });
+      
       return { success: true };
     } catch (error: any) {
+      console.error('💥 Exception lors de la connexion:', error);
       return { success: false, error: error.message || 'Erreur de connexion' };
     }
   };
