@@ -81,50 +81,62 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
   const login = async (email: string, password: string) => {
-    console.log('🔐 [SupabaseAuth] Tentative de connexion:', { 
-      email, 
+    console.log('🔐 [SupabaseAuth] Tentative de connexion:', {
+      email,
       passwordLength: password.length,
       timestamp: new Date().toISOString()
     });
     
     try {
-      // Créer une promesse avec timeout
-      const loginPromise = supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Utiliser directement l'API REST pour contourner le bug du SDK
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      console.log('⏱️ [SupabaseAuth] Appel API REST direct...');
+      
+      const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          gotrue_meta_security: {}
+        })
       });
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout: La connexion a pris trop de temps')), 10000)
-      );
+      console.log('📥 [SupabaseAuth] Réponse HTTP:', response.status, response.statusText);
       
-      console.log('⏱️ [SupabaseAuth] Appel API en cours...');
+      const data = await response.json();
       
-      // Race entre la connexion et le timeout
-      const result = await Promise.race([loginPromise, timeoutPromise]) as any;
-      
-      console.log('📥 [SupabaseAuth] Réponse reçue:', { 
-        hasData: !!result?.data,
-        hasError: !!result?.error
-      });
-      
-      const { data, error } = result;
-
-      if (error) {
-        console.error('❌ [SupabaseAuth] Erreur:', {
-          message: error.message,
-          status: error.status,
-          code: error.code,
-          details: error
-        });
-        return { success: false, error: error.message };
+      if (!response.ok) {
+        console.error('❌ [SupabaseAuth] Erreur API:', data);
+        return { success: false, error: data.error_description || data.msg || 'Erreur de connexion' };
       }
-
+      
       console.log('✅ [SupabaseAuth] Connexion réussie:', {
-        userId: data.user?.id,
-        email: data.user?.email,
-        hasSession: !!data.session
+        hasAccessToken: !!data.access_token,
+        hasUser: !!data.user,
+        userId: data.user?.id
       });
+      
+      // Forcer la mise à jour de la session dans le client Supabase
+      if (data.access_token && data.refresh_token) {
+        console.log('🔄 [SupabaseAuth] Mise à jour de la session...');
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token
+        });
+        
+        if (sessionError) {
+          console.error('❌ [SupabaseAuth] Erreur setSession:', sessionError);
+        } else {
+          console.log('✅ [SupabaseAuth] Session mise à jour');
+        }
+      }
       
       return { success: true };
     } catch (error: any) {
