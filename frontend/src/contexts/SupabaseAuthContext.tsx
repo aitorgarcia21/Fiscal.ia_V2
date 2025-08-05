@@ -81,16 +81,37 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
   const login = async (email: string, password: string) => {
-    console.log('🔐 Tentative de connexion Supabase:', { email, passwordLength: password.length });
+    console.log('🔐 [SupabaseAuth] Tentative de connexion:', { 
+      email, 
+      passwordLength: password.length,
+      timestamp: new Date().toISOString()
+    });
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Créer une promesse avec timeout
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: La connexion a pris trop de temps')), 10000)
+      );
+      
+      console.log('⏱️ [SupabaseAuth] Appel API en cours...');
+      
+      // Race entre la connexion et le timeout
+      const result = await Promise.race([loginPromise, timeoutPromise]) as any;
+      
+      console.log('📥 [SupabaseAuth] Réponse reçue:', { 
+        hasData: !!result?.data,
+        hasError: !!result?.error
+      });
+      
+      const { data, error } = result;
 
       if (error) {
-        console.error('❌ Erreur Supabase Auth:', {
+        console.error('❌ [SupabaseAuth] Erreur:', {
           message: error.message,
           status: error.status,
           code: error.code,
@@ -99,7 +120,7 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
         return { success: false, error: error.message };
       }
 
-      console.log('✅ Connexion réussie:', {
+      console.log('✅ [SupabaseAuth] Connexion réussie:', {
         userId: data.user?.id,
         email: data.user?.email,
         hasSession: !!data.session
@@ -107,7 +128,7 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       return { success: true };
     } catch (error: any) {
-      console.error('💥 Exception lors de la connexion:', error);
+      console.error('💥 [SupabaseAuth] Exception:', error);
       return { success: false, error: error.message || 'Erreur de connexion' };
     }
   };
