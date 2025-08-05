@@ -55,7 +55,7 @@ export function FrancisAndorreChat() {
   // 🔒 Pro Access Only (TEMPORARILY DISABLED FOR TESTING)
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate('/andorre/login');
       return;
     }
     // TEMPORARILY DISABLED: Check if user has pro subscription
