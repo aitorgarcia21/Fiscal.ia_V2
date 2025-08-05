@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, W
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime, timedelta, timezone
 import os
 import json
