@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
 import { ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, User, Building, Phone, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { supabase } from '../lib/supabase';
+import { debugSupabaseAuth } from '../debug-supabase-auth';
 
 /**
  * Page de connexion Francis Andorre - Design épuré et élégant
