@@ -32,8 +32,8 @@ export const AndorreLoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       await login(email, password);
-      // Redirection vers Francis Andorre après connexion réussie
-      navigate('/analyse-ia-fiscale-andorrane', { replace: true });
+      // Redirection vers Francis Andorre chat après connexion réussie
+      navigate('/andorre/chat', { replace: true });
     } catch (err: any) {
       setError(err.data?.detail || err.message || 'Email ou mot de passe incorrect.');
     } finally {
