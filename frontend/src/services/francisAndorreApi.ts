@@ -12,13 +12,14 @@ export interface FrancisMessage {
 }
 
 export interface FrancisResponse {
-  type: 'full_response' | 'error' | 'chunk';
+  type: 'full_response' | 'error' | 'chunk' | 'message_chunk';
   answer?: string;
   sources?: string[];
   confidence?: number;
   model?: string;
   status?: string;
   message?: string;
+  content?: string;
 }
 
 export class FrancisAndorreAPI {
