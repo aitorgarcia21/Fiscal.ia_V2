@@ -179,12 +179,12 @@ export const AndorreLoginPage: React.FC = () => {
       </div>
 
       {/* Version Desktop */}
-      <div className="hidden md:block min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#162238] to-[#1E3253] flex items-center justify-center px-4 py-8">
+      <div className="hidden md:flex min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#162238] to-[#1E3253] items-center justify-center px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md mx-auto"
         >
           {/* Header Desktop */}
           <div className="text-center mb-8">
