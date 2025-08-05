@@ -60,32 +60,29 @@ export class FrancisAndorreAPI {
       if (response.body && onChunk) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let fullResponse: FrancisResponse | null = null;
+        let fullText = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           const chunk = decoder.decode(value);
-          const lines = chunk.split('\n').filter(line => line.trim());
+          fullText += chunk;
           
-          for (const line of lines) {
-            try {
-              const data = JSON.parse(line) as FrancisResponse;
-              onChunk(data);
-              
-              if (data.type === 'full_response') {
-                fullResponse = data;
-              }
-            } catch (e) {
-              console.error('Erreur parsing chunk:', e);
-            }
-          }
+          // Envoyer le chunk de texte directement sans parsing JSON
+          const chunkResponse: FrancisResponse = {
+            type: 'message_chunk',
+            content: chunk,
+            message: chunk
+          };
+          onChunk(chunkResponse);
         }
 
-        return fullResponse || { 
-          type: 'error', 
-          message: 'Réponse incomplète du serveur' 
+        // Retourner la réponse complète
+        return {
+          type: 'full_response',
+          content: fullText,
+          message: fullText
         };
       } 
       // Sinon, lecture simple
