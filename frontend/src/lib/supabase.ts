@@ -18,11 +18,41 @@ export interface UserProfile {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
+console.log('🔧 [Supabase] Configuration:', {
+  url: supabaseUrl,
+  hasKey: !!supabaseAnonKey,
+  keyLength: supabaseAnonKey.length
+});
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase configuration manquante. Les fonctionnalités liées à Supabase seront désactivées.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Créer le client avec options de debug
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    detectSessionInUrl: true,
+    autoRefreshToken: true,
+    debug: true // Activer le debug
+  },
+  global: {
+    fetch: (url, options = {}) => {
+      console.log('🌐 [Supabase] Fetch:', url, options);
+      return fetch(url, options)
+        .then(res => {
+          console.log('📥 [Supabase] Response:', res.status, res.statusText);
+          return res;
+        })
+        .catch(err => {
+          console.error('❌ [Supabase] Fetch error:', err);
+          throw err;
+        });
+    }
+  }
+});
+
+console.log('✅ [Supabase] Client créé');
 
 // Fonctions helper pour la gestion des profils
 export const getUserProfile = async (userId: string) => {
