@@ -344,8 +344,9 @@ async def stream_francis_simple(request: dict):
             media_type="text/plain"
         )
     conversation_history = request.get("conversation_history", None)
+    # Force la juridiction Andorre pour Francis
     return StreamingResponse(
-        get_fiscal_response_stream(question, conversation_history),
+        get_fiscal_response_stream(question, conversation_history, None, "AD"),
         media_type="text/plain",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
     )

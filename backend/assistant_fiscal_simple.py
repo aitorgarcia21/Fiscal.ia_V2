@@ -851,10 +851,10 @@ def get_relevant_context(query: str) -> str:
     return context if context else "Aucune source officielle trouvée pour cette question."
 
 # NOUVELLE FONCTION STREAMING
-async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None) -> AsyncGenerator[str, None]:
+async def get_fiscal_response_stream(query: str, conversation_history: List[Dict] = None, user_profile_context: Optional[Dict[str, typing.Any]] = None, jurisdiction: Literal["FR", "AD", "CH", "LU"] = "FR") -> AsyncGenerator[str, None]:
     """Génère une réponse fiscale en streaming (actuellement, une seule réponse complète)."""
     try:
-        answer, sources, confidence = get_fiscal_response(query)
+        answer, sources, confidence = get_fiscal_response(query, conversation_history, user_profile_context, jurisdiction)
         
         response_data = {
             "type": "full_response",
