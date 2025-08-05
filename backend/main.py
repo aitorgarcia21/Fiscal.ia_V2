@@ -355,10 +355,10 @@ async def stream_francis_simple(request: dict):
 async def stream_francis_andorre_expert(request: dict):
     """Endpoint dédié pour Francis Andorre utilisant le modèle LLM spécialisé"""
     try:
-        from francis_andorre_expert import get_francis_andorre_response
+        from francis_andorre_expert import generate_francis_andorre_response
     except ImportError:
         try:
-            from backend.francis_andorre_expert import get_francis_andorre_response
+            from backend.francis_andorre_expert import generate_francis_andorre_response
         except ImportError:
             return StreamingResponse(
                 (json.dumps({"type": "error", "message": "Service Francis Andorre Expert non disponible"}) + "\n" for _ in range(1)),
@@ -376,7 +376,7 @@ async def stream_francis_andorre_expert(request: dict):
     use_embeddings = request.get("use_embeddings", True)
     
     return StreamingResponse(
-        get_francis_andorre_response(question, conversation_history, use_embeddings),
+        generate_francis_andorre_response(question, conversation_history, use_embeddings),
         media_type="text/plain",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
     )
