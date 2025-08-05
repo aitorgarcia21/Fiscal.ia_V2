@@ -146,25 +146,13 @@ export const AndorreLoginPage: React.FC = () => {
                     <span>Connexion...</span>
                   </>
                 ) : (
-                  <>
-                    <Crown className="w-6 h-6" />
-                    <span>Se connecter</span>
-                  </>
+                  <span>Se connecter</span>
                 )}
               </button>
             </form>
             
-            <div className="mt-6 space-y-4">
+            <div className="mt-6">
               <div className="text-center">
-                <Link 
-                  to="/andorre/signup" 
-                  className="text-[#c5a572] hover:text-[#e8cfa0] transition-colors font-medium touch-manipulation inline-block py-3"
-                >
-                  Créer un nouveau compte
-                </Link>
-              </div>
-              
-              <div className="pt-4 border-t border-white/10 text-center">
                 <Link 
                   to="/andorre/payment" 
                   className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 touch-manipulation min-h-[56px] w-full shadow-lg"
@@ -269,25 +257,13 @@ export const AndorreLoginPage: React.FC = () => {
                     <span>Connexion...</span>
                   </>
                 ) : (
-                  <>
-                    <Crown className="w-5 h-5" />
-                    <span>Se connecter</span>
-                  </>
+                  <span>Se connecter</span>
                 )}
               </button>
             </form>
             
-            <div className="mt-6 space-y-4">
+            <div className="mt-6">
               <div className="text-center">
-                <Link 
-                  to="/andorre/signup" 
-                  className="text-[#c5a572] hover:text-[#e8cfa0] transition-colors text-sm"
-                >
-                  Créer un compte
-                </Link>
-              </div>
-              
-              <div className="pt-4 border-t border-gray-600/30 text-center">
                 <Link 
                   to="/andorre/payment" 
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 text-sm"
