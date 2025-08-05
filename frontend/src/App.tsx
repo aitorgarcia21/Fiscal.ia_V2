@@ -152,8 +152,10 @@ function App() {
           <Route path="/discover" element={<DiscoverPage />} />
         </Route>
         
-        {/* Route de connexion Pro accessible sans authentification */}
+        {/* Routes de connexion accessibles sans authentification */}
         <Route path="/pro/login" element={<ProLoginPage />} />
+        <Route path="/particulier/login" element={<ParticulierLoginPage />} />
+        <Route path="/pro-landing" element={<ProLandingPage />} />
           <Route path="/andorre/login" element={<AndorreLoginPage />} />
           <Route path="/andorre/signup" element={<AndorreSignupPage />} />
           <Route path="/andorre/payment" element={<FrancisAndorrePayment />} />
