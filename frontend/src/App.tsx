@@ -163,6 +163,7 @@ function App() {
           <Route path="/andorre/payment" element={<FrancisAndorrePayment />} />
           <Route path="/andorre/success" element={<FrancisAndorreSuccess />} />
           <Route path="/andorre/test" element={<FrancisAndorreTestPage />} />
+          <Route path="/andorre/chat" element={<FrancisAndorreChat />} />
           <Route path="/analyse-ia-fiscale-andorrane" element={<FrancisAndorreChat />} />
           <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
