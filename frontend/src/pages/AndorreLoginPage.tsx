@@ -28,34 +28,42 @@ export const AndorreLoginPage: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔵 [AndorreLogin] DÉBUT handleLogin');
     setIsLoading(true);
     setError('');
     
-    console.log(' [AndorreLogin] Tentative de connexion:', {
+    console.log('📧 [AndorreLogin] Tentative de connexion:', {
       email,
       passwordLength: password.length,
       timestamp: new Date().toISOString()
     });
 
     try {
+      console.log('⏳ [AndorreLogin] Appel login()...');
       const { success, error } = await login(email, password);
       
-      console.log(' [AndorreLogin] Réponse login:', { success, error });
+      console.log('📨 [AndorreLogin] Réponse login:', { success, error });
 
       if (!success || error) {
-        console.error(' [AndorreLogin] Échec connexion:', error);
+        console.error('❌ [AndorreLogin] Échec connexion:', error);
         setError(error || 'Erreur de connexion');
+        setIsLoading(false);
         return;
       }
 
-      console.log(' [AndorreLogin] Connexion réussie, redirection...');
+      console.log('✅ [AndorreLogin] Connexion réussie, redirection...');
       // Redirection vers Francis Andorre après connexion réussie
       navigate('/analyse-ia-fiscale-andorrane');
     } catch (error: any) {
-      console.error(' [AndorreLogin] Exception:', error);
+      console.error('💥 [AndorreLogin] Exception:', error);
       setError('Erreur de connexion. Veuillez réessayer.');
-    } finally {
       setIsLoading(false);
+    } finally {
+      console.log('🔴 [AndorreLogin] FIN handleLogin (finally)');
+      // Assurer que isLoading est remis à false même en cas d'erreur
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
     }
   };
 
