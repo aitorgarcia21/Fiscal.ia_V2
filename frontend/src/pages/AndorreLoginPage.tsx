@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, Eye, EyeOff, Crown } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
+import { ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, User, Building, Phone, Mail, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -22,6 +23,7 @@ export const AndorreLoginPage: React.FC = () => {
     phone: ''
   });
   const navigate = useNavigate();
+  const { login } = useSupabaseAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,21 +31,15 @@ export const AndorreLoginPage: React.FC = () => {
     setError('');
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { success, error } = await login(email, password);
 
-      if (error) {
-        setError(error.message);
+      if (!success || error) {
+        setError(error || 'Erreur de connexion');
         return;
       }
 
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.session?.access_token || '');
-        navigate('/analyse-ia-fiscale-andorrane');
-      }
+      // Redirection vers Francis Andorre après connexion réussie
+      navigate('/analyse-ia-fiscale-andorrane');
     } catch (error: any) {
       setError('Erreur de connexion. Veuillez réessayer.');
     } finally {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, LogOut, Globe, BookOpen } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FrancisAIEngine } from '../ai/FrancisAIEngine';
 import { Logo } from '../components/ui/Logo';
@@ -49,7 +49,7 @@ const formatMarkdown = (text: string): React.ReactNode => {
 };
 
 export function FrancisAndorreChat() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useSupabaseAuth();
   const navigate = useNavigate();
   
   // 🔒 Pro Access Only (TEMPORARILY DISABLED FOR TESTING)

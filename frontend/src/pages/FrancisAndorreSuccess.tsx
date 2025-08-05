@@ -2,12 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Logo } from '../components/ui/Logo';
-
-interface AndorreAccountData {
-  email: string;
-  payment_intent: string;
-  account_type: string;
-}
+import { FrancisAndorreService } from '../services/francisAndorreService';
 
 /**
  * Page de succès après paiement Francis Andorre
@@ -26,52 +21,25 @@ export const FrancisAndorreSuccess: React.FC = () => {
 
   const createAndorreAccount = async () => {
     try {
-      // Récupérer les données de paiement stockées
-      const paymentIntent = localStorage.getItem('francis_andorre_payment_intent');
-      const storedEmail = localStorage.getItem('francis_andorre_email');
+      // Récupérer les données d'inscription stockées
+      const signupDataStr = localStorage.getItem('andorre_signup_data');
       
-      if (!paymentIntent) {
-        throw new Error('Aucune intention de paiement trouvée');
+      if (!signupDataStr) {
+        throw new Error('Aucune donnée d\'inscription trouvée');
       }
 
-      // Récupérer le token d'authentification
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Utilisateur non authentifié');
+      const signupData = JSON.parse(signupDataStr);
+      setUserEmail(signupData.email);
+
+      // Créer le compte via Supabase
+      const { success, error: createError, user } = await FrancisAndorreService.createAccountAfterPayment();
+
+      if (!success || createError) {
+        throw new Error(createError || 'Erreur lors de la création du compte');
       }
 
-      const accountData: AndorreAccountData = {
-        email: storedEmail || '',
-        payment_intent: paymentIntent,
-        account_type: 'francis_andorre_premium'
-      };
-
-      setUserEmail(accountData.email);
-
-      // Appel à l'API backend pour créer le compte spécialisé
-      const response = await fetch('/api/create-andorre-account', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(accountData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Erreur lors de la création du compte');
-      }
-
-      const result = await response.json();
-      console.log('✅ Compte Francis Andorre créé:', result);
-
+      console.log('✅ Compte Francis Andorre créé:', user);
       setAccountCreated(true);
-      
-      // Nettoyer les données temporaires
-      localStorage.removeItem('francis_andorre_payment_intent');
-      localStorage.removeItem('francis_andorre_payment_timestamp');
-      localStorage.removeItem('francis_andorre_email');
 
       // Redirection automatique vers Francis Andorre après 3 secondes
       setTimeout(() => {
