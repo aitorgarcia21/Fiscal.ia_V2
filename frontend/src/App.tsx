@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 // import FrancisFloatingButton from './components/francis/FrancisFloatingButton';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { setupGlobalErrorHandler } from './utils/errorHandler';
+import { AuthProvider } from './contexts/AuthContext';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { TrueLayerCallback } from './pages/TrueLayerCallback';
@@ -84,6 +85,7 @@ function App() {
   }, []);
 
   return (
+    <AuthProvider>
       <Router>
         <Routes>
           {/* Routes principales */}
@@ -236,6 +238,7 @@ function App() {
           <Route path="/activate-account" element={<ActivateAccountPage />} />
         </Routes>
       </Router>
+    </AuthProvider>
   );
 }
 
