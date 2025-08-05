@@ -130,7 +130,7 @@ export function FrancisAndorreChat() {
         ...prev,
         {
           query: userMessage,
-          response: response.answer || '',
+          response: response.message || response.content || response.answer || '',
           timestamp: new Date().toISOString()
         }
       ].slice(-10)); // Garder seulement les 10 derniers messages
@@ -138,7 +138,7 @@ export function FrancisAndorreChat() {
       // Add AI response
       const aiMessage: Message = {
         id: Date.now().toString(),
-        text: response.answer || 'Réponse vide',
+        text: response.message || response.content || response.answer || 'Réponse vide',
         sender: 'ai',
         timestamp: new Date(),
         lawReferences: response.sources || [],
