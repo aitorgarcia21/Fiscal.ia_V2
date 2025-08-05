@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
 import { ArrowLeft, ArrowRight, Loader2, Eye, EyeOff, User, Building, Phone, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { debugSupabaseAuth } from '../debug-supabase-auth';
 
@@ -24,46 +24,20 @@ export const AndorreLoginPage: React.FC = () => {
     phone: ''
   });
   const navigate = useNavigate();
-  const { login } = useSupabaseAuth();
+  const { login, signup } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🔵 [AndorreLogin] DÉBUT handleLogin');
-    setIsLoading(true);
     setError('');
-    
-    console.log('📧 [AndorreLogin] Tentative de connexion:', {
-      email,
-      passwordLength: password.length,
-      timestamp: new Date().toISOString()
-    });
-
+    setIsLoading(true);
     try {
-      console.log('⏳ [AndorreLogin] Appel login()...');
-      const { success, error } = await login(email, password);
-      
-      console.log('📨 [AndorreLogin] Réponse login:', { success, error });
-
-      if (!success || error) {
-        console.error('❌ [AndorreLogin] Échec connexion:', error);
-        setError(error || 'Erreur de connexion');
-        setIsLoading(false);
-        return;
-      }
-
-      console.log('✅ [AndorreLogin] Connexion réussie, redirection...');
+      await login(email, password);
       // Redirection vers Francis Andorre après connexion réussie
-      navigate('/analyse-ia-fiscale-andorrane');
-    } catch (error: any) {
-      console.error('💥 [AndorreLogin] Exception:', error);
-      setError('Erreur de connexion. Veuillez réessayer.');
-      setIsLoading(false);
+      navigate('/analyse-ia-fiscale-andorrane', { replace: true });
+    } catch (err: any) {
+      setError(err.data?.detail || err.message || 'Email ou mot de passe incorrect.');
     } finally {
-      console.log('🔴 [AndorreLogin] FIN handleLogin (finally)');
-      // Assurer que isLoading est remis à false même en cas d'erreur
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 100);
+      setIsLoading(false);
     }
   };
 
