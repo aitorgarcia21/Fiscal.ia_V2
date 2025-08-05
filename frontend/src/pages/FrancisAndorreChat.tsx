@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, LogOut, Globe, BookOpen } from 'lucide-react';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FrancisAIEngine } from '../ai/FrancisAIEngine';
+import { FrancisAndorreAPI } from '../services/francisAndorreApi';
 import { Logo } from '../components/ui/Logo';
 
 interface Message {
@@ -73,13 +73,9 @@ export function FrancisAndorreChat() {
   const [language, setLanguage] = useState<'fr' | 'es'>('fr');
   const t = translations[language];
   
-  // 🧠 Francis AI Engine
-  const [aiEngine] = useState(() => new FrancisAIEngine());
-  const [conversationContext, setConversationContext] = useState({
-    previousMessages: [],
-    userProfile: { interests: [] },
-    sessionState: { language }
-  });
+  // 🧠 Francis API Service
+  const [apiService] = useState(() => new FrancisAndorreAPI());
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -112,43 +108,54 @@ export function FrancisAndorreChat() {
     setIsProcessing(true);
     
     try {
-      // Use Francis AI Engine
-      const aiResponse = await aiEngine.processMessage(userMessage, conversationContext);
-      
-      // Update conversation context
-      setConversationContext(prevContext => ({
-        ...prevContext,
-        previousMessages: [
-          ...prevContext.previousMessages,
-          {
-            query: userMessage,
-            response: aiResponse.text,
-            timestamp: new Date()
+      // Use Francis Andorre Expert API
+      const response = await apiService.sendMessage(
+        userMessage, 
+        conversationHistory,
+        // Callback pour le streaming (optionnel)
+        (chunk) => {
+          if (chunk.type === 'chunk' && chunk.answer) {
+            // Gérer le streaming en temps réel si nécessaire
+            console.log('Streaming chunk:', chunk.answer);
           }
-        ].slice(-10)
-      }));
+        }
+      );
       
-      // Processing delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (response.type === 'error') {
+        throw new Error(response.message || 'Erreur inconnue');
+      }
       
-      setMessages(prev => [...prev, {
+      // Update conversation history
+      setConversationHistory(prev => [
+        ...prev,
+        {
+          query: userMessage,
+          response: response.answer || '',
+          timestamp: new Date().toISOString()
+        }
+      ].slice(-10)); // Garder seulement les 10 derniers messages
+      
+      // Add AI response
+      const aiMessage: Message = {
         id: Date.now().toString(),
-        text: aiResponse.text,
+        text: response.answer || 'Réponse vide',
         sender: 'ai',
         timestamp: new Date(),
-        lawReferences: aiResponse.lawReferences,
-        calculations: aiResponse.calculations
-      }]);
+        lawReferences: response.sources || [],
+        calculations: undefined // Les calculs pourraient être ajoutés dans le futur
+      };
       
-    } catch (error) {
+      setMessages(prev => [...prev, aiMessage]);
+      
+    } catch (error: any) {
       console.error('Error processing message:', error);
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         text: language === 'fr' 
-          ? "Désolé, une erreur s'est produite. Veuillez réessayer." 
-          : "Lo siento, se produjo un error. Por favor, inténtelo de nuevo.",
+          ? `Désolé, j'ai rencontré une erreur: ${error.message}. Pouvez-vous reformuler votre question ?`
+          : `Lo siento, he encontrado un error: ${error.message}. ¿Puede reformular su pregunta?`,
         sender: 'ai',
-        timestamp: new Date(),
+        timestamp: new Date()
       }]);
     } finally {
       setIsProcessing(false);

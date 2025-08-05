@@ -351,6 +351,36 @@ async def stream_francis_simple(request: dict):
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
     )
 
+@api_router.post("/stream-francis-andorre-expert")
+async def stream_francis_andorre_expert(request: dict):
+    """Endpoint dédié pour Francis Andorre utilisant le modèle LLM spécialisé"""
+    try:
+        from francis_andorre_expert import get_francis_andorre_response
+    except ImportError:
+        try:
+            from backend.francis_andorre_expert import get_francis_andorre_response
+        except ImportError:
+            return StreamingResponse(
+                (json.dumps({"type": "error", "message": "Service Francis Andorre Expert non disponible"}) + "\n" for _ in range(1)),
+                media_type="text/plain"
+            )
+    
+    question = request.get("question", "")
+    if not question:
+        return StreamingResponse(
+            (json.dumps({"type": "error", "message": "Question manquante"}) + "\n" for _ in range(1)),
+            media_type="text/plain"
+        )
+    
+    conversation_history = request.get("conversation_history", None)
+    use_embeddings = request.get("use_embeddings", True)
+    
+    return StreamingResponse(
+        get_francis_andorre_response(question, conversation_history, use_embeddings),
+        media_type="text/plain",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
+    )
+
 # Security
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
