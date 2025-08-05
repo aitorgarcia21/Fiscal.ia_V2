@@ -237,6 +237,772 @@ ANDORRA_TAX_KNOWLEDGE = {
         "cfc_rules": "Imposition des revenus passifs de filiales contrôlées <10% d'IS effectif",
         "substance_requirements": "Bureau physique, personnel qualifié minimal, dépenses >15% du CA local",
         "gaar": "Clause anti-abus générale art. 13bis LGT (requalification de montages artificiels)"
+    },
+    
+    "SECTEURS_STRATEGIQUES": {
+        "description": "Incitations fiscales sectorielles 2025",
+        "tourisme": {
+            "hotels_renovation": "Crédit d'impôt 25% travaux écologiques",
+            "stations_ski": "IS réduit 5% si investissements durables >500k€",
+            "agences_voyage": "IGI réduit 4.5% sur commissions internationales"
+        },
+        "finance": {
+            "gestion_actifs": "IS 2% pour activités internationales (>80% non-résidents)",
+            "fintech": "IS 5% premières 5 années + exonération IGI sur services digitaux",
+            "assurances": "Régime spécial branches vie/non-vie, IS effectif 2-5%"
+        },
+        "technologie": {
+            "software": "Déduction 200% dépenses R&D + patent box 80% exonération",
+            "data_centers": "IS 5% + exonération IPI + tarif électricité réduit",
+            "gaming": "IS 10% mais royalties déductibles à 100%"
+        }
+    },
+    
+    "CRYPTO_ACTIFS": {
+        "description": "Fiscalité crypto-monnaies et actifs numériques 2025",
+        "trading": "IRPF 10% sur plus-values (holding >1 an: 5%)",
+        "mining": "Activité économique IS 10% + IGI sur vente",
+        "staking": "Revenus du capital 10% IRPF",
+        "nft": "Plus-values 10%, création artistique exonérée si <40k€/an",
+        "defi": "Yields farming imposés comme revenus du capital",
+        "declaration": "Obligatoire si valeur >50k€ au 31/12"
+    },
+    
+    "PRIX_TRANSFERT": {
+        "description": "Transfer pricing et transactions intragroupe 2025",
+        "principe": "Arm's length selon directives OCDE",
+        "documentation": "Master file + Local file si CA >10M€",
+        "apa": "Accords préalables possibles (validité 3-5 ans)",
+        "penalites": "Ajustement primaire + intérêts 4% + amende 2% du redressement"
+    },
+    
+    "TAXES_ENVIRONNEMENTALES": {
+        "description": "Fiscalité verte et transition écologique 2025",
+        "carbone": "15€/tonne CO2 (industrie) - 25€/tonne (transport)",
+        "vehicules_electriques": "IGI 0% achat + exonération taxe circulation 5 ans",
+        "panneaux_solaires": "Crédit d'impôt 40% installation + IGI 0%",
+        "plastiques": "0,10€/kg plastique non recyclable",
+        "eau": "Surtaxe consommation >200m3/an (0,50€/m3)"
+    },
+    
+    "ZONES_FRANCHES": {
+        "description": "Zones économiques spéciales 2025",
+        "pas_de_la_casa": {
+            "commerce_frontalier": "IGI réduit 4.5% + IS 5%",
+            "entrepots": "Suspension IGI pour stockage <2 ans"
+        },
+        "zone_innovation": {
+            "location": "Encamp - La Cortinada",
+            "avantages": "IS 0% année 1-2, 5% année 3-5, subventions 50% loyer"
+        }
+    },
+    
+    "TRUSTS_FONDATIONS": {
+        "description": "Régime des trusts et fondations privées 2025",
+        "fondations_privees": {
+            "constitution": "Capital min 60k€, IS 0% si familiale",
+            "distributions": "IRPF bénéficiaires selon résidence"
+        },
+        "trusts_etrangers": {
+            "transparence": "Déclaration obligatoire des bénéficiaires",
+            "imposition": "Look-through si contrôle andorran"
+        }
+    },
+    
+    "EXPATRIES_IMPATRIES": {
+        "description": "Régimes spéciaux expatriés/impatriés 2025",
+        "impatries_qualifies": {
+            "conditions": "Salaire >100k€ ou compétences stratégiques",
+            "avantages": "IRPF plafonné 5% pendant 5 ans sur revenus étrangers"
+        },
+        "exit_tax": {
+            "seuil": "Plus-values latentes >1M€",
+            "report": "Possible si garanties bancaires"
+        }
+    },
+    
+    "ASSURANCES_PREVOYANCE": {
+        "description": "Fiscalité assurance-vie et prévoyance 2025",
+        "assurance_vie": {
+            "primes": "Déductibles jusqu'à 750€/an",
+            "rachats_8ans": "Exonération totale plus-values",
+            "rachats_avant": "IRPF 10% sur gains"
+        },
+        "plans_retraite": {
+            "cotisations": "Déductibles jusqu'à 5000€/an",
+            "prestations": "IRPF progressif avec abattement 40%"
+        }
+    },
+    
+    "RULINGS_PROCEDURES": {
+        "description": "Procédures de rescrit et sécurité juridique 2025",
+        "ruling_fiscal": {
+            "delai": "Réponse sous 3 mois",
+            "validite": "Contraignant pour l'administration 3 ans",
+            "cout": "500€ ruling simple, 2000€ ruling complexe"
+        },
+        "regularisation": {
+            "volontaire": "Pénalités réduites 50% si spontanée",
+            "amnistie_2025": "Programme spécial rapatriement capitaux 3% forfaitaire"
+        }
+    },
+    
+    "ACCORDS_BILATERAUX": {
+        "description": "Accords spécifiques sécurité sociale et pensions 2025",
+        "securite_sociale": {
+            "france": "Totalisation périodes, exportation prestations",
+            "espagne": "Convention SS complète depuis 2023",
+            "portugal": "Accord retraites complémentaires 2024"
+        },
+        "pensions": {
+            "imposition": "Exclusivement pays de résidence sauf fonctionnaires",
+            "abattement": "40% sur pensions étrangères"
+        }
+    },
+    
+    "PROFESSIONS_LIBERALES": {
+        "description": "Régimes spécifiques professions libérales 2025",
+        "medecins": {
+            "forfait_charges": "35% déductible automatique",
+            "equipements": "Amortissement accéléré 3 ans",
+            "formation_continue": "Crédit d'impôt 50%"
+        },
+        "avocats": {
+            "honoraires_aide_juridique": "Exonération IGI",
+            "bibliotheque": "Déduction intégrale immédiate"
+        },
+        "architectes": {
+            "logiciels_cao": "Déduction 150%",
+            "projets_durables": "Bonus fiscal 20% honoraires"
+        }
+    },
+    
+    "ARTISTES_SPORTIFS": {
+        "description": "Régime fiscal artistes et sportifs professionnels 2025",
+        "artistes": {
+            "droits_auteur": "IRPF 5% si <100k€/an",
+            "ventes_oeuvres": "IGI exonéré première vente",
+            "mecenat": "Réduction d'impôt 60% dons reçus"
+        },
+        "sportifs": {
+            "primes_competition": "Lissage sur 3 ans possible",
+            "droits_image": "Société dédiée IS 5%",
+            "fin_carriere": "Épargne retraite majorée 10k€/an"
+        }
+    },
+    
+    "JEUX_PARIS": {
+        "description": "Fiscalité jeux de hasard et paris sportifs 2025",
+        "casinos": {
+            "produit_brut_jeux": "Taxe progressive 10-40%",
+            "machines_sous": "55€/machine/mois",
+            "tournois_poker": "IGI 9.5% sur buy-ins"
+        },
+        "paris_sportifs": {
+            "operateurs": "Taxe 15% mises + IS 10%",
+            "gains_joueurs": "IRPF 10% sur gains >3000€/an"
+        },
+        "loteries": "Monopole Loteria Nacional, reversement 25% œuvres sociales"
+    },
+    
+    "BIENS_LUXE": {
+        "description": "Taxation spéciale biens de luxe 2025",
+        "vehicules": {
+            "seuil": ">150k€ valeur neuve",
+            "taxe_luxe": "20% sur montant dépassant 150k€",
+            "yachts": "Taxe annuelle 1% valeur + amarrage 5k€/m"
+        },
+        "montres_bijoux": {
+            "igi_special": "21% sur ventes >50k€",
+            "importation": "Droits douane 5% + IGI"
+        },
+        "jets_prives": "Taxe atterrissage 1000€ + parking 500€/jour"
+    },
+    
+    "ENTREPRISES_FAMILIALES": {
+        "description": "Régime entreprises familiales et succession 2025",
+        "pacte_dutreil": {
+            "exoneration": "95% valeur entreprise si conservation 6 ans",
+            "conditions": "Activité opérationnelle + engagement collectif"
+        },
+        "family_office": {
+            "structure": "Holding animatrice IS 0% dividendes",
+            "frais_gestion": "Déductibles si <1% actifs gérés"
+        },
+        "donation_temporaire_usufruit": "Optimisation IRPF parents-enfants autorisée"
+    },
+    
+    "ECONOMIE_CIRCULAIRE": {
+        "description": "Incitations économie circulaire et durable 2025",
+        "recyclage": {
+            "bonus": "IS -2% si taux recyclage >80%",
+            "investissements": "Amortissement 150% équipements tri"
+        },
+        "reparation": {
+            "igi_reduit": "2.5% services réparation",
+            "credit_consommateurs": "Bon fiscal 50€/an/foyer"
+        },
+        "economie_fonctionnalite": "Location longue durée IGI 4.5% au lieu de vente"
+    },
+    
+    "COOPERATIVES": {
+        "description": "Régime coopératives et économie sociale 2025",
+        "cooperatives_travail": {
+            "is_reduit": "5% si 80% résultats aux membres",
+            "reserves": "Dotation obligatoire 20% exonérée"
+        },
+        "cooperatives_consommation": {
+            "ristournes": "Déductibles IS + non imposables membres",
+            "parts_sociales": "Intérêts limités 3% exonérés IRPF"
+        },
+        "mutuelles": "IS 0% si agrément + 100% activités membres"
+    },
+    
+    "MICRO_ENTREPRISES": {
+        "description": "Régime simplifié micro-entreprises 2025",
+        "seuils": {
+            "services": "CA <100k€",
+            "commerce": "CA <200k€"
+        },
+        "imposition": {
+            "forfait": "IRPF 1% CA commerce, 2% CA services",
+            "charges_sociales": "15% CA forfaitaire",
+            "igi": "Franchise si CA <40k€"
+        },
+        "comptabilite": "Livre recettes-dépenses simplifié suffisant"
+    },
+    
+    "BLOCKCHAIN_STARTUPS": {
+        "description": "Régime spécial startups blockchain/Web3 2025",
+        "ico_ito": {
+            "tokens_utility": "IGI différé jusqu'à utilisation",
+            "tokens_security": "Régime titres financiers classique"
+        },
+        "dao": {
+            "structure": "Assimilation association IS 0% si non lucratif",
+            "governance_tokens": "Plus-values exonérées si détention >3 ans"
+        },
+        "defi_protocoles": {
+            "smart_contracts": "Revenus IS 5% première année",
+            "liquidity_mining": "Provisions déductibles risques protocole"
+        }
+    },
+    
+    "MOBILITE_INTERNATIONALE": {
+        "description": "Packages mobilité cadres internationaux 2025",
+        "relocation": {
+            "frais_demenagement": "Exonérés IRPF jusqu'à 15k€",
+            "logement_temporaire": "6 mois pris en charge non imposable",
+            "scolarite_enfants": "Déductible jusqu'à 10k€/enfant"
+        },
+        "detaches": {
+            "prime_expatriation": "Exonérée 30% si <2 ans",
+            "double_residence": "Frais réels déductibles"
+        },
+        "frontaliers": "Régime spécial France/Espagne, IRPF réduit 50%"
+    },
+    
+    "AGRICULTURE_ELEVAGE": {
+        "description": "Régime agriculteurs et éleveurs 2025",
+        "cultures_montagne": {
+            "subventions": "Aide directe 300€/ha + bonus bio 150€/ha",
+            "irpf": "Estimation objective 0.2% chiffre d'affaires",
+            "investissements": "Crédit d'impôt 40% serres et irrigation"
+        },
+        "elevage": {
+            "betail": "Module IRPF 35€/tête bovins, 8€/tête ovins",
+            "lait": "Prime qualité 0.05€/litre AOP",
+            "viande": "IGI réduit 2.5% vente directe"
+        },
+        "apiculture": "Exonération totale <50 ruches"
+    },
+    
+    "TABAC_HISTORIQUE": {
+        "description": "Régime spécial secteur tabac 2025",
+        "plantations": {
+            "quota_national": "1200 tonnes/an réparties",
+            "prix_garantis": "3.5€/kg qualité A",
+            "aide_reconversion": "10k€/ha vers autres cultures"
+        },
+        "manufactures": {
+            "monopole": "Droits exclusifs transformation",
+            "taxes_speciales": "65% prix vente public",
+            "export": "IGI 0% vers pays tiers"
+        },
+        "vente_detail": "Licence obligatoire + IS réduit 5%"
+    },
+    
+    "ENERGIE_RENOUVELABLE": {
+        "description": "Super incitations énergies vertes 2025",
+        "hydroelectrique": {
+            "concessions": "Redevance 2% CA + IS 5%",
+            "micro_centrales": "Autorisation simplifiée <1MW",
+            "autoconsommation": "Vente surplus tarif garanti 0.12€/kWh"
+        },
+        "solaire": {
+            "parcs_photovoltaiques": "IS 0% pendant 10 ans",
+            "toitures": "Subvention 50% + prêt 0%",
+            "communautes_energie": "IGI 0% échanges entre membres"
+        },
+        "biomasse": "Prime 100€/tonne CO2 évitée"
+    },
+    
+    "COMMERCE_ELECTRONIQUE": {
+        "description": "Règles e-commerce et marketplace 2025",
+        "ventes_ue": {
+            "seuil": "10k€/an par pays avant TVA locale",
+            "oss": "Guichet unique déclaration simplifiée",
+            "dropshipping": "IGI lieu livraison finale"
+        },
+        "marketplaces": {
+            "responsabilite": "Collecte IGI si >500 transactions/an",
+            "reporting": "Déclaration trimestrielle vendeurs",
+            "sanctions": "10k€ par vendeur non déclaré"
+        },
+        "services_digitaux": {
+            "b2b": "Autoliquidation IGI client professionnel",
+            "b2c": "IGI pays consommateur",
+            "preuves": "2 éléments localisation client"
+        }
+    },
+    
+    "BREVETS_PROPRIETE": {
+        "description": "Régime propriété intellectuelle 2025",
+        "patent_box": {
+            "taux_effectif": "IS 2% revenus brevets",
+            "conditions": "R&D substantielle Andorre",
+            "formule_nexus": "(Dépenses qualifiées/Total dépenses) x 130%"
+        },
+        "marques": {
+            "royalties_internes": "Non déductibles groupe",
+            "cession": "Plus-value 10% si >5 ans"
+        },
+        "software": {
+            "developpement": "Amortissement 2 ans",
+            "licences": "IGI réduit 2.5% B2B"
+        }
+    },
+    
+    "HOTELS_TOURISME": {
+        "description": "Avantages secteur hôtelier 2025",
+        "construction": {
+            "hotels_5etoiles": "IS 0% pendant 7 ans",
+            "renovation_energetique": "Subvention 40% + prêt bonifié",
+            "accessibilite": "Crédit d'impôt 50%"
+        },
+        "exploitation": {
+            "taux_occupation": "Bonus IS -1% si >80% annuel",
+            "emploi_local": "CASS réduit si >90% résidents",
+            "formation": "Déduction 200% école hôtelière"
+        },
+        "spa_wellness": "IGI 2.5% au lieu de 4.5%"
+    },
+    
+    "VEHICULES_OCCASION": {
+        "description": "Marché automobile occasion 2025",
+        "importation": {
+            "age_limite": "Interdiction >10 ans sauf collection",
+            "taxes": "IGI + taxe CO2 selon émissions",
+            "euro6": "Réduction 50% taxes si norme Euro 6"
+        },
+        "marge_beneficiaire": {
+            "regime": "IGI sur marge uniquement",
+            "calcul": "(Prix vente - Prix achat) x 4.5%",
+            "documents": "Facture achat obligatoire"
+        },
+        "garanties": "IGI 9.5% extensions garantie"
+    },
+    
+    "RESIDENCES_SECONDAIRES": {
+        "description": "Régime résidences secondaires 2025",
+        "acquisition": {
+            "etrangers": "Autorisation gouvernement si >2 biens",
+            "itp": "4% + surtaxe 1% si >1M€"
+        },
+        "detention": {
+            "ipi": "Majoré 50% si occupé <90 jours/an",
+            "location_touristique": "Licence HUT + IGI 9.5%",
+            "airbnb": "Déclaration mensuelle + retenue 10%"
+        },
+        "plus_values": "IRPF 10% réduit à 5% si >10 ans"
+    },
+    
+    "FONDS_INVESTISSEMENT": {
+        "description": "Véhicules d'investissement collectif 2025",
+        "opcvm": {
+            "constitution": "Capital min 1.2M€",
+            "gestion": "Commission max 2.5%/an",
+            "distribution": "IS 0% fonds + IRPF investisseur"
+        },
+        "private_equity": {
+            "carried_interest": "IRPF 10% si >3 ans",
+            "management_fees": "IGI exonéré international",
+            "spv": "IS 0% si pure holding"
+        },
+        "fonds_immobilier": {
+            "reit_andorran": "Distribution 90% = IS 0%",
+            "investisseurs": "IRPF 5% dividendes"
+        }
+    },
+    
+    "PHILANTHROPHIE": {
+        "description": "Mécénat et dons caritatifs 2025",
+        "fondations_utilite": {
+            "reconnaissance": "Procédure 3 mois",
+            "avantages": "IS 0% + IGI exonéré",
+            "donateurs": "Déduction IRPF 25% (50% si culture)"
+        },
+        "crowdfunding_solidaire": {
+            "plateformes": "Agrément INAF obligatoire",
+            "dons": "Reçu fiscal automatique >50€",
+            "contreparties": "IGI si valeur >10% don"
+        },
+        "legs": "Exonération totale droits succession"
+    },
+    
+    "STOCK_OPTIONS_INCENTIVES": {
+        "description": "Plans d'intéressement salariés 2025",
+        "stock_options": {
+            "attribution": "Non imposable si prix exercice = FMV",
+            "exercice": "IRPF différé à la vente actions",
+            "plus_value": "5% si détention >3 ans post-exercice"
+        },
+        "actions_gratuites": {
+            "vesting": "IRPF 10% valeur attribution",
+            "periode_conservation": "2 ans minimum",
+            "dirigeants": "Limité 20% capital social"
+        },
+        "phantom_shares": "IRPF normal sur cash reçu",
+        "carried_plans": "Régime capital si risque réel"
+    },
+    
+    "FUSIONS_ACQUISITIONS": {
+        "description": "Opérations M&A et restructurations 2025",
+        "fusion_neutre": {
+            "conditions": "Continuité activité + branch complète",
+            "report_imposition": "Automatique si 95% actions",
+            "mali_technique": "Amortissable sur 10 ans"
+        },
+        "lbo": {
+            "dette_acquisition": "Intérêts déductibles si ratio <4:1",
+            "management_package": "Sweet equity taxé plus-values",
+            "earn_out": "IRPF/IS différé au paiement"
+        },
+        "apport_partiel_actif": "Régime faveur si branche autonome"
+    },
+    
+    "SUCCESSIONS_COMPLEXES": {
+        "description": "Planification successorale avancée 2025",
+        "demembrement": {
+            "quasi_usufruit": "Valeur fiscale 70% si viager",
+            "reserve_usufruit": "Abattement 50% donation NP",
+            "usufruit_temporaire": "4% par année jusqu'à 23 ans"
+        },
+        "pactes_successoraux": {
+            "renonciation": "Acte notarié + droit fixe 200€",
+            "attribution_preferentielle": "Entreprise familiale facilitée"
+        },
+        "trust_successoral": "Transparent si bénéficiaires déterminés"
+    },
+    
+    "OEUVRES_ART": {
+        "description": "Fiscalité collections et œuvres d'art 2025",
+        "detention": {
+            "ifi_france": "Exonération si prêt musée",
+            "assurance": "Prime déductible si exposition publique"
+        },
+        "transactions": {
+            "vente_artiste": "IRPF 5% création propre",
+            "galeries": "IGI 2.5% commission <30%",
+            "ventes_encheres": "Taxe 5% prix adjudication"
+        },
+        "importation": "IGI réduit 2.5% + franchise <10k€",
+        "donation_musees": "Déduction 100% valeur expertise"
+    },
+    
+    "RESTRUCTURATION_DETTE": {
+        "description": "Opérations sur dette et refinancement 2025",
+        "abandon_creance": {
+            "intragroupe": "Neutre si recapitalisation",
+            "tiers": "Produit imposable sauf insolvabilité"
+        },
+        "debt_equity_swap": {
+            "creancier": "Plus-value différée si détention >2 ans",
+            "debiteur": "Profit exonéré si difficultés prouvées"
+        },
+        "cession_decote": "Moins-value déductible immédiatement"
+    },
+    
+    "PERSONNES_HANDICAPEES": {
+        "description": "Avantages fiscaux handicap 2025",
+        "irpf": {
+            "abattement_personnel": "6000€ si invalidité >65%",
+            "abattement_famille": "3000€ par personne à charge",
+            "deduction_travailleur": "2500€ supplémentaire"
+        },
+        "patrimoine": {
+            "trust_handicap": "IS 0% si bénéficiaire unique",
+            "donation": "Franchise 300k€ parents-enfant handicapé"
+        },
+        "entreprises": "CASS réduit 50% + subvention adaptation poste"
+    },
+    
+    "DUTY_FREE_ZONES": {
+        "description": "Zones franches commerciales 2025",
+        "aeroport": {
+            "ventes": "IGI 0% passagers internationaux",
+            "limites": "Alcool 1L, tabac 200 cigarettes",
+            "luxe": "Franchise 430€/personne UE"
+        },
+        "frontieres": {
+            "pas_casa": "Zone spéciale 500m frontière",
+            "riu_runer": "Entrepôt sous douane autorisé"
+        },
+        "operations": "Suspension IGI jusqu'à sortie territoire"
+    },
+    
+    "ONG_ASSOCIATIONS": {
+        "description": "Régime organisations non lucratives 2025",
+        "associations": {
+            "culturelles": "IS 0% + IGI exonéré activités",
+            "sportives": "Subventions non imposables",
+            "sociales": "Dons déductibles 100% entreprises"
+        },
+        "ong_internationales": {
+            "bureau": "Exonération totale si agrément",
+            "personnel": "IRPF plafonné 5% expatriés"
+        },
+        "crowdfunding": "Collectes exonérées si caritatives"
+    },
+    
+    "REGIMES_SPECIAUX_ENTREPRISES": {
+        "description": "Statuts spéciaux entreprises 2025",
+        "entreprise_insertion": {
+            "conditions": ">50% salariés en réinsertion",
+            "avantages": "IS 0% + subventions salaires 70%"
+        },
+        "centres_recherche": {
+            "prive": "IS 2% si publications scientifiques",
+            "public_prive": "TVA 0% équipements recherche"
+        },
+        "incubateurs": "Loyers exonérés IGI + mentoring déductible 200%"
+    },
+    
+    "ANTI_BLANCHIMENT_FISCAL": {
+        "description": "Compliance et lutte anti-fraude 2025",
+        "declaration_suspicious": {
+            "seuil_cash": "10k€ déclaration obligatoire",
+            "transactions_suspectes": "Signalement UIFAND 24h",
+            "sanctions": "100k€ minimum non-déclaration"
+        },
+        "beneficial_owner": {
+            "registre": "Mise à jour annuelle obligatoire",
+            "seuil": "25% droits vote ou capital",
+            "acces": "Autorités uniquement"
+        },
+        "cooperation_internationale": "Echange automatique CRS/FATCA"
+    },
+    
+    "PRODUITS_DERIVES": {
+        "description": "Fiscalité instruments financiers complexes 2025",
+        "options_futures": {
+            "speculation": "IRPF 10% gains réalisés",
+            "couverture": "Intégration résultat sous-jacent"
+        },
+        "cfd": {
+            "retail": "Interdiction levier >2:1",
+            "pro": "Pertes déductibles sans limite"
+        },
+        "structured_products": "Fiscalité transparente composants"
+    },
+    
+    "HEBERGEMENT_DONNEES": {
+        "description": "Data centers et cloud computing 2025",
+        "infrastructure": {
+            "construction": "IS 0% pendant 5 ans",
+            "electricite": "Tarif industriel -40%",
+            "refroidissement": "Crédit impôt systèmes écologiques"
+        },
+        "services_cloud": {
+            "b2b_international": "IGI 0% clients non-résidents",
+            "donnees_sensibles": "Certification sécurité = IS -2%"
+        },
+        "backup_disaster": "Amortissement accéléré 200%"
+    },
+    
+    "DIPLOMATES_FONCTIONNAIRES": {
+        "description": "Régimes diplomatiques et consulaires 2025",
+        "ambassades": {
+            "personnel_diplomatique": "Exonération totale IRPF",
+            "personnel_administratif": "IRPF si nationalité andorrane",
+            "locaux_mission": "Exonération IPI + taxes locales"
+        },
+        "organisations_internationales": {
+            "fonctionnaires": "Imposition interne organisation",
+            "consultants": "Retenue 10% honoraires"
+        },
+        "privileges_reciproques": "Selon conventions Vienne 1961/1963"
+    },
+    
+    "AVIATION_MARITIME": {
+        "description": "Fiscalité transport aérien et maritime 2025",
+        "compagnies_aeriennes": {
+            "benefices_internationaux": "IS 0% si >90% vols internationaux",
+            "leasing_aeronefs": "IGI 0% location dry lease",
+            "carburant": "Exonération accises aviation commerciale"
+        },
+        "armateurs": {
+            "tonnage_tax": "Option IS forfaitaire 0.5€/100 tonnes",
+            "equipages": "IRPF 183 jours = 50% réduction",
+            "immatriculation": "Pavillon Andorre tax 2000€/an"
+        },
+        "yacht_charter": "IGI 9.5% + licence commerciale obligatoire"
+    },
+    
+    "SANTE_PHARMA": {
+        "description": "Régime pharmaceutique et dispositifs médicaux 2025",
+        "laboratoires": {
+            "r&d_medicaments": "Crédit impôt 45% essais cliniques",
+            "production": "IS 5% médicaments essentiels",
+            "brevets_pharma": "Patent box 1% revenus licences"
+        },
+        "dispositifs_medicaux": {
+            "innovation": "Amortissement 100% année 1",
+            "certification_ce": "Subvention 50% coûts"
+        },
+        "cannabis_medical": "IS 10% + licence spéciale AEMPS"
+    },
+    
+    "BANQUES_PRIVEES": {
+        "description": "Gestion de fortune et banque privée 2025",
+        "wealth_management": {
+            "aum_seuil": ">100M€ actifs gérés",
+            "commissions": "IS 2% sur revenus récurrents",
+            "performance_fees": "IS 10% si >hurdle rate"
+        },
+        "family_banking": {
+            "pret_actionnaires": "Intérêts non déductibles si <2%",
+            "services_concierge": "IGI 9.5% prestations annexes"
+        },
+        "crypto_custody": "Licence spéciale + IS standard 10%"
+    },
+    
+    "FRANCHISE_COMMERCE": {
+        "description": "Réseaux franchise et distribution 2025",
+        "franchiseur": {
+            "royalties": "IS 5% si marque internationale",
+            "droit_entree": "IGI 4.5% services + know-how",
+            "formation": "Déductible 150% coûts réels"
+        },
+        "franchise": {
+            "amortissement_droit": "Linéaire sur durée contrat",
+            "redevances": "Déductibles si <10% CA",
+            "marketing_commun": "Charge déductible 100%"
+        },
+        "master_franchise": "IS 2% si développement régional"
+    },
+    
+    "METAVERSE_NFT": {
+        "description": "Economie virtuelle et métaverse 2025",
+        "terrains_virtuels": {
+            "achat_vente": "Plus-values IRPF 10%",
+            "location": "Revenus locatifs IRPF normal",
+            "developpement": "Frais activables comme immo incorporelle"
+        },
+        "avatars_skins": {
+            "creation": "Revenus artistiques IRPF 5%",
+            "trading": "IGI 4.5% sur marge bénéficiaire"
+        },
+        "play_to_earn": {
+            "gains_jeu": "IRPF 10% si >3000€/an",
+            "guildes": "Structure coopérative possible"
+        }
+    },
+    
+    "SECURITE_PRIVEE": {
+        "description": "Services sécurité et protection 2025",
+        "entreprises_securite": {
+            "surveillance": "IS standard + licence obligatoire",
+            "transport_fonds": "Assurance RC majorée déductible",
+            "gardes_corps": "IRPF expatriés réduit 5%"
+        },
+        "systemes_alarme": {
+            "vente": "IGI 9.5% matériel + installation",
+            "monitoring": "IGI 4.5% abonnements"
+        },
+        "coffres_forts": "Location exonérée IGI particuliers"
+    },
+    
+    "INDUSTRIES_CULTURELLES": {
+        "description": "Cinéma, musique et production 2025",
+        "production_films": {
+            "tax_shelter": "Déduction 150% investissement",
+            "tournages": "Remboursement 30% dépenses locales",
+            "post_production": "IS 5% si >80% travail Andorre"
+        },
+        "musique": {
+            "studios": "Amortissement équipements 3 ans",
+            "streaming": "Retenue 5% royalties vers extérieur",
+            "concerts": "IGI 2.5% billetterie culturelle"
+        },
+        "edition": "IGI 0% livres + presse papier"
+    },
+    
+    "ESG_IMPACT": {
+        "description": "Investissement durable et impact 2025",
+        "green_bonds": {
+            "emission": "Frais émission déductibles 200%",
+            "interets": "IRPF réduit 5% souscripteurs",
+            "certification": "Subvention 75% coûts audit vert"
+        },
+        "social_impact": {
+            "entreprises_sociales": "IS 0% si réinvestissement 90%",
+            "microfinance": "Provisions risque 150% déductibles"
+        },
+        "carbon_credits": "Trading exonéré IGI + stockage déductible"
+    },
+    
+    "LITIGES_FISCAUX": {
+        "description": "Contentieux et procédures fiscales 2025",
+        "recours_administratif": {
+            "delai": "1 mois après notification",
+            "suspensif": "Oui si garantie 30% dette",
+            "frais": "Gratuit première instance"
+        },
+        "tribunal": {
+            "procedure": "Orale pour <50k€",
+            "representation": "Avocat non obligatoire <10k€",
+            "delai_jugement": "6 mois maximum"
+        },
+        "transaction": "Possible réduction 40% pénalités si accord"
+    },
+    
+    "REGIMES_DOUANIERS": {
+        "description": "Procédures douanières spéciales 2025",
+        "admission_temporaire": {
+            "materiels_pro": "Exonération totale <6 mois",
+            "echantillons": "Franchise complète foires",
+            "carnet_ata": "Accepté tous usages"
+        },
+        "perfectionnement": {
+            "actif": "Transformation + réexportation = 0 droits",
+            "passif": "Importation matières pour production locale"
+        },
+        "transit": "Garantie 20% droits théoriques"
+    },
+    
+    "PROPRIETE_INTELLECTUELLE_AVANCEE": {
+        "description": "Stratégies IP complexes 2025",
+        "pool_brevets": {
+            "structure": "Entité dédiée IS 2%",
+            "cross_licensing": "Valorisation arm's length",
+            "standards": "FRAND obligations respectées"
+        },
+        "trade_secrets": {
+            "protection": "Coûts sécurité déductibles 150%",
+            "violation": "Dommages déductibles victime"
+        },
+        "ip_backed_lending": "Intérêts déductibles si valorisation indépendante"
     }
 }
 
