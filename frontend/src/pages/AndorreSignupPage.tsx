@@ -45,18 +45,26 @@ export function AndorreSignupPage() {
     setIsLoading(true);
     
     try {
-      await signup(
-        formData.email,
-        formData.password,
-        `${formData.firstName} ${formData.lastName}`,
-        'professionnel'
-      );
+      // Stocker les données d'inscription pour après le paiement
+      localStorage.setItem('andorre_signup_data', JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        company: formData.company,
+        phone: formData.phone,
+        timestamp: Date.now()
+      }));
       
-      // Redirection vers la page de paiement Francis Andorre
-      navigate('/andorre/payment');
+      // Stocker l'intention d'achat Francis Andorre
+      localStorage.setItem('francis_andorre_payment_intent', 'true');
+      localStorage.setItem('francis_andorre_payment_timestamp', Date.now().toString());
+      
+      // Redirection directe vers Stripe (inscription + paiement en une étape)
+      window.location.href = 'https://buy.stripe.com/14AcN5eqw2JM6pB09UgMw0a';
+      
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la création du compte');
-    } finally {
+      setError(err.message || 'Erreur lors de la redirection vers le paiement');
       setIsLoading(false);
     }
   };
@@ -95,8 +103,8 @@ export function AndorreSignupPage() {
           {/* Formulaire Mobile */}
           <div className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl">
             <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-white mb-1">Créer un compte</h2>
-              <p className="text-sm text-gray-400">Rejoignez l'expertise fiscale andorrane</p>
+              <h2 className="text-xl font-semibold text-white mb-1">Inscription + Abonnement</h2>
+              <p className="text-sm text-gray-400">Accès immédiat à Francis Andorre (49€/mois)</p>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -306,7 +314,8 @@ export function AndorreSignupPage() {
               </span>
             </div>
             
-            <h1 className="text-2xl font-bold text-white mb-2">Créer un compte</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">Inscription + Abonnement</h1>
+            <p className="text-gray-400 mb-4">Accès immédiat à Francis Andorre - 49€/mois</p>
             <p className="text-gray-400">Rejoignez l'expertise fiscale andorrane</p>
           </div>
 
