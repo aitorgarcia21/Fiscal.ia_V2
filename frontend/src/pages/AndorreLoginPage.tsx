@@ -107,11 +107,6 @@ export const AndorreLoginPage: React.FC = () => {
         >
           {/* Header Mobile */}
           <div className="text-center mb-8">
-            <Link to="/andorre" className="inline-flex items-center gap-2 text-gray-400 hover:text-[#c5a572] transition-colors mb-6 touch-manipulation">
-              <ArrowLeft className="w-5 h-5" />
-              <span className="text-base">Retour</span>
-            </Link>
-            
             <div className="mb-6">
               <div className="flex justify-center mb-4">
                 <Logo size="lg" className="w-16 h-16" />
@@ -127,19 +122,11 @@ export const AndorreLoginPage: React.FC = () => {
           <div className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl">
             <div className="text-center mb-6">
               <h2 className="text-xl font-semibold text-white mb-1">
-                {isSignupMode ? 'Inscription + Abonnement' : 'Connexion'}
+                {isSignupMode ? 'Inscription' : 'Connexion'}
               </h2>
               <p className="text-sm text-gray-400">
-                {isSignupMode ? 'Créez votre compte et abonnez-vous (49€/mois)' : 'Accédez à votre expertise fiscale'}
+                {isSignupMode ? '' : 'Accédez à votre expertise fiscale'}
               </p>
-              {isSignupMode && (
-                <button
-                  onClick={() => setIsSignupMode(false)}
-                  className="mt-2 text-[#c5a572] hover:text-[#e8cfa0] text-sm transition-colors"
-                >
-                  ← Retour à la connexion
-                </button>
-              )}
             </div>
             
             <form onSubmit={isSignupMode ? handleSignup : handleLogin} className="space-y-5">
@@ -236,11 +223,6 @@ export const AndorreLoginPage: React.FC = () => {
         >
           {/* Header Desktop */}
           <div className="text-center mb-8">
-            <Link to="/andorre" className="inline-flex items-center gap-2 text-gray-400 hover:text-[#c5a572] transition-colors mb-6">
-              <ArrowLeft className="w-4 h-4" />
-              <span>Retour</span>
-            </Link>
-            
             <div className="flex justify-center items-center gap-3 mb-6">
               <Logo size="lg" />
               <span className="text-2xl bg-gradient-to-r from-[#c5a572] to-[#e8cfa0] bg-clip-text text-transparent font-bold">
@@ -249,19 +231,11 @@ export const AndorreLoginPage: React.FC = () => {
             </div>
             
             <h1 className="text-2xl font-bold text-white mb-2">
-              {isSignupMode ? 'Inscription + Abonnement' : 'Connexion'}
+              {isSignupMode ? 'Inscription' : 'Connexion'}
             </h1>
             <p className="text-sm text-gray-400">
-              {isSignupMode ? 'Créez votre compte et abonnez-vous (49€/mois)' : 'Accédez à votre expertise fiscale'}
+              {isSignupMode ? '' : 'Accédez à votre expertise fiscale'}
             </p>
-            {isSignupMode && (
-              <button
-                onClick={() => setIsSignupMode(false)}
-                className="mt-2 text-[#c5a572] hover:text-[#e8cfa0] text-sm transition-colors"
-              >
-                ← Retour à la connexion
-              </button>
-            )}
           </div>
 
           {/* Formulaire Desktop */}
