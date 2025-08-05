@@ -165,6 +165,78 @@ ANDORRA_TAX_KNOWLEDGE = {
             "interets": "0-5% maximum",
             "royalties": "0-5% maximum"
         }
+    },
+    "IRNR": {
+        "description": "Impost sobre la Renda dels No-Residents (2025)",
+        "taux": {
+            "general": "10%",
+            "dividendes": "5%",
+            "interets": "5%",
+            "redevances": "5%"
+        },
+        "base_legale": "Llei 5/2014 (actualisée 2025) de l'impost sobre la renda dels no residents"
+    },
+    "DROITS_SUCCESSION_DONATION": {
+        "description": "Droits de succession et de donation (Andorre n'applique PAS de droits spécifiques, seuls les frais d'enregistrement de 0,2% s'appliquent)",
+        "frais_enregistrement": "0,2% du bien transmis",
+        "note": "Pas d'impôt additionnel sur les héritages ou donations"
+    },
+    "IPI": {
+        "description": "Impost sobre el Patrimoni Immobiliari (taxe annuelle sur la propriété immobilière)",
+        "taux": "0,05% de la valeur cadastrale (actualisation 2025)",
+        "exonerations": [
+            "Première résidence jusqu’à 500 000€ de valeur cadastrale",
+            "Biens à vocation sociale ou culturelle"
+        ]
+    },
+    "CASS": {
+        "description": "Cotisations sociales Caixa Andorrana de Seguretat Social (2025)",
+        "taux_salaires": {
+            "employeur": "15,5% (dont 7% retraite, 8,5% maladie)",
+            "salarie": "6,5% (dont 3% retraite, 3,5% maladie)"
+        },
+        "independants": "22% du revenu net presumé (minimum 475€/mois en 2025)"
+    },
+    "TAXES_MUNICIPALES": {
+        "description": "Taxes communales affichage, circulation, déchets (tarifs 2025 par paroisse)",
+        "ordures_menageres": "70€ – 180€ / an selon surface logement",
+        "vehicules": "0,4% de la valeur CO₂ (minimum 80€)",
+        "publicite": "20€ / m² d'enseigne"
+    },
+    "DROITS_TIMBRE_REGISTRES": {
+        "description": "Droits de timbre et frais d'inscription 2025",
+        "registre_commerce": "101,25€ lors de la constitution + 31,50€ annuels",
+        "registre_foncier": "0,1% de la valeur inscrite"
+    },
+    "REGIMES_SPECIAUX": {
+        "description": "Régimes fiscaux spéciaux complémentaires (2025)",
+        "capital_risque": "Exonération IS sur plus-values sous conditions (art. 23bis)",
+        "fondations_associations": "IS 0% si but non lucratif et utilité publique",
+        "fonds_investissement": "IS 0% (UCI) + IGI 0% sur commissions",
+        "startups_innovantes": "Crédit d'impôt R&D majoré à 40% + IS 5% les 5 premières années"
+    },
+    "PROCEDURES_OBLIGATIONS": {
+        "description": "Délais, pénalités et contrôles (2025)",
+        "declarations": {
+            "IRPF": "31/06 (papier) – 30/09 (télématique)",
+            "IS": "Dans les 6 mois suivant la clôture + 25 jours",
+            "IGI": "20 du mois suivant la période (mensuelle ou trimestrielle)"
+        },
+        "penalites_retard": "1% par mois de retard (max 35%) + intérêts 4% annuel",
+        "controle_fiscal": "Prescription 4 ans (5 si fraude) – droit de visite des agents tributaris"
+    },
+    "CONVENTIONS_DETAILS": {
+        "description": "Taux retenue à la source selon conventions de non-double imposition (2025)",
+        "France": {"dividendes": "0-5%", "interets": "0%", "redevances": "0%"},
+        "Espagne": {"dividendes": "0-5%", "interets": "0%", "redevances": "0%"},
+        "Portugal": {"dividendes": "5%", "interets": "5%", "redevances": "5%"},
+        "Luxembourg": {"dividendes": "0%", "interets": "0%", "redevances": "0%"}
+    },
+    "MESURES_ANTI_ABUS": {
+        "description": "Dispositifs anti-abus (BEPS, substance économique) applicables dès 2025",
+        "cfc_rules": "Imposition des revenus passifs de filiales contrôlées <10% d'IS effectif",
+        "substance_requirements": "Bureau physique, personnel qualifié minimal, dépenses >15% du CA local",
+        "gaar": "Clause anti-abus générale art. 13bis LGT (requalification de montages artificiels)"
     }
 }
 
