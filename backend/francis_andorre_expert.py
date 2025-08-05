@@ -285,7 +285,12 @@ INSTRUCTIONS:
 4. Structure ta réponse avec des tableaux et listes
 5. Sois absolument certain de tes informations - tu es L'EXPERT
 6. Utilise un ton professionnel mais accessible
-7. Si tu fais un calcul, détaille chaque étape"""
+7. Si tu fais un calcul, détaille chaque étape
+8. IMPORTANT: N'utilise JAMAIS de hashtags (#, ##, ###) dans tes réponses
+9. Pour les titres, utilise des majuscules ou du texte en gras (**titre**)
+10. Assure une mise en page parfaite avec des espaces et sauts de ligne appropriés
+11. Utilise des tableaux markdown avec alignement correct
+12. Pour les sections, utilise des tirets ou des numéros, jamais de hashtags"""
         
         user_prompt = f"Question: {question}"
         
