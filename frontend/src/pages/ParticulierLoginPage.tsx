@@ -157,7 +157,7 @@ export function ParticulierLoginPage() {
       </div>
 
       {/* Version Desktop */}
-      <div className="hidden md:block min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] flex items-center justify-center px-4 py-8">
+      <div className="hidden md:flex min-h-screen bg-gradient-to-br from-[#1a2942] via-[#223c63] to-[#234876] items-center justify-center px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
