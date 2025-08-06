@@ -147,8 +147,7 @@ export function FrancisAndorreAccountPage() {
   const tabs = [
     { id: 'profile', label: t.profile, icon: User },
     { id: 'subscription', label: t.subscription, icon: CreditCard },
-    { id: 'usage', label: t.usage, icon: BarChart3 },
-    { id: 'settings', label: t.settings, icon: Settings }
+    { id: 'usage', label: t.usage, icon: BarChart3 }
   ];
 
   if (isLoading) {
@@ -281,6 +280,62 @@ export function FrancisAndorreAccountPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Settings Section merged into Profile */}
+                  <div className="mt-8 pt-6 border-t border-[#c5a572]/20">
+                    <h3 className="text-lg font-semibold text-[#c5a572] mb-6 flex items-center space-x-2">
+                      <Settings className="h-5 w-5" />
+                      <span>Paramètres</span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-[#0A192F] border border-[#c5a572]/30 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-300 mb-3 flex items-center space-x-2">
+                          <Globe className="h-4 w-4" />
+                          <span>{t.language}</span>
+                        </h4>
+                        <select 
+                          value={profile.language}
+                          onChange={(e) => setProfile({...profile, language: e.target.value as 'fr' | 'es'})}
+                          className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#c5a572]"
+                        >
+                          <option value="fr">Français</option>
+                          <option value="es">Español</option>
+                        </select>
+                      </div>
+
+                      <div className="bg-[#0A192F] border border-[#c5a572]/30 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-300 mb-3 flex items-center space-x-2">
+                          <Bell className="h-4 w-4" />
+                          <span>{t.notifications}</span>
+                        </h4>
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                          <input 
+                            type="checkbox"
+                            checked={profile.notifications}
+                            onChange={(e) => setProfile({...profile, notifications: e.target.checked})}
+                            className="w-4 h-4 text-[#c5a572] bg-[#162238] border-[#c5a572]/30 rounded focus:ring-[#c5a572] focus:ring-2"
+                          />
+                          <span className="text-sm text-gray-300">Recevoir des notifications par email</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#0A192F] border border-[#c5a572]/30 rounded-lg p-4 mt-6">
+                      <h4 className="font-medium text-gray-300 mb-3 flex items-center space-x-2">
+                        <Shield className="h-4 w-4" />
+                        <span>Sécurité</span>
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button className="w-full text-left bg-[#162238] hover:bg-[#1a2332] border border-[#c5a572]/30 rounded-lg p-3 text-sm text-gray-300 hover:text-[#c5a572] transition-colors">
+                          {t.changePassword}
+                        </button>
+                        <button className="w-full text-left bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-400 hover:text-red-300 transition-colors">
+                          {t.deleteAccount}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -296,7 +351,7 @@ export function FrancisAndorreAccountPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-semibold text-[#c5a572]">{profile.subscription}</h3>
-                        <p className="text-gray-400">97€/mois</p>
+                        <p className="text-gray-400">49€/mois</p>
                       </div>
                       <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                         isSubscriptionActive 
@@ -383,66 +438,8 @@ export function FrancisAndorreAccountPage() {
                 </div>
               )}
 
-              {/* Settings Tab */}
-              {activeTab === 'settings' && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-bold text-[#c5a572] flex items-center space-x-2">
-                    <Settings className="h-5 w-5" />
-                    <span>{t.settings}</span>
-                  </h2>
-
-                  <div className="space-y-6">
-                    <div className="bg-[#0A192F] border border-[#c5a572]/30 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-300 mb-4 flex items-center space-x-2">
-                        <Globe className="h-4 w-4" />
-                        <span>{t.language}</span>
-                      </h4>
-                      <select 
-                        value={profile.language}
-                        onChange={(e) => setProfile({...profile, language: e.target.value as 'fr' | 'es'})}
-                        className="w-full bg-[#162238] border border-[#c5a572]/30 rounded-lg px-4 py-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#c5a572]"
-                      >
-                        <option value="fr">Français</option>
-                        <option value="es">Español</option>
-                      </select>
-                    </div>
-
-                    <div className="bg-[#0A192F] border border-[#c5a572]/30 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-300 mb-4 flex items-center space-x-2">
-                        <Bell className="h-4 w-4" />
-                        <span>{t.notifications}</span>
-                      </h4>
-                      <label className="flex items-center space-x-3 cursor-pointer">
-                        <input 
-                          type="checkbox"
-                          checked={profile.notifications}
-                          onChange={(e) => setProfile({...profile, notifications: e.target.checked})}
-                          className="w-5 h-5 text-[#c5a572] bg-[#162238] border-[#c5a572]/30 rounded focus:ring-[#c5a572] focus:ring-2"
-                        />
-                        <span className="text-gray-300">Recevoir des notifications par email</span>
-                      </label>
-                    </div>
-
-                    <div className="bg-[#0A192F] border border-[#c5a572]/30 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-300 mb-4 flex items-center space-x-2">
-                        <Shield className="h-4 w-4" />
-                        <span>Sécurité</span>
-                      </h4>
-                      <div className="space-y-3">
-                        <button className="w-full text-left bg-[#162238] hover:bg-[#1a2332] border border-[#c5a572]/30 rounded-lg p-4 text-gray-300 hover:text-[#c5a572] transition-colors">
-                          {t.changePassword}
-                        </button>
-                        <button className="w-full text-left bg-red-600/10 hover:bg-red-600/20 border border-red-500/30 rounded-lg p-4 text-red-400 hover:text-red-300 transition-colors">
-                          {t.deleteAccount}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Save Button */}
-              {(activeTab === 'profile' || activeTab === 'settings') && (
+              {activeTab === 'profile' && (
                 <div className="mt-8 pt-6 border-t border-[#c5a572]/20">
                   <div className="flex space-x-4">
                     <button
