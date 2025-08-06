@@ -1003,6 +1003,63 @@ ANDORRA_TAX_KNOWLEDGE = {
             "violation": "Dommages déductibles victime"
         },
         "ip_backed_lending": "Intérêts déductibles si valorisation indépendante"
+    },
+    
+    "PILLAR_II": {
+        "description": "Impôt minimum mondial OCDE 15% (GloBE) 2025",
+        "scope": "Groupes CA >750M€",
+        "iir": "Top-up tax Andorre si taux effectif <15% filiale",
+        "utr": "IS complémentaire entités locales",
+        "safe_harbour": "Exonération si substance + revenus passifs <5%"
+    },
+    
+    "HYBRID_MISMATCH": {
+        "description": "Règles anti-montages hybrides ATAD2 2025",
+        "deduction_no_inclusion": "Refus déduction intérêts si non imposés débirentier",
+        "double_deduction": "Déduction unique dans Etat investisseur",
+        "imported_mismatch": "Neutralisation si déduction à l'étranger"
+    },
+    
+    "DIGITAL_SERVICES": {
+        "description": "Taxe services numériques (TSN) 3% 2025",
+        "seuil": "CA mondial >750M€ ET CA Andorre >500k€",
+        "base": "Recettes pub en ligne, plateformes, data utilisateurs",
+        "declaration": "Trimestrielle, paiement 20 jours fin trimestre"
+    },
+    
+    "CBAM": {
+        "description": "Mécanisme d'ajustement carbone aux frontières 2025",
+        "produits": "Ciment, acier, aluminium, engrais, électricité",
+        "certificats": "Achat sous forme IGI spéciale",
+        "reporting": "Déclarations trimestrielles émissions incorporées"
+    },
+    
+    "SPAC": {
+        "description": "Sociétés ad hoc cotées 2025",
+        "constitution": "Capital min 5M€, durée 24 mois",
+        "fiducie": "90% fonds placés en titres sûrs",
+        "fusion_target": "Top-up tax si taux effectif <10%"
+    },
+    
+    "CROWDFUNDING_P2P": {
+        "description": "Plateformes prêt participatif 2025",
+        "investisseurs": "IRPF 5% intérêts <10k€/an",
+        "emprunteurs": "IGI 0% frais dossier",
+        "plateforme": "IS 5% commissions + licence INAF"
+    },
+    
+    "FISCALITE_CAPTIVES": {
+        "description": "Assurances captives et risk pooling 2025",
+        "conditions": "Prime min 1M€, risques diversifiés",
+        "is_taux": "2% si captive pure",
+        "ceded_reinsurance": "Déduction intégrale primes cédées"
+    },
+    
+    "FIRB": {
+        "description": "Contrôle investissements étrangers sensibles 2025",
+        "secteurs": "Télécom, énergie, défense, data",
+        "seuil_examen": "Participation >10% capital",
+        "taxe_dossier": "0.1% valeur transaction (plafond 50k€)"
     }
 }
 

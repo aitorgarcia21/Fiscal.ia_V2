@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, LogOut, Globe, BookOpen } from 'lucide-react';
+import { Send, User, LogOut, Globe, BookOpen, Settings } from 'lucide-react';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FrancisAndorreAPI } from '../services/francisAndorreApi';
@@ -211,6 +211,15 @@ export function FrancisAndorreChat() {
             >
               <Globe className="h-4 w-4 text-[#c5a572]" />
               <span className="text-[#c5a572] text-sm font-medium">{language.toUpperCase()}</span>
+            </button>
+            
+            {/* Account Management */}
+            <button
+              onClick={() => navigate('/andorre/account')}
+              className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-[#c5a572]/10 hover:bg-[#c5a572]/20 transition-colors"
+            >
+              <Settings className="h-4 w-4 text-[#c5a572]" />
+              <span className="text-[#c5a572] text-sm font-medium">Compte</span>
             </button>
             
             {/* Logout */}

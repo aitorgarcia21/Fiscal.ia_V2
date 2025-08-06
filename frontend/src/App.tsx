@@ -50,6 +50,7 @@ import { FrancisAndorreChat } from './pages/FrancisAndorreChat';
 import FrancisAndorrePayment from './pages/FrancisAndorrePayment';
 import FrancisAndorreSuccess from './pages/FrancisAndorreSuccess';
 import FrancisAndorreTestPage from './pages/FrancisAndorreTestPage';
+import { FrancisAndorreAccountPage } from './pages/FrancisAndorreAccountPage';
 import { AndorreSignupPage } from './pages/AndorreSignupPage';
 import { ParticulierLandingPage } from './pages/ParticulierLandingPage';
 import { ParticulierLoginPage } from './pages/ParticulierLoginPage';
@@ -164,6 +165,7 @@ function App() {
           <Route path="/andorre/success" element={<FrancisAndorreSuccess />} />
           <Route path="/andorre/test" element={<FrancisAndorreTestPage />} />
           <Route path="/andorre/chat" element={<FrancisAndorreChat />} />
+          <Route path="/andorre/account" element={<FrancisAndorreAccountPage />} />
           <Route path="/analyse-ia-fiscale-andorrane" element={<FrancisAndorreChat />} />
           <Route path="/signup" element={<Navigate to="/pro/signup" replace />} />
           <Route path="/pro/signup" element={<ProSignupPage />} />
