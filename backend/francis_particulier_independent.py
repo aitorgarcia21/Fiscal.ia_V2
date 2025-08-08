@@ -38,7 +38,11 @@ class OllamaClient:
     
     def __init__(self, base_url: str = None, model: str = "mistral:7b-instruct"):
         # Utiliser la variable d'environnement ou localhost par défaut
-        self.base_url = base_url or os.getenv("LLM_ENDPOINT", "http://localhost:11434")
+        # Forcer localhost si la variable pointe vers 'llm' (bug Railway)
+        env_endpoint = os.getenv("LLM_ENDPOINT", "http://localhost:11434")
+        if "llm:" in env_endpoint or env_endpoint == "llm":
+            env_endpoint = "http://localhost:11434"
+        self.base_url = base_url or env_endpoint
         self.model = model
         self.models_cache = {}
         self.performance_stats = {
