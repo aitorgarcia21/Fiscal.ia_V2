@@ -664,6 +664,54 @@ class EuropeanTaxKnowledgeBase:
         self._add_legal_precedents()
         self._add_practical_case_studies()
         
+        # CONNAISSANCES EXPERTES HYPER-SPÉCIALISÉES
+        self._add_advanced_tax_planning()
+        self._add_international_structures()
+        self._add_regulatory_updates_2025()
+        self._add_sector_specific_taxation()
+        self._add_dispute_resolution()
+        self._add_compliance_requirements()
+        self._add_emerging_tax_issues()
+        self._add_quantitative_analysis()
+        self._add_risk_assessment_matrix()
+        
+        # MODULES SUPER-INTELLIGENCE FISCALE
+        self._add_ai_powered_tax_strategies()
+        self._add_predictive_tax_modeling()
+        self._add_cross_border_optimization()
+        self._add_regulatory_intelligence()
+        self._add_market_intelligence()
+        self._add_competitive_analysis()
+        self._add_scenario_planning()
+        self._add_real_time_monitoring()
+        self._add_expert_decision_trees()
+        self._add_advanced_calculations()
+        
+        # MODULES MONTAGES FISCAUX ULTRA-SOPHISTIQUÉS
+        self._add_ultimate_tax_schemes()
+        self._add_advanced_structuring()
+        self._add_optimization_masterclass()
+        self._add_legal_arbitrage_strategies()
+        self._add_sophisticated_planning()
+        self._add_wealth_preservation()
+        self._add_income_transformation()
+        self._add_timing_strategies()
+        self._add_multi_jurisdictional_planning()
+        self._add_anti_avoidance_navigation()
+
+        # MODULES CONFORMITÉ ET ANTI-ABUS UE
+        self._add_dac6_mdr_rules()
+        self._add_dac8_crypto_reporting()
+        self._add_pillar_two_globe_rules()
+        self._add_exit_tax_rules()
+        self._add_atad_framework()
+        self._add_permanent_establishment_rules()
+        self._add_unshell_rules()
+        self._add_bo_register_requirements()
+        self._add_transfer_pricing_framework()
+        self._add_withholding_tax_matrix()
+        self._add_reporting_calendar()
+        
     def _add_tax_optimization_rules(self):
         """Règles d'optimisation fiscale européenne"""
         self.tax_optimization_strategies = {
@@ -1218,9 +1266,1461 @@ class EuropeanTaxKnowledgeBase:
                 ]
             }
         }
+        
+    def _add_advanced_tax_planning(self):
+        """Planification fiscale avancée européenne"""
+        self.advanced_tax_planning = {
+            "wealth_structuring": {
+                "family_offices": {
+                    "luxembourg": "Soparfi + PSF pour gestion patrimoine",
+                    "switzerland": "Family office suisse avec fondations",
+                    "netherlands": "Stichting + BV structure",
+                    "benefits": ["Confidentialité", "Optimisation fiscale", "Succession"]
+                },
+                "trust_structures": {
+                    "malta": "Malta trust + residence programme",
+                    "cyprus": "International trust Cyprus",
+                    "uk_trusts": "Settlor interested trusts",
+                    "tax_treatment": "Transparent vs opaque selon pays"
+                }
+            },
+            "succession_planning": {
+                "anticipation_strategies": [
+                    "Donation-partage avec réserve d'usufruit",
+                    "Pacte Dutreil transmission entreprise",
+                    "Assurance-vie luxembourgeoise",
+                    "SCI démembrement temporaire",
+                    "Trust discretionary offshore"
+                ],
+                "cross_border_issues": {
+                    "forced_heirship": "Réserve héréditaire vs liberté testamentaire",
+                    "clawback_rules": "Rapport donations selon loi applicable",
+                    "tax_coordination": "Éviter double imposition succession"
+                }
+            },
+            "business_succession": {
+                "management_buyout": "MBO avec holding reprise",
+                "family_buyout": "Transmission familiale optimisée",
+                "ipo_preparation": "Structure pré-IPO optimale",
+                "private_equity": "Entrée fonds avec ratchet"
+            }
+        }
+        
+    def _add_international_structures(self):
+        """Structures internationales complexes"""
+        self.international_structures = {
+            "holding_chains": {
+                "netherlands_luxembourg": {
+                    "structure": "NL TopCo -> LU MidCo -> OpCos",
+                    "benefits": ["Participation exemption", "Treaty network", "EU directives"],
+                    "substance": "Economic substance requirements"
+                },
+                "ireland_malta": {
+                    "structure": "IE HoldCo -> MT SubCo -> Operations",
+                    "benefits": ["12.5% CT Ireland", "Refund system Malta", "EU compliance"],
+                    "anti_avoidance": "Principal purpose test"
+                }
+            },
+            "ip_structures": {
+                "cost_sharing": "Development costs sharing agreement",
+                "license_structures": "IP licensing through low-tax jurisdictions",
+                "r_and_d_incentives": "Patent box regimes coordination",
+                "transfer_pricing": "OECD guidelines compliance"
+            },
+            "financing_structures": {
+                "debt_pushdown": "Acquisition financing optimization",
+                "hybrid_instruments": "Debt/equity hybrid treatment",
+                "interest_deduction": "Thin cap rules navigation",
+                "withholding_optimization": "Treaty shopping legitimate"
+            }
+        }
+        
+    def _add_regulatory_updates_2025(self):
+        """Mises à jour réglementaires 2025"""
+        self.regulatory_updates_2025 = {
+            "pillar_two": {
+                "global_minimum_tax": "15% minimum tax multinationals",
+                "scope": "Groupes > 750M€ CA consolidé",
+                "implementation": "2024-2025 selon pays UE",
+                "safe_harbors": "Simplified calculations available"
+            },
+            "dac8": {
+                "crypto_reporting": "Directive échange automatique crypto",
+                "scope": "Plateformes crypto, wallets, exchanges",
+                "timeline": "Application 1er janvier 2026",
+                "impact": "Transparence fiscale crypto UE"
+            },
+            "unshell_directive": {
+                "substance_requirements": "Minimum substance EU entities",
+                "indicators": "Income, assets, employees, premises",
+                "consequences": "Loss of treaty benefits",
+                "timeline": "Transposition 2024-2025"
+            },
+            "digital_levy": {
+                "scope": "Large digital companies",
+                "rate": "Discussions ongoing 1-5%",
+                "coordination": "OECD Pillar One alignment",
+                "timeline": "Implementation uncertain"
+            }
+        }
+        
+    def _add_sector_specific_taxation(self):
+        """Fiscalité sectorielle spécialisée"""
+        self.sector_taxation = {
+            "financial_services": {
+                "banking": {
+                    "financial_transaction_tax": "FTT 11 pays UE volontaires",
+                    "bank_levies": "Taxes sectorielles bancaires",
+                    "regulatory_capital": "Impact fiscal fonds propres"
+                },
+                "insurance": {
+                    "solvency_ii": "Impact fiscal exigences capital",
+                    "insurance_premium_tax": "IPT taux variables par pays",
+                    "life_insurance": "Fiscalité contrats vie transfrontaliers"
+                }
+            },
+            "technology": {
+                "software_development": {
+                    "r_and_d_credits": "Crédits recherche développement",
+                    "ip_valuation": "Valorisation actifs incorporels",
+                    "transfer_pricing": "Prix transfert développements"
+                },
+                "digital_platforms": {
+                    "vat_oss": "One Stop Shop TVA services numériques",
+                    "digital_services_tax": "DST France, Italie, Espagne",
+                    "platform_economy": "Fiscalité économie plateforme"
+                }
+            },
+            "real_estate": {
+                "reits": {
+                    "tax_transparency": "Transparence fiscale SIIC/REIT",
+                    "distribution_requirements": "Obligations distribution",
+                    "asset_requirements": "Contraintes composition actifs"
+                },
+                "construction": {
+                    "vat_reverse_charge": "Autoliquidation TVA BTP",
+                    "depreciation_rules": "Amortissements immobilier",
+                    "social_housing": "Avantages logement social"
+                }
+            }
+        }
+        
+    def _add_dispute_resolution(self):
+        """Résolution des différends fiscaux"""
+        self.dispute_resolution = {
+            "mutual_agreement": {
+                "map_procedures": "Procédures amiables conventions",
+                "timeline": "24-36 mois résolution",
+                "success_rates": "Taux succès 85-95%",
+                "arbitration": "Arbitrage si échec procédure"
+            },
+            "eu_arbitration": {
+                "directive_2017_1852": "Arbitrage différends fiscaux UE",
+                "scope": "Prix transfert, répartition bénéfices",
+                "timeline": "3 ans maximum procédure",
+                "binding_decision": "Décision contraignante"
+            },
+            "litigation_strategies": {
+                "forum_shopping": "Choix juridiction optimale",
+                "preliminary_rulings": "Questions préjudicielles CJUE",
+                "interim_relief": "Mesures conservatoires",
+                "enforcement": "Exécution décisions transfrontalières"
+            }
+        }
+        
+    def _add_compliance_requirements(self):
+        """Exigences de conformité"""
+        self.compliance_requirements = {
+            "country_by_country": {
+                "cbcr_filing": "Déclaration pays par pays",
+                "master_file": "Fichier principal documentation",
+                "local_file": "Fichier local entité",
+                "thresholds": "Seuils 750M€ CA consolidé"
+            },
+            "beneficial_ownership": {
+                "ubo_registers": "Registres bénéficiaires effectifs",
+                "disclosure_thresholds": "Seuils 25% participation",
+                "verification": "Vérification identité UBO",
+                "penalties": "Sanctions non-conformité"
+            },
+            "automatic_exchange": {
+                "crs_reporting": "Common Reporting Standard",
+                "fatca_compliance": "Foreign Account Tax Compliance",
+                "dac_directives": "Directives échange automatique UE",
+                "due_diligence": "Procédures identification"
+            }
+        }
+        
+    def _add_emerging_tax_issues(self):
+        """Enjeux fiscaux émergents"""
+        self.emerging_issues = {
+            "esg_taxation": {
+                "carbon_tax": "Taxe carbone européenne CBAM",
+                "green_incentives": "Incitations fiscales vertes",
+                "sustainability_reporting": "Reporting durabilité impact fiscal",
+                "transition_finance": "Financement transition écologique"
+            },
+            "artificial_intelligence": {
+                "ai_development": "Fiscalité développement IA",
+                "data_valuation": "Valorisation fiscale données",
+                "algorithm_ip": "Propriété intellectuelle algorithmes",
+                "automation_impact": "Impact automatisation emploi"
+            },
+            "space_economy": {
+                "satellite_taxation": "Fiscalité activités spatiales",
+                "launch_services": "Services lancement fiscal",
+                "space_mining": "Exploitation minière spatiale",
+                "jurisdiction_issues": "Problèmes juridictionnels"
+            }
+        }
+        
+    def _add_quantitative_analysis(self):
+        """Analyses quantitatives fiscales"""
+        self.quantitative_analysis = {
+            "tax_modeling": {
+                "scenario_analysis": "Analyse scénarios fiscaux",
+                "sensitivity_testing": "Tests sensibilité taux",
+                "monte_carlo": "Simulations Monte Carlo",
+                "optimization_algorithms": "Algorithmes optimisation"
+            },
+            "benchmarking": {
+                "effective_tax_rates": "Taux effectifs sectoriels",
+                "peer_comparison": "Comparaisons concurrents",
+                "geographic_analysis": "Analyse géographique charge",
+                "trend_analysis": "Analyse tendances fiscales"
+            },
+            "risk_metrics": {
+                "tax_risk_scoring": "Notation risque fiscal",
+                "probability_assessments": "Évaluations probabilistes",
+                "value_at_risk": "VaR fiscale",
+                "stress_testing": "Tests résistance"
+            }
+        }
+        
+    def _add_risk_assessment_matrix(self):
+        """Matrice d'évaluation des risques"""
+        self.risk_matrix = {
+            "audit_risk_factors": {
+                "high_risk": [
+                    "Transactions internationales complexes",
+                    "Restructurations récentes",
+                    "Prix transfert significatifs",
+                    "Utilisation paradis fiscaux",
+                    "Changements résidence fiscale"
+                ],
+                "medium_risk": [
+                    "Déductions importantes",
+                    "Plus-values substantielles",
+                    "Activités multi-juridictionnelles",
+                    "Régimes préférentiels",
+                    "Transactions intra-groupe"
+                ],
+                "low_risk": [
+                    "Revenus salariés simples",
+                    "Activité locale uniquement",
+                    "Déclarations cohérentes",
+                    "Pas de montages complexes"
+                ]
+            },
+            "mitigation_strategies": {
+                "documentation": "Documentation exhaustive positions",
+                "advance_rulings": "Rescrits fiscaux préventifs",
+                "professional_advice": "Conseil fiscal spécialisé",
+                "compliance_monitoring": "Surveillance conformité continue",
+                "insurance": "Assurance risques fiscaux"
+            }
+        }
+        
+    def _add_ai_powered_tax_strategies(self):
+        """Stratégies fiscales alimentées par IA"""
+        self.ai_tax_strategies = {
+            "pattern_recognition": {
+                "tax_optimization_patterns": [
+                    "Détection automatique opportunités optimisation",
+                    "Analyse patterns comportements fiscaux",
+                    "Identification structures optimales par profil",
+                    "Reconnaissance signaux d'alerte audit"
+                ],
+                "predictive_compliance": [
+                    "Prédiction risques non-conformité",
+                    "Anticipation changements réglementaires",
+                    "Évaluation probabiliste positions fiscales",
+                    "Optimisation timing déclarations"
+                ]
+            },
+            "machine_learning_models": {
+                "tax_rate_prediction": "Modèles prédictifs évolution taux",
+                "audit_probability": "Algorithmes probabilité contrôle",
+                "optimization_scoring": "Scoring opportunités optimisation",
+                "risk_profiling": "Profilage automatique risques"
+            },
+            "natural_language_processing": {
+                "regulation_analysis": "Analyse automatique textes réglementaires",
+                "case_law_extraction": "Extraction principes jurisprudence",
+                "contract_review": "Revue automatique clauses fiscales",
+                "document_classification": "Classification documents fiscaux"
+            }
+        }
+        
+    def _add_predictive_tax_modeling(self):
+        """Modélisation fiscale prédictive"""
+        self.predictive_modeling = {
+            "tax_burden_forecasting": {
+                "individual_forecasts": {
+                    "income_projection": "Projection revenus 5-10 ans",
+                    "tax_evolution": "Évolution charge fiscale prévisionnelle",
+                    "life_events_impact": "Impact événements vie (mariage, enfants, retraite)",
+                    "relocation_scenarios": "Scénarios déménagement fiscal"
+                },
+                "business_forecasts": {
+                    "growth_scenarios": "Scénarios croissance entreprise",
+                    "expansion_planning": "Planification expansion internationale",
+                    "exit_strategies": "Modélisation stratégies sortie",
+                    "restructuring_impact": "Impact restructurations"
+                }
+            },
+            "regulatory_change_impact": {
+                "policy_simulation": "Simulation impact nouvelles politiques",
+                "rate_change_modeling": "Modélisation changements taux",
+                "threshold_analysis": "Analyse impact seuils fiscaux",
+                "transition_planning": "Planification périodes transition"
+            },
+            "monte_carlo_simulations": {
+                "uncertainty_modeling": "Modélisation incertitudes fiscales",
+                "scenario_probabilities": "Probabilités scénarios multiples",
+                "risk_quantification": "Quantification risques financiers",
+                "optimization_under_uncertainty": "Optimisation sous incertitude"
+            }
+        }
+        
+    def _add_cross_border_optimization(self):
+        """Optimisation transfrontalière avancée"""
+        self.cross_border_optimization = {
+            "residence_optimization": {
+                "tax_residence_planning": {
+                    "optimal_residence": "Résidence fiscale optimale par profil",
+                    "tie_breaker_strategies": "Stratégies départage résidence",
+                    "substance_requirements": "Exigences substance par pays",
+                    "transition_planning": "Planification changement résidence"
+                },
+                "nomad_strategies": {
+                    "digital_nomad_optimization": "Optimisation nomades numériques",
+                    "183_day_management": "Gestion règle 183 jours",
+                    "multi_country_income": "Revenus multi-pays",
+                    "social_security_coordination": "Coordination SS nomades"
+                }
+            },
+            "income_sourcing": {
+                "source_rules_optimization": "Optimisation règles source revenus",
+                "treaty_shopping_legitimate": "Treaty shopping légitime",
+                "permanent_establishment": "Évitement établissement stable",
+                "attribution_strategies": "Stratégies attribution revenus"
+            },
+            "structure_optimization": {
+                "holding_chain_design": "Design chaînes holdings optimales",
+                "substance_vs_tax": "Équilibre substance/fiscalité",
+                "anti_avoidance_compliance": "Conformité anti-évasion",
+                "economic_substance_test": "Tests substance économique"
+            }
+        }
+        
+    def _add_regulatory_intelligence(self):
+        """Intelligence réglementaire"""
+        self.regulatory_intelligence = {
+            "real_time_monitoring": {
+                "legislation_tracking": [
+                    "Suivi temps réel propositions lois",
+                    "Analyse impact projets réglementaires",
+                    "Alertes changements fiscaux imminents",
+                    "Calendrier mise en œuvre réformes"
+                ],
+                "consultation_tracking": [
+                    "Suivi consultations publiques",
+                    "Analyse positions administrations",
+                    "Tendances politiques fiscales",
+                    "Lobbying fiscal européen"
+                ]
+            },
+            "jurisprudence_analysis": {
+                "case_law_trends": "Tendances jurisprudentielles",
+                "precedent_analysis": "Analyse précédents applicables",
+                "court_prediction": "Prédiction décisions tribunaux",
+                "appeal_strategies": "Stratégies recours optimales"
+            },
+            "administrative_guidance": {
+                "ruling_analysis": "Analyse rescrits administratifs",
+                "position_papers": "Documents position administrations",
+                "interpretation_trends": "Tendances interprétation",
+                "safe_harbor_identification": "Identification safe harbors"
+            }
+        }
+        
+    def _add_market_intelligence(self):
+        """Intelligence de marché fiscale"""
+        self.market_intelligence = {
+            "competitive_benchmarking": {
+                "effective_tax_rates": {
+                    "industry_benchmarks": "Benchmarks taux effectifs sectoriels",
+                    "geographic_comparison": "Comparaisons géographiques",
+                    "size_analysis": "Analyse par taille entreprise",
+                    "peer_group_analysis": "Analyse groupes pairs"
+                },
+                "tax_strategy_analysis": {
+                    "competitor_structures": "Structures concurrents",
+                    "best_practices": "Meilleures pratiques secteur",
+                    "innovation_tracking": "Suivi innovations fiscales",
+                    "market_positioning": "Positionnement marché fiscal"
+                }
+            },
+            "economic_indicators": {
+                "tax_policy_correlation": "Corrélation politiques fiscales/économie",
+                "gdp_impact_analysis": "Analyse impact PIB",
+                "inflation_tax_adjustment": "Ajustements fiscaux inflation",
+                "currency_impact": "Impact variations monétaires"
+            },
+            "investment_flows": {
+                "fdi_tax_correlation": "Corrélation IDE/fiscalité",
+                "capital_flight_indicators": "Indicateurs fuite capitaux",
+                "tax_haven_flows": "Flux vers paradis fiscaux",
+                "repatriation_trends": "Tendances rapatriement"
+            }
+        }
+        
+    def _add_competitive_analysis(self):
+        """Analyse concurrentielle fiscale"""
+        self.competitive_analysis = {
+            "jurisdiction_ranking": {
+                "tax_competitiveness": {
+                    "overall_ranking": "Classement compétitivité fiscale globale",
+                    "individual_ranking": "Classement particuliers",
+                    "business_ranking": "Classement entreprises",
+                    "wealth_ranking": "Classement gestion patrimoine"
+                },
+                "specialized_rankings": {
+                    "startup_friendly": "Classement favorable startups",
+                    "r_and_d_incentives": "Classement incitations R&D",
+                    "holding_structures": "Classement structures holdings",
+                    "pension_systems": "Classement systèmes retraite"
+                }
+            },
+            "migration_patterns": {
+                "tax_migration_flows": "Flux migration fiscale",
+                "high_net_worth_movements": "Mouvements HNWI",
+                "business_relocations": "Relocalisations entreprises",
+                "talent_attraction": "Attraction talents"
+            },
+            "policy_effectiveness": {
+                "incentive_success_rates": "Taux succès incitations",
+                "revenue_impact": "Impact revenus fiscaux",
+                "economic_multipliers": "Multiplicateurs économiques",
+                "unintended_consequences": "Conséquences non voulues"
+            }
+        }
+        
+    def _add_scenario_planning(self):
+        """Planification de scénarios"""
+        self.scenario_planning = {
+            "macro_scenarios": {
+                "economic_scenarios": [
+                    "Récession européenne 2025-2026",
+                    "Inflation persistante >5%",
+                    "Crise énergétique prolongée",
+                    "Fragmentation UE fiscale"
+                ],
+                "political_scenarios": [
+                    "Harmonisation fiscale UE accélérée",
+                    "Guerre commerciale USA-UE",
+                    "Populisme anti-fiscal",
+                    "Révolution numérique fiscale"
+                ]
+            },
+            "regulatory_scenarios": {
+                "tax_harmonization": "Harmonisation fiscale européenne",
+                "digital_taxation": "Taxation numérique généralisée",
+                "wealth_taxes": "Retour impôts fortune",
+                "carbon_taxation": "Taxation carbone massive"
+            },
+            "personal_scenarios": {
+                "life_event_planning": [
+                    "Mariage/divorce impact fiscal",
+                    "Naissance enfants optimisation",
+                    "Héritage planification succession",
+                    "Retraite anticipée stratégies"
+                ],
+                "career_scenarios": [
+                    "Expatriation professionnelle",
+                    "Entrepreneuriat international",
+                    "Freelance multi-pays",
+                    "Retraite nomade"
+                ]
+            }
+        }
+        
+    def _add_real_time_monitoring(self):
+        """Monitoring temps réel"""
+        self.real_time_monitoring = {
+            "alert_systems": {
+                "regulatory_alerts": [
+                    "Nouveaux textes réglementaires",
+                    "Changements taux fiscaux",
+                    "Nouvelles jurisprudences",
+                    "Consultations publiques"
+                ],
+                "compliance_alerts": [
+                    "Échéances déclaratives",
+                    "Seuils dépassés",
+                    "Obligations nouvelles",
+                    "Risques détectés"
+                ]
+            },
+            "market_monitoring": {
+                "rate_changes": "Changements taux temps réel",
+                "policy_announcements": "Annonces politiques",
+                "economic_indicators": "Indicateurs économiques",
+                "competitor_moves": "Mouvements concurrents"
+            },
+            "portfolio_monitoring": {
+                "tax_efficiency": "Efficacité fiscale portefeuille",
+                "optimization_opportunities": "Opportunités optimisation",
+                "risk_exposure": "Exposition risques",
+                "performance_attribution": "Attribution performance"
+            }
+        }
+        
+    def _add_expert_decision_trees(self):
+        """Arbres de décision experts"""
+        self.decision_trees = {
+            "residence_decision": {
+                "factors": [
+                    "Revenus types et montants",
+                    "Patrimoine composition",
+                    "Famille situation",
+                    "Profession mobilité",
+                    "Préférences personnelles"
+                ],
+                "outcomes": [
+                    "Résidence optimale recommandée",
+                    "Stratégie transition",
+                    "Risques identifiés",
+                    "Alternatives évaluées"
+                ]
+            },
+            "structure_decision": {
+                "business_factors": [
+                    "Activité nature",
+                    "Revenus prévisionnels",
+                    "Expansion géographique",
+                    "Financement besoins",
+                    "Exit strategy"
+                ],
+                "structure_options": [
+                    "Société locale",
+                    "Holding internationale",
+                    "Structure IP",
+                    "Partenariat fiscal"
+                ]
+            },
+            "investment_decision": {
+                "tax_considerations": [
+                    "Plus-values taxation",
+                    "Revenus imposition",
+                    "Succession planification",
+                    "Liquidité besoins"
+                ],
+                "recommendations": [
+                    "Véhicule investissement optimal",
+                    "Timing opérations",
+                    "Structuration fiscale",
+                    "Risques mitigation"
+                ]
+            }
+        }
+        
+    def _add_advanced_calculations(self):
+        """Calculs avancés"""
+        self.advanced_calculations = {
+            "optimization_algorithms": {
+                "genetic_algorithm": "Optimisation génétique structures",
+                "simulated_annealing": "Recuit simulé planification",
+                "particle_swarm": "Essaim particules allocation",
+                "gradient_descent": "Descente gradient fiscale"
+            },
+            "financial_modeling": {
+                "net_present_value": "VAN stratégies fiscales",
+                "internal_rate_return": "TRI optimisations",
+                "sensitivity_analysis": "Analyse sensibilité paramètres",
+                "break_even_analysis": "Analyses seuil rentabilité"
+            },
+            "statistical_methods": {
+                "regression_analysis": "Analyses régressions fiscales",
+                "time_series_forecasting": "Prévisions séries temporelles",
+                "cluster_analysis": "Analyses clusters contribuables",
+                "factor_analysis": "Analyses factorielles risques"
+            }
+        }
+        
+    def _add_ultimate_tax_schemes(self):
+        """Montages fiscaux ultra-sophistiqués"""
+        self.ultimate_tax_schemes = {
+            "holding_structures_advanced": {
+                "dutch_sandwich": {
+                    "structure": "US Parent -> NL Holding -> IE Operating -> Bermuda IP",
+                    "benefits": ["Participation exemption", "Treaty network", "IP deduction"],
+                    "royalty_flow": "0% withholding via EU directive",
+                    "substance_requirements": "Economic activities in NL/IE",
+                    "anti_avoidance": "Principal Purpose Test navigation"
+                },
+                "luxembourg_soparfi": {
+                    "structure": "LU Soparfi -> Multiple OpCos",
+                    "benefits": ["Participation exemption 100%", "No withholding", "Treaty access"],
+                    "minimum_substance": "Board meetings, management decisions",
+                    "optimization": "Debt pushdown financing structure"
+                },
+                "malta_refund_system": {
+                    "structure": "MT HoldCo -> Subsidiaries",
+                    "effective_rate": "5% via refund system",
+                    "benefits": ["EU compliance", "Substance light", "Treaty network"],
+                    "requirements": "Minimum tax paid, refund claim"
+                }
+            },
+            "ip_monetization_schemes": {
+                "cost_sharing_agreement": {
+                    "structure": "Development costs shared between entities",
+                    "benefits": ["Future profits allocation", "Transfer pricing defense"],
+                    "jurisdictions": ["IE", "NL", "LU", "CH"],
+                    "patent_box_rates": {"NL": "7%", "BE": "6.8%", "LU": "5.76%"}
+                },
+                "ip_migration": {
+                    "strategy": "IP transfer to low-tax jurisdiction pre-development",
+                    "timing": "Before value creation",
+                    "valuation": "Arm's length at transfer date",
+                    "ongoing_compliance": "Substance requirements"
+                },
+                "license_structures": {
+                    "central_licensing": "Single IP entity licensing globally",
+                    "sub_licensing": "Regional licensing entities",
+                    "hybrid_structures": "Debt/equity financing of IP"
+                }
+            },
+            "financing_optimization": {
+                "debt_equity_swaps": {
+                    "convertible_bonds": "Debt treatment initially, equity later",
+                    "preferred_shares": "Deductible dividends in some jurisdictions",
+                    "hybrid_mismatches": "Different treatment across borders"
+                },
+                "back_to_back_loans": {
+                    "structure": "Loan via low-tax intermediary",
+                    "benefits": ["Interest deduction", "Withholding reduction"],
+                    "substance": "Economic rationale required"
+                },
+                "captive_insurance": {
+                    "structure": "Insurance subsidiary in low-tax jurisdiction",
+                    "benefits": ["Risk management", "Tax deduction", "Investment income"],
+                    "regulations": "Insurance regulatory compliance"
+                }
+            }
+        }
+        
+    def _add_advanced_structuring(self):
+        """Structurations avancées"""
+        self.advanced_structuring = {
+            "multi_tier_holdings": {
+                "three_tier_structure": {
+                    "top_tier": "Ultimate holding (residence optimization)",
+                    "mid_tier": "Intermediate holding (treaty access)",
+                    "bottom_tier": "Operating companies (substance)",
+                    "benefits": ["Tax efficiency", "Flexibility", "Risk management"]
+                },
+                "parallel_structures": {
+                    "operating_parallel": "Separate operating and holding lines",
+                    "geographic_parallel": "Regional holding structures",
+                    "functional_parallel": "IP, financing, operations separate"
+                }
+            },
+            "trust_foundation_hybrids": {
+                "liechtenstein_foundation": {
+                    "benefits": ["Asset protection", "Succession planning", "Tax efficiency"],
+                    "structure": "Foundation + underlying companies",
+                    "taxation": "Transparent for beneficiaries"
+                },
+                "panama_foundation": {
+                    "benefits": ["Privacy", "Flexibility", "No beneficial ownership"],
+                    "structure": "Private interest foundation",
+                    "compliance": "CRS reporting requirements"
+                },
+                "jersey_trust": {
+                    "benefits": ["Common law flexibility", "Tax transparency"],
+                    "structure": "Discretionary trust + companies",
+                    "substance": "Local trustees, meetings"
+                }
+            },
+            "corporate_migrations": {
+                "inversion_strategies": {
+                    "merger_inversion": "Merge with foreign company",
+                    "asset_inversion": "Transfer assets to foreign entity",
+                    "benefits": ["Lower tax rate", "Territorial system access"]
+                },
+                "redomiciliation": {
+                    "continuity_jurisdictions": "Same legal entity, new domicile",
+                    "benefits": ["Tax residence change", "Regulatory arbitrage"],
+                    "requirements": "Shareholder approval, regulatory consent"
+                }
+            }
+        }
+        
+    def _add_optimization_masterclass(self):
+        """Masterclass optimisation fiscale"""
+        self.optimization_masterclass = {
+            "income_characterization": {
+                "royalty_vs_business_income": {
+                    "strategy": "Structure payments as royalties",
+                    "benefits": ["Lower withholding", "Treaty benefits", "Deduction"],
+                    "requirements": "Genuine IP licensing"
+                },
+                "capital_vs_revenue": {
+                    "strategy": "Characterize gains as capital",
+                    "benefits": ["Lower rates", "Exemptions", "Deferral"],
+                    "techniques": ["Asset vs share deals", "Timing elections"]
+                },
+                "dividend_vs_interest": {
+                    "hybrid_instruments": "Debt-like equity, equity-like debt",
+                    "benefits": ["Deduction vs exemption", "Withholding optimization"],
+                    "anti_hybrid_rules": "ATAD compliance required"
+                }
+            },
+            "timing_optimization": {
+                "income_acceleration": {
+                    "techniques": ["Prepayments", "Installment elections", "Mark-to-market"],
+                    "benefits": ["Lower current rates", "Time value money"],
+                    "risks": ["Rate changes", "Cash flow impact"]
+                },
+                "deduction_timing": {
+                    "techniques": ["Accrual elections", "Prepaid expenses", "Reserves"],
+                    "benefits": ["Current deduction", "Rate arbitrage"],
+                    "limitations": "Economic performance rules"
+                },
+                "recognition_deferral": {
+                    "like_kind_exchanges": "Asset swaps without recognition",
+                    "installment_sales": "Gain recognition over time",
+                    "corporate_reorganizations": "Tax-free restructuring"
+                }
+            },
+            "jurisdiction_shopping": {
+                "treaty_shopping_legitimate": {
+                    "substance_planning": "Real business activities",
+                    "commercial_rationale": "Non-tax business reasons",
+                    "anti_treaty_shopping": "PPT and LOB compliance"
+                },
+                "regulatory_arbitrage": {
+                    "classification_differences": "Entity classification arbitrage",
+                    "timing_differences": "Recognition timing arbitrage",
+                    "rate_differences": "Tax rate arbitrage"
+                }
+            }
+        }
+        
+    def _add_legal_arbitrage_strategies(self):
+        """Stratégies d'arbitrage légal"""
+        self.legal_arbitrage = {
+            "entity_classification": {
+                "check_the_box": {
+                    "us_elections": "Entity classification elections",
+                    "benefits": ["Transparency vs entity taxation", "Hybrid mismatches"],
+                    "planning": "Coordination with foreign classification"
+                },
+                "partnership_vs_corporation": {
+                    "flow_through": "Partnership taxation benefits",
+                    "entity_level": "Corporate taxation planning",
+                    "conversion": "Entity type changes"
+                }
+            },
+            "source_residence_conflicts": {
+                "dual_resident_entities": {
+                    "benefits": ["Double treaty benefits", "Deduction both countries"],
+                    "techniques": ["Incorporation vs management test", "Tie-breaker rules"],
+                    "anti_avoidance": "Dual resident company rules"
+                },
+                "stateless_entities": {
+                    "benefits": ["No residence taxation", "Treaty access"],
+                    "structures": ["Partnerships", "Transparent entities"],
+                    "risks": ["Domestic anti-avoidance", "Treaty denial"]
+                }
+            },
+            "characterization_arbitrage": {
+                "debt_equity_mismatches": {
+                    "strategy": "Debt in one country, equity in another",
+                    "benefits": ["Deduction + exemption", "Double non-taxation"],
+                    "anti_hybrid_rules": "ATAD neutralization"
+                },
+                "branch_subsidiary": {
+                    "branch_benefits": ["Loss utilization", "No withholding"],
+                    "subsidiary_benefits": ["Limited liability", "Separate entity"],
+                    "conversion": "Branch to subsidiary election"
+                }
+            }
+        }
+        
+    def _add_sophisticated_planning(self):
+        """Planification sophistiquée"""
+        self.sophisticated_planning = {
+            "succession_optimization": {
+                "generation_skipping": {
+                    "techniques": ["Dynasty trusts", "Generation-skipping transfers"],
+                    "benefits": ["Multiple generation tax savings", "Wealth preservation"],
+                    "limitations": "GST tax considerations"
+                },
+                "valuation_discounts": {
+                    "minority_discounts": "Non-controlling interest discounts",
+                    "marketability_discounts": "Lack of marketability discounts",
+                    "entity_structures": "Family limited partnerships"
+                },
+                "installment_sales": {
+                    "self_canceling_notes": "SCIN structures",
+                    "grantor_trust_sales": "Sales to grantor trusts",
+                    "benefits": ["Valuation freeze", "Transfer tax savings"]
+                }
+            },
+            "charitable_planning": {
+                "charitable_remainder_trusts": {
+                    "benefits": ["Income stream", "Tax deduction", "Capital gains deferral"],
+                    "structures": ["CRAT", "CRUT", "Net income makeup"]
+                },
+                "charitable_lead_trusts": {
+                    "benefits": ["Transfer tax reduction", "Income tax benefits"],
+                    "structures": ["Grantor CLT", "Non-grantor CLT"]
+                },
+                "private_foundations": {
+                    "benefits": ["Perpetual existence", "Control retention", "Tax benefits"],
+                    "requirements": ["Charitable purpose", "Distribution requirements"]
+                }
+            },
+            "business_succession": {
+                "management_buyouts": {
+                    "leveraged_buyouts": "Debt-financed acquisitions",
+                    "rollover_equity": "Management participation",
+                    "tax_optimization": "Interest deductions, basis step-up"
+                },
+                "employee_ownership": {
+                    "esops": "Employee stock ownership plans",
+                    "benefits": ["Tax deferral", "Estate liquidity", "Employee incentives"],
+                    "structures": "Leveraged vs non-leveraged"
+                }
+            }
+        }
+        
+    def _add_wealth_preservation(self):
+        """Préservation du patrimoine"""
+        self.wealth_preservation = {
+            "asset_protection": {
+                "domestic_structures": {
+                    "limited_liability": "LLC, LP structures",
+                    "homestead_exemptions": "Primary residence protection",
+                    "retirement_accounts": "ERISA protection"
+                },
+                "offshore_structures": {
+                    "cook_islands_trust": "Strong asset protection laws",
+                    "nevis_llc": "Charging order protection",
+                    "cayman_foundations": "Hybrid trust-foundation"
+                },
+                "insurance_strategies": {
+                    "captive_insurance": "Self-insurance structures",
+                    "life_insurance": "Wealth transfer vehicle",
+                    "umbrella_policies": "Excess liability coverage"
+                }
+            },
+            "privacy_structures": {
+                "nominee_services": {
+                    "nominee_directors": "Privacy for beneficial owners",
+                    "nominee_shareholders": "Ownership privacy",
+                    "limitations": "Beneficial ownership registers"
+                },
+                "bearer_instruments": {
+                    "bearer_shares": "Anonymous ownership (limited)",
+                    "bearer_bonds": "Anonymous debt instruments",
+                    "compliance": "CRS and FATCA implications"
+                }
+            },
+            "diversification_strategies": {
+                "geographic_diversification": {
+                    "multi_jurisdiction": "Assets across jurisdictions",
+                    "currency_diversification": "Multiple currency exposure",
+                    "regulatory_diversification": "Different regulatory regimes"
+                },
+                "asset_class_diversification": {
+                    "real_estate": "Global property portfolio",
+                    "financial_assets": "Stocks, bonds, alternatives",
+                    "business_interests": "Operating companies"
+                }
+            }
+        }
+        
+    def _add_income_transformation(self):
+        """Transformation des revenus"""
+        self.income_transformation = {
+            "ordinary_to_capital": {
+                "installment_sales": {
+                    "technique": "Spread gain recognition over time",
+                    "benefits": ["Capital gains treatment", "Time value money"],
+                    "structures": "Self-canceling installment notes"
+                },
+                "like_kind_exchanges": {
+                    "technique": "Tax-deferred asset exchanges",
+                    "benefits": ["Deferral", "Basis step-up opportunities"],
+                    "requirements": "Like-kind property, qualified intermediary"
+                },
+                "corporate_structures": {
+                    "technique": "Asset contribution to corporation",
+                    "benefits": ["Capital gains on sale", "Depreciation recapture"],
+                    "considerations": "Built-in gains, recognition periods"
+                }
+            },
+            "active_to_passive": {
+                "rental_conversions": {
+                    "technique": "Convert business to rental activity",
+                    "benefits": ["Passive loss utilization", "Different tax rates"],
+                    "requirements": "Material participation tests"
+                },
+                "royalty_structures": {
+                    "technique": "License business assets for royalties",
+                    "benefits": ["Passive income treatment", "Treaty benefits"],
+                    "substance": "Genuine licensing arrangements"
+                }
+            },
+            "compensation_optimization": {
+                "deferred_compensation": {
+                    "techniques": ["Rabbi trusts", "Secular trusts", "Unfunded plans"],
+                    "benefits": ["Tax deferral", "Investment growth"],
+                    "risks": ["Employer credit risk", "Constructive receipt"]
+                },
+                "equity_compensation": {
+                    "techniques": ["Stock options", "Restricted stock", "SARs"],
+                    "benefits": ["Capital gains treatment", "Deferral opportunities"],
+                    "elections": "83(b) elections, timing strategies"
+                }
+            }
+        }
+        
+    def _add_timing_strategies(self):
+        """Stratégies de timing fiscal"""
+        self.timing_strategies = {
+            "year_end_planning": {
+                "income_deferral": {
+                    "techniques": ["Delay invoicing", "Installment sales", "Deferred compensation"],
+                    "benefits": ["Lower current year tax", "Rate arbitrage", "Time value"],
+                    "limitations": "Constructive receipt doctrine"
+                },
+                "expense_acceleration": {
+                    "techniques": ["Prepaid expenses", "Equipment purchases", "Bonus payments"],
+                    "benefits": ["Current deduction", "Cash flow optimization"],
+                    "requirements": "Economic performance test"
+                },
+                "loss_harvesting": {
+                    "techniques": ["Security sales", "Asset dispositions", "Bad debt write-offs"],
+                    "benefits": ["Offset gains", "Carryforward benefits"],
+                    "limitations": "Wash sale rules"
+                }
+            },
+            "multi_year_strategies": {
+                "income_smoothing": {
+                    "techniques": ["Installment method", "Percentage completion", "Averaging elections"],
+                    "benefits": ["Rate management", "Bracket optimization"],
+                    "planning": "Multi-year tax projections"
+                },
+                "bunching_strategies": {
+                    "techniques": ["Charitable bunching", "Medical expense timing", "Investment timing"],
+                    "benefits": ["Threshold optimization", "Deduction maximization"],
+                    "coordination": "State and federal planning"
+                }
+            },
+            "transaction_timing": {
+                "pre_transaction_planning": {
+                    "techniques": ["Structure optimization", "Basis step-up", "Loss utilization"],
+                    "benefits": ["Tax minimization", "Efficiency maximization"],
+                    "timeline": "6-12 months advance planning"
+                },
+                "post_transaction_elections": {
+                    "techniques": ["338(h)(10)", "754 elections", "Installment elections"],
+                    "benefits": ["Basis optimization", "Recognition timing"],
+                    "deadlines": "Strict election deadlines"
+                }
+            }
+        }
+        
+    def _add_multi_jurisdictional_planning(self):
+        """Planification multi-juridictionnelle"""
+        self.multi_jurisdictional_planning = {
+            "residence_planning": {
+                "tax_residence_optimization": {
+                    "factors": ["Days test", "Domicile", "Center of vital interests", "Habitual abode"],
+                    "strategies": ["Residence splitting", "Tie-breaker planning", "Treaty benefits"],
+                    "documentation": "Residence evidence maintenance"
+                },
+                "nomad_strategies": {
+                    "183_day_rule": "Avoid tax residence in high-tax countries",
+                    "territorial_systems": "Benefit from territorial taxation",
+                    "treaty_protection": "Avoid double taxation"
+                },
+                "exit_strategies": {
+                    "exit_taxes": "Deemed disposition rules",
+                    "continued_liability": "Post-departure obligations",
+                    "planning": "Pre-exit restructuring"
+                }
+            },
+            "source_optimization": {
+                "income_sourcing": {
+                    "services": "Location of performance rules",
+                    "royalties": "Location of use vs exploitation",
+                    "business_profits": "Permanent establishment avoidance"
+                },
+                "treaty_benefits": {
+                    "withholding_reduction": "Treaty rate optimization",
+                    "business_profits": "PE threshold management",
+                    "capital_gains": "Treaty exemptions"
+                }
+            },
+            "coordination_strategies": {
+                "foreign_tax_credits": {
+                    "credit_optimization": "Basket planning, timing",
+                    "source_planning": "Income characterization",
+                    "limitation_planning": "Multi-year strategies"
+                },
+                "treaty_coordination": {
+                    "mutual_agreement": "MAP procedures",
+                    "arbitration": "Mandatory arbitration clauses",
+                    "advance_pricing": "APA coordination"
+                }
+            }
+        }
+        
+    def _add_anti_avoidance_navigation(self):
+        """Navigation des règles anti-évasion"""
+        self.anti_avoidance_navigation = {
+            "general_anti_avoidance": {
+                "gaar_compliance": {
+                    "business_purpose": "Commercial rationale documentation",
+                    "substance_over_form": "Economic substance requirements",
+                    "step_transaction": "Integration doctrine planning"
+                },
+                "economic_substance": {
+                    "meaningful_activities": "Real business operations",
+                    "profit_motive": "Non-tax business reasons",
+                    "risk_assumption": "Genuine risk bearing"
+                }
+            },
+            "specific_anti_avoidance": {
+                "controlled_foreign_companies": {
+                    "cfc_planning": "Active business exceptions",
+                    "subpart_f": "Income characterization",
+                    "pfic_planning": "QEF elections, mark-to-market"
+                },
+                "transfer_pricing": {
+                    "arm_length_principle": "Comparable transactions",
+                    "documentation": "Master file, local file",
+                    "advance_pricing": "APA strategies"
+                },
+                "thin_capitalization": {
+                    "debt_equity_ratios": "Safe harbor planning",
+                    "earnings_stripping": "Interest limitation rules",
+                    "hybrid_mismatches": "ATAD compliance"
+                }
+            },
+            "treaty_anti_abuse": {
+                "principal_purpose_test": {
+                    "ppt_navigation": "Commercial rationale",
+                    "safe_harbors": "Specific exceptions",
+                    "substance_planning": "Real activities"
+                },
+                "limitation_on_benefits": {
+                    "ownership_tests": "Qualified persons",
+                    "base_erosion": "Active business test",
+                    "derivative_benefits": "Equivalent beneficiary"
+                }
+            }
+        }
+        
+    def get_ultimate_optimization_advice(self, profile: Dict[str, Any]) -> Dict[str, Any]:
+        """Conseils d'optimisation fiscale ultra-sophistiqués"""
+        income = profile.get('annual_income', 0)
+        assets = profile.get('total_assets', 0)
+        countries = profile.get('countries_of_interest', [])
+        business_type = profile.get('business_type', 'individual')
+        
+        advice = {
+            "optimization_level": self._determine_optimization_level(income, assets),
+            "recommended_structures": [],
+            "tax_savings_potential": 0,
+            "implementation_timeline": "",
+            "compliance_requirements": [],
+            "risk_assessment": {}
+        }
+        
+        # Niveau d'optimisation basé sur le patrimoine
+        if assets > 50_000_000:  # Ultra-high net worth
+            advice["recommended_structures"].extend([
+                "Multi-tier holding structure",
+                "Private foundation + trust hybrid",
+                "Captive insurance company",
+                "Family office structure"
+            ])
+            advice["tax_savings_potential"] = min(income * 0.4, 10_000_000)
+            advice["implementation_timeline"] = "12-18 months"
+            
+        elif assets > 10_000_000:  # High net worth
+            advice["recommended_structures"].extend([
+                "Luxembourg Soparfi structure",
+                "Malta refund system",
+                "IP licensing structure",
+                "Charitable planning"
+            ])
+            advice["tax_savings_potential"] = min(income * 0.3, 2_000_000)
+            advice["implementation_timeline"] = "6-12 months"
+            
+        elif assets > 1_000_000:  # Affluent
+            advice["recommended_structures"].extend([
+                "Holding company optimization",
+                "Residence planning",
+                "Income characterization",
+                "Timing strategies"
+            ])
+            advice["tax_savings_potential"] = min(income * 0.2, 500_000)
+            advice["implementation_timeline"] = "3-6 months"
+            
+        # Optimisations spécifiques par type d'activité
+        if business_type == 'tech':
+            advice["recommended_structures"].extend([
+                "IP Box optimization",
+                "R&D credit maximization",
+                "Stock option planning"
+            ])
+        elif business_type == 'real_estate':
+            advice["recommended_structures"].extend([
+                "REIT structures",
+                "Like-kind exchanges",
+                "Depreciation optimization"
+            ])
+        elif business_type == 'finance':
+            advice["recommended_structures"].extend([
+                "Trading entity structures",
+                "Hedge fund optimization",
+                "Carried interest planning"
+            ])
+            
+        # Évaluation des risques
+        advice["risk_assessment"] = {
+            "audit_risk": "Medium" if assets > 5_000_000 else "Low",
+            "regulatory_risk": "High" if len(countries) > 3 else "Medium",
+            "compliance_complexity": "Very High" if assets > 20_000_000 else "High",
+            "reputational_risk": "Medium"
+        }
+        
+        return advice
+        
+    def _determine_optimization_level(self, income: float, assets: float) -> str:
+        """Détermine le niveau d'optimisation approprié"""
+        if assets > 50_000_000 or income > 10_000_000:
+            return "Ultra-sophisticated"
+        elif assets > 10_000_000 or income > 2_000_000:
+            return "Advanced"
+        elif assets > 1_000_000 or income > 500_000:
+            return "Intermediate"
+        else:
+            return "Basic"
+            
+    def get_montage_fiscal_recommendation(self, situation: Dict[str, Any]) -> Dict[str, Any]:
+        """Recommandation de montage fiscal sur mesure"""
+        country = situation.get('country', 'FR')
+        income_type = situation.get('income_type', 'salary')
+        amount = situation.get('amount', 0)
+        objectives = situation.get('objectives', [])
+        
+        recommendations = {
+            "primary_structure": {},
+            "alternative_structures": [],
+            "implementation_steps": [],
+            "tax_impact": {},
+            "timeline": "",
+            "costs": {},
+            "risks": []
+        }
+        
+        # Structures recommandées selon le type de revenus
+        if income_type == 'royalties':
+            recommendations["primary_structure"] = {
+                "type": "IP Licensing Structure",
+                "description": "Société de gestion IP dans juridiction Patent Box",
+                "jurisdictions": ["NL", "BE", "LU"],
+                "tax_rate": "5-7%",
+                "benefits": ["Taux réduit", "Optimisation withholding", "Substance légère"]
+            }
+            
+        elif income_type == 'capital_gains':
+            recommendations["primary_structure"] = {
+                "type": "Holding Structure",
+                "description": "Holding dans juridiction participation exemption",
+                "jurisdictions": ["LU", "NL", "BE"],
+                "tax_rate": "0% sur plus-values",
+                "benefits": ["Exemption totale", "Réinvestissement", "Succession optimisée"]
+            }
+            
+        elif income_type == 'business_income':
+            recommendations["primary_structure"] = {
+                "type": "Multi-tier Structure",
+                "description": "Structure holding + opérationnelle optimisée",
+                "jurisdictions": ["MT", "CY", "IE"],
+                "tax_rate": "5-12.5%",
+                "benefits": ["Taux effectif bas", "Flexibilité", "Croissance"]
+            }
+            
+        # Étapes d'implémentation
+        recommendations["implementation_steps"] = [
+            "1. Analyse fiscale détaillée situation actuelle",
+            "2. Choix juridiction et structure optimale",
+            "3. Constitution entités et documentation",
+            "4. Transfert actifs et mise en œuvre",
+            "5. Monitoring et optimisation continue"
+        ]
+        
+        # Impact fiscal estimé
+        current_tax = amount * 0.45  # Taux marginal élevé
+        optimized_tax = amount * 0.15  # Taux optimisé
+        recommendations["tax_impact"] = {
+            "current_tax": current_tax,
+            "optimized_tax": optimized_tax,
+            "annual_savings": current_tax - optimized_tax,
+            "roi_percentage": ((current_tax - optimized_tax) / 100000) * 100 if amount > 0 else 0
+        }
+        
+        return recommendations
 
-        # Ajout des pays UE restants pour couverture EXHAUSTIVE
-        self._add_remaining_eu_countries()
+    def _add_dac6_mdr_rules(self):
+        """Règles DAC6 (MDR) – hallmarks, déclencheurs, obligations"""
+        self.dac6 = {
+            "hallmarks": {
+                "A": [
+                    "Clause de confidentialité liée à l'avantage fiscal",
+                    "Rémunération liée au montant de l'avantage fiscal",
+                    "Structures standardisées prêtes à l'emploi"
+                ],
+                "B": [
+                    "Acquisition d'une société déficitaire",
+                    "Conversion de revenu en capital/donation",
+                    "Transactions circulaires artificielles"
+                ],
+                "C": [
+                    "Paiements transfrontaliers déductibles non imposés",
+                    "Exonération générale d'imposition en juridiction de destination",
+                    "Dépréciation pour la même asset dans plusieurs juridictions"
+                ],
+                "D": [
+                    "Mécanismes contournant le CRS",
+                    "Structures opaques dissimulant le bénéficiaire effectif"
+                ],
+                "E": [
+                    "Transferts transfrontaliers d'actifs avec différences d'évaluation",
+                    "Réduction artificielle des bénéfices (EBIT)"
+                ]
+            },
+            "main_benefit_test": "Applicable aux catégories A et B et à certains hallmarks C",
+            "reporting": {
+                "who": ["Intermédiaire", "Contribuable concerné (fallback)"],
+                "deadline": "30 jours (déclenchement : mise à disposition, prêt à être mis en œuvre, premier pas)",
+                "id_eu": "Attribution d'un numéro de mécanisme (arrangements ID)"
+            },
+            "countries": {
+                "FR": {"authority": "DGFiP", "penalties": "10k€ à 100k€"},
+                "DE": {"authority": "BZSt", "penalties": "jusqu'à 25k€"},
+                "NL": {"authority": "Belastingdienst", "penalties": "administratives"},
+                "LU": {"authority": "AED", "penalties": "jusqu'à 250k€"},
+                "ES": {"authority": "AEAT", "penalties": "graduées"}
+            }
+        }
+
+    def _add_dac8_crypto_reporting(self):
+        """DAC8 – reporting crypto-actifs, CASP, obligations"""
+        self.dac8 = {
+            "scope": ["Crypto-actifs", "NFT", "e-money tokens"],
+            "actors": {"CASP": "Crypto-Asset Service Providers", "Exchanges": "Plateformes"},
+            "obligations": [
+                "Due diligence KYC/AML renforcée",
+                "Reporting annuel agrégé/nominal des transactions",
+                "Échange automatique d'informations intra-UE"
+            ],
+            "timeline": {"effective": "2026-2027 (états)"},
+            "sanctions": "Pénalités administratives par État membre",
+            "mappings": {"MiCA": "Interopérabilité avec cadre MiCA"}
+        }
+
+    def _add_pillar_two_globe_rules(self):
+        """Pillar Two (GloBE) – seuils, safe harbors, top-up tax"""
+        self.pillar_two = {
+            "threshold": "750M€ chiffre d'affaires consolidé",
+            "minimum_rate": 15.0,
+            "safe_harbors": {
+                "transition_cbcr": ["Routine profits test", "ETR test simple", "De minimis test"],
+                "years": [2024, 2025, 2026]
+            },
+            "ordering": ["QDMTT", "IIR", "UTPR"],
+            "components": ["ETR per jurisdiction", "Top-up tax", "Covered taxes", "Adjusted profits"]
+        }
+
+    def compute_globe_topup(self, entity: Dict[str, Any]) -> Dict[str, Any]:
+        """Calcule simplifié du top-up tax GloBE
+        entity: {profit_before_tax, covered_taxes, jurisdiction, qdmt_taxes}
+        """
+        profit = float(entity.get("profit_before_tax", 0) or 0)
+        covered_taxes = float(entity.get("covered_taxes", 0) or 0)
+        qdmt = float(entity.get("qdmt_taxes", 0) or 0)
+        etr = 0.0 if profit == 0 else max(0.0, min(100.0, (covered_taxes / profit) * 100))
+        min_rate = self.pillar_two.get("minimum_rate", 15.0)
+        topup_rate = max(0.0, min_rate - etr)
+        gross_topup = (topup_rate / 100.0) * profit
+        net_topup = max(0.0, gross_topup - qdmt)
+        return {
+            "etr": round(etr, 2),
+            "topup_rate": round(topup_rate, 2),
+            "gross_topup": round(gross_topup, 2),
+            "qdmt_offset": round(qdmt, 2),
+            "net_topup": round(net_topup, 2)
+        }
+
+    def _add_exit_tax_rules(self):
+        """Exit tax UE – par pays (principaux)"""
+        self.exit_tax = {
+            "FR": {"threshold": 800000, "deferral": True, "guarantee": True, "interest": True},
+            "ES": {"threshold": 4000000, "deferral": True},
+            "IT": {"threshold": 1000000, "deferral": True},
+            "NL": {"threshold": 0, "deferral": True, "scope": "participations substantives"},
+            "PT": {"threshold": 0, "deferral": True}
+        }
+
+    def _add_atad_framework(self):
+        """Cadre ATAD: intérêts, CFC, anti-hybrides, GAAR"""
+        self.atad = {
+            "interest_limitation": {"fixed_ratio": "30% EBITDA", "de_minimis": 3_000_000},
+            "cfc": {"tests": ["control", "low_taxed", "passive_income"], "switch_over": True},
+            "anti_hybrid": ["Deduction / no inclusion", "Double deduction", "Imported mismatch"],
+            "gaar": "Arrangement non authentique ayant pour objectif principal un avantage fiscal contrecarré"
+        }
+
+    def assess_anti_abuse(self, structure: Dict[str, Any]) -> Dict[str, Any]:
+        """Scoring simplifié anti-abus (GAAR/PPT/LOB/ATAD)"""
+        score = 0
+        flags: List[str] = []
+        if not structure.get("substance"):
+            score += 3; flags.append("Absence de substance (dirigeants, bureaux, compte)")
+        if structure.get("main_benefit") is True:
+            score += 2; flags.append("Main Benefit Test potentiellement déclenché (DAC6)")
+        if structure.get("hybrid_mismatch"):
+            score += 2; flags.append("Risque anti-hybride ATAD")
+        if structure.get("treaty_shopping"):
+            score += 2; flags.append("PPT/LOB – treaty shopping présumé")
+        level = "Low" if score <= 1 else ("Medium" if score <= 3 else "High")
+        return {"risk_level": level, "score": score, "flags": flags}
+
+    def _add_permanent_establishment_rules(self):
+        """Règles établissement stable (PE) – service, agent dépendant, sites"""
+        self.pe = {
+            "service_pe": {"threshold_days": 183, "aggregation": True},
+            "construction_pe": {"threshold_months": 12, "splitting_contracts": True},
+            "dependent_agent": {"habitual_conclusion": True},
+            "digital": {"significant_digital_presence": "en discussion (certains pays)"}
+        }
+
+    def has_permanent_establishment(self, activity: Dict[str, Any]) -> bool:
+        """Heuristique simple PE"""
+        days = int(activity.get("days_on_site", 0) or 0)
+        agent = bool(activity.get("dependent_agent", False))
+        construction = bool(activity.get("construction_site", False))
+        if agent:
+            return True
+        if construction and days >= (self.pe["construction_pe"]["threshold_months"] * 30):
+            return True
+        if days >= self.pe["service_pe"]["threshold_days"]:
+            return True
+        return False
+
+    def _add_unshell_rules(self):
+        """Préparation Unshell – indicateurs de substance et gateways"""
+        self.unshell = {
+            "gateways": ["Revenus principalement passifs", "Opérations cross-border", "Externalisation fonctions de direction"],
+            "substance_indicators": ["Locaux propres/partagés", "Compte bancaire UE", "Directeurs résidents qualifiés"],
+            "consequences": ["Refus d'avantages conventionnels", "Reporting renforcé", "Sanctions"],
+            "status": "En discussion UE – transpositions nationales attendues"
+        }
+
+    def _add_bo_register_requirements(self):
+        """Registres des bénéficiaires effectifs (UBO)"""
+        self.ubo = {
+            "threshold": ">25% ownership/control (généralement)",
+            "register": {
+                "FR": {"access": "restreint (après jurisprudence CJUE)", "deadline": "30 jours"},
+                "LU": {"access": "restreint", "deadline": "30 jours"},
+                "NL": {"access": "partiel", "deadline": "7 jours"}
+            },
+            "documentation": ["Pièces d'identité", "Structure capitalistique", "Déclaration UBO"]
+        }
+
+    def _add_transfer_pricing_framework(self):
+        """Prix de transfert – documentation et méthodes"""
+        self.transfer_pricing = {
+            "docs": ["Master file", "Local file", "CbCR (>=750M€)"],
+            "methods": ["CUP", "Cost Plus", "TNMM", "Profit Split"],
+            "services": {"benefit_test": True, "low_value_added": "5% mark-up safe harbor (indicatif)"}
+        }
+
+    def get_tp_doc_requirements(self, country: str, turnover: float) -> Dict[str, Any]:
+        """Exigences documentaires indicatives par pays"""
+        thresholds = {
+            "FR": {"local_file": 50_000_000, "master_file": 400_000_000},
+            "ES": {"local_file": 45_000_000, "master_file": 250_000_000},
+            "IT": {"local_file": 50_000_000, "master_file": 50_000_000},
+            "DE": {"local_file": 0, "master_file": 0}
+        }
+        t = thresholds.get(country.upper(), {"local_file": 0, "master_file": 0})
+        return {
+            "local_file_required": turnover >= t["local_file"],
+            "master_file_required": turnover >= t["master_file"],
+            "cbcr_required": turnover >= 750_000_000
+        }
+
+    def _add_withholding_tax_matrix(self):
+        """Matrice des WHT (dividendes/intérêts/royalties) – taux statutaires"""
+        self.wht = {
+            "FR": {"dividends": 30.0, "interest": 0.0, "royalties": 33.33},
+            "DE": {"dividends": 26.375, "interest": 0.0, "royalties": 15.0},
+            "LU": {"dividends": 15.0, "interest": 0.0, "royalties": 0.0},
+            "NL": {"dividends": 15.0, "interest": 0.0, "royalties": 0.0}
+        }
+
+    def get_withholding_rate(self, source: str, recipient: str, income_type: str, treaty: bool = True) -> float:
+        """Renvoie un taux indicatif de retenue à la source, avec/ss traité"""
+        src = self.wht.get(source.upper(), {})
+        base = float(src.get(income_type, 0.0)) if src else 0.0
+        if not treaty:
+            return base
+        # Réductions indicatives sous convention (exemples)
+        pairs = {("FR", "LU"): {"dividends": 5.0, "interest": 0.0, "royalties": 0.0},
+                 ("FR", "DE"): {"dividends": 5.0, "interest": 0.0, "royalties": 0.0},
+                 ("DE", "LU"): {"dividends": 5.0, "interest": 0.0, "royalties": 0.0}}
+        reduction = pairs.get((source.upper(), recipient.upper()), {})
+        return float(reduction.get(income_type, base))
+
+    def _add_reporting_calendar(self):
+        """Calendrier de compliance – échéances clés (indicatif)"""
+        self.reporting_calendar = {
+            "FR": {
+                "PIT": "mai-juin",
+                "CIT": "acompte trimestriel, solde mois 4",
+                "VAT": "mensuel/trimestriel (CA)",
+                "DAC6": "30 jours rolling",
+                "CBCR": "12 mois après fin d'exercice"
+            },
+            "DE": {"PIT": "juillet", "CIT": "trimestriel", "VAT": "mensuel"},
+            "LU": {"PIT": "mars", "CIT": "trimestriel", "VAT": "mensuel"}
+        }
+
+    def get_reporting_deadlines(self, country: str) -> Dict[str, str]:
+        return self.reporting_calendar.get(country.upper(), {})
 
     def _add_remaining_eu_countries(self):
         """Ajoute les pays UE restants pour couverture exhaustive"""
@@ -1505,9 +3005,9 @@ class EuropeanTaxKnowledgeBase:
         )
         
         # Ajouter d'autres pays européens...
-        self._add_remaining_eu_countries()
+        self._add_other_european_countries()
     
-    def _add_remaining_eu_countries(self):
+    def _add_other_european_countries(self):
         """Ajoute les données des autres pays européens"""
         
         # DANEMARK (taux le plus élevé d'Europe : 55.9%)
