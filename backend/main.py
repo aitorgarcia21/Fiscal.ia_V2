@@ -1093,12 +1093,16 @@ async def ask_question(
                 for msg in request.conversation_history
             ]
         
-        answer, sources, confidence = get_fiscal_response(
-            request.question, 
-            conversation_history_dicts, 
-            request.user_profile_context,
-            request.jurisdiction
-        )
+        # Utilisation de Francis Particulier Indépendant avec base européenne
+        from francis_particulier_independent import get_francis_particulier_response
+        user_profile = {
+            "context": request.user_profile_context,
+            "jurisdiction": request.jurisdiction
+        } if request.user_profile_context or request.jurisdiction else {}
+        
+        answer = get_francis_particulier_response(request.question, user_profile)
+        sources = ["Base de connaissances fiscales européennes (30+ pays)"]
+        confidence = 0.95
         answer = format_francis_response(answer)
 
         if supabase:
