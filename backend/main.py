@@ -82,6 +82,7 @@ try:
     from routers import whisper_fix as whisper_router
     from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
     from whisper_service import get_whisper_service
+    from routes_francis_particulier import francis_particulier_bp
 except ImportError:
     # Pour le développement local (quand on lance depuis la racine)
     try:
@@ -96,6 +97,7 @@ except ImportError:
         from backend.dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from backend.whisper_service import get_whisper_service
         from backend.routes_gocardless import router as gocardless_router
+        from backend.routes_francis_particulier import francis_particulier_bp
     except ImportError:
         # Fallback : imports directs depuis le répertoire courant
         import sys
@@ -113,6 +115,7 @@ except ImportError:
         from dependencies import supabase, verify_token, create_access_token, hash_password, verify_password
         from whisper_service import get_whisper_service
         from routes_gocardless import router as gocardless_router
+        from routes_francis_particulier import francis_particulier_bp
 # --- Fin des imports relatifs corrigés ---
 
 # Configuration
@@ -2766,6 +2769,23 @@ app.include_router(whisper_router.router, prefix="/api")  # WHISPER LOCAL FONCTI
 # app.include_router(downloads.router, prefix="/downloads")  # FRANCIS DESKTOP DOWNLOADS - TEMPORAIREMENT DÉSACTIVÉ POUR TEST FRANCIS
 app.include_router(pro_clients_router.router)
 app.include_router(teams_assistant_router.router)
+
+# FRANCIS PARTICULIER INDÉPENDANT - ASSISTANT FISCAL EUROPÉEN 100% AUTONOME
+try:
+    from flask import Flask
+    flask_app = Flask(__name__)
+    flask_app.register_blueprint(francis_particulier_bp)
+    app.mount("/francis-particulier", WSGIMiddleware(flask_app))
+    print("✅ Francis Particulier Indépendant intégré avec succès")
+except Exception as e:
+    print(f"⚠️ Erreur lors de l'intégration de Francis Particulier: {e}")
+    # Fallback: Conversion des routes Flask en FastAPI
+    try:
+        from routes_francis_particulier_fastapi import francis_particulier_router
+        app.include_router(francis_particulier_router)
+        print("✅ Francis Particulier intégré via FastAPI (fallback)")
+    except Exception as e2:
+        print(f"❌ Impossible d'intégrer Francis Particulier: {e2}")
 
 @api_router.get("/questions/quota")
 async def get_questions_quota(user_id: str = Depends(verify_token)):

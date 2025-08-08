@@ -2,6 +2,8 @@ import os
 import json
 from typing import List, Dict, Tuple, AsyncGenerator, Optional, Literal
 import typing
+from pathlib import Path
+import re
 
 # Imports pour les embeddings CGI
 try:
@@ -400,13 +402,14 @@ La TVA est collectée par les entreprises et reversée à la Confédération."""
         try:
             if CGI_EMBEDDINGS_AVAILABLE:
                 print(f"🔍 Recherche CGI pour: {query[:100]}...")
-                cgi_chunks = search_cgi_embeddings(query, max_results=5)  # Augmenté à 5
+                cgi_max_results = 2 if USE_LOCAL_LLM else 5
+                cgi_chunks = search_cgi_embeddings(query, max_results=cgi_max_results)
                 print(f"📄 Chunks CGI trouvés: {len(cgi_chunks)}")
 
                 if cgi_chunks:
                     context_from_sources += "=== CODE GÉNÉRAL DES IMPÔTS (CGI) ===\n\n"
                     for chunk in cgi_chunks:
-                        chunk_content = chunk.get('content', '')[:3000]  # Augmenté à 3000
+                        chunk_content = chunk.get('content', '')[:(1500 if USE_LOCAL_LLM else 3000)]
                         chunk_source = chunk.get('source', 'CGI Article N/A')
                         context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
                         official_sources.append(chunk_source)
@@ -420,14 +423,15 @@ La TVA est collectée par les entreprises et reversée à la Confédération."""
         try:
             if BOFIP_EMBEDDINGS_AVAILABLE:
                 print(f"🔍 Recherche BOFiP pour: {query[:100]}...")
-                bofip_chunks = search_bofip_embeddings(query, max_results=3)
+                bofip_max_results = 1 if USE_LOCAL_LLM else 3
+                bofip_chunks = search_bofip_embeddings(query, max_results=bofip_max_results)
                 print(f"📄 Chunks BOFiP trouvés: {len(bofip_chunks)}")
 
                 if bofip_chunks:
                     context_from_sources += "=== BULLETIN OFFICIEL DES FINANCES PUBLIQUES (BOFiP) ===\n\n"
                     for chunk in bofip_chunks:
                         if validate_official_source({'type': 'BOFIP', 'path': 'bofip_chunks'}):
-                            chunk_content = chunk.get('text', '')[:2000]
+                            chunk_content = chunk.get('text', '')[:(1200 if USE_LOCAL_LLM else 2000)]
                             chunk_source = f"BOFiP - {chunk.get('file', 'Chunk N/A')}"
                             context_from_sources += f"{chunk_source}:\n{chunk_content}\n\n"
                             official_sources.append(chunk_source)
@@ -608,19 +612,25 @@ RÉPONSE (basée UNIQUEMENT sur les sources officielles et le contexte utilisate
     if USE_LOCAL_LLM:
         history_str = ""
         if conversation_history:
-            for msg in conversation_history[-10:]:
+            for msg in conversation_history[-4:]:
                 role = msg.get("role", "user").capitalize()
-                content = msg.get("content", "")[:400]
+                content = msg.get("content", "")[:200]
                 history_str += f"{role}: {content}\n"
         # Prompt final pour un modèle simple type chat-instruct
+        fast_prefix = (
+            "MODE RÉPONSE RAPIDE : Réponds de façon CONCISE (<= 12 lignes). "
+            "Utilise des TABLEAUX quand c'est pertinent. Cite les sources UNIQUEMENT si nécessaire. "
+            "Va droit au but."
+        )
+        fast_prompt = f"{fast_prefix}\n\n{full_prompt}"
         local_prompt = (
-            f"{history_str}Utilisateur: {full_prompt}\nAssistant:"  # On reste cohérent en français
+            f"{history_str}Utilisateur: {fast_prompt}\nAssistant:"  # On reste cohérent en français
         )
         try:
             answer = _local_generate(
                 local_prompt,
                 model=os.getenv("LLM_LOCAL_MODEL", "mistral"),
-                max_tokens=1000,
+                max_tokens=350,
                 temperature=0.1,
             ).strip()
         except Exception as e:
@@ -685,8 +695,38 @@ def search_bofip_embeddings(query: str, max_results: int = 3) -> List[Dict]:
     try:
         return search_similar_bofip_chunks(query, top_k=max_results)
     except Exception as e:
-        print(f"Erreur dans search_bofip_embeddings: {e}")
-        return []
+        print(f"Erreur dans search_bofip_embeddings (API), fallback texte local: {e}")
+        # Fallback local ENTIEREMENT TEXTE (sans embeddings)
+        try:
+            base_dir = Path(__file__).parent
+            bofip_dir = base_dir / "data" / "bofip_chunks_text"
+            if not bofip_dir.exists():
+                return []
+
+            q = query.lower()
+            tokens = [t for t in re.findall(r"\w+", q) if len(t) > 2]
+            results: List[Dict] = []
+            for txt_file in bofip_dir.glob("*.txt"):
+                try:
+                    text = txt_file.read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    continue
+                low = text.lower()
+                # Score simple: somme des occurrences des tokens + bonus si expression exacte
+                token_score = sum(low.count(t) for t in tokens) / max(len(tokens), 1)
+                exact_bonus = 1.0 if q in low else 0.0
+                score = token_score * 0.8 + exact_bonus * 0.2
+                if score > 0:
+                    results.append({
+                        "file": txt_file.name,
+                        "text": text[:2000],
+                        "similarity": score,
+                    })
+            results.sort(key=lambda x: x.get("similarity", 0), reverse=True)
+            return results[:max_results]
+        except Exception as e2:
+            print(f"Erreur fallback BOFiP local: {e2}")
+            return []
 
 def search_cgi_embeddings(query: str, max_results: int = 3) -> List[Dict]:
     """Recherche intelligente dans les embeddings CGI UNIQUEMENT - CHARGEMENT À LA DEMANDE."""
@@ -769,22 +809,36 @@ def search_cgi_embeddings(query: str, max_results: int = 3) -> List[Dict]:
             enhanced_query = query  # Pas de préfixe "CGI ..." pour éviter un bruit inutile
             keywords = [word for word in query_lower.split() if len(word) > 3]
         
-        # print(f"🔍 Requête de recherche améliorée : {enhanced_query}") # Supprimé car trop verbeux
-        
         # Recherche avec plus de résultats pour filtrage
-        similar_articles_raw = search_similar_articles(enhanced_query, _embeddings_cache, top_k=max_results * 4)
-        
-        # Gérer le nouveau format éventuel (tuples) et préserver la similarité
-        similar_articles = []
-        for art in similar_articles_raw:
-            if isinstance(art, tuple) and len(art) >= 2:
-                article_data, sim_score = art[0], art[1]
-                # Conserver la similarité pour le scoring
-                article_data['similarity'] = sim_score
-                similar_articles.append(article_data)
-            else:
-                similar_articles.append(art)
-        
+        similar_articles: List[Dict] = []
+        if MISTRAL_API_KEY:
+            similar_articles_raw = search_similar_articles(enhanced_query, _embeddings_cache, top_k=max_results * 4)
+            # Gérer le nouveau format éventuel (tuples) et préserver la similarité
+            for art in similar_articles_raw:
+                if isinstance(art, tuple) and len(art) >= 2:
+                    article_data, sim_score = art[0], art[1]
+                    # Conserver la similarité pour le scoring
+                    article_data['similarity'] = sim_score
+                    similar_articles.append(article_data)
+                else:
+                    similar_articles.append(art)
+        else:
+            # Fallback local TEXTE: score par recouvrement de tokens + mots-clés
+            tokens = [t for t in re.findall(r"\w+", query_lower) if len(t) > 2]
+            for article_num, article_data in _embeddings_cache.items():
+                content = article_data.get('text', '')
+                low = content.lower()
+                token_hits = sum(low.count(t) for t in tokens) / max(len(tokens), 1)
+                keyword_hits = sum(1 for kw in keywords if kw in low) / max(len(keywords), 1) if keywords else 0.0
+                article_mention_score = 1.0 if f"article {article_num}" in query_lower else 0.0
+                sim = (token_hits * 0.6) + (keyword_hits * 0.3) + (article_mention_score * 0.1)
+                if sim > 0:
+                    similar_articles.append({
+                        **article_data,
+                        'article_number': article_num,
+                        'similarity': sim,
+                    })
+
         # Scoring et filtrage avancé des résultats AVEC validation des sources
         scored_articles = []
         for article_data in similar_articles[:max_results]:

@@ -68,17 +68,12 @@ export function ChatPage() {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
+      // L'apiClient gère déjà l'authentification via localStorage('authToken').
+      // Prépare l'historique incluant le dernier message utilisateur.
+      const historyForApi = [...messages, userMessage].map(msg => ({ role: msg.role, content: msg.content }));
       const payload: any = {
         question: currentInput,
-        conversation_history: messages.map(msg => ({ role: msg.role, content: msg.content })),
+        conversation_history: historyForApi,
         jurisdiction,
       };
 
@@ -93,7 +88,7 @@ export function ChatPage() {
 
         const assistantMessage: Message = {
           role: 'assistant',
-        content: responseData.answer || 'Je n\'ai pas pu traiter votre demande.'
+          content: responseData.response || responseData.answer || 'Je n\'ai pas pu traiter votre demande.'
         };
         setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
