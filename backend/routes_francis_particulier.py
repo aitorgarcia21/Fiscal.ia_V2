@@ -1,25 +1,15 @@
 """
 ROUTES API POUR FRANCIS PARTICULIER INDÉPENDANT
 ===============================================
+DÉSACTIVÉ TEMPORAIREMENT - Flask non disponible sur Railway
+Ce fichier est temporairement désactivé pour éviter l'erreur:
+ModuleNotFoundError: No module named 'flask'
 
-Routes Flask pour l'assistant fiscal européen indépendant.
-Intégration avec le système existant de Fiscal.ia.
+Le backend utilise FastAPI uniquement.
 """
 
-from flask import Blueprint, request, jsonify, Response, stream_template
-import json
-import asyncio
-from typing import Dict, Any, Optional
-
-# Import de Francis Particulier Indépendant
-from francis_particulier_independent import (
-    francis_particulier,
-    get_francis_particulier_response
-)
-
-# Création du blueprint
-francis_particulier_bp = Blueprint('francis_particulier', __name__)
-
+# Placeholder pour éviter erreur d'import dans main.py
+francis_particulier_bp = None
 @francis_particulier_bp.route('/api/francis-particulier/query', methods=['POST'])
 def francis_particulier_query():
     """
