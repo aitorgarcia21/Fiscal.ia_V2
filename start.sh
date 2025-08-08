@@ -63,7 +63,8 @@ sleep 20  # Augmenté de 10 à 20 secondes
 
 # Vérifier que le backend répond
 echo "Vérification de la santé du backend..."
-for i in {1..10}; do
+i=1
+while [ $i -le 10 ]; do
     echo "Tentative $i/10..."
     if curl -v http://127.0.0.1:8000/health > /dev/null 2>&1; then
         echo "Backend démarré avec succès"
@@ -81,6 +82,7 @@ for i in {1..10}; do
     fi
     echo "Attente avant la prochaine tentative..."
     sleep 5  # Augmenté de 2 à 5 secondes
+    i=$((i + 1))
 done
 
 # Configurer nginx
