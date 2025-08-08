@@ -1,0 +1,51 @@
+# Dockerfile pour Ollama + Backend Python sur Railway
+FROM ollama/ollama:latest as ollama
+
+FROM python:3.11-slim
+
+# Copier Ollama depuis l'image officielle
+COPY --from=ollama /bin/ollama /bin/ollama
+COPY --from=ollama /usr/lib/ /usr/lib/
+
+# Installer les dépendances système
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Créer le répertoire de travail
+WORKDIR /app
+
+# Copier les requirements et installer les dépendances Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le code backend
+COPY . .
+
+# Script de démarrage pour lancer Ollama et le backend
+RUN echo '#!/bin/bash\n\
+# Démarrer Ollama en arrière-plan\n\
+ollama serve &\n\
+OLLAMA_PID=$!\n\
+echo "Ollama démarré avec PID: $OLLAMA_PID"\n\
+\n\
+# Attendre qu\'Ollama soit prêt\n\
+echo "Attente du démarrage d\'Ollama..."\n\
+sleep 10\n\
+\n\
+# Télécharger le modèle llama3.1 si nécessaire\n\
+echo "Téléchargement du modèle llama3.1..."\n\
+ollama pull llama3.1:8b || echo "Modèle déjà présent ou erreur"\n\
+\n\
+# Démarrer le backend Python\n\
+echo "Démarrage du backend Python..."\n\
+exec python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}\n\
+' > /app/start-with-ollama.sh
+
+RUN chmod +x /app/start-with-ollama.sh
+
+# Exposer les ports
+EXPOSE 8000 11434
+
+# Commande de démarrage
+CMD ["/app/start-with-ollama.sh"]

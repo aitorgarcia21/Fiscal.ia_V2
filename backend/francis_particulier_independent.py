@@ -36,8 +36,9 @@ from european_tax_knowledge_base import (
 class OllamaClient:
     """Client avancé pour communiquer avec Ollama en local"""
     
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3.1"):
-        self.base_url = base_url
+    def __init__(self, base_url: str = None, model: str = "mistral:7b-instruct"):
+        # Utiliser la variable d'environnement ou localhost par défaut
+        self.base_url = base_url or os.getenv("LLM_ENDPOINT", "http://localhost:11434")
         self.model = model
         self.models_cache = {}
         self.performance_stats = {
